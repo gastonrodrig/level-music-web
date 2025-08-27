@@ -1,3 +1,4 @@
+// src/modules/landing/views/events/02-events-view.jsx
 import React, { useRef } from "react";
 import {
   Box,
@@ -19,35 +20,49 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 
-// Ajusta las rutas según tu proyecto
-import {
-  foto_1
-} from "../../../../assets/images/events";
+import { foto_1 } from "../../../../assets/images/events";
+import { FeaturedEventModal } from "../../components/modal"; // usa el index.js
 
 const DATA = [
   {
     img: foto_1,
     title: "Evento de Bodas de Oro",
     desc: "Celebramos los 50 aniversario de casados de una hermosa pareja",
-    services: ["Musica en vivo", "Decoracion con temática", "Comida Buffet"],
+    services: [
+      "Música en vivo",
+      "Decoración con temática",
+      "Comida Buffet",
+    ],
   },
   {
     img: foto_1,
     title: "Evento de Bodas de Oro",
     desc: "Celebramos los 50 aniversario de casados de una hermosa pareja",
-    services: ["Musica en vivo", "Decoracion con temática", "Comida Buffet"],
+    services: [
+      "Música en vivo",
+      "Decoración con temática",
+      "Comida Buffet",
+    ],
   },
   {
     img: foto_1,
     title: "Evento de Bodas de Oro",
     desc: "Celebramos los 50 aniversario de casados de una hermosa pareja",
-    services: ["Musica en vivo", "Decoracion con temática", "Comida Buffet"],
+    services: [
+      "Música en vivo",
+      "Decoración con temática",
+      "Comida Buffet",
+    ],
   },
   {
     img: foto_1,
     title: "Evento de Bodas de Oro",
     desc: "Celebramos los 50 aniversario de casados de una hermosa pareja",
-    services: ["Musica en vivo", "Decoracion con temática", "Comida Buffet"],
+    services: [
+      "Música en vivo",
+      "Decoración con temática",
+      "Comida Buffet",
+    ],
   },
 ];
 
@@ -61,11 +76,13 @@ export const EventsView02 = () => {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
 
+  const [open, setOpen] = React.useState(false);
+  const [selectedEvent, setSelectedEvent] = React.useState(null);
+
   return (
     <Box
       sx={{ width: "100%", backgroundColor: theme.palette.background.default }}
     >
-      {/* Estilo de los bullets para parecerse al Figma */}
       <style>{`
         .events02-bullet { opacity: 1; width: 8px; height: 8px; margin: 0 4px; background: #cfcfcf; }
         .events02-bullet-active { transform: scale(1.2); background: #9e9e9e; }
@@ -95,7 +112,7 @@ export const EventsView02 = () => {
               ref={prevRef}
               aria-label="Anterior"
               sx={{
-                border: `2px solid ${theme.palette.text.tertiary}`,
+                border: `2px solid ${theme.palette.text.tertiary || "#9e9e9e"}`,
                 mr: 1,
                 width: 40,
                 height: 40,
@@ -107,7 +124,7 @@ export const EventsView02 = () => {
               ref={nextRef}
               aria-label="Siguiente"
               sx={{
-                border: `2px solid ${theme.palette.text.tertiary}`,
+                border: `2px solid ${theme.palette.text.tertiary || "#9e9e9e"}`,
                 width: 40,
                 height: 40,
               }}
@@ -117,13 +134,10 @@ export const EventsView02 = () => {
           </Box>
         </Box>
 
-        {/* Carrusel de tarjetas (1/2/3 por fila) */}
+        {/* Carrusel */}
         <StyledSwiper
           modules={[Navigation, Pagination]}
-          navigation={{
-            prevEl: prevRef.current,
-            nextEl: nextRef.current,
-          }}
+          navigation={{ prevEl: prevRef.current, nextEl: nextRef.current }}
           onBeforeInit={(swiper) => {
             swiper.params.navigation.prevEl = prevRef.current;
             swiper.params.navigation.nextEl = nextRef.current;
@@ -155,6 +169,9 @@ export const EventsView02 = () => {
                     theme.palette.mode === "light"
                       ? "0px 1px 6px rgba(0,0,0,.12)"
                       : "0px 1px 6px rgba(0,0,0,.4)",
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
                 }}
               >
                 <CardMedia
@@ -223,10 +240,18 @@ export const EventsView02 = () => {
                       borderRadius: 2,
                       px: 2.5,
                       backgroundColor: theme.palette.primary.main,
-                        "&:hover": { backgroundColor: theme.palette.primary.hover },
+                      "&:hover": {
+                        backgroundColor:
+                          theme.palette.primary.hover ||
+                          theme.palette.primary.dark,
+                      },
                       fontSize: { xs: 12.5, sm: 13.5 },
                       color: "#fff",
                       alignSelf: "flex-start",
+                    }}
+                    onClick={() => {
+                      setSelectedEvent(item);
+                      setOpen(true);
                     }}
                   >
                     Ver más
@@ -236,6 +261,13 @@ export const EventsView02 = () => {
             </SwiperSlide>
           ))}
         </StyledSwiper>
+
+        {/* Único modal */}
+        <FeaturedEventModal
+          open={open}
+          onClose={() => setOpen(false)}
+          event={selectedEvent}
+        />
       </Container>
     </Box>
   );
