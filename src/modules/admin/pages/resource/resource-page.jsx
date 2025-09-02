@@ -67,7 +67,7 @@ export const ResourcePage = () => {
     },
     { 
       id: 'next_maintenance_date', 
-      label: 'Próximo Mantenimiento', 
+      label: 'Próximo Mantenimiento (Preventivo)', 
       sortable: true, accessor: (row) => row.next_maintenance_date ? formatDay(row.next_maintenance_date) : 'N/A' 
     },
   ];

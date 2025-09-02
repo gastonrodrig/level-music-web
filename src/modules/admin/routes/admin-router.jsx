@@ -15,6 +15,7 @@ import {
   ServiceEditPage,
   ServiceTypePage,
   ProviderPage,
+  EventFeaturedPage
 } from '../pages';
 import { AdminLayout } from '../layout/admin-layout';
 
@@ -29,6 +30,7 @@ export const AdminRoutes = () => {
         <Route path="events" element={<EventPage />} />
         <Route path="event-types" element={<EventTypePage />} />
         <Route path="quotes" element={<EventQuotationsPage />} />
+        <Route path="featured-events" element={<EventFeaturedPage />} />
 
         {/* Trabajadores */}
         <Route path="workers" element={<WorkerPage />} />

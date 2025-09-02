@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 import { Button, Box, Typography, useTheme } from "@mui/material";
 import { AuthLayout } from "../layout/auth-layout";
 import { useAuthStore } from "../../../hooks";
@@ -9,6 +9,7 @@ import googleLogo from "../../../assets/images/logo/google.png";
 
 export const RegisterPage = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const { status, startRegisterUser, onGoogleSignIn } = useAuthStore();
 
   const { 
@@ -27,6 +28,7 @@ export const RegisterPage = () => {
 
   const signInWithGoogle = async () => {
     await onGoogleSignIn();
+    
   };
 
   return (

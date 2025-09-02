@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import { useWorkerTypeStore, useWorkerStore } from "../../../../hooks";
-import { useMemo, useEffect } from "react";
+import { useWorkerTypeList } from "../../../../hooks/worker/useWorkerTypeList";import { useMemo, useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 export const WorkerModal = ({
@@ -25,7 +25,7 @@ export const WorkerModal = ({
   loading,
 }) => {
   const isEditing = !!worker?._id;
-  const { workerTypes } = useWorkerTypeStore();
+ const { workerTypes } = useWorkerTypeList();
   const { startCreateWorker, startUpdateWorker } = useWorkerStore();
 
   const {
@@ -99,34 +99,40 @@ export const WorkerModal = ({
 
         <Box mb={2}>
           <Grid container spacing={2}>
-            {/* Tipo de Trabajador */}
-            <Grid item xs={12}>
-              <FormControl fullWidth error={!!errors.worker_type_id}>
-                <InputLabel id="worker-type-label">Tipo de Trabajador</InputLabel>
-                <Select
-                  labelId="worker-type-label"
-                  label="Tipo de Trabajador"
-                  value={watch("worker_type_id") || ''}
-                  onChange={e => {
-                    const selectedId = e.target.value;
-                    setValue("worker_type_id", selectedId, { shouldValidate: true });
+          {/*--------------  PARTE */}
 
-                    // Asignar el name como role
-                    const selectedType = workerTypes.find((wt) => wt._id === selectedId);
-                    setValue("role", selectedType ? selectedType.name : '');
-                  }}
-                  inputProps={{ name: 'worker_type_id' }}
-                  disabled={isEditing}
-                >
-                  {workerTypes.map((type) => (
-                    <MenuItem key={type._id} value={type._id}>
-                      {type.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-                <FormHelperText>{errors.worker_type_id?.message}</FormHelperText>
-              </FormControl>
-            </Grid>
+            {/* Tipo de Trabajador */}
+          <Grid item xs={12}>
+      <FormControl fullWidth error={!!errors.worker_type_id}>
+        <InputLabel id="worker-type-label">Tipo de Trabajador</InputLabel>
+        <Select
+          labelId="worker-type-label"
+          label="Tipo de Trabajador"
+          value={watch("worker_type_id") || ""}
+          onChange={(e) => {
+            const selectedId = e.target.value;
+            setValue("worker_type_id", selectedId, { shouldValidate: true });
+
+            //  Buscar el objeto del tipo seleccionado
+            const selectedType = workerTypes.find((wt) => wt._id === selectedId);
+            setValue("role", selectedType ? selectedType.name : "");
+          }}
+          inputProps={{ name: "worker_type_id" }}
+          disabled={isEditing || loading} //  deshabilita mientras carga
+        >
+          {loading ? (
+            <MenuItem disabled>Cargando...</MenuItem>
+          ) : (
+            workerTypes.map((type) => (
+              <MenuItem key={type._id} value={type._id}>
+                {type.name}
+              </MenuItem>
+            ))
+          )}
+        </Select>
+        <FormHelperText>{errors.worker_type_id?.message}</FormHelperText>
+      </FormControl>
+    </Grid>
 
             {/* Nombres */}
             <Grid item xs={12} sm={6}>

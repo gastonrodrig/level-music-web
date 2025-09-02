@@ -10,7 +10,8 @@ import { Logo, LandingDrawer, ProtectedDrawer } from './';
 import { NavSections, AuthButtons, ToogleTheme, MenuDrawer } from '../custom';
 import { useScreenSizes } from '../../../constants/screen-width';
 import { useAuthStore } from '../../../../hooks';
-import { menuItems } from '../../../../modules/admin/constants/menu-items';
+import { menuItems as adminMenuItems } from '../../../../modules/admin/constants/menu-items-admin';
+import { menuItems as clientMenuItems } from '../../../../modules/client/constants/menu-items-client';
 
 export const NavBar = () => {
   const theme = useTheme();
@@ -142,10 +143,16 @@ export const NavBar = () => {
 
       {/* Drawer del protected */}
       <ProtectedDrawer
-        drawerOpen={protectedDrawerOpen}
-        handleDrawerToggle={handleProtectedDrawerToggle}
-        menuItems={ role === 'Administrador' ? menuItems : undefined }
-      />
+  drawerOpen={protectedDrawerOpen}
+  handleDrawerToggle={handleProtectedDrawerToggle}
+  menuItems={
+    role === 'Administrador'
+      ? adminMenuItems
+      : role === 'Cliente'
+        ? clientMenuItems
+        : undefined
+  }
+/>
     </AppBar>
   );
 };

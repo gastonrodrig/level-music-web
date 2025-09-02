@@ -7,10 +7,12 @@ import { useAuthStore } from "../../../hooks";
 import { CircProgress, FormInputText } from "../../../shared/ui/components";
 import googleLogo from "../../../assets/images/logo/google.png";
 
+
 export const LoginPage = () => {
   const theme = useTheme();
   const { status, startLogin, onGoogleSignIn } = useAuthStore();
   
+
   const {
     handleSubmit,
     formState: { errors, isSubmitting },
@@ -23,6 +25,7 @@ export const LoginPage = () => {
 
   const onSubmit = async (data) => {
     await startLogin(data);
+    console.log("hola soy huayta");
   };
 
   return (

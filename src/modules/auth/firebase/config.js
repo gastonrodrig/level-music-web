@@ -12,13 +12,3 @@ const firebaseConfig = {
 
 export const FirebaseApp = initializeApp(firebaseConfig);
 export const FirebaseAuth = getAuth(FirebaseApp);
-
-export async function logCurrentUserToken() {
-  const user = FirebaseAuth.currentUser;
-  if (user) {
-    const token = await user.getIdToken();
-    console.log("TOKEN:", token);
-  } else {
-    console.log("No user is currently signed in.");
-  }
-}

@@ -37,7 +37,8 @@ export const useAuthStore = () => {
     email, 
     displayName, 
     photoURL, 
-    role 
+    role,
+    extra_data,
   } = useSelector((state) => state.auth);
 
   const { startCreateUser, findUserByEmail } = useUsersStore();
@@ -49,13 +50,13 @@ export const useAuthStore = () => {
       dispatch(checkingCredentials());
       const { user } = await signInWithPopup(FirebaseAuth, googleProvider);
       const { data, ok } = await findUserByEmail(user.providerData[0].email); 
-
+      
       if (!ok) {
-        const { data: newUser } = await startCreateUser(user, "Cliente", "google");
-        dispatch(login({ 
-          uid: newUser.auth_id, 
-          email: newUser.email, 
-          firstName: null, 
+        const { data: newUser } = await startCreateUser(user, "google");
+        dispatch(login({
+          uid: newUser.auth_id,
+          email: newUser.email,
+          firstName: null,
           lastName: null,
           phone: null,
           documentType: null,
@@ -63,7 +64,8 @@ export const useAuthStore = () => {
           role: newUser.role,
           userStatus: newUser.status, // Activo, Inactivo
           photoURL: newUser.profile_picture,
-          token: user.accessToken
+          token: user.accessToken,
+          isExtraDataCompleted: newUser.is_extra_data_completed,
         }));
         return true;
       } else {
@@ -81,14 +83,16 @@ export const useAuthStore = () => {
           documentType: data.document_type,
           documentNumber: data.document_number,
           role: data.role,
-          needs_password_change: needsPassword,
+          needsPasswordChange: needsPassword,
           userStatus: data.status,
           photoURL: data.profile_picture,
-          token: user.accessToken
+          token: user.accessToken,
+          isExtraDataCompleted: data.is_extra_data_completed
         }));
         return !needsPassword;
       }
     } catch (error) {
+      console.log(error);
       dispatch(logout());
       if (error.code === "auth/error-code:-47") {
         openSnackbar("Este correo ya está registrado con otro método de autenticación.");
@@ -120,10 +124,11 @@ export const useAuthStore = () => {
         documentType: data.document_type,
         documentNumber: data.document_number,
         role: data.role,
-        needs_password_change: needsPassword,
+        needsPasswordChange: needsPassword,
         userStatus: data.status,
         photoURL: data.profile_picture,
-        token: user.accessToken
+        token: user.accessToken,
+        isExtraDataCompleted: data.is_extra_data_completed
       }));
       return !needsPassword;
     } catch (error) {
@@ -148,7 +153,7 @@ export const useAuthStore = () => {
         return false;
       } else {
         const { user } = await createUserWithEmailAndPassword(FirebaseAuth, email, password);
-        const { data: newUser } = await startCreateUser(user, "Cliente", "email/password");
+        const { data: newUser } = await startCreateUser(user, "email/password");
         dispatch(login({ 
           uid: newUser.auth_id, 
           email: newUser.email, 
@@ -159,7 +164,8 @@ export const useAuthStore = () => {
           role: newUser.role,
           userStatus: newUser.status, // Activo, Inactivo
           photoURL: null,
-          token: user.accessToken
+          token: user.accessToken,
+          isExtraDataCompleted: newUser.is_extra_data_completed
         }));
         return true;
       }
@@ -267,7 +273,7 @@ export const useAuthStore = () => {
     displayName, 
     photoURL, 
     role,
-    
+    extra_data,
     // actions
     onGoogleSignIn, 
     startLogin, 

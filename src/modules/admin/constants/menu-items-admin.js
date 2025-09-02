@@ -33,6 +33,11 @@ export const menuItems = [
         text: 'Cotizaciones',
         breadcrumb: 'Cotizaciones',
         href: '/admin/quotes' 
+      }, 
+      { 
+        text: 'Destacados',
+        breadcrumb: 'Eventos Destacados',
+        href: '/admin/featured-events' 
       }
     ]
   },

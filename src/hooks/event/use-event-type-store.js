@@ -117,6 +117,7 @@ export const useEventTypeStore = () => {
   const setRowsPerPageGlobal = (rows) => {
     dispatch(setRowsPerPageEventType(rows));
   };
+  
 
   return {
     // state

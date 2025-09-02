@@ -2,11 +2,16 @@ import { Breadcrumbs as MuiBreadcrumbs, Link, useTheme } from '@mui/material';
 import { useLocation } from 'react-router-dom';
 import { Link as RouterLink } from 'react-router-dom';
 
-export const Breadcrumbs = ({ menuItems, homeLabel = 'Inicio', homeHref = '/admin' }) => {
+export const Breadcrumbs = ({ menuItems, homeLabel = 'Inicio' }) => {
   const location = useLocation();
   const theme = useTheme();
 
-  if (location.pathname === '/admin') {
+  
+  // Detecta base según URL
+  const isAdmin = location.pathname.startsWith('/admin');
+  const homeHref = isAdmin ? '/admin' : '/cliente';
+  // Oculta breadcrumbs en la raíz de admin o cliente
+  if (location.pathname === '/admin' || location.pathname === '/cliente') {
     return null;
   }
 

@@ -1,7 +1,10 @@
-export const getAuthConfig = (token) => ({
+
+export const getAuthConfig = (token, isFormData = false) => ({
   headers: {
     Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
+    ...(isFormData
+      ? { 'Content-Type': 'multipart/form-data' }
+      : { 'Content-Type': 'application/json' }),
   },
 });
 

@@ -88,6 +88,7 @@ export const useMaintenanceStore = () => {
       openSnackbar("El estado del mantenimiento fue modificado exitosamente.");
       return true;
     } catch (error) {
+      console.log(error);
       const message = error.response?.data?.message;
       openSnackbar(message ?? "Ocurrió un error al modificar el estado del mantenimiento.");
       return false;

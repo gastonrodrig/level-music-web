@@ -1,3 +1,3 @@
-export * from './dashboard';
 export * from './events';
-export * from './quotations';
+export * from './profile';
+export * from './dashboard';

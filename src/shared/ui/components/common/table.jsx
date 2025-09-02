@@ -49,6 +49,11 @@ export const TableComponent = ({
     setMenuRow(null);
   };
 
+  const canShowActions = (row) =>
+  hasActions &&
+  actions &&
+  !['finalizado', 'cancelado'].includes(String(row?.status || '').toLowerCase());
+
   const sortedRows = useMemo(() => {
     return [...rows].sort((a, b) => {
       const aVal = a[orderBy]?.toString().toLowerCase();
@@ -85,7 +90,8 @@ export const TableComponent = ({
                 position: 'relative' 
               }}
             >
-              {hasActions && actions && (
+
+              {canShowActions(row) && (
                 <IconButton
                   size="small"
                   onClick={(e) => handleMenuOpen(e, row)}
@@ -124,6 +130,7 @@ export const TableComponent = ({
                   </Box>
                 ))}
               </CardContent>
+
               {hasActions && actions && (
                 <Menu
                   anchorEl={anchorEl}
@@ -272,6 +279,8 @@ export const TableComponent = ({
                   ))}
                   {hasActions && actions && (
                     <TableCell align="right" sx={{ py: 1, px: 2 }}>
+                      {canShowActions(row) && (
+                        <>
                       <IconButton size="small" onClick={(e) => handleMenuOpen(e, row)}>
                         <MoreVertIcon fontSize="small" />
                       </IconButton>
@@ -288,6 +297,7 @@ export const TableComponent = ({
                           },
                         }}
                       >
+                        
                         {actions.map((action, index) => (
                           <MenuItem
                             key={`${menuRow?._id}-action-${index}`}
@@ -321,6 +331,8 @@ export const TableComponent = ({
                           </MenuItem>
                         ))}
                       </Menu>
+                      </>
+                      )}
                     </TableCell>
                   )}
                 </TableRow>
