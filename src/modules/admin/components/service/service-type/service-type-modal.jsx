@@ -42,6 +42,7 @@ export const ServiceTypeModal = ({
       name: "",
       description: "",
       status: "Activo",
+      category: "Fotografía",
       attributes: [],
     },
   });
@@ -57,6 +58,7 @@ export const ServiceTypeModal = ({
         name: serviceType?.name ?? "",
         description: serviceType?.description ?? "",
         status: serviceType?.status ?? "Activo",
+        category: serviceType?.category ?? "Fotografía",
         attributes: serviceType?.attributes ?? [],
       });
     }
@@ -155,10 +157,33 @@ export const ServiceTypeModal = ({
               error={Boolean(errors.description)}
               helperText={errors.description?.message}
             />
+            <FormControl fullWidth error={Boolean(errors.category)}>
+              <InputLabel id="category-label">Categoría</InputLabel>
+              <Select
+                labelId="category-label"
+                label="Categoría"
+                value={watch("category") || "Fotografía"}
+                {...register("category", { required: "Selecciona una categoría" })}
+                onChange={(e) => setValue("category", e.target.value)}
+              >
+                <MenuItem value="Fotografía">Fotografía</MenuItem>
+                <MenuItem value="Entretenimiento">Entretenimiento</MenuItem>
+                <MenuItem value="Gastronomía">Gastronomía</MenuItem>
+                <MenuItem value="Estructura">Estructura</MenuItem>
+                <MenuItem value="Iluminación">Iluminación</MenuItem>
+                <MenuItem value="Decoración">Decoración</MenuItem>
+                <MenuItem value="Servicio">Servicio</MenuItem>
+                <MenuItem value="Tecnología">Tecnología</MenuItem>
+                <MenuItem value="Personalizado">Personalizado</MenuItem>
+              </Select>
+              <FormHelperText>{errors.category?.message}</FormHelperText>
+            </FormControl>
+
             <FormControl fullWidth error={Boolean(errors.status)}>
               <InputLabel id="status-label">Estado</InputLabel>
               <Select
                 labelId="status-label"
+                label="Estado"
                 value={watch("status") || "Activo"}
                 {...register("status", { required: "Selecciona un estado" })}
                 onChange={(e) => setValue("status", e.target.value)}
