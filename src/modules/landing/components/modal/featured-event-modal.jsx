@@ -1,4 +1,3 @@
-// src/modules/landing/components/modal/featured-event-modal.jsx
 import React, { useRef } from "react";
 import {
   Box,
@@ -7,37 +6,21 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Button,
   IconButton,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CloseIcon from "@mui/icons-material/Close";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
-
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 
-import { foto_1 } from "../../../../assets/images/events";
-
 export const FeaturedEventModal = ({ open, onClose, event }) => {
-  const data = {
-    title: event?.title ?? "Evento destacado",
-    desc:
-      event?.desc ??
-      "Celebramos los 50 aniversario de casados de una hermosa pareja",
-    img: event?.img ?? foto_1,
-    services: event?.services ?? [
-      "Música en vivo (acordeón)",
-      "Decoración con temática",
-      "Comida Buffet",
-    ],
-    images: event?.images ?? [foto_1, foto_1, foto_1],
-  };
-
   const prevRef = useRef(null);
   const nextRef = useRef(null);
+
+  console.log(event)
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -65,7 +48,7 @@ export const FeaturedEventModal = ({ open, onClose, event }) => {
           }}
         >
           <Typography variant="h6" fontWeight={700}>
-            {data.title}
+            {event?.title}
           </Typography>
           <IconButton onClick={onClose} aria-label="Cerrar">
             <CloseIcon />
@@ -107,7 +90,7 @@ export const FeaturedEventModal = ({ open, onClose, event }) => {
                   "&:hover": { bgcolor: "rgba(0,0,0,0.8)" },
                   width: 40,
                   height: 40,
-                  p: 2, // 👈 padding agregado
+                  p: 2,
                 }}
               >
                 <ChevronLeft />
@@ -123,7 +106,7 @@ export const FeaturedEventModal = ({ open, onClose, event }) => {
                   "&:hover": { bgcolor: "rgba(0,0,0,0.8)" },
                   width: 40,
                   height: 40,
-                  p: 2, // 👈 padding agregado
+                  p: 2, 
                 }}
               >
                 <ChevronRight />
@@ -143,18 +126,18 @@ export const FeaturedEventModal = ({ open, onClose, event }) => {
               loop
               style={{ borderRadius: 12 }}
             >
-              {data.images.map((src, idx) => (
+              {event?.images?.map((src, idx) => (
                 <SwiperSlide key={idx}>
                   <Box
                     component="img"
                     src={src}
-                    alt={`${data.title} ${idx + 1}`}
                     sx={{
                       width: "100%",
                       height: 260,
                       objectFit: "cover",
                       borderRadius: 3,
                       display: "block",
+                      pt: 2,
                     }}
                   />
                 </SwiperSlide>
@@ -165,36 +148,39 @@ export const FeaturedEventModal = ({ open, onClose, event }) => {
           {/* Texto + acordeón */}
           <Box>
             <Typography color="text.secondary" sx={{ mb: 2 }}>
-              {data.desc}
+              {event?.featured_description}
             </Typography>
 
             <Typography fontWeight={700} sx={{ mb: 1 }}>
               Servicios incluidos
             </Typography>
 
-            {data.services.slice(0, 3).map((srv, idx) => (
-              <Accordion
-                key={`${srv}-${idx}`}
-                defaultExpanded={idx === 0}
-                disableGutters
-                sx={{
-                  borderRadius: 2,
-                  mb: 1.2,
-                  "&:before": { display: "none" },
-                  boxShadow: 1,
-                }}
-              >
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                  <Typography fontWeight={600}>{srv}</Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Typography color="text.secondary">
-                    Detalle del servicio: {srv}. Incluye todo lo necesario para
-                    tu evento.
-                  </Typography>
-                </AccordionDetails>
-              </Accordion>
-            ))}
+            {event?.services.slice(0, 3).map((srv, idx) => {
+              const title = srv?.title;
+              const desc = srv?.description;
+              return (
+                <Accordion
+                  key={`${title}-${idx}`}
+                  defaultExpanded={idx === 0}
+                  disableGutters
+                  sx={{
+                    borderRadius: 2,
+                    mb: 1.2,
+                    "&:before": { display: "none" },
+                    boxShadow: 1,
+                  }}
+                >
+                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <Typography fontWeight={600}>{title}</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Typography color="text.secondary">
+                      {desc}
+                    </Typography>
+                  </AccordionDetails>
+                </Accordion>
+              );
+            })}
           </Box>
         </Box>
       </Box>

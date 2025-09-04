@@ -1,5 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import {
+  listAllWorkerTypes,
   refreshWorkerTypes,
   selectedWorkerType,
   setLoadingWorkerType,
@@ -45,6 +46,21 @@ export const useWorkerTypeStore = () => {
     } catch (error) {
       const message = error.response?.data?.message;
       openSnackbar(message ?? "Ocurrió un error al crear el tipo de trabajador.");
+      return false;
+    } finally {
+      dispatch(setLoadingWorkerType(false));
+    }
+  };
+
+  const startLoadingAllWorkerTypes = async () => {
+    dispatch(setLoadingWorkerType(true));
+    try {
+      const { data } = await workerTypeApi.get('/all', getAuthConfig(token));
+      dispatch(listAllWorkerTypes(data));
+      return true;
+    } catch (error) {
+      const message = error.response?.data?.message;
+      openSnackbar(message ?? "Ocurrió un error al cargar los tipos de trabajador.");
       return false;
     } finally {
       dispatch(setLoadingWorkerType(false));
@@ -130,6 +146,7 @@ export const useWorkerTypeStore = () => {
 
     // actions
     startCreateWorkerType,
+    startLoadingAllWorkerTypes,
     startLoadingWorkerTypePaginated,
     startUpdateWorkerType,
     setSelectedWorkerType,

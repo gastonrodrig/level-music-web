@@ -32,6 +32,9 @@ export const eventFeaturedSlice = createSlice({
     setRowsPerPageEventFeatured: (state, action) => {
       state.rowsPerPage = action.payload;
     },
+    listAllEventFeatured: (state, action) => {
+      state.eventFeatured = action.payload;
+    },
   },
 });
 
@@ -41,4 +44,5 @@ export const {
   setLoadingEventFeatured,
   setPageEventFeatured,
   setRowsPerPageEventFeatured,
+  listAllEventFeatured,
 } = eventFeaturedSlice.actions;

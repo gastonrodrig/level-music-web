@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { eventFeaturedApi } from '../../api';
 import {
+  listAllEventFeatured,
   refreshEventFeatured,
   selectedEventFeatured,
   setLoadingEventFeatured,
@@ -46,6 +47,21 @@ export const useEventFeaturedStore = () => {
       console.log(error);
       const message = error.response?.data?.message;
       openSnackbar(message ?? "Ocurrió un error al crear el evento destacado.");
+      return false;
+    } finally {
+      dispatch(setLoadingEventFeatured(false));
+    }
+  };
+
+  const startLoadingAllEventFeatured = async () => {
+    dispatch(setLoadingEventFeatured(true));
+    try {
+      const { data } = await eventFeaturedApi.get('/all', getAuthConfig(token));
+      dispatch(listAllEventFeatured(data));
+      return true;
+    } catch (error) {
+      const message = error.response?.data?.message;
+      openSnackbar(message ?? "Ocurrió un error al cargar los eventos destacados.");
       return false;
     } finally {
       dispatch(setLoadingEventFeatured(false));
@@ -157,6 +173,7 @@ export const useEventFeaturedStore = () => {
 
     // actions
     startCreateEventFeatured,
+    startLoadingAllEventFeatured,
     startLoadingEventFeaturedPaginated,
     startUpdateEventFeatured,
     setSelectedEventFeatured,

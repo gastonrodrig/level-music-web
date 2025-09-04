@@ -26,14 +26,14 @@ export const WorkerPage = () => {
     startLoadingWorkerPaginated,
     setSelectedWorker,
   } = useWorkerStore();
-  const { startLoadingWorkerTypePaginated } = useWorkerTypeStore();
+  const { startLoadingAllWorkerTypes } = useWorkerTypeStore();
   const { isLg } = useScreenSizes();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     startLoadingWorkerPaginated();
-    startLoadingWorkerTypePaginated();
+    startLoadingAllWorkerTypes();
   }, [currentPage, rowsPerPage, searchTerm, orderBy, order]);
 
   const openModal = (payload) => {

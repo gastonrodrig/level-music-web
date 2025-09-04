@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import { useWorkerTypeStore, useWorkerStore } from "../../../../hooks";
-import { useWorkerTypeList } from "../../../../hooks/worker/useWorkerTypeList";import { useMemo, useEffect } from "react";
+import { useMemo, useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 export const WorkerModal = ({
@@ -25,7 +25,7 @@ export const WorkerModal = ({
   loading,
 }) => {
   const isEditing = !!worker?._id;
- const { workerTypes } = useWorkerTypeList();
+  const { workerTypes } = useWorkerTypeStore();
   const { startCreateWorker, startUpdateWorker } = useWorkerStore();
 
   const {
