@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import {
   Box,
@@ -9,8 +10,8 @@ import {
   StepLabel,
   Typography
 } from '@mui/material';
-import { CustomStepIcon, StepSections } from '../components/';
-import { useStepperStore } from '../../../hooks';
+import { CustomStepIcon, StepSections, EventTypeForm, PersonalInfoForm, EventDetailsForm, ServicesForm } from '../components/';
+import { useServiceTypeStore, useStepperStore } from '../../../hooks';
 import { useScreenSizes } from '../../../shared/constants/screen-width';
 
 export const QuotationPage = () => {
@@ -36,7 +37,8 @@ export const QuotationPage = () => {
     },
   });
 
-  const { handleSubmit, reset } = formMethods;
+  const { handleSubmit, reset, setValue, watch } = formMethods;
+  const { startLoadingAllServiceTypes } = useServiceTypeStore();
 
   const { 
     currentPage, 
@@ -46,11 +48,54 @@ export const QuotationPage = () => {
 
   const { isMd } = useScreenSizes(); 
 
-  const onNext = handleSubmit(() => {
-    goToNextPage();
-  });
+  // Observar el tipo de evento seleccionado
+  const selectedEventType = watch('eventType');
+
+  // Cargar tipos de servicio al montar el componente
+  useEffect(() => {
+    startLoadingAllServiceTypes();
+  }, []);
+
+  // Manejar selección de tipo de evento
+  const handleEventTypeSelect = (eventType) => {
+    setValue('eventType', eventType);
+  }; 
+
+  const onNext = () => {
+    // Validación especial para el primer paso (EventTypeForm)
+    if (currentPage === 0) {
+      if (!selectedEventType) {
+        if (typeof window !== 'undefined' && window.validateEventTypeForm) {
+          window.validateEventTypeForm();
+        }
+        return; // No avanzar si no hay selección
+      }
+    }
+    
+    handleSubmit(() => {
+      goToNextPage();
+    })();
+  };
 
   const lastStepIndex = StepSections.length;
+
+  // Función para renderizar el componente actual con props dinámicas
+  const renderCurrentComponent = () => {
+    switch (currentPage) {
+      case 0: // EventTypeForm
+        return <EventTypeForm onSelect={handleEventTypeSelect} />;
+      case 1: // PersonalInfoForm  
+        return <PersonalInfoForm />;
+      case 2: // EventDetailsForm
+        return <EventDetailsForm selectedEventType={selectedEventType} />;
+      case 3: // ServicesForm
+        return <ServicesForm onChange={(payload) => {
+          console.log('Services selected:', payload);
+        }} />;
+      default:
+        return null;
+    }
+  };
 
   const onFinish = handleSubmit((data) => {
     console.log('Datos completos:', data);
@@ -89,7 +134,7 @@ export const QuotationPage = () => {
 
         <Box sx={{ mt: 2 }}>
           {currentPage < lastStepIndex
-            ? StepSections[currentPage].component
+            ? renderCurrentComponent()
             : (
               <Typography sx={{ fontSize: 16 }}>
                 ¡Listo! En breve te enviaremos la proforma de tu evento.

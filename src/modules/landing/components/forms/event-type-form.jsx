@@ -8,19 +8,24 @@ import {
   CardMedia,
   CardContent,
   Stack,
+  Alert,
 } from '@mui/material';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
-import { useState } from 'react';
+import { useEventTypeValidation } from '../../../../hooks';
 
 /**
  * Props:
  *  - onSelect?: (type: 'corporativo' | 'social') => void  // avanzar al siguiente paso
- *  - popular?: 'corporativo' | 'social' | null            // muestra "Más popular" opcional
+ *  - onValidationChange?: (isValid: boolean) => void     // reportar si hay selección válida
  */
-export const EventTypeForm = ({ onSelect }) => {
-  const [selected, setSelected] = useState(null); // 'corporativo' | 'social' | null
+export const EventTypeForm = ({ onSelect, onValidationChange }) => {
+  const { selected, showError, handleSelection } = useEventTypeValidation(onValidationChange);
+
+  const handlePick = (key) => {
+    handleSelection(key, onSelect);
+  };
 
   const options = [
     {
@@ -42,15 +47,6 @@ export const EventTypeForm = ({ onSelect }) => {
         'https://images.unsplash.com/photo-1464347744102-11db6282f854?q=80&w=1600&auto=format&fit=crop',
     },
   ];
-
-  const handlePick = (key) => {
-    setSelected(key);
-    // dispara el callback para que tu wizard pase a la siguiente página
-    onSelect?.(key);
-    // Si usas store:
-    // updateEventSection({ eventType: key });
-    // goNextPage();
-  };
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -121,6 +117,8 @@ export const EventTypeForm = ({ onSelect }) => {
                     },
                     position: 'relative',
                     bgcolor: 'background.paper',
+                    display: 'flex',
+                    flexDirection: 'column',
                   }}
                 >
                   {/* Marca seleccion */}
@@ -149,8 +147,23 @@ export const EventTypeForm = ({ onSelect }) => {
                   )}
 
   
-                  <CardActionArea onClick={() => handlePick(opt.key)}>
-                    <Box sx={{ position: 'relative' }}>
+                  <CardActionArea 
+                    onClick={() => handlePick(opt.key)}
+                    sx={{ 
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'stretch',
+                      justifyContent: 'flex-start',
+                      '& .MuiCardActionArea-focusHighlight': {
+                        opacity: 0.1,
+                      },
+                      '&:hover .MuiCardActionArea-focusHighlight': {
+                        opacity: 0.05,
+                      }
+                    }}
+                  >
+                    <Box sx={{ position: 'relative', flex: '0 0 auto' }}>
                       <CardMedia
                         component="img"
                         height="180"
@@ -191,7 +204,13 @@ export const EventTypeForm = ({ onSelect }) => {
                       </Box>
                     </Box>
 
-                    <CardContent sx={{ minHeight: 96 }}>
+                    <CardContent sx={{ 
+                      flex: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      p: 2
+                    }}>
                       <Typography variant="h6" sx={{ mb: 0.5 }}>
                         {opt.title}
                       </Typography>
@@ -209,6 +228,16 @@ export const EventTypeForm = ({ onSelect }) => {
             );
           })}
         </Grid>
+
+        {/* Mensaje de error */}
+        {showError && (
+          <Alert 
+            severity="error" 
+            sx={{ mt: 3, mb: 2 }}
+          >
+            Por favor selecciona un tipo de evento para continuar.
+          </Alert>
+        )}
       </Box>
     </Box>
   );

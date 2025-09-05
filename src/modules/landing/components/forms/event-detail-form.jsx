@@ -19,28 +19,6 @@ export const EventDetailsForm = () => {
     <Box>
       <TextField
         fullWidth
-        select
-        label="Categoría del Evento"
-        margin="normal"
-        // value={eventCategory}
-        // onChange={(e) => updateEventSection(currentPage,{ eventCategory: e.target.value })}
-      >
-        <MenuItem value="Social">Social</MenuItem>
-        <MenuItem value="Corporativo">Corporativo</MenuItem>
-      </TextField>
-      <TextField
-        fullWidth
-        select
-        label="Tipo del Evento"
-        margin="normal"
-        // value={eventType}
-        // onChange={(e) => updateEventSection(currentPage,{ eventType: e.target.value })}
-      >
-        <MenuItem value="Formal">Formal</MenuItem>
-        <MenuItem value="Informal">Informal</MenuItem>
-      </TextField>
-      <TextField
-        fullWidth
         label="Cantidad de Asistentes"
         type="number"
         margin="normal"

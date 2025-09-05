@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { createServiceTypeModel, updateServiceTypeModel } from "../../shared/models";
 import { 
+  listAllServiceTypes,
   refreshServiceType, 
   selectedServiceType, 
   setLoadingServiceType, 
@@ -116,6 +117,20 @@ export const useServiceTypeStore = () => {
     dispatch(setRowsPerPageServiceType(rows));
   };
 
+  const startLoadingAllServiceTypes = async () => {
+    dispatch(setLoadingServiceType(true));
+    try {
+      const { data } = await serviceTypeApi.get('/all');
+      dispatch(listAllServiceTypes(data));
+    } catch (error) {
+      console.log(error);
+      const message = error.response?.data?.message;
+      openSnackbar(message ?? "Ocurrió un error al cargar los tipos de servicio.");
+    } finally {
+      dispatch(setLoadingServiceType(false));
+    }
+  };
+
   return {
     // state
     serviceTypes,
@@ -140,5 +155,6 @@ export const useServiceTypeStore = () => {
     startLoadingServiceTypePaginated,
     startUpdateServiceType,
     setSelectedServiceType,
+    startLoadingAllServiceTypes,
   };
 };
