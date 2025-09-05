@@ -17,6 +17,7 @@ export const AuthLayout = ({ children, title = '', subtitle = '', isLogin = fals
         padding: 2,
         backgroundSize: "cover",
         backgroundPosition: "center",
+        mt: { xs: '80px', md: 0 },
       }}
     >
       <Box
@@ -25,13 +26,15 @@ export const AuthLayout = ({ children, title = '', subtitle = '', isLogin = fals
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          width: { xs: "100%", md: "auto" },
+          width: { xs: "100%", sm: "80%", md: "70%", lg: "50%", xl: "40%" },
           padding: { xs: 2, md: 5 },
           textAlign: "center",
           backgroundColor: { xs: "transparent", md: theme.palette.background.default },
           borderRadius: { md: 8 },
           boxShadow: { md: 3 },
-          maxWidth: { md: "50%", lg: "35%" },
+          maxWidth: { xs: "100%", sm: "90%", md: "70%", lg: "60%", xl: "45%" },
+          margin: "0 auto",
+          mt: { xs: 4, sm: 6, md: 8, lg: 8 } 
         }}
       >
         {isLogin && <Logo />}
