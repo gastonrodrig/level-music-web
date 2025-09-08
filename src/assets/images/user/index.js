@@ -1,0 +1,1 @@
+export { default as default_profile_user } from './user_profile.png';

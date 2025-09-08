@@ -1,22 +1,35 @@
 import { useDispatch, useSelector } from "react-redux";
 import { userApi } from "../../api";
 import {
-  setExtraData,
-  setLoadingExtraData,
+  removeClientProfile,
+  setClientData,
+  setClientProfile,
+  setLoadingClientProfile,
   showSnackbar,
-  stopLoadingExtraData,
+  stopLoadingClientProfile,
 } from "../../store";
 import { 
   createUserGoogleModel,
   createUserEmailPasswordModel,
-  updateExtraDataModel
+  updateClientDataModel,
+  updateClientProfileModel
 } from "../../shared/models";
 import { getAuthConfig } from "../../shared/utils";
 
 export const useUsersStore = () => {
   const dispatch = useDispatch();
-  const { token, uid } = useSelector((state) => state.auth);
-  const { loadingExtraData } = useSelector((state) => state.extraData);
+  const { 
+    uid,
+    email,
+    firstName,
+    lastName,
+    phone,
+    documentType,
+    documentNumber,
+    photoURL,
+    token
+  } = useSelector((state) => state.auth);
+  const { loadingClientProfile } = useSelector((state) => state.clientProfile);
 
   const openSnackbar = (message) => dispatch(showSnackbar({ message }));
 
@@ -50,12 +63,37 @@ export const useUsersStore = () => {
   }
 
   const startUpdateExtraData = async (uid, extraData) => {
-    dispatch(setLoadingExtraData());
+    dispatch(setLoadingClientProfile());
     try {
-      const payload = updateExtraDataModel(extraData);
+      const payload = updateClientDataModel(extraData);
       const { data } = await userApi.patch(`extra-data/${uid}`, payload, getAuthConfig(token));
       dispatch(
-        setExtraData({
+        setClientData({
+          firstName: data.first_name,
+          lastName: data.last_name,
+          phone: data.phone,
+          documentType: data.document_type,
+          documentNumber: data.document_number
+        })
+      );
+      openSnackbar("Datos actualizados correctamente.");
+      return true;
+    } catch (error) {
+      const message = error.response?.data?.message;
+      openSnackbar(message ?? "Ocurrió un error al actualizar los datos.");
+      return false;
+    } finally {
+      dispatch(stopLoadingClientProfile());
+    }
+  };
+
+  const startUpdateClientProfileData = async (uid, profileData) => {
+    dispatch(setLoadingClientProfile());
+    try {
+      const payload = updateClientDataModel(profileData);
+      const { data } = await userApi.patch(`client-profile/${uid}`, payload, getAuthConfig(token));
+      dispatch(
+        setClientData({
           firstName: data.first_name,
           lastName: data.last_name,
           phone: data.phone,
@@ -63,25 +101,72 @@ export const useUsersStore = () => {
           documentNumber: data.document_number
         })
       )
-      openSnackbar("Datos actualizados correctamente");
+      openSnackbar("Datos actualizados correctamente.");
       return true;
     } catch (error) {
       const message = error.response?.data?.message;
       openSnackbar(message ?? "Ocurrió un error al actualizar los datos.");
       return false;
     } finally {
-      dispatch(stopLoadingExtraData());
+      dispatch(stopLoadingClientProfile());
+    }
+  }; 
+
+  const startUpdateClientProfilePicture = async (uid, profileData) => {
+    dispatch(setLoadingClientProfile());
+    try {
+      const payload = updateClientProfileModel(profileData);
+      const { data } = await userApi.patch(`upload-photo/${uid}`, payload, getAuthConfig(token, true));
+      dispatch(
+        setClientProfile({
+          photoURL: data.profile_picture
+        })
+      );
+      openSnackbar("Foto de perfil actualizada correctamente.");
+      return true;
+    } catch (error) {
+      const message = error.response?.data?.message;
+      openSnackbar(message ?? "Ocurrió un error al actualizar la foto de perfil.");
+      return false;
+    } finally {
+      dispatch(stopLoadingClientProfile());
+    }
+  };
+
+  const startRemoveClientProfilePicture = async (uid) => {
+    dispatch(setLoadingClientProfile());
+    try {
+      await userApi.patch(`remove-photo/${uid}`, {}, getAuthConfig(token));
+      dispatch(removeClientProfile());
+      openSnackbar("Foto de perfil eliminada correctamente.");
+      return true;
+    } catch (error) {
+      const message = error.response?.data?.message;
+      openSnackbar(message ?? "Ocurrió un error al eliminar la foto de perfil.");
+      return false;
+    } finally {
+      dispatch(stopLoadingClientProfile());
     }
   };
 
   return {
     // state
     uid,
-    loadingExtraData,
+    email,
+    firstName,
+    lastName,
+    phone,
+    documentType,
+    documentNumber,
+    photoURL,
+    loadingClientProfile,
 
     // actions
     startCreateUser,
     findUserByEmail,
-    startUpdateExtraData
+    startUpdateExtraData,
+    startUpdateClientProfileData,
+    startUpdateClientProfilePicture,
+    startRemoveClientProfilePicture
   };
 };
