@@ -1,7 +1,12 @@
-import { Person, Event, LocationOn, RestaurantMenu } from '@mui/icons-material';
-import { PersonalInfoForm, EventDetailsForm, LocationForm, ServicesForm } from '..';
+import { Person, Event, Celebration , RestaurantMenu } from '@mui/icons-material';
+import { PersonalInfoForm, EventDetailsForm, ServicesForm, EventTypeForm } from '..';
 
 export const StepSections = [
+  {
+    label: 'Tipo de Evento', 
+    icon: <Celebration  />,
+    component: <EventTypeForm />
+  },
   {
     label: 'Información Personal', 
     icon: <Person />, 
@@ -11,11 +16,6 @@ export const StepSections = [
     label: 'Detalles del Evento', 
     icon: <Event />,
     component: <EventDetailsForm />
-  },
-  {
-    label: 'Ubicación', 
-    icon: <LocationOn />,
-    component: <LocationForm />
   },
   {
     label: 'Servicios Adicionales', 

@@ -32,6 +32,9 @@ export const serviceTypeSlice = createSlice({
     setRowsPerPageServiceType: (state, action) => {
       state.rowsPerPage = action.payload;
     },
+    listAllServiceTypes: (state, action) => {
+      state.serviceTypes = action.payload;
+    }
   },
 });
 export const {  
@@ -40,4 +43,5 @@ export const {
   setLoadingServiceType,
   setPageServiceType,
   setRowsPerPageServiceType,
+  listAllServiceTypes,
 } = serviceTypeSlice.actions;
