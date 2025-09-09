@@ -35,8 +35,8 @@ export const EventFeaturedModal = ({
     control,
     reset,
     formState: { errors },
-    setValue, 
-    watch
+    setValue,
+    watch,
   } = useForm({
     mode: "onBlur",
     defaultValues: {
@@ -66,19 +66,38 @@ export const EventFeaturedModal = ({
     name: "services",
   });
 
-  // Previews (urls temporales o del backend)
+  // Previews (File objects o URLs temporales)
   const [previews, setPreviews] = useState([]);
+
+  // Convierte URLs a File/Blob locales
+  const urlsToFiles = async (urls) => {
+    const files = await Promise.all(
+      urls.map(async (url, i) => {
+        // Fetch la URL
+        const res = await fetch(url);
+        const blob = await res.blob();
+        const filename = url.split("/").pop(); // Nombre del archivo
+        const file = new File([blob], filename, { type: blob.type });
+        return file;
+      })
+    );
+    return files;
+  };
 
   useEffect(() => {
     if (open) {
-      reset({
-        eventCode: eventFeatured?.event_code ?? "",
-        title: eventFeatured?.title ?? "",
-        featured_description: eventFeatured?.featured_description ?? "",
-        services: eventFeatured?.services ?? [],
-        images: [],
-      });
-      setPreviews(eventFeatured?.images ?? []); // si editas y traes URLs del backend
+      (async () => {
+        const initialImages = eventFeatured?.images ?? [];
+        const files = await urlsToFiles(initialImages);
+        reset({
+          eventCode: eventFeatured?.event_code ?? "",
+          title: eventFeatured?.title ?? "",
+          featured_description: eventFeatured?.featured_description ?? "",
+          services: eventFeatured?.services ?? [],
+          images: files,
+        });
+        setPreviews(files.map((f) => URL.createObjectURL(f)));
+      })();
     }
   }, [open, reset, eventFeatured]);
 
@@ -96,7 +115,23 @@ export const EventFeaturedModal = ({
   const handleImagesChange = (e) => {
     const files = Array.from(e.target.files || []);
     const localUrls = files.map((f) => URL.createObjectURL(f));
-    setPreviews(localUrls);
+    setPreviews((prev) => [...prev, ...localUrls]);
+
+    // Añadir los files a RHF
+    const currentFiles = watch("images") || [];
+    setValue("images", [...currentFiles, ...files], { shouldValidate: true });
+  };
+
+  const handleRemoveImage = (index) => {
+    // Actualiza previews
+    setPreviews((prev) => prev.filter((_, i) => i !== index));
+    // Actualiza RHF images
+    const currentFiles = watch("images") || [];
+    setValue(
+      "images",
+      currentFiles.filter((_, i) => i !== index),
+      { shouldValidate: true }
+    );
   };
 
   const onSubmit = async (data) => {
@@ -152,7 +187,11 @@ export const EventFeaturedModal = ({
 
   // --- Helpers para el carrusel 4x ---
   const chunk = (arr, size) =>
-    arr.reduce((acc, _, i) => (i % size === 0 ? acc.concat([arr.slice(i, i + size)]) : acc), []);
+    arr.reduce(
+      (acc, _, i) =>
+        i % size === 0 ? acc.concat([arr.slice(i, i + size)]) : acc,
+      []
+    );
 
   const groupsOf4 = chunk(previews, 4); // 4 imágenes por slide
 
@@ -196,8 +235,6 @@ export const EventFeaturedModal = ({
 
           {/* Título y descripción */}
           <Box display="flex" flexDirection="column" gap={2} mb={3}>
-
-            {/* Código de evento */}
             <TextField
               label="Código del evento"
               fullWidth
@@ -220,7 +257,6 @@ export const EventFeaturedModal = ({
               error={!!errors.eventCode}
             />
 
-            {/* Nombre del evento ingresado */}
             <TextField
               label="Título del Evento"
               fullWidth
@@ -235,8 +271,7 @@ export const EventFeaturedModal = ({
               }}
               disabled
             />
-          
-            {/* Descripción */}
+
             <TextField
               label="Descripción destacada"
               multiline
@@ -248,170 +283,117 @@ export const EventFeaturedModal = ({
 
           {/* Servicios incluidos */}
           <Box mb={3}>
-            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-              <Typography fontWeight={600}>Servicios incluidos</Typography>
-              <Button
-                variant="contained"
-                size="small"
-                onClick={handleAddField}
-                disabled={isButtonDisabled}
-                sx={{
-                  backgroundColor: "#212121",
-                  color: "#fff",
-                  textTransform: "none",
-                  borderRadius: 2,
-                }}
+            <Typography fontWeight={500} mb={1}>
+              Servicios incluidos
+            </Typography>
+            {fields.map((field, index) => (
+              <Box
+                key={field.id}
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+                mb={1}
               >
-                + Añadir servicio
-              </Button>
-            </Box>
-
-            {fields.length === 0 ? (
-              <Typography color="text.secondary" fontSize={14} textAlign="center" my={2}>
-                No hay servicios agregados.
-              </Typography>
-            ) : (
-              fields.map((field, index) => (
-                <Box
-                  key={field.id}
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  border="1px solid #494949"
-                  borderRadius={2}
-                  p={2}
-                  mb={1}
-                >
-                  <Box>
-                    <Typography fontWeight={600}>{field.title}</Typography>
-                    <Typography fontSize={14} color="text.secondary">
-                      {field.description}
-                    </Typography>
-                  </Box>
-                  <Box display="flex" gap={1}>
-                    <IconButton size="small" onClick={() => handleEditField(field, index)}>
-                      <Edit fontSize="small" />
-                    </IconButton>
-                    <IconButton size="small" onClick={() => remove(index)}>
-                      <Delete fontSize="small" />
-                    </IconButton>
-                  </Box>
+                <Typography>{field.name}</Typography>
+                <Box>
+                  <IconButton onClick={() => handleEditField(field, index)}>
+                    <Edit fontSize="small" />
+                  </IconButton>
+                  <IconButton onClick={() => remove(index)}>
+                    <Delete fontSize="small" />
+                  </IconButton>
                 </Box>
-              ))
-            )}
+              </Box>
+            ))}
+            <Button variant="outlined" onClick={handleAddField}>
+              Agregar Servicio
+            </Button>
           </Box>
 
           {/* Imágenes */}
-          <Box mb={1}>
-            <Typography fontWeight={600} mb={1}>
-              Imágenes
+          <Box mb={3}>
+            <Typography fontWeight={500} mb={1}>
+              Imágenes del evento
             </Typography>
-
-            <Button variant="outlined" component="label" sx={{ mr: 2 }}>
-              Seleccionar imágenes
-              <input
-                type="file"
-                hidden
-                multiple
-                ref={imagesRef}
-                {...imagesFieldRest}
-                onChange={(e) => {
-                  rhfImagesOnChange(e); // RHF
-                  handleImagesChange(e); // previews
-                }}
-              />
-            </Button>
-
-            <Typography variant="caption" sx={{ display: "block", mt: 1, color: "text.secondary" }}>
-              La primera imagen se tomará como <strong>portada</strong>; las demás se enviarán a la <strong>galería</strong>.
-            </Typography>
-          </Box>
-
-          {/* Carrusel 4 por slide (sin flechas) */}
-          {previews.length > 0 && (
-            <Box
-              mt={2}
-              sx={{
-                // estiliza bullets
-                "& .swiper-pagination-bullet": {
-                  width: 8,
-                  height: 8,
-                  bgcolor: "text.disabled",
-                  opacity: 1,
-                },
-                "& .swiper-pagination-bullet-active": {
-                  bgcolor: "primary.main",
-                },
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={(e) => {
+                handleImagesChange(e);
+                rhfImagesOnChange(e);
               }}
-            >
+              ref={imagesRef}
+              style={{ display: "block", marginBottom: 12 }}
+              {...imagesFieldRest}
+            />
+
+            {previews.length > 0 && (
               <Swiper
                 modules={[Pagination]}
                 pagination={{ clickable: true }}
-                slidesPerView={1}      // 1 slide a la vez (cada slide contiene 4 imágenes)
-                spaceBetween={12}
-                grabCursor
-                loop={groupsOf4.length > 1}
-                style={{ width: "100%", maxWidth: 540, borderRadius: 12 }}
+                spaceBetween={10}
+                slidesPerView={1}
               >
                 {groupsOf4.map((group, gi) => (
                   <SwiperSlide key={gi}>
-                    <Box
-                      display="grid"
-                      gridTemplateColumns="repeat(4, 1fr)"
-                      gap={1}
-                      sx={{
-                        width: "100%",
-                        height: 170, // más bajito
-                        // responsive: 2 por fila en pantallas chicas
-                        "@media (max-width:600px)": {
-                          gridTemplateColumns: "repeat(2, 1fr)",
-                          height: 200,
-                        },
-                      }}
-                    >
-                      {group.map((src, i) => (
-                        <Box
-                          key={`${gi}-${i}`}
-                          component="img"
-                          src={src}
-                          alt={`preview-${gi}-${i}`}
-                          sx={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                            borderRadius: 1.5,
-                            border: (theme) =>
-                              `1px solid ${
-                                theme.palette.mode === "dark" ? "#3c3c3c" : "#e0e0e0"
-                              }`,
-                          }}
-                        />
-                      ))}
+                    <Box display="grid" gridTemplateColumns="repeat(4,1fr)" gap={1}>
+                      {group.map((src, i) => {
+                        const globalIndex = gi * 4 + i;
+                        return (
+                          <Box key={i} sx={{ position: "relative", width: "100%", pt: "100%" }}>
+                            <Box
+                              component="img"
+                              src={src}
+                              alt={`preview-${i}`}
+                              sx={{
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                                borderRadius: 1.5,
+                                border: (theme) =>
+                                  `1px solid ${
+                                    theme.palette.mode === "dark"
+                                      ? "#3c3c3c"
+                                      : "#e0e0e0"
+                                  }`,
+                              }}
+                            />
+                            <IconButton
+                              size="small"
+                              sx={{
+                                position: "absolute",
+                                top: 4,
+                                right: 4,
+                                bgcolor: "rgba(0,0,0,0.5)",
+                                "&:hover": { bgcolor: "rgba(0,0,0,0.7)" },
+                              }}
+                              onClick={() => handleRemoveImage(globalIndex)}
+                            >
+                              <Close fontSize="small" sx={{ color: "#fff" }} />
+                            </IconButton>
+                          </Box>
+                        );
+                      })}
                     </Box>
                   </SwiperSlide>
                 ))}
               </Swiper>
-            </Box>
-          )}
+            )}
+          </Box>
 
-          {/* Botón guardar */}
-          <Button
-            type="submit"
-            variant="contained"
-            fullWidth
-            disabled={isButtonDisabled}
-            sx={{
-              mt: 3,
-              backgroundColor: "#212121",
-              color: "#fff",
-              textTransform: "none",
-              py: 1.5,
-              borderRadius: 2,
-              fontWeight: 600,
-            }}
-          >
-            {isEditing ? "Guardar cambios" : "Agregar"}
-          </Button>
+          {/* Botones */}
+          <Box display="flex" justifyContent="flex-end" gap={2}>
+            <Button variant="outlined" onClick={onClose} disabled={isButtonDisabled}>
+              Cancelar
+            </Button>
+            <Button type="submit" variant="contained" disabled={isButtonDisabled}>
+              {isEditing ? "Actualizar" : "Crear"}
+            </Button>
+          </Box>
         </Box>
       </Modal>
     </>
