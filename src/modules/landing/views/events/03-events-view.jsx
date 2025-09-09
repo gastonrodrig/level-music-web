@@ -74,7 +74,7 @@ export const EventsView03 = () => {
             spaceBetween={24}
             slidesPerView={1}
             breakpoints={{ 600: { slidesPerView: 2 } }}
-            style={{ paddingBottom: 56 }} // espacio para que no se corten los puntos
+            style={{ paddingBottom: 56 }} 
           >
             {features.map((feature, index) => (
               <SwiperSlide key={index}>

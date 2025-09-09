@@ -28,27 +28,26 @@ const StyledSwiper = styled(Swiper)({
 
 export const EventsView02 = () => {
   const theme = useTheme();
-  const prevRef = useRef(null);
-  const nextRef = useRef(null);
+  const prevRef = useRef();
+  const nextRef = useRef();
 
   const [open, setOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState();
 
-  const { eventFeatured, startLoadingAllEventFeatured } = useEventFeaturedStore();
+  const { eventFeatured = [], startLoadingAllEventFeatured } = useEventFeaturedStore();
 
   useEffect(() => {
-    startLoadingAllEventFeatured();
+    if (typeof startLoadingAllEventFeatured === 'function') {
+      startLoadingAllEventFeatured();
+    }
   }, []);
 
   return (
-    <Box
-      sx={{ width: "100%", backgroundColor: theme.palette.background.default }}
-    >
+    <Box sx={{ width: "100%", backgroundColor: theme.palette.background.default }}>
       <style>{`
         .events02-bullet { opacity: 1; width: 8px; height: 8px; margin: 0 4px; background: #cfcfcf; }
         .events02-bullet-active { transform: scale(1.2); background: #9e9e9e; }
       `}</style>
-
       <Container sx={{ py: { xs: 4, sm: 5, md: 6 } }}>
         {/* Encabezado + flechas */}
         <Box
@@ -67,7 +66,6 @@ export const EventsView02 = () => {
           >
             Nuestros Eventos
           </Typography>
-
           <Box>
             <IconButton
               ref={prevRef}
@@ -94,14 +92,15 @@ export const EventsView02 = () => {
             </IconButton>
           </Box>
         </Box>
-
         {/* Carrusel */}
         <StyledSwiper
           modules={[Navigation, Pagination]}
           navigation={{ prevEl: prevRef.current, nextEl: nextRef.current }}
-          onBeforeInit={(swiper) => {
+          onInit={(swiper) => {
             swiper.params.navigation.prevEl = prevRef.current;
             swiper.params.navigation.nextEl = nextRef.current;
+            swiper.navigation.init();
+            swiper.navigation.update();
           }}
           pagination={{
             clickable: true,
@@ -146,7 +145,6 @@ export const EventsView02 = () => {
                     objectFit: 'cover',
                   }}
                 />
-
                 <CardContent sx={{ px: { xs: 1, sm: 1.5 } }}>
                   <Typography
                     sx={{
@@ -158,11 +156,9 @@ export const EventsView02 = () => {
                   >
                     {item.title}
                   </Typography>
-
                   <Typography sx={{ mt: 1.5, fontSize: { xs: 13, sm: 14 } }}>
                     {item.featured_description}
                   </Typography>
-
                   <Typography
                     sx={{
                       mt: 2,
@@ -173,7 +169,6 @@ export const EventsView02 = () => {
                   >
                     Servicios incluidos :
                   </Typography>
-
                   <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
                     {item.services?.map((s, idx) => (
                       <Chip
@@ -192,7 +187,6 @@ export const EventsView02 = () => {
                       />
                     ))}
                   </Box>
-
                   <Button
                     variant="contained"
                     disableElevation
@@ -223,7 +217,6 @@ export const EventsView02 = () => {
             </SwiperSlide>
           ))}
         </StyledSwiper>
-
         {/* Único modal */}
         <FeaturedEventModal
           open={open}
