@@ -14,7 +14,7 @@ import {
   updateEventFeaturedModel
 } from '../../shared/models';
 import { useState } from 'react';
-import { getAuthConfig } from '../../shared/utils';
+import { getAuthConfig, getAuthConfigWithParams } from '../../shared/utils';
 
 export const useEventFeaturedStore = () => {
   const dispatch = useDispatch();
@@ -56,7 +56,7 @@ export const useEventFeaturedStore = () => {
   const startLoadingAllEventFeatured = async () => {
     dispatch(setLoadingEventFeatured(true));
     try {
-      const { data } = await eventFeaturedApi.get('/all', getAuthConfig(token));
+      const { data } = await eventFeaturedApi.get('/all');
       dispatch(listAllEventFeatured(data));
       return true;
     } catch (error) {
@@ -74,7 +74,7 @@ export const useEventFeaturedStore = () => {
       const limit  = rowsPerPage;
       const offset = currentPage * rowsPerPage;
       const { data } = await eventFeaturedApi.get('/paginated',
-        getAuthConfig(token, {  
+        getAuthConfigWithParams(token, {  
           limit,
           offset,
           search: searchTerm.trim(),

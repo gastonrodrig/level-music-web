@@ -40,13 +40,15 @@ export const EventFeaturedModal = ({
   } = useForm({
     mode: "onBlur",
     defaultValues: {
+      eventCode: "",
       title: "",
       featured_description: "",
       services: [],
       images: [],
     },
   });
-const handleCodeChange = async (value) => {
+
+  const handleCodeChange = async (value) => {
     const formattedValue = value.toUpperCase();
     setValue("eventCode", formattedValue);
     const { ok, data } = await startSearchingEvent(formattedValue);
@@ -70,6 +72,7 @@ const handleCodeChange = async (value) => {
   useEffect(() => {
     if (open) {
       reset({
+        eventCode: eventFeatured?.event_code ?? "",
         title: eventFeatured?.title ?? "",
         featured_description: eventFeatured?.featured_description ?? "",
         services: eventFeatured?.services ?? [],

@@ -13,7 +13,7 @@ import {
   updateEventTypeModel
 } from '../../shared/models';
 import { useState } from 'react';
-import { getAuthConfig } from '../../shared/utils';
+import { getAuthConfig, getAuthConfigWithParams } from '../../shared/utils';
 
 export const useEventTypeStore = () => {
   const dispatch = useDispatch();
@@ -57,8 +57,7 @@ export const useEventTypeStore = () => {
       const limit  = rowsPerPage;
       const offset = currentPage * rowsPerPage;
       const { data } = await eventTypeApi.get('/paginated',
-        getAuthConfig(token, {
-        
+        getAuthConfigWithParams(token, {
           limit,
           offset,
           search: searchTerm.trim(),
