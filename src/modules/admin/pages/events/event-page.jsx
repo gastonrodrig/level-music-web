@@ -51,7 +51,7 @@ export const EventPage = () => {
   const handleMenuClose = () => setAnchorEl(null);
 
   return (
-    <Box>
+    <>
       {/* Card Container */}
       <Box sx={{ borderRadius: 2, border: '1px solid rgba(0, 0, 0, 0.12)' }}>
         {/* Header */}
@@ -217,6 +217,6 @@ export const EventPage = () => {
           </TableBody>
         </Table>
       </Box>
-    </Box>
+    </>
   );
 };

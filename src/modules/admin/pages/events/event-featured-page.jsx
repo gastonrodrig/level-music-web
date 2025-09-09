@@ -57,7 +57,7 @@ export const EventFeaturedPage = () => {
   ];
 
   return (
-    <Box>
+    <>
       <Box
         sx={{
           borderRadius: 2,
@@ -161,6 +161,6 @@ export const EventFeaturedPage = () => {
         setEventFeatured={setSelectedEventFeatured}
         loading={loading}
       />
-    </Box>
+    </>
   );
 };

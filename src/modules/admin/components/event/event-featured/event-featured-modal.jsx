@@ -17,9 +17,6 @@ import "swiper/css";
 import "swiper/css/pagination";
 import { useEventStore } from "../../../../../hooks/event/use-event-store";
 
-// --- Firebase imports ---
-import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
-
 export const EventFeaturedModal = ({
   open,
   onClose,
@@ -43,90 +40,12 @@ export const EventFeaturedModal = ({
   } = useForm({
     mode: "onBlur",
     defaultValues: {
+      eventCode: "",
       title: "",
       featured_description: "",
       services: [],
       images: [],
     },
-  });
-
-  // Estado para URLs de imágenes persistentes (Firebase)
-  const [imageUrls, setImageUrls] = useState([]);
-  const [uploading, setUploading] = useState(false);
-
-  const previews = imageUrls;
-
-  // Al abrir el modal, carga imágenes existentes (modo edición)
-  useEffect(() => {
-    if (open) {
-      reset({
-        title: eventFeatured?.title ?? "",
-        featured_description: eventFeatured?.featured_description ?? "",
-        services: eventFeatured?.services ?? [],
-        images: eventFeatured?.images ?? [],
-      });
-      setImageUrls(eventFeatured?.images ?? []);
-    }
-  }, [open, reset, eventFeatured]);
-
-  // RHF bridge para input file con onChange custom
-  const {
-    ref: imagesRef,
-    onChange: rhfImagesOnChange,
-    ...imagesFieldRest
-  } = register("images");
-
-  // Subir imágenes a Firebase Storage y actualizar el estado
-  const handleImagesChange = async (e) => {
-    const files = Array.from(e.target.files || []);
-    if (!files.length) return;
-    setUploading(true);
-    const storage = getStorage();
-
-    const uploadPromises = files.map(async (file) => {
-      const ext = file.name.split(".").pop();
-      const uniqueName = `event-featured/${Date.now()}-${Math.floor(
-        Math.random() * 1000000
-      )}.${ext}`;
-      const storageRef = ref(storage, uniqueName);
-      await uploadBytes(storageRef, file);
-      const url = await getDownloadURL(storageRef);
-      return url;
-    });
-
-    try {
-      const newUrls = await Promise.all(uploadPromises);
-      const updatedUrls = [...imageUrls, ...newUrls];
-      setImageUrls(updatedUrls);
-      setValue("images", updatedUrls, { shouldValidate: true });
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  // Eliminar imagen de Firebase y del estado
-  const handleRemoveImage = async (urlToRemove) => {
-    setUploading(true);
-    try {
-      const matches = urlToRemove.match(/\/o\/(.*?)\?alt/);
-      if (matches && matches[1]) {
-        const path = decodeURIComponent(matches[1]);
-        const storage = getStorage();
-        const imageRef = ref(storage, path);
-        await deleteObject(imageRef);
-      }
-    } catch (err) {
-      // Ignora el error pero elimina igual del estado
-    }
-    const updatedUrls = imageUrls.filter((url) => url !== urlToRemove);
-    setImageUrls(updatedUrls);
-    setValue("images", updatedUrls, { shouldValidate: true });
-    setUploading(false);
-  };
-
-  const { fields, append, remove, update } = useFieldArray({
-    control,
-    name: "services",
   });
 
   const handleCodeChange = async (value) => {
@@ -142,10 +61,83 @@ export const EventFeaturedModal = ({
     }
   };
 
+  const { fields, append, remove, update } = useFieldArray({
+    control,
+    name: "services",
+  });
+
+  // Previews (File objects o URLs temporales)
+  const [previews, setPreviews] = useState([]);
+
+  // Convierte URLs a File/Blob locales
+  const urlsToFiles = async (urls) => {
+    const files = await Promise.all(
+      urls.map(async (url, i) => {
+        // Fetch la URL
+        const res = await fetch(url);
+        const blob = await res.blob();
+        const filename = url.split("/").pop(); // Nombre del archivo
+        const file = new File([blob], filename, { type: blob.type });
+        return file;
+      })
+    );
+    return files;
+  };
+
+  useEffect(() => {
+    if (open) {
+      (async () => {
+        const initialImages = eventFeatured?.images ?? [];
+        const files = await urlsToFiles(initialImages);
+        reset({
+          eventCode: eventFeatured?.event_code ?? "",
+          title: eventFeatured?.title ?? "",
+          featured_description: eventFeatured?.featured_description ?? "",
+          services: eventFeatured?.services ?? [],
+          images: files,
+        });
+        setPreviews(files.map((f) => URL.createObjectURL(f)));
+      })();
+    }
+  }, [open, reset, eventFeatured]);
+
+  // Limpia blobs al desmontar/cambiar
+  useEffect(() => {
+    return () => {
+      previews.forEach((u) => {
+        if (typeof u === "string" && u.startsWith("blob:")) {
+          URL.revokeObjectURL(u);
+        }
+      });
+    };
+  }, [previews]);
+
+  const handleImagesChange = (e) => {
+    const files = Array.from(e.target.files || []);
+    const localUrls = files.map((f) => URL.createObjectURL(f));
+    setPreviews((prev) => [...prev, ...localUrls]);
+
+    // Añadir los files a RHF
+    const currentFiles = watch("images") || [];
+    setValue("images", [...currentFiles, ...files], { shouldValidate: true });
+  };
+
+  const handleRemoveImage = (index) => {
+    // Actualiza previews
+    setPreviews((prev) => prev.filter((_, i) => i !== index));
+    // Actualiza RHF images
+    const currentFiles = watch("images") || [];
+    setValue(
+      "images",
+      currentFiles.filter((_, i) => i !== index),
+      { shouldValidate: true }
+    );
+  };
+
   const onSubmit = async (data) => {
     const payload = {
       ...data,
-      images: imageUrls,
+      images: Array.from(data.images || []), // FileList -> File[]
     };
 
     const success = isEditing
@@ -158,12 +150,9 @@ export const EventFeaturedModal = ({
     }
   };
 
-  const isButtonDisabled = useMemo(
-    () => loading || uploading,
-    [loading, uploading]
-  );
+  const isButtonDisabled = useMemo(() => loading, [loading]);
 
-  // Modal de servicio
+  // Modal de servicio (añadir/editar)
   const [fieldModalOpen, setFieldModalOpen] = useState(false);
   const [selectedField, setSelectedField] = useState(null);
   const [editingIndex, setEditingIndex] = useState(null);
@@ -189,7 +178,14 @@ export const EventFeaturedModal = ({
     setFieldModalOpen(false);
   };
 
-  // Helpers para carrusel
+  // RHF bridge para input file con onChange custom
+  const {
+    ref: imagesRef,
+    onChange: rhfImagesOnChange,
+    ...imagesFieldRest
+  } = register("images");
+
+  // --- Helpers para el carrusel 4x ---
   const chunk = (arr, size) =>
     arr.reduce(
       (acc, _, i) =>
@@ -197,7 +193,7 @@ export const EventFeaturedModal = ({
       []
     );
 
-  const groupsOf4 = chunk(previews, 4);
+  const groupsOf4 = chunk(previews, 4); // 4 imágenes por slide
 
   return (
     <>
@@ -228,12 +224,7 @@ export const EventFeaturedModal = ({
           }}
         >
           {/* Header */}
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            mb={3}
-          >
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
             <Typography variant="h6" fontWeight={600}>
               {isEditing ? "Editar Evento Destacado" : "Agregar Evento Destacado"}
             </Typography>
@@ -242,7 +233,7 @@ export const EventFeaturedModal = ({
             </IconButton>
           </Box>
 
-          {/* Código + Título + Descripción */}
+          {/* Título y descripción */}
           <Box display="flex" flexDirection="column" gap={2} mb={3}>
             <TextField
               label="Código del evento"
@@ -290,218 +281,119 @@ export const EventFeaturedModal = ({
             />
           </Box>
 
-          {/* Servicios */}
+          {/* Servicios incluidos */}
           <Box mb={3}>
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-              mb={2}
-            >
-              <Typography fontWeight={600}>Servicios incluidos</Typography>
-              <Button
-                variant="contained"
-                size="small"
-                onClick={handleAddField}
-                disabled={isButtonDisabled}
-                sx={{
-                  backgroundColor: "#212121",
-                  color: "#fff",
-                  textTransform: "none",
-                  borderRadius: 2,
-                }}
+            <Typography fontWeight={500} mb={1}>
+              Servicios incluidos
+            </Typography>
+            {fields.map((field, index) => (
+              <Box
+                key={field.id}
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+                mb={1}
               >
-                + Añadir servicio
-              </Button>
-            </Box>
-
-            {fields.length === 0 ? (
-              <Typography
-                color="text.secondary"
-                fontSize={14}
-                textAlign="center"
-                my={2}
-              >
-                No hay servicios agregados.
-              </Typography>
-            ) : (
-              fields.map((field, index) => (
-                <Box
-                  key={field.id}
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  border="1px solid #494949"
-                  borderRadius={2}
-                  p={2}
-                  mb={1}
-                >
-                  <Box>
-                    <Typography fontWeight={600}>{field.title}</Typography>
-                    <Typography fontSize={14} color="text.secondary">
-                      {field.description}
-                    </Typography>
-                  </Box>
-                  <Box display="flex" gap={1}>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleEditField(field, index)}
-                    >
-                      <Edit fontSize="small" />
-                    </IconButton>
-                    <IconButton size="small" onClick={() => remove(index)}>
-                      <Delete fontSize="small" />
-                    </IconButton>
-                  </Box>
+                <Typography>{field.name}</Typography>
+                <Box>
+                  <IconButton onClick={() => handleEditField(field, index)}>
+                    <Edit fontSize="small" />
+                  </IconButton>
+                  <IconButton onClick={() => remove(index)}>
+                    <Delete fontSize="small" />
+                  </IconButton>
                 </Box>
-              ))
-            )}
+              </Box>
+            ))}
+            <Button variant="outlined" onClick={handleAddField}>
+              Agregar Servicio
+            </Button>
           </Box>
 
           {/* Imágenes */}
-          <Box mb={1}>
-            <Typography fontWeight={600} mb={1}>
-              Imágenes
+          <Box mb={3}>
+            <Typography fontWeight={500} mb={1}>
+              Imágenes del evento
             </Typography>
-
-            <Button
-              variant="outlined"
-              component="label"
-              sx={{ mr: 2 }}
-              disabled={uploading}
-            >
-              Seleccionar imágenes
-              <input
-                type="file"
-                hidden
-                multiple
-                ref={imagesRef}
-                {...imagesFieldRest}
-                onChange={async (e) => {
-                  rhfImagesOnChange(e);
-                  await handleImagesChange(e);
-                }}
-              />
-            </Button>
-
-            <Typography
-              variant="caption"
-              sx={{ display: "block", mt: 1, color: "text.secondary" }}
-            >
-              La primera imagen se tomará como <strong>portada</strong>; las demás
-              se enviarán a la <strong>galería</strong>.
-            </Typography>
-          </Box>
-
-          {/* Carrusel */}
-          {previews.length > 0 && (
-            <Box
-              mt={2}
-              sx={{
-                "& .swiper-pagination-bullet": {
-                  width: 8,
-                  height: 8,
-                  bgcolor: "text.disabled",
-                  opacity: 1,
-                },
-                "& .swiper-pagination-bullet-active": {
-                  bgcolor: "primary.main",
-                },
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={(e) => {
+                handleImagesChange(e);
+                rhfImagesOnChange(e);
               }}
-            >
+              ref={imagesRef}
+              style={{ display: "block", marginBottom: 12 }}
+              {...imagesFieldRest}
+            />
+
+            {previews.length > 0 && (
               <Swiper
                 modules={[Pagination]}
                 pagination={{ clickable: true }}
+                spaceBetween={10}
                 slidesPerView={1}
-                spaceBetween={12}
-                grabCursor
-                loop={groupsOf4.length > 1}
-                style={{ width: "100%", maxWidth: 540, borderRadius: 12 }}
               >
                 {groupsOf4.map((group, gi) => (
                   <SwiperSlide key={gi}>
-                    <Box
-                      display="grid"
-                      gridTemplateColumns="repeat(4, 1fr)"
-                      gap={1}
-                      sx={{
-                        width: "100%",
-                        height: 170,
-                        "@media (max-width:600px)": {
-                          gridTemplateColumns: "repeat(2, 1fr)",
-                          height: 200,
-                        },
-                      }}
-                    >
-                      {group.map((src, i) => (
-                        <Box
-                          key={`${gi}-${i}`}
-                          sx={{
-                            position: "relative",
-                            width: "100%",
-                            height: "100%",
-                          }}
-                        >
-                          <Box
-                            component="img"
-                            src={src}
-                            alt={`preview-${gi}-${i}`}
-                            sx={{
-                              width: "100%",
-                              height: "100%",
-                              objectFit: "cover",
-                              borderRadius: 1.5,
-                              border: (theme) =>
-                                `1px solid ${
-                                  theme.palette.mode === "dark"
-                                    ? "#3c3c3c"
-                                    : "#e0e0e0"
-                                }`,
-                            }}
-                          />
-
-                          <IconButton
-                            size="small"
-                            onClick={() => handleRemoveImage(src)}
-                            sx={{
-                              position: "absolute",
-                              top: 4,
-                              right: 4,
-                              bgcolor: "rgba(0,0,0,0.6)",
-                              color: "white",
-                              "&:hover": { bgcolor: "rgba(0,0,0,0.8)" },
-                            }}
-                            disabled={uploading}
-                          >
-                            <Delete fontSize="small" />
-                          </IconButton>
-                        </Box>
-                      ))}
+                    <Box display="grid" gridTemplateColumns="repeat(4,1fr)" gap={1}>
+                      {group.map((src, i) => {
+                        const globalIndex = gi * 4 + i;
+                        return (
+                          <Box key={i} sx={{ position: "relative", width: "100%", pt: "100%" }}>
+                            <Box
+                              component="img"
+                              src={src}
+                              alt={`preview-${i}`}
+                              sx={{
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                                borderRadius: 1.5,
+                                border: (theme) =>
+                                  `1px solid ${
+                                    theme.palette.mode === "dark"
+                                      ? "#3c3c3c"
+                                      : "#e0e0e0"
+                                  }`,
+                              }}
+                            />
+                            <IconButton
+                              size="small"
+                              sx={{
+                                position: "absolute",
+                                top: 4,
+                                right: 4,
+                                bgcolor: "rgba(0,0,0,0.5)",
+                                "&:hover": { bgcolor: "rgba(0,0,0,0.7)" },
+                              }}
+                              onClick={() => handleRemoveImage(globalIndex)}
+                            >
+                              <Close fontSize="small" sx={{ color: "#fff" }} />
+                            </IconButton>
+                          </Box>
+                        );
+                      })}
                     </Box>
                   </SwiperSlide>
                 ))}
               </Swiper>
-            </Box>
-          )}
+            )}
+          </Box>
 
-          {/* Guardar */}
-          <Button
-            type="submit"
-            variant="contained"
-            fullWidth
-            disabled={isButtonDisabled}
-            sx={{
-              mt: 3,
-              backgroundColor: "#212121",
-              color: "#fff",
-              textTransform: "none",
-              py: 1.5,
-              borderRadius: 2,
-              fontWeight: 600,
-            }}
-          >
-            {isEditing ? "Guardar cambios" : "Agregar"}
-          </Button>
+          {/* Botones */}
+          <Box display="flex" justifyContent="flex-end" gap={2}>
+            <Button variant="outlined" onClick={onClose} disabled={isButtonDisabled}>
+              Cancelar
+            </Button>
+            <Button type="submit" variant="contained" disabled={isButtonDisabled}>
+              {isEditing ? "Actualizar" : "Crear"}
+            </Button>
+          </Box>
         </Box>
       </Modal>
     </>

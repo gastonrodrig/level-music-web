@@ -1,5 +1,4 @@
-// src/modules/landing/views/events/02-events-view.jsx
-import React, { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Box,
   Container,
@@ -19,52 +18,8 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
-
-import { foto_1 } from "../../../../assets/images/events";
-import { FeaturedEventModal } from "../../components/modal"; // usa el index.js
-
-const DATA = [
-  {
-    img: foto_1,
-    title: "Evento de Bodas de Oro",
-    desc: "Celebramos los 50 aniversario de casados de una hermosa pareja",
-    services: [
-      "Música en vivo",
-      "Decoración con temática",
-      "Comida Buffet",
-    ],
-  },
-  {
-    img: foto_1,
-    title: "Evento de Bodas de Oro",
-    desc: "Celebramos los 50 aniversario de casados de una hermosa pareja",
-    services: [
-      "Música en vivo",
-      "Decoración con temática",
-      "Comida Buffet",
-    ],
-  },
-  {
-    img: foto_1,
-    title: "Evento de Bodas de Oro",
-    desc: "Celebramos los 50 aniversario de casados de una hermosa pareja",
-    services: [
-      "Música en vivo",
-      "Decoración con temática",
-      "Comida Buffet",
-    ],
-  },
-  {
-    img: foto_1,
-    title: "Evento de Bodas de Oro",
-    desc: "Celebramos los 50 aniversario de casados de una hermosa pareja",
-    services: [
-      "Música en vivo",
-      "Decoración con temática",
-      "Comida Buffet",
-    ],
-  },
-];
+import { FeaturedEventModal } from "../../components/modal";
+import { useEventFeaturedStore } from "../../../../hooks";
 
 const StyledSwiper = styled(Swiper)({
   position: "relative",
@@ -73,21 +28,26 @@ const StyledSwiper = styled(Swiper)({
 
 export const EventsView02 = () => {
   const theme = useTheme();
-  const prevRef = useRef(null);
-  const nextRef = useRef(null);
+  const prevRef = useRef();
+  const nextRef = useRef();
 
-  const [open, setOpen] = React.useState(false);
-  const [selectedEvent, setSelectedEvent] = React.useState(null);
+  const [open, setOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState();
+
+  const { eventFeatured = [], startLoadingAllEventFeatured } = useEventFeaturedStore();
+
+  useEffect(() => {
+    if (typeof startLoadingAllEventFeatured === 'function') {
+      startLoadingAllEventFeatured();
+    }
+  }, []);
 
   return (
-    <Box
-      sx={{ width: "100%", backgroundColor: theme.palette.background.default }}
-    >
+    <Box sx={{ width: "100%", backgroundColor: theme.palette.background.default }}>
       <style>{`
         .events02-bullet { opacity: 1; width: 8px; height: 8px; margin: 0 4px; background: #cfcfcf; }
         .events02-bullet-active { transform: scale(1.2); background: #9e9e9e; }
       `}</style>
-
       <Container sx={{ py: { xs: 4, sm: 5, md: 6 } }}>
         {/* Encabezado + flechas */}
         <Box
@@ -106,7 +66,6 @@ export const EventsView02 = () => {
           >
             Nuestros Eventos
           </Typography>
-
           <Box>
             <IconButton
               ref={prevRef}
@@ -133,14 +92,15 @@ export const EventsView02 = () => {
             </IconButton>
           </Box>
         </Box>
-
         {/* Carrusel */}
         <StyledSwiper
           modules={[Navigation, Pagination]}
           navigation={{ prevEl: prevRef.current, nextEl: nextRef.current }}
-          onBeforeInit={(swiper) => {
+          onInit={(swiper) => {
             swiper.params.navigation.prevEl = prevRef.current;
             swiper.params.navigation.nextEl = nextRef.current;
+            swiper.navigation.init();
+            swiper.navigation.update();
           }}
           pagination={{
             clickable: true,
@@ -156,7 +116,7 @@ export const EventsView02 = () => {
           }}
           style={{ paddingBottom: 28 }}
         >
-          {DATA.map((item, i) => (
+          {eventFeatured.map((item, i) => (
             <SwiperSlide key={i}>
               <Card
                 elevation={0}
@@ -169,22 +129,22 @@ export const EventsView02 = () => {
                     theme.palette.mode === "light"
                       ? "0px 1px 6px rgba(0,0,0,.12)"
                       : "0px 1px 6px rgba(0,0,0,.4)",
-                  height: "100%",
+                  height: 525,
                   display: "flex",
                   flexDirection: "column",
                 }}
               >
                 <CardMedia
                   component="img"
-                  image={item.img}
+                  image={item.cover_image}
                   alt={item.title}
                   sx={{
-                    height: { xs: 220, sm: 260 },
+                    width: '100%',
+                    minHeight: 260,
                     borderRadius: 2,
-                    objectFit: "cover",
+                    objectFit: 'cover',
                   }}
                 />
-
                 <CardContent sx={{ px: { xs: 1, sm: 1.5 } }}>
                   <Typography
                     sx={{
@@ -196,11 +156,9 @@ export const EventsView02 = () => {
                   >
                     {item.title}
                   </Typography>
-
                   <Typography sx={{ mt: 1.5, fontSize: { xs: 13, sm: 14 } }}>
-                    {item.desc}
+                    {item.featured_description}
                   </Typography>
-
                   <Typography
                     sx={{
                       mt: 2,
@@ -211,12 +169,11 @@ export const EventsView02 = () => {
                   >
                     Servicios incluidos :
                   </Typography>
-
                   <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
-                    {item.services.map((s, idx) => (
+                    {item.services?.map((s, idx) => (
                       <Chip
                         key={idx}
-                        label={s}
+                        label={s.title}
                         sx={{
                           backgroundColor: "#000000ff",
                           color: "#fff",
@@ -230,7 +187,6 @@ export const EventsView02 = () => {
                       />
                     ))}
                   </Box>
-
                   <Button
                     variant="contained"
                     disableElevation
@@ -261,7 +217,6 @@ export const EventsView02 = () => {
             </SwiperSlide>
           ))}
         </StyledSwiper>
-
         {/* Único modal */}
         <FeaturedEventModal
           open={open}

@@ -41,6 +41,7 @@ export const ServiceTypePage = () => {
   const columns = [
     { id: "name", label: "Nombre", sortable: true },
     { id: "description", label: "Descripción", sortable: true },
+    { id: "category", label: "Categoría", sortable: true },
     { id: "status", label: "Estado", sortable: true },
   ];
 
@@ -53,7 +54,7 @@ export const ServiceTypePage = () => {
   ];
 
   return (
-    <Box>
+    <>
       <Box
         sx={{
           borderRadius: 2,
@@ -132,7 +133,7 @@ export const ServiceTypePage = () => {
         setServiceType={setSelectedServiceType}
         loading={loading}
       />
-    </Box>
+    </>
   );
 };
 

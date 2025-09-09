@@ -14,7 +14,7 @@ import {
   resourceSlice,
   maintenanceSlice,
   clientSlice,
-  extraDataSlice
+  clientProfileSlice
 } from './';
 
 export const store = configureStore({
@@ -25,7 +25,6 @@ export const store = configureStore({
     eventFeatured: eventFeaturedSlice.reducer,
     workers: workersSlice.reducer,
     workerTypes: workerTypesSlice.reducer,
-    extraData: extraDataSlice.reducer,
     stepper: stepperSlice.reducer,
     ui: uiSlice.reducer,
     provider: providerSlice.reducer,
@@ -34,5 +33,6 @@ export const store = configureStore({
     resource: resourceSlice.reducer,
     maintenance: maintenanceSlice.reducer,
     client: clientSlice.reducer,
+    clientProfile: clientProfileSlice.reducer
   },
 });

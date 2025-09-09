@@ -18,7 +18,7 @@ export const ExtraInformationModal = ({
   open, 
   onClose 
 }) => {
-  const { uid, loadingExtraData, startUpdateExtraData } = useUsersStore();
+  const { uid, loadingClientProfile, startUpdateExtraData } = useUsersStore();
 
   const {
     register,
@@ -39,7 +39,7 @@ export const ExtraInformationModal = ({
     }
   };
 
-  const isButtonDisabled = useMemo(() => loadingExtraData, [loadingExtraData]);
+  const isButtonDisabled = useMemo(() => loadingClientProfile, [loadingClientProfile]);
 
   return (
     <Modal

@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { eventFeaturedApi } from '../../api';
 import {
+  listAllEventFeatured,
   refreshEventFeatured,
   selectedEventFeatured,
   setLoadingEventFeatured,
@@ -13,7 +14,7 @@ import {
   updateEventFeaturedModel
 } from '../../shared/models';
 import { useState } from 'react';
-import { getAuthConfig } from '../../shared/utils';
+import { getAuthConfig, getAuthConfigWithParams } from '../../shared/utils';
 
 export const useEventFeaturedStore = () => {
   const dispatch = useDispatch();
@@ -52,13 +53,28 @@ export const useEventFeaturedStore = () => {
     }
   };
 
+  const startLoadingAllEventFeatured = async () => {
+    dispatch(setLoadingEventFeatured(true));
+    try {
+      const { data } = await eventFeaturedApi.get('/all');
+      dispatch(listAllEventFeatured(data));
+      return true;
+    } catch (error) {
+      const message = error.response?.data?.message;
+      openSnackbar(message ?? "Ocurrió un error al cargar los eventos destacados.");
+      return false;
+    } finally {
+      dispatch(setLoadingEventFeatured(false));
+    }
+  };
+
   const startLoadingEventFeaturedPaginated = async () => {
     dispatch(setLoadingEventFeatured(true));
     try {
       const limit  = rowsPerPage;
       const offset = currentPage * rowsPerPage;
       const { data } = await eventFeaturedApi.get('/paginated',
-        getAuthConfig(token, {  
+        getAuthConfigWithParams(token, {  
           limit,
           offset,
           search: searchTerm.trim(),
@@ -157,6 +173,7 @@ export const useEventFeaturedStore = () => {
 
     // actions
     startCreateEventFeatured,
+    startLoadingAllEventFeatured,
     startLoadingEventFeaturedPaginated,
     startUpdateEventFeatured,
     setSelectedEventFeatured,

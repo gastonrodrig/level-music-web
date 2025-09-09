@@ -1,4 +1,3 @@
-// src/modules/landing/components/modal/featured-event-modal.jsx
 import React, { useRef } from "react";
 import {
   Box,
@@ -7,38 +6,16 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Button,
   IconButton,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CloseIcon from "@mui/icons-material/Close";
-import { ChevronLeft, ChevronRight } from "@mui/icons-material";
-
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper/modules";
+import { Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 
-import { foto_1 } from "../../../../assets/images/events";
-
-export const FeaturedEventModal = ({ open, onClose, event }) => {
-  const data = {
-    title: event?.title ?? "Evento destacado",
-    desc:
-      event?.desc ??
-      "Celebramos los 50 aniversario de casados de una hermosa pareja",
-    img: event?.img ?? foto_1,
-    services: event?.services ?? [
-      "Música en vivo (acordeón)",
-      "Decoración con temática",
-      "Comida Buffet",
-    ],
-    images: event?.images ?? [foto_1, foto_1, foto_1],
-  };
-
-  const prevRef = useRef(null);
-  const nextRef = useRef(null);
-
+export const FeaturedEventModal = ({ open, onClose, event, sx }) => {
   return (
     <Modal open={open} onClose={onClose}>
       <Box
@@ -50,9 +27,11 @@ export const FeaturedEventModal = ({ open, onClose, event }) => {
           bgcolor: "background.paper",
           borderRadius: 4,
           boxShadow: 24,
-          width: { xs: "94%", md: 920 },
-          p: { xs: 2, md: 3 },
-          outline: "none",
+          width: { xs: '96vw', sm: '90vw', md: 900 },
+          maxWidth: '100vw',
+          p: { xs: 3, sm: 2, md: 3 },
+          outline: 'none',
+          overflowY: 'auto',
         }}
       >
         {/* Header */}
@@ -65,136 +44,106 @@ export const FeaturedEventModal = ({ open, onClose, event }) => {
           }}
         >
           <Typography variant="h6" fontWeight={700}>
-            {data.title}
+            {event?.title}
           </Typography>
           <IconButton onClick={onClose} aria-label="Cerrar">
             <CloseIcon />
           </IconButton>
         </Box>
-
-        {/* Cuerpo */}
+        <style>{`
+          .featured-modal-swiper { position: relative; }
+          .featured-modal-swiper .swiper-pagination {
+            position: absolute !important;
+            left: 0; right: 0; bottom: 10px !important;
+            display: flex; justify-content: center; align-items: center;
+            gap: 10px; margin: 0 !important; z-index: 2;
+            pointer-events: auto;
+          }
+          .featured-modal-swiper .swiper-pagination-bullet {
+            width: 10px; height: 10px; border-radius: 50%;
+            background-color: #BDBDBD !important;
+            opacity: 1 !important; margin: 0 6px !important;
+            transition: transform .25s ease, background-color .25s ease;
+          }
+          .featured-modal-swiper .swiper-pagination-bullet-active {
+            background-color: #FF9800 !important;
+            transform: scale(1.15);
+          }
+          @media (prefers-color-scheme: light) {
+            .featured-modal-swiper .swiper-pagination-bullet-active {
+              background-color: #000 !important;
+            }
+          }
+        `}</style>
         <Box
           sx={{
-            display: "grid",
-            gridTemplateColumns: { xs: "1fr", md: "360px 1fr" },
-            gap: 3,
-            alignItems: "start",
+            display: { xs: "block", md: "flex" },
+            flexDirection: { md: "row" },
+            gap: { xs: 0, md: 3 },
+            alignItems: "flex-start",
           }}
         >
-          {/* Carrusel de imágenes */}
-          <Box sx={{ position: "relative", pt: 5 }}>
-            {/* Flechas centradas sobre la parte superior de la imagen */}
-            <Box
-              sx={{
-                position: "absolute",
-                top: 0,
-                left: "50%",
-                transform: "translateX(-50%)",
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-                zIndex: 3,
-              }}
-            >
-              <IconButton
-                ref={prevRef}
-                aria-label="Anterior imagen"
-                sx={{
-                  border: "2px solid",
-                  borderColor: "text.tertiary",
-                  bgcolor: "rgba(0,0,0,0.6)",
-                  color: "#fff",
-                  "&:hover": { bgcolor: "rgba(0,0,0,0.8)" },
-                  width: 40,
-                  height: 40,
-                  p: 2, // 👈 padding agregado
-                }}
-              >
-                <ChevronLeft />
-              </IconButton>
-              <IconButton
-                ref={nextRef}
-                aria-label="Siguiente imagen"
-                sx={{
-                  border: "2px solid",
-                  borderColor: "text.tertiary",
-                  bgcolor: "rgba(0,0,0,0.6)",
-                  color: "#fff",
-                  "&:hover": { bgcolor: "rgba(0,0,0,0.8)" },
-                  width: 40,
-                  height: 40,
-                  p: 2, // 👈 padding agregado
-                }}
-              >
-                <ChevronRight />
-              </IconButton>
-            </Box>
-
+          {/* Carrusel de imágenes con paginación de puntos */}
+          <Box sx={{ flex: '1 1 360px', minWidth: 0, position: "relative", mb: { xs: 2, md: 0 } }}>
             <Swiper
-              modules={[Navigation]}
-              navigation={{
-                prevEl: prevRef.current,
-                nextEl: nextRef.current,
-              }}
-              onBeforeInit={(swiper) => {
-                swiper.params.navigation.prevEl = prevRef.current;
-                swiper.params.navigation.nextEl = nextRef.current;
-              }}
-              loop
-              style={{ borderRadius: 12 }}
+              className="featured-modal-swiper"
+              modules={[Pagination]}
+              pagination={{ clickable: true }}
+              loop={false}
+              style={{ borderRadius: 12, paddingBottom: 36 }}
             >
-              {data.images.map((src, idx) => (
+              {event?.images?.map((src, idx) => (
                 <SwiperSlide key={idx}>
                   <Box
                     component="img"
                     src={src}
-                    alt={`${data.title} ${idx + 1}`}
                     sx={{
-                      width: "100%",
-                      height: 260,
-                      objectFit: "cover",
+                      width: '100%',
+                      height: { xs: 180, sm: 220, md: 260 },
+                      maxHeight: { xs: 180, sm: 220, md: 260 },
+                      objectFit: 'cover',
                       borderRadius: 3,
-                      display: "block",
+                      display: 'block',
                     }}
                   />
                 </SwiperSlide>
               ))}
             </Swiper>
           </Box>
-
           {/* Texto + acordeón */}
-          <Box>
+          <Box sx={{ flex: '2 1 0', minWidth: 0 }}>
             <Typography color="text.secondary" sx={{ mb: 2 }}>
-              {data.desc}
+              {event?.featured_description}
             </Typography>
-
             <Typography fontWeight={700} sx={{ mb: 1 }}>
               Servicios incluidos
             </Typography>
-
-            {data.services.slice(0, 3).map((srv, idx) => (
-              <Accordion
-                key={`${srv}-${idx}`}
-                defaultExpanded={idx === 0}
-                disableGutters
-                sx={{
-                  borderRadius: 2,
-                  mb: 1.2,
-                  "&:before": { display: "none" },
-                  boxShadow: 1,
-                }}
-              >
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                  <Typography fontWeight={600}>{srv}</Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Typography color="text.secondary">
-                    Detalle del servicio: {srv}. Incluye todo lo necesario para
-                    tu evento.
-                  </Typography>
-                </AccordionDetails>
-              </Accordion>
-            ))}
+            {event?.services?.slice(0, 3).map((srv, idx) => {
+              const title = srv?.title;
+              const desc = srv?.description;
+              return (
+                <Accordion
+                  key={`${title}-${idx}`}
+                  defaultExpanded={idx === 0}
+                  disableGutters
+                  sx={{
+                    borderRadius: 2,
+                    mb: 1.2,
+                    "&:before": { display: "none" },
+                    boxShadow: 1,
+                  }}
+                >
+                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <Typography fontWeight={600}>{title}</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Typography color="text.secondary">
+                      {desc}
+                    </Typography>
+                  </AccordionDetails>
+                </Accordion>
+              );
+            })}
           </Box>
         </Box>
       </Box>

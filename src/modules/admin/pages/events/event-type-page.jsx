@@ -54,7 +54,7 @@ export const EventTypePage = () => {
   ];
 
   return (
-    <Box>
+    <>
       <Box
         sx={{
           borderRadius: 2,
@@ -134,6 +134,6 @@ export const EventTypePage = () => {
         loading={loading}
       />
 
-    </Box>
+    </>
   );
 };
