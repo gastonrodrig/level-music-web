@@ -29,7 +29,7 @@ export const FeaturedEventModal = ({ open, onClose, event, sx }) => {
           boxShadow: 24,
           width: { xs: '96vw', sm: '90vw', md: 900 },
           maxWidth: '100vw',
-          p: { xs: 1, sm: 2, md: 3 },
+          p: { xs: 3, sm: 2, md: 3 },
           outline: 'none',
           overflowY: 'auto',
         }}
@@ -104,7 +104,6 @@ export const FeaturedEventModal = ({ open, onClose, event, sx }) => {
                       objectFit: 'cover',
                       borderRadius: 3,
                       display: 'block',
-                      pt: 2,
                     }}
                   />
                 </SwiperSlide>
