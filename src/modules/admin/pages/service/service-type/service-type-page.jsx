@@ -54,7 +54,7 @@ export const ServiceTypePage = () => {
   ];
 
   return (
-    <Box>
+    <>
       <Box
         sx={{
           borderRadius: 2,
@@ -133,7 +133,7 @@ export const ServiceTypePage = () => {
         setServiceType={setSelectedServiceType}
         loading={loading}
       />
-    </Box>
+    </>
   );
 };
 

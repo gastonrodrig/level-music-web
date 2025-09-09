@@ -57,7 +57,7 @@ export const ClientPage = () => {
   ];
 
   return (
-    <Box>
+    <>
       <Box
         sx={{
           borderRadius: 2,
@@ -137,6 +137,6 @@ export const ClientPage = () => {
         loading={loading}
       />
 
-    </Box>
+    </>
   );
 };

@@ -59,7 +59,7 @@ export const WorkerPage = () => {
   ];
 
   return (
-    <Box>
+    <>
       <Box
         sx={{
           borderRadius: 2,
@@ -138,6 +138,6 @@ export const WorkerPage = () => {
         setWorker={setSelectedWorker}
         loading={loading}
       /> 
-    </Box>
+    </>
   );
 };

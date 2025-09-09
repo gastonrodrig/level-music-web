@@ -68,7 +68,7 @@ export const ResourceMaintenancePage = () => {
   ];
 
   return (
-    <Box>
+    <>
       <Box
         sx={{
           borderRadius: 2,
@@ -182,6 +182,6 @@ export const ResourceMaintenancePage = () => {
         setMaintenance={setSelectedMaintenance}
         loading={loading}
       />
-    </Box>
+    </>
   );
 };

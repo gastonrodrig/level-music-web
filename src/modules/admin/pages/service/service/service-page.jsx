@@ -46,7 +46,7 @@ export const ServicePage = () => {
   ];
 
   return (
-    <Box>
+    <>
       <Box
         sx={{
           borderRadius: 2,
@@ -118,6 +118,6 @@ export const ServicePage = () => {
           />
         )}
       </Box>
-    </Box>
+    </>
   );
 };

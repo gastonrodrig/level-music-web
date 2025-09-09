@@ -81,7 +81,7 @@ export const ResourcePage = () => {
   ];
 
   return (
-    <Box>
+    <>
       <Box
         sx={{
           borderRadius: 2,
@@ -161,6 +161,6 @@ export const ResourcePage = () => {
         setResource={setSelectedResource}
         loading={loading}
       />
-    </Box>
+    </>
   );
 };

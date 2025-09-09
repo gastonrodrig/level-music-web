@@ -55,7 +55,7 @@ export const ProviderPage = () => {
   ];
 
   return (
-    <Box>
+    <>
       <Box
         sx={{
           borderRadius: 2,
@@ -134,6 +134,6 @@ export const ProviderPage = () => {
         setProvider={setSelectedProvider}
         loading={loading}
       />
-    </Box>
+    </>
   );
 };
