@@ -65,6 +65,7 @@ export const useUsersStore = () => {
   const startUpdateExtraData = async (uid, extraData) => {
     dispatch(setLoadingClientProfile());
     try {
+      console.log(extraData)
       const payload = updateClientDataModel(extraData);
       const { data } = await userApi.patch(`extra-data/${uid}`, payload, getAuthConfig(token));
       dispatch(
