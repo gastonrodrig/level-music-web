@@ -57,7 +57,14 @@ export const EventFeaturedModal = ({
     urlsToFiles,
     handleImagesChange,
     handleRemoveImage,
+    imageError,
+    setImageError,
   } = useImageManager(watch, setValue);
+
+  // Limpiar error de imagen al abrir/cerrar modal
+  useEffect(() => {
+    if (!open) setImageError("");
+  }, [open, setImageError]);
 
   const handleCodeChange = async (value) => {
     const formattedValue = value.toUpperCase();
@@ -318,13 +325,27 @@ export const EventFeaturedModal = ({
             <Typography fontWeight={500} mb={1}>
               Imágenes del evento
             </Typography>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleImagesChange} // <-- sin rhfImagesOnChange
-              style={{ display: "block", marginBottom: 12 }}
-            />
+            <Box sx={{ position: 'relative', display: 'inline-block', mb: 2 }}>
+              <Button
+                variant="outlined"
+                component="label"
+                sx={{ textTransform: 'none', fontWeight: 500 }}
+              >
+                ELEGIR IMÁGENES
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleImagesChange}
+                  style={{ display: 'none' }}
+                />
+              </Button>
+            </Box>
+            {imageError && (
+              <Typography color="error" variant="body2" sx={{ mb: 1 , fontSize: '1rem', fontWeight: 500}}>
+                {imageError}
+              </Typography>
+            )}
 
             {previews.length > 0 && (
               <Swiper
@@ -399,6 +420,7 @@ export const EventFeaturedModal = ({
               variant="outlined"
               onClick={onClose}
               disabled={isButtonDisabled}
+             
             >
               Cancelar
             </Button>
