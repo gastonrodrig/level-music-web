@@ -7,6 +7,7 @@ const initialState = {
   currentPage: 0,
   rowsPerPage: 5,
   loading: false,
+  loadingImages: false,
 };
 
 export const eventFeaturedSlice = createSlice({
@@ -26,6 +27,9 @@ export const eventFeaturedSlice = createSlice({
     setLoadingEventFeatured: (state, action) => {
       state.loading = action.payload;
     },
+    setLoadingImagesEventFeatured: (state, action) => {
+      state.loadingImages = action.payload;
+    },
     setPageEventFeatured: (state, action) => {
       state.currentPage = action.payload;
     },
@@ -42,6 +46,7 @@ export const {
   refreshEventFeatured,
   selectedEventFeatured,
   setLoadingEventFeatured,
+  setLoadingImagesEventFeatured,
   setPageEventFeatured,
   setRowsPerPageEventFeatured,
   listAllEventFeatured,

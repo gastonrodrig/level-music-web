@@ -3,6 +3,7 @@ export * from './circ-progress';
 export * from './landing-drawer';
 export * from './footer';
 export * from './global-snackbar';
+export * from './image-preview-modal';
 export * from './logo';
 export * from './message-dialog';
 export * from './nav-bar';

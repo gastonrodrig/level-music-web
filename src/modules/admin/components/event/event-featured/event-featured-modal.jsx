@@ -6,7 +6,7 @@ import {
   Button,
   IconButton,
 } from "@mui/material";
-import { Close, Delete, Edit } from "@mui/icons-material";
+import { Close, CloudUpload, Delete, Edit } from "@mui/icons-material";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -15,10 +15,11 @@ import {
   useEventStore,
 } from "../../../../../hooks";
 import { EventFeaturedFieldModal } from "./event-featured-field-modal";
+import { ImagePreviewModal } from "../../../../../shared/ui/components/common";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination } from "swiper/modules";
 import "swiper/css";
-import "swiper/css/pagination";
+import { useDispatch } from "react-redux";
+import { setLoadingImagesEventFeatured } from "../../../../../store";
 
 export const EventFeaturedModal = ({
   open,
@@ -27,9 +28,10 @@ export const EventFeaturedModal = ({
   setEventFeatured,
   loading,
 }) => {
+  const dispatch = useDispatch();
   const isEditing = !!eventFeatured?._id;
   const { startSearchingEvent } = useEventStore();
-  const { startCreateEventFeatured, startUpdateEventFeatured } =
+  const { loadingImages, startCreateEventFeatured, startUpdateEventFeatured } =
     useEventFeaturedStore();
 
   const {
@@ -59,7 +61,24 @@ export const EventFeaturedModal = ({
     handleRemoveImage,
   } = useImageManager(watch, setValue);
 
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  const handleOpenPreview = (imageUrl) => {
+    setSelectedImage(imageUrl);
+    setPreviewModalOpen(true);
+  };
+
+  const handleClosePreview = () => {
+    setSelectedImage(null);
+    setPreviewModalOpen(false);
+  };
+
   const handleCodeChange = async (value) => {
+    if (!value) {
+      setValue("eventCode", "");
+      return;
+    }
     const formattedValue = value.toUpperCase();
     setValue("eventCode", formattedValue);
     const { ok, data } = await startSearchingEvent(formattedValue);
@@ -80,6 +99,7 @@ export const EventFeaturedModal = ({
   useEffect(() => {
     if (open) {
       (async () => {
+        dispatch(setLoadingImagesEventFeatured(true));
         const initialImages = eventFeatured?.images ?? [];
         const files = await urlsToFiles(initialImages);
 
@@ -92,6 +112,8 @@ export const EventFeaturedModal = ({
         });
 
         setPreviews(files.map((f) => URL.createObjectURL(f)));
+        await handleCodeChange(eventFeatured.event_code);
+        dispatch(setLoadingImagesEventFeatured(false));
       })();
     }
   }, [open, eventFeatured]);
@@ -107,7 +129,6 @@ export const EventFeaturedModal = ({
       : await startCreateEventFeatured(payload);
 
     if (success) {
-      // Solo guardamos metadata serializable
       const safeImages = (data.images || []).map((file) => ({
         name: file.name,
         size: file.size,
@@ -157,6 +178,7 @@ export const EventFeaturedModal = ({
     ...imagesFieldRest
   } = register("images");
 
+  // Para agrupar las imágenes de 4 en 4 dentro del carrusel
   const chunk = (arr, size) =>
     arr.reduce(
       (acc, _, i) =>
@@ -164,7 +186,20 @@ export const EventFeaturedModal = ({
       []
     );
 
-  const groupsOf4 = chunk(previews, 4);
+  const getPreviewSrc = (item) => {
+    if (!item) return "";
+    if (typeof item === "string") return item;
+    if (item.previewUrl) return item.previewUrl;
+    if (item.preview) return item.preview;
+    if (item.url) return item.url;
+    return "";
+  };
+
+  const normalizedPreviews = (previews || [])
+    .map(getPreviewSrc)
+    .filter(Boolean);
+
+  const groupsOf4 = chunk(normalizedPreviews, 4);
 
   return (
     <>
@@ -194,6 +229,7 @@ export const EventFeaturedModal = ({
             overflowY: "auto",
           }}
         >
+          {/* Encabezado */}
           <Box
             display="flex"
             justifyContent="space-between"
@@ -201,15 +237,14 @@ export const EventFeaturedModal = ({
             mb={3}
           >
             <Typography variant="h6" fontWeight={600}>
-              {isEditing
-                ? "Editar Evento Destacado"
-                : "Agregar Evento Destacado"}
+              {isEditing ? "Editar Evento Destacado" : "Agregar Evento Destacado"}
             </Typography>
             <IconButton onClick={onClose}>
               <Close />
             </IconButton>
           </Box>
 
+          {/* Campos principales */}
           <Box display="flex" flexDirection="column" gap={2} mb={3}>
             <TextField
               label="Código del evento"
@@ -218,8 +253,7 @@ export const EventFeaturedModal = ({
                 required: "El código del evento es obligatorio",
                 pattern: {
                   value: /^EVT-\d{8}-[A-Z0-9]{6}$/,
-                  message:
-                    "El código debe tener el formato EVT-YYYYMMDD-XXXXXX",
+                  message: "El código debe tener el formato EVT-YYYYMMDD-XXXXXX",
                 },
               })}
               inputProps={{
@@ -254,16 +288,62 @@ export const EventFeaturedModal = ({
               multiline
               rows={3}
               fullWidth
-              {...register("featured_description")}
+              {...register("featured_description", {
+                required: "La descripción es obligatoria",
+              })}
+              error={Boolean(errors.featured_description)}
+              helperText={errors.featured_description?.message}
             />
           </Box>
 
-          <Box mb={3}>
-            <Typography fontWeight={500} mb={1}>
-              Servicios incluidos
+          {/* Sección de servicios */}
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={2}
+            mt={1}
+          >
+            <Typography fontSize={18} fontWeight={500}>
+              Servicios Incluidos
             </Typography>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={handleAddField}
+              disabled={isButtonDisabled}
+              sx={{
+                backgroundColor: "#212121",
+                color: "#fff",
+                textTransform: "none",
+                py: 1,
+                px: 2,
+                borderRadius: 2,
+                fontWeight: 600,
+              }}
+            >
+              + Agregar servicio
+            </Button>
+          </Box>
+
+          {/* Lista de servicios */}
+          <Box
+            sx={{
+              maxHeight: 190,
+              overflowY: "auto",
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              mb: 2,
+            }}
+          >
             {fields.length === 0 ? (
-              <Typography color="text.secondary" mb={2}>
+              <Typography
+                textAlign="center"
+                color="text.secondary"
+                fontSize={14}
+                my={2}
+              >
                 No hay servicios añadidos aún.
               </Typography>
             ) : (
@@ -277,139 +357,223 @@ export const EventFeaturedModal = ({
                   p="15px"
                   bgcolor="background.paper"
                   boxShadow={1}
-                   sx={{
-                              
-                                borderRadius: 1.5,
-                                border: (theme) =>
-                                  `1px solid ${
-                                    theme.palette.mode === "dark"
-                                      ? "#3c3c3c"
-                                      : "#e0e0e0"
-                                  }`,
-                              }}
+                  sx={{
+                    borderRadius: 1.5,
+                    border: (theme) =>
+                      `1px solid ${
+                        theme.palette.mode === "dark" ? "#3c3c3c" : "#e0e0e0"
+                      }`,
+                  }}
                 >
-                  <Box sx={{ maxWidth: '70%', flex: 1, overflow: 'hidden' }}>
-                    <Typography fontWeight={500} sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {field.title || <span style={{ color: '#aaa' }}>[Sin título]</span>}
+                  <Box sx={{ maxWidth: "70%", flex: 1, overflow: "hidden" }}>
+                    <Typography
+                      fontWeight={500}
+                      sx={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {field.title || (
+                        <span style={{ color: "#aaa" }}>[Sin título]</span>
+                      )}
                     </Typography>
                     {field.description && (
-                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                          mt: 0.5,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
                         {field.description}
                       </Typography>
                     )}
                   </Box>
                   <Box>
-                    <IconButton aria-label="Editar servicio" size="small" onClick={() => handleEditField(field, index)}>
+                    <IconButton
+                      aria-label="Editar servicio"
+                      size="small"
+                      onClick={() => handleEditField(field, index)}
+                    >
                       <Edit fontSize="small" />
                     </IconButton>
-                    <IconButton aria-label="Eliminar servicio" size="small" onClick={() => remove(index)}>
+                    <IconButton
+                      aria-label="Eliminar servicio"
+                      size="small"
+                      onClick={() => remove(index)}
+                    >
                       <Delete fontSize="small" />
                     </IconButton>
                   </Box>
                 </Box>
               ))
             )}
-            <Button variant="outlined" onClick={handleAddField} sx={{ mt: 2 }}>
-              Agregar Servicio
-            </Button>
           </Box>
 
-          <Box mb={3}>
-            <Typography fontWeight={500} mb={1}>
+          {/* Sección de imágenes */}
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={2}
+            mt={1}
+          >
+            <Typography fontSize={18} fontWeight={500}>
               Imágenes del evento
             </Typography>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleImagesChange} // <-- sin rhfImagesOnChange
-              style={{ display: "block", marginBottom: 12 }}
-            />
+            <Button
+              variant="contained"
+              size="small"
+              component="label"
+              startIcon={<CloudUpload />}
+              disabled={isButtonDisabled}
+              sx={{
+                backgroundColor: "#212121",
+                color: "#fff",
+                textTransform: "none",
+                py: 1,
+                px: 2,
+                borderRadius: 2,
+                fontWeight: 600,
+              }}
+            >
+              Seleccionar imágenes
+              <input
+                type="file"
+                hidden
+                multiple
+                accept="image/*"
+                onChange={handleImagesChange}
+              />
+            </Button>
+          </Box>
 
-            {previews.length > 0 && (
-              <Swiper
-                modules={[Pagination]}
-                pagination={{ clickable: true }}
-                spaceBetween={10}
-                slidesPerView={1}
-              >
-                {groupsOf4.map((group, gi) => (
-                  <SwiperSlide key={gi}>
-                    <Box
-                      display="grid"
-                      gridTemplateColumns="repeat(4,1fr)"
-                      gap={1}
-                    >
-                      {group.map((src, i) => {
-                        const globalIndex = gi * 4 + i;
-                        return (
+          {/* Carrusel de vista previa */}
+          <Box mb={2}>
+          {loadingImages ? (
+            <Typography
+              textAlign="center"
+              color="text.secondary"
+              fontSize={14}
+              my={2}
+            >
+              Cargando imagenes...
+            </Typography>
+          ) : previews.length > 0 ? (
+            <Swiper spaceBetween={10} slidesPerView={1}>
+              {groupsOf4.map((group, gi) => (
+                <SwiperSlide key={gi}>
+                  <Box
+                    display="grid"
+                    gridTemplateColumns="repeat(4, 1fr)"
+                    gap={1}
+                    mb={2}
+                  >
+                    {group.map((src, i) => {
+                      const globalIndex = gi * 4 + i;
+                      return (
+                        <Box
+                          key={i}
+                          sx={{
+                            position: "relative",
+                            width: "100%",
+                            pt: "100%",
+                          }}
+                        >
                           <Box
-                            key={i}
+                            component="img"
+                            src={src}
+                            alt={`preview-${i}`}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleOpenPreview(src);
+                            }}
                             sx={{
-                              position: "relative",
+                              position: "absolute",
+                              top: 0,
+                              left: 0,
                               width: "100%",
-                              pt: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                              borderRadius: 1.5,
+                              border: (theme) =>
+                                `1px solid ${
+                                  theme.palette.mode === "dark" ? "#3c3c3c" : "#e0e0e0"
+                                }`,
+                              cursor: "pointer",
+                              transition: "transform 0.2s ease",
+                              "&:hover": {
+                                transform: "scale(1.02)",
+                              },
+                            }}
+                          />
+
+                          {/* Botón para eliminar imagen */}
+                          <IconButton
+                            size="small"
+                            sx={{
+                              position: "absolute",
+                              top: 4,
+                              right: 4,
+                              bgcolor: "rgba(0,0,0,0.5)",
+                              "&:hover": { bgcolor: "rgba(0,0,0,0.7)" },
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveImage(globalIndex);
                             }}
                           >
-                            <Box
-                              component="img"
-                              src={src}
-                              alt={`preview-${i}`}
-                              sx={{
-                                position: "absolute",
-                                top: 0,
-                                left: 0,
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "cover",
-                                borderRadius: 1.5,
-                                border: (theme) =>
-                                  `1px solid ${
-                                    theme.palette.mode === "dark"
-                                      ? "#3c3c3c"
-                                      : "#e0e0e0"
-                                  }`,
-                              }}
-                            />
-                            <IconButton
-                              size="small"
-                              sx={{
-                                position: "absolute",
-                                top: 4,
-                                right: 4,
-                                bgcolor: "rgba(0,0,0,0.5)",
-                                "&:hover": { bgcolor: "rgba(0,0,0,0.7)" },
-                              }}
-                              onClick={() => handleRemoveImage(globalIndex)}
-                            >
-                              <Close fontSize="small" sx={{ color: "#fff" }} />
-                            </IconButton>
-                          </Box>
-                        );
-                      })}
-                    </Box>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            )}
-          </Box>
+                            <Close fontSize="small" sx={{ color: "#fff" }} />
+                          </IconButton>
+                        </Box>
+                      );
+                    })}
+                  </Box>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          ) : (
+            <Typography
+              textAlign="center"
+              color="text.secondary"
+              fontSize={14}
+              my={4}
+            >
+              No hay imágenes disponibles
+            </Typography>
+          )}
+        </Box>
 
-          <Box display="flex" justifyContent="flex-end" gap={2}>
-            <Button
-              variant="outlined"
-              onClick={onClose}
-              disabled={isButtonDisabled}
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              variant="contained"
-              disabled={isButtonDisabled}
-            >
-              {isEditing ? "Actualizar" : "Crear"}
-            </Button>
-          </Box>
+          {/* Modal de vista previa */}
+          <ImagePreviewModal
+            open={previewModalOpen}
+            src={selectedImage} 
+            onClose={handleClosePreview}
+          />
+
+          {/* Botón final de guardar */}
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            disabled={isButtonDisabled}
+            sx={{
+              mt: 1,
+              backgroundColor: "#212121",
+              color: "#fff",
+              textTransform: "none",
+              py: 1.5,
+              borderRadius: 2,
+              fontWeight: 600,
+            }}
+          >
+            {isEditing ? "Guardar cambios" : "Agregar"}
+          </Button>
         </Box>
       </Modal>
     </>

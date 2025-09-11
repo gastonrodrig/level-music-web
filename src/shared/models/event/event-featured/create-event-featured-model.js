@@ -13,10 +13,10 @@ export const createEventFeaturedModel = (event) => {
   }
 
   if (Array.isArray(event.images)) {
-  event.images.forEach((file, index) => {
-  console.log(`Image[${index}]:`, file, file instanceof File);
-    formData.append("images", file);
-  });
-}
+    event.images.forEach((file) => {
+      formData.append("images", file);
+    });
+  }
+
   return formData;
 };
