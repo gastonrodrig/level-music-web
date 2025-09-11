@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { useUsersStore } from "../../../hooks/user/use-users-store";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 
 export const ExtraInformationModal = ({ 
   open, 
@@ -26,9 +26,22 @@ export const ExtraInformationModal = ({
     formState: { errors },
     watch,
     setValue,
+    reset,
   } = useForm({
     mode: "onBlur",
   });
+
+  useEffect(() => {
+    if (open) {
+      reset({
+        first_name: "",
+        last_name: "",
+        phone: "",
+        document_type: "",
+        document_number: "",
+      });
+    }
+  }, [open, reset]);
 
   const onSubmit = async (data) => {
     try {
