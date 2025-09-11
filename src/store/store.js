@@ -15,6 +15,7 @@ import {
   maintenanceSlice,
   clientSlice,
   clientProfileSlice
+  
 } from './';
 
 export const store = configureStore({
