@@ -1,29 +1,88 @@
-import { Box, Typography, TextField, Button } from '@mui/material';
-import { useServiceStore } from '../../../../../hooks';
+import { Box, Typography, TextField, Button,Divider,Link,MenuItem } from '@mui/material';
+import { AddCircleOutline, Edit } from '@mui/icons-material';
 
+import { useScreenSizes } from '../../../../../shared/constants/screen-width';
+import { useServiceTypeStore,useProviderStore } from '../../../../../hooks';
+import { useEffect } from 'react';
 export const ServiceAddPage = () => {
-  const { startCreateService } = useServiceStore();
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const newService = Object.fromEntries(formData.entries());
-    const success = await startCreateService(newService);
-    if (success) {
-      // Redirigir o mostrar mensaje de éxito
-      console.log('Servicio creado exitosamente');
-    }
-  };
-
+   const { startLoadingAllServiceTypes,serviceTypes } = useServiceTypeStore();
+   const { startLoadingProviderPaginated,provider } = useProviderStore();
+   useEffect(() => {
+    startLoadingAllServiceTypes();
+    startLoadingProviderPaginated();
+  }, []);
+  const { isLg } = useScreenSizes();
   return (
     <Box sx={{ p: 4 }}>
-      <Typography variant="h4" sx={{ mb: 3 }}>Agregar Nuevo Servicio</Typography>
-      <form onSubmit={handleSubmit}>
-        <TextField name="name" label="Nombre del Servicio" fullWidth sx={{ mb: 2 }} required />
-        <TextField name="description" label="Descripción" fullWidth sx={{ mb: 2 }} required />
-        <TextField name="price" label="Precio" type="number" fullWidth sx={{ mb: 2 }} required />
-        <Button type="submit" variant="contained" sx={{ mt: 2 }}>Guardar</Button>
-      </form>
+      
+        <Typography variant="h4" component="div" sx={{ flexGrow: 1, textAlign: 'Start', mb: 4, fontSize:25}}>
+          Creando Nuevo Servicio
+        </Typography>
+
+      <Box component="form" sx={{ display: 'flex', flexDirection: 'row', maxWidth: 1200, margin: '0 auto', gap: 4,  }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+          <Typography variant="h4" component="div" sx={{  mb:2,fontSize:18}}>
+            Provedor
+          </Typography>
+          <TextField
+            select
+            label="Seleccionar Proveedor"
+            variant="outlined"
+            fullWidth
+            sx={{ mb: 2 }}
+            InputProps={{
+              sx: { borderRadius: 5 } // Cambia el valor para hacerlo más o menos redondo
+          }}
+        >
+          {provider.map((typi) => (
+            <MenuItem key={typi._id} value={typi._id}>
+              {typi.name}
+            </MenuItem>
+          ))}
+          {/* Aquí irían las opciones del select */}
+        </TextField>
+        </Box>
+        <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+          <Typography variant="h4" component="div" sx={{ mb:2,fontSize:18}}>
+            Tipo de servicio
+          </Typography>
+          <TextField
+            select
+            label="Seleccionar Tipo de Servicio"
+            variant="outlined"
+            fullWidth
+            sx={{ mb: 2 }}
+            InputProps={{
+              sx: { borderRadius: 5 } // Cambia el valor para hacerlo más o menos redondo
+          }}
+        >
+          {serviceTypes.map((type) => (
+            <MenuItem key={type._id} value={type._id}>
+              {type.name}
+            </MenuItem>
+          ))}
+          {/* Aquí irían las opciones del select */}
+        </TextField>
+        </Box>
+      </Box>
+      <Divider sx={{ my: 2 }} />
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: 1200, margin: '0 auto', mt: 2 }}>
+        <Typography variant="h4" component="div" sx={{ flexGrow: 1, textAlign: 'Start', mb: 4, fontSize:25, pt:2 }}>
+          Detalles del Servicio
+        </Typography>
+            <Button
+              variant="contained"
+              startIcon={<AddCircleOutline />}
+              sx={{ backgroundColor: '#212121', color: '#fff', borderRadius: 2, textTransform: 'none', px: 3, py: 1.5 }}
+            >
+              {isLg ? 'Agregar Detalle' : 'Agregar'}
+            </Button>
+            <Box>
+
+            </Box>
+      </Box>
     </Box>
+
   );
 };
