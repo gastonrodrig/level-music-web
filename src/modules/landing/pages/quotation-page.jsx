@@ -4,24 +4,47 @@ import {
   Box,
   Button,
   Divider,
-  Paper,
   Stepper,
   Step,
   StepLabel,
-  Typography
+  Typography,
+  Paper
 } from '@mui/material';
-import { CustomStepIcon, StepSections, EventTypeForm, PersonalInfoForm, EventDetailsForm, ServicesForm } from '../components/';
+import {
+  CustomStepIcon,
+  StepSections,
+  EventTypeForm,
+  PersonalInfoForm,
+  EventDetailsForm,
+  ServicesForm
+} from '../components/';
 import { useServiceTypeStore, useStepperStore } from '../../../hooks';
 import { useScreenSizes } from '../../../shared/constants/screen-width';
+import { useDispatch } from 'react-redux';
+import { showSnackbar } from '../../../store';
+import { ArrowBack, ArrowForward, Done } from '@mui/icons-material';
 
 export const QuotationPage = () => {
+  const dispatch = useDispatch();
+
   const formMethods = useForm({
     mode: 'onBlur',
     defaultValues: {
-      fullName: '',
+      // Paso 0: tipo de evento
+      eventCategory: '',
+
+      // Paso 1: Datos básicos
+      client_type: 'PERSONA',
+      first_name: '',
+      last_name: '',
+      company_name: '',
+      contact_person: '',
       email: '',
       phone: '',
-      eventCategory: '',
+      document_type: 'Dni',
+      document_number: '',
+
+      // Paso 2: detalles
       eventType: '',
       attendeesCount: 0,
       eventSchedule: '',
@@ -30,6 +53,8 @@ export const QuotationPage = () => {
       placeReference: '',
       placeType: '',
       placeCapacity: 0,
+
+      // Paso 3: servicios
       foodService: false,
       foodDetails: '',
       additionalServices: '',
@@ -37,71 +62,64 @@ export const QuotationPage = () => {
     },
   });
 
-  const { handleSubmit, reset, setValue, watch } = formMethods;
+  const { handleSubmit, reset, setValue, watch, trigger } = formMethods;
   const { startLoadingAllServiceTypes } = useServiceTypeStore();
 
-  const { 
-    currentPage, 
-    goToNextPage, 
-    goToPreviousPage 
-  } = useStepperStore();
+  // store stepper
+  const {
+    currentPage,
+    goNext,
+    goBack,
+    isFirst,
+    isLast
+  } = useStepperStore('quotation', StepSections.length);
 
   const { isMd } = useScreenSizes(); 
 
-  // Observar el tipo de evento seleccionado
+  // Observar tipo de evento
   const selectedEventType = watch('eventType');
+  const clientType = watch('client_type');
 
-  // Cargar tipos de servicio al montar el componente
+  // Auto-ajustar documento cuando es empresa
+  useEffect(() => {
+    if (clientType === 'EMPRESA') {
+      setValue('document_type', 'Ruc');
+      setValue('document_number', '');
+    }
+  }, [clientType, setValue]);
+
+  // Cargar servicios
   useEffect(() => {
     startLoadingAllServiceTypes();
   }, []);
 
-  // Manejar selección de tipo de evento
   const handleEventTypeSelect = (eventType) => {
     setValue('eventType', eventType);
   }; 
 
-  const onNext = () => {
-    // Validación especial para el primer paso (EventTypeForm)
-    if (currentPage === 0) {
-      if (!selectedEventType) {
-        if (typeof window !== 'undefined' && window.validateEventTypeForm) {
-          window.validateEventTypeForm();
-        }
-        return; // No avanzar si no hay selección
-      }
+  const onNext = async () => {
+    if (currentPage === 0 && !selectedEventType) {
+      dispatch(showSnackbar({ message: 'Debes seleccionar un tipo de evento.' }));
+      return;
     }
-    
-    handleSubmit(() => {
-      goToNextPage();
-    })();
-  };
-
-  const lastStepIndex = StepSections.length;
-
-  // Función para renderizar el componente actual con props dinámicas
-  const renderCurrentComponent = () => {
-    switch (currentPage) {
-      case 0: // EventTypeForm
-        return <EventTypeForm onSelect={handleEventTypeSelect} />;
-      case 1: // PersonalInfoForm  
-        return <PersonalInfoForm />;
-      case 2: // EventDetailsForm
-        return <EventDetailsForm selectedEventType={selectedEventType} />;
-      case 3: // ServicesForm
-        return <ServicesForm onChange={(payload) => {
-          console.log('Services selected:', payload);
-        }} />;
-      default:
-        return null;
-    }
+    const isValid = await trigger();
+    if (isValid) goNext();
   };
 
   const onFinish = handleSubmit((data) => {
     console.log('Datos completos:', data);
     reset();
-    goToPreviousPage();
   });
+
+  const renderCurrentComponent = () => {
+    switch (currentPage) {
+      case 0: return <EventTypeForm onSelect={handleEventTypeSelect} />;
+      case 1: return <PersonalInfoForm />;
+      case 2: return <EventDetailsForm selectedEventType={selectedEventType} />;
+      case 3: return <ServicesForm onChange={(payload) => console.log('Services selected:', payload)} />;
+      default: return null;
+    }
+  };
 
   return (
     <FormProvider {...formMethods}>
@@ -112,7 +130,7 @@ export const QuotationPage = () => {
         Completa los datos y recibe una proforma para tu evento.
       </Typography>
 
-      <Paper sx={{ mt: 4, p: 3, mb: { xs: 4, md: 0 } }}>
+      <Paper sx={{ mt: 4, p: { xs: 2, sm: 3, md: 4 }, mb: 4, boxShadow: 1 }}>
         <Stepper
           activeStep={currentPage}
           orientation={isMd ? 'horizontal' : 'vertical'}
@@ -133,7 +151,7 @@ export const QuotationPage = () => {
         <Divider sx={{ mt: 3, mx: -3 }} />
 
         <Box sx={{ mt: 2 }}>
-          {currentPage < lastStepIndex
+          {currentPage < StepSections.length
             ? renderCurrentComponent()
             : (
               <Typography sx={{ fontSize: 16 }}>
@@ -142,17 +160,48 @@ export const QuotationPage = () => {
             )
           }
 
-          <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
             <Button
-              color="inherit"
-              onClick={goToPreviousPage}
-              sx={{ mr: 1, visibility: currentPage === 0 ? 'hidden' : 'visible' }}
+              variant="contained"
+              color="secondary"
+              onClick={goBack}
+              startIcon={<ArrowBack />}
+              sx={{
+                px: 4,
+                py: 1,
+                borderRadius: 3,
+                textTransform: 'none',
+                fontWeight: 600,
+                visibility: isFirst ? 'hidden' : 'visible',
+                bgcolor: '#4a4a4a',
+                color: '#fff',
+                '&:hover': {
+                  bgcolor: '#5c5c5c',
+                },
+              }}
             >
               Atrás
             </Button>
-            <Box sx={{ flex: '1 1 auto' }} />
-            <Button onClick={currentPage === lastStepIndex ? onFinish : onNext}>
-              {currentPage === lastStepIndex ? 'Finalizar' : 'Siguiente'}
+
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={isLast ? onFinish : onNext}
+              endIcon={isLast ? <Done /> : <ArrowForward />}
+              sx={{
+                color: 'white',
+                px: 4,
+                py: 1,
+                borderRadius: 3,
+                textTransform: 'none',
+                fontWeight: 600,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                '&:hover': {
+                  boxShadow: '0 6px 16px rgba(0,0,0,0.25)',
+                },
+              }}
+            >
+              {isLast ? 'Finalizar' : 'Siguiente'}
             </Button>
           </Box>
         </Box>
