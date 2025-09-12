@@ -90,12 +90,14 @@ export const EventFeaturedModal = ({
         const initialImages = eventFeatured?.images ?? [];
         const files = await urlsToFiles(initialImages);
 
+
         reset({
           eventCode: eventFeatured?.event_code ?? "",
           title: eventFeatured?.title ?? "",
           featured_description: eventFeatured?.featured_description ?? "",
           services: eventFeatured?.services ?? [],
           images: files,
+          event_id: eventFeatured?.event_id ?? eventFeatured?.event?._id ?? "",
         });
 
         setPreviews(files.map((f) => URL.createObjectURL(f)));
@@ -104,13 +106,16 @@ export const EventFeaturedModal = ({
   }, [open, eventFeatured]);
 
   const onSubmit = async (data) => {
+    // Log para depuración de event_id
+    console.log('onSubmit event_id:', data.event_id, '| data:', data);
+
     const payload = {
       ...data,
       images: Array.from(data.images || []),
     };
 
     const success = isEditing
-      ? await startUpdateEventFeatured(eventFeatured._id, payload)
+      ? await startUpdateEventFeatured(eventFeatured?._id, payload)
       : await startCreateEventFeatured(payload);
 
     if (success) {
