@@ -11,20 +11,20 @@ import {
   InputLabel,
   FormHelperText,
 } from "@mui/material";
-import { useClientStore } from "../../../../hooks";
+import { useClientCompanyStore } from "../../../../hooks";
 import { Close } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
 import { useMemo, useEffect } from "react";
 
-export const ClientModal = ({
+export const ClientCompanyModal = ({
   open,
   onClose,
-  client = {},
-  setClient,
+  clientCompany = {},
+  setClientCompany,
   loading,
 }) => {
-  const isEditing = !!client?._id;
-  const { startCreateClient, startUpdateClient } = useClientStore();
+  const isEditing = !!clientCompany?._id;
+  const { startCreateClientCompany, startUpdateClientCompany } = useClientCompanyStore();
 
   const {
     register,
@@ -40,24 +40,23 @@ export const ClientModal = ({
   useEffect(() => {
     if (open) {
       reset({
-        first_name: client?.first_name ?? "",
-        last_name: client?.last_name ?? "",
-        email: client?.email ?? "",
-        phone: client?.phone ?? "",
-        document_type: client?.document_type ?? "",
-        document_number: client?.document_number ?? "",
-        status: client?.status ?? "Activo",
+        company_name: clientCompany?.company_name ?? "",
+        contact_person: clientCompany?.contact_person ?? "",
+        email: clientCompany?.email ?? "",
+        phone: clientCompany?.phone ?? "",
+        document_number: clientCompany?.document_number ?? "",
+        status: clientCompany?.status ?? "Activo",
       });
     }
-  }, [open, reset, client]);
+  }, [open, reset, clientCompany]);
 
   const onSubmit = async (data) => {
     try {
       const success = isEditing
-        ? await startUpdateClient(client._id, data)
-        : await startCreateClient(data);
+        ? await startUpdateClientCompany(clientCompany._id, data)
+        : await startCreateClientCompany(data);
       if (success) {
-        setClient(data); 
+        setClientCompany(data); 
         onClose();
       } 
     } catch (error) {
@@ -91,7 +90,7 @@ export const ClientModal = ({
           mb={3}
         >
           <Typography variant="h6" fontWeight={600}>
-            {isEditing ? "Editar cliente" : "Agregar cliente"}
+            {isEditing ? "Editar cliente empresa" : "Agregar cliente empresa"}
           </Typography>
           <IconButton onClick={onClose}>
             <Close />
@@ -100,26 +99,26 @@ export const ClientModal = ({
 
         <Box display="flex" gap={2} mb={2} sx={{ flexDirection: "column" }}>
 
-          {/* Nombre */}
+          {/* Nombre de la empresa */}
           <TextField
-            label="Nombre"
+            label="Nombre de la Empresa"
             fullWidth
-            {...register("first_name", {
-              required: "El nombre es obligatorio"              
+            {...register("company_name", {
+              required: "El nombre empresa es obligatorio"              
             })}
-            error={!!errors.first_name}
-            helperText={errors.first_name?.message}
+            error={!!errors.company_name}
+            helperText={errors.company_name?.message}
           />
 
-          {/* Apellido */}
+          {/* Persona de contacto */}
           <TextField
-            label="Apellido"
+            label="Persona de Contacto"
             fullWidth
-            {...register("last_name", {
-              required: "El apellido es obligatorio"
+            {...register("contact_person", {
+              required: "La persona de contacto es obligatorio"
             })}
-            error={!!errors.last_name}
-            helperText={errors.last_name?.message}
+            error={!!errors.contact_person}
+            helperText={errors.contact_person?.message}
           />
 
           {/* Email */}
@@ -148,51 +147,16 @@ export const ClientModal = ({
             helperText={errors.phone?.message}
           />
 
-          {/* Tipo de documento */}
-          <FormControl fullWidth error={!!errors.document_type}>
-            <InputLabel id="document-type-label">Tipo de documento</InputLabel>
-            <Select
-              labelId="document-type-label"
-              value={watch("document_type") || ""}
-              {...register("document_type", {
-                required: "Selecciona un tipo de documento",
-                onChange: (e) => {
-                  setValue("document_type", e.target.value);
-                  setValue("document_number", "");
-                },
-              })}
-              onChange={(e) => {
-                setValue("document_type", e.target.value);
-                setValue("document_number", "");
-              }}
-            >
-              <MenuItem value="Dni">DNI</MenuItem>
-              <MenuItem value="Ruc">RUC</MenuItem>
-            </Select>
-            <FormHelperText>{errors.document_type?.message}</FormHelperText>
-          </FormControl>
-
-          {/* Número de documento */}
+          {/* Número de RUC */}
           <TextField
-            label="Número de documento"
+            label="Número de RUC"
             fullWidth
             {...register("document_number", {
-              required: watch("document_type") === "Ruc"
-                ? "El número de RUC es obligatorio"
-                : watch("document_type") === "Dni"
-                ? "El número de DNI es obligatorio"
-                : "El número de documento es obligatorio",
-              pattern: watch("document_type") === "Ruc"
-                ? {
-                    value: /^10\d{9}$/,
-                    message: "El RUC debe iniciar con 10 y tener 11 dígitos",
-                  }
-                : watch("document_type") === "Dni"
-                ? {
-                    value: /^\d{8}$/,
-                    message: "El DNI debe tener 8 dígitos",
-                  }
-                : undefined,
+              required: "El número de RUC es obligatorio",
+              pattern: {
+                value: /^10\d{9}$/,
+                message: "El RUC debe iniciar con 10 y tener 11 dígitos",
+              },
             })}
             error={!!errors.document_number}
             helperText={errors.document_number?.message}

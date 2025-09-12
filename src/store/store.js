@@ -13,7 +13,8 @@ import {
   eventFeaturedSlice,
   resourceSlice,
   maintenanceSlice,
-  clientSlice,
+  clientPersonSlice,
+  clientCompanySlice,
   extraDataSlice
 } from './';
 
@@ -33,6 +34,7 @@ export const store = configureStore({
     serviceType: serviceTypeSlice.reducer,
     resource: resourceSlice.reducer,
     maintenance: maintenanceSlice.reducer,
-    client: clientSlice.reducer,
+    clientPerson: clientPersonSlice.reducer,
+    clientCompany: clientCompanySlice.reducer
   },
 });

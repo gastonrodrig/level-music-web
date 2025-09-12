@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Box, Typography, Button, TextField, CircularProgress } from '@mui/material';
 import { AddCircleOutline, Edit } from '@mui/icons-material';
-import { useClientStore, useUsersStore } from '../../../../hooks';
+import { useClientPersonStore } from '../../../../hooks';
 import { TableComponent } from '../../../../shared/ui/components';
 import { useScreenSizes } from '../../../../shared/constants/screen-width';
-import { ClientModal } from '../../components/client/client-modal';
+import { ClientPersonModal } from '../../components/client';
 
-export const ClientPage = () => {
+export const ClientPersonPage = () => {
   const {
-    clients,
+    clientsPerson,
     total,
     loading,
     searchTerm,
@@ -22,19 +22,19 @@ export const ClientPage = () => {
     setPageGlobal,
     setOrderBy,
     setOrder,
-    startLoadingClientsPaginated,
-    setSelectedClient,
-  } = useClientStore();
+    startLoadingClientsPersonPaginated,
+    setSelectedClientPerson,
+  } = useClientPersonStore();
   const { isLg } = useScreenSizes();
 
   const [isModalOpen, setIsModalOpen] = useState(false); 
 
   useEffect(() => {
-    startLoadingClientsPaginated();
+    startLoadingClientsPersonPaginated();
   }, [currentPage, rowsPerPage, searchTerm, orderBy, order]);
 
   const openModal = (payload) => {
-    setSelectedClient(payload);
+    setSelectedClientPerson(payload);
     setIsModalOpen(true); 
   };
 
@@ -66,8 +66,8 @@ export const ClientPage = () => {
       >
         <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ px: 3, py: 2 }}>
           <Box>
-            <Typography sx={{ fontWeight: 600, fontSize: 24 }}>Listado de Clientes</Typography>
-            <Typography sx={{ color: 'text.secondary', fontSize: 16 }}>Administra los clientes</Typography>
+            <Typography sx={{ fontWeight: 600, fontSize: 24 }}>Listado de Clientes Persona</Typography>
+            <Typography sx={{ color: 'text.secondary', fontSize: 16 }}>Administra los clientes persona</Typography>
           </Box>
           <Button
             variant="contained"
@@ -75,7 +75,7 @@ export const ClientPage = () => {
             sx={{ backgroundColor: '#212121', color: '#fff', borderRadius: 2, textTransform: 'none', px: 3, py: 1.5 }}
             onClick={() => openModal()} 
           >
-            {isLg ? 'Agregar Cliente' : 'Agregar'}
+            {isLg ? 'Agregar Cliente Persona' : 'Agregar'}
           </Button>
         </Box>
 
@@ -98,7 +98,7 @@ export const ClientPage = () => {
           <Box display="flex" justifyContent="center" alignItems="center" sx={{ py: 5 }}>
             <CircularProgress />
           </Box>
-        ) : clients.length === 0 ? (
+        ) : clientsPerson.length === 0 ? (
           <Box display="flex" justifyContent="center" alignItems="center" sx={{ py: 5 }}>
             <Typography sx={{ color: 'text.secondary', fontSize: 16 }}>
               No se encontraron resultados.
@@ -106,7 +106,7 @@ export const ClientPage = () => {
           </Box>
         ) : (
           <TableComponent
-            rows={clients}
+            rows={clientsPerson}
             columns={columns}
             order={order}
             orderBy={orderBy}
@@ -129,11 +129,11 @@ export const ClientPage = () => {
         )}
       </Box>
 
-      <ClientModal
+      <ClientPersonModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        client={selected}
-        setClient={setSelectedClient}
+        clientPerson={selected}
+        setClientPerson={setSelectedClientPerson}
         loading={loading}
       />
 
