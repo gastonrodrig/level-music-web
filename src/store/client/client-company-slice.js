@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  clients: [],
+  clientsCompany: [],
   selected: null,
   total: 0,
   currentPage: 0,
@@ -9,36 +9,36 @@ const initialState = {
   loading: false,
 };
 
-export const clientSlice = createSlice({
-  name: 'client',
+export const clientCompanySlice = createSlice({
+  name: 'clientCompany',
   initialState,
   reducers: {
-    refreshClients: (state, action) => {
+    refreshClientsCompany: (state, action) => {
       const { items, total, page } = action.payload;
-      state.clients = items;
+      state.clientsCompany = items;
       state.total = total;
       state.currentPage = page;
       state.loading = false;
     },
-    selectedClient: (state, action) => {
+    selectedClientCompany: (state, action) => {
       state.selected = action.payload;
     },
-    setLoadingClient: (state, action) => {
+    setLoadingClientCompany: (state, action) => {
       state.loading = action.payload;
     },
-    setPageClient: (state, action) => {
+    setPageClientCompany: (state, action) => {
       state.currentPage = action.payload;
     },
-    setRowsPerPageClient: (state, action) => {
+    setRowsPerPageClientCompany: (state, action) => {
       state.rowsPerPage = action.payload;
     },
   },
 });
 
 export const {
-  refreshClients,
-  selectedClient,
-  setLoadingClient,
-  setPageClient,
-  setRowsPerPageClient,
-} = clientSlice.actions;
+  refreshClientsCompany,
+  selectedClientCompany,
+  setLoadingClientCompany,
+  setPageClientCompany,
+  setRowsPerPageClientCompany,
+} = clientCompanySlice.actions;
