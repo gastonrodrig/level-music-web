@@ -45,7 +45,7 @@ export const useServiceStore = () => {
     dispatch(setLoadingService(true));
     try {
       const payload = createServiceModel(serviceType);
-      await serviceApi.post('/', payload);
+      await serviceApi.post('', payload);
       dispatch(showSnackbar({
         message: `El servicio fue creado exitosamente.`,
         severity: 'success',
