@@ -1,5 +1,5 @@
 
-export const MAX_IMAGE_SIZE_MB = 1;
+export const MAX_IMAGE_SIZE_MB = 40; // Tamaño máximo en MB
 import { useState, useEffect, useCallback } from "react";
 
 export const useImageManager = (watch, setValue) => {
