@@ -37,7 +37,7 @@ export const useClientPersonStore = () => {
   const startCreateClientPerson = async (clientPerson) => {
     dispatch(setLoadingClientPerson(true));
     try {
-      const payload = createClientPersonModel(clientPerson, persona);
+      const payload = createClientPersonModel(clientPerson);
       await userApi.post("/client-admin", payload, getAuthConfig(token));
       await startLoadingClientsPersonPaginated();
       openSnackbar("El cliente persona fue creado exitosamente.");
@@ -85,7 +85,7 @@ export const useClientPersonStore = () => {
     dispatch(setLoadingClientPerson(true));
     try {
       const payload = updateClientPersonModel(client);
-      await userApi.put(`/${id}`, payload, getAuthConfig(token));
+      await userApi.patch(`/client-admin/${id}`, payload, getAuthConfig(token));
       await startLoadingClientsPersonPaginated();
       openSnackbar("El cliente persona fue actualizado exitosamente.");
       return true;

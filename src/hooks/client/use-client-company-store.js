@@ -24,7 +24,7 @@ export const useClientCompanyStore = () => {
     loading,
     currentPage,
     rowsPerPage,
-  } = useSelector((state) => state.clientsCompany);
+  } = useSelector((state) => state.clientCompany);
   
   const { token } = useSelector((state) => state.auth);
 
@@ -85,7 +85,7 @@ export const useClientCompanyStore = () => {
     dispatch(setLoadingClientCompany(true));
     try {
       const payload = updateClientCompanyModel(clientCompany);
-      await userApi.put(`/${id}`, payload, getAuthConfig(token));
+      await userApi.patch(`/client-admin/${id}`, payload, getAuthConfig(token));
       await startLoadingClientsCompanyPaginated();
       openSnackbar("El cliente empresa fue actualizado exitosamente.");
       return true;

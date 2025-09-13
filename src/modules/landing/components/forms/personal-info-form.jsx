@@ -11,12 +11,25 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  FormHelperText
+  FormHelperText,
+  Button
 } from '@mui/material';
 import { useEffect } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
+import { useAuthStore, useUsersStore } from '../../../../hooks';
 
 export const PersonalInfoForm = () => {
+  const {
+    firstName,
+    lastName,
+    email,
+    phone,
+    documentType,
+    documentNumber
+  } = useUsersStore();
+
+  const { status } = useAuthStore();
+
   const {
     register,
     watch,
@@ -25,22 +38,37 @@ export const PersonalInfoForm = () => {
     setValue
   } = useFormContext();
 
-  const clientType = watch("client_type", "PERSONA"); 
+  const clientType = watch("client_type", "PERSONA");
+
+  const handleAutofill = () => {
+    if (status === 'authenticated') {
+      setValue('first_name', firstName || '');
+      setValue('last_name', lastName || '');
+      setValue('email', email || '');
+      setValue('phone', phone || '');
+      setValue('document_type', documentType || 'Dni');
+      setValue('document_number', documentNumber || '');
+    }
+  };
 
   useEffect(() => {
     const currentDocType = watch("document_type");
 
     if (clientType === "EMPRESA") {
-      // Empresa siempre debe ser Ruc, pero solo si no está ya en Ruc
       if (currentDocType !== "Ruc") {
         setValue("document_type", "Ruc");
         setValue("document_number", "");
       }
+      // Limpiar campos de persona que no aplican
+      setValue("first_name", "");
+      setValue("last_name", "");
+      setValue("email", "");
+      setValue("phone", "");
     } else if (clientType === "PERSONA") {
-      // Persona: no tocar lo que ya eligió el usuario
-      if (!currentDocType) {
-        setValue("document_type", "Dni");
-      }
+      // Limpiar campos de empresa que no aplican
+      setValue("company_name", "");
+      setValue("contact_person", "");
+      setValue("document_type", "Dni");
     }
   }, [clientType, watch, setValue]);
 
@@ -51,25 +79,58 @@ export const PersonalInfoForm = () => {
         <Typography variant="subtitle1" fontWeight={600} gutterBottom>
           Tipo de Cliente
         </Typography>
-        <Controller
-          name="client_type"
-          control={control}
-          defaultValue="PERSONA"
-          render={({ field }) => (
-            <RadioGroup row {...field}>
-              <FormControlLabel
-                value="PERSONA"
-                control={<Radio />}
-                label="Persona Natural"
-              />
-              <FormControlLabel
-                value="EMPRESA"
-                control={<Radio />}
-                label="Empresa"
-              />
-            </RadioGroup>
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center' 
+          }}
+        >
+          {/* Selector de tipo de cliente */}
+          <Controller
+            name="client_type"
+            control={control}
+            defaultValue="PERSONA"
+            render={({ field }) => (
+              <RadioGroup row {...field}>
+                <FormControlLabel
+                  value="PERSONA"
+                  control={<Radio />}
+                  label="Persona Natural"
+                />
+                <FormControlLabel
+                  value="EMPRESA"
+                  control={<Radio />}
+                  label="Empresa"
+                />
+              </RadioGroup>
+            )}
+          />
+
+          {/* Botón de autocompletar si está autenticado */}
+          {status === 'authenticated' && (
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+              <Button
+                variant="contained"
+                style={{
+                  px: 4,
+                  py: 1,
+                  borderRadius: 3,
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  bgcolor: '#4a4a4a',
+                  color: '#fff',
+                  '&:hover': {
+                    bgcolor: '#5c5c5c',
+                  },
+                }}
+                onClick={handleAutofill}
+              >
+                Autocompletar datos
+              </Button>
+            </Box>
           )}
-        />
+        </Box>
       </Box>
 
       {/* Campos dinámicos */}
@@ -79,7 +140,9 @@ export const PersonalInfoForm = () => {
             <Grid item xs={12} md={6}>
               <TextField
                 label="Nombre"
+                placeholder="Ingresa tu nombre"
                 fullWidth
+                InputLabelProps={{ shrink: true }}
                 {...register("first_name", {
                   required: "El nombre es obligatorio"
                 })}
@@ -90,7 +153,9 @@ export const PersonalInfoForm = () => {
             <Grid item xs={12} md={6}>
               <TextField
                 label="Apellido"
+                placeholder="Ingresa tu apellido"
                 fullWidth
+                InputLabelProps={{ shrink: true }}
                 {...register("last_name", {
                   required: "El apellido es obligatorio"
                 })}
@@ -104,7 +169,9 @@ export const PersonalInfoForm = () => {
             <Grid item xs={12} md={6}>
               <TextField
                 label="Nombre de la Empresa"
+                placeholder="Ingresa el nombre de la empresa"
                 fullWidth
+                InputLabelProps={{ shrink: true }}
                 {...register("company_name", {
                   required: "El nombre de la empresa es obligatorio"
                 })}
@@ -115,7 +182,9 @@ export const PersonalInfoForm = () => {
             <Grid item xs={12} md={6}>
               <TextField
                 label="Persona de Contacto"
+                placeholder="Nombre de la persona de contacto"
                 fullWidth
+                InputLabelProps={{ shrink: true }}
                 {...register("contact_person", {
                   required: "La persona de contacto es obligatoria"
                 })}
@@ -131,6 +200,8 @@ export const PersonalInfoForm = () => {
           <TextField
             fullWidth
             label="Correo Electrónico"
+            placeholder="ejemplo@correo.com"
+            InputLabelProps={{ shrink: true }}
             {...register("email", {
               required: "El correo es obligatorio",
               pattern: { value: /^\S+@\S+$/i, message: "Formato inválido" }
@@ -143,7 +214,9 @@ export const PersonalInfoForm = () => {
         <Grid item xs={12} md={6}>
           <TextField
             label="Teléfono de Contacto"
+            placeholder="Ingresa tu número (9 dígitos)"
             fullWidth
+            InputLabelProps={{ shrink: true }}
             {...register("phone", {
               required: "El teléfono es obligatorio",
               pattern: {
@@ -157,10 +230,10 @@ export const PersonalInfoForm = () => {
         </Grid>
       </Grid>
 
-      <Divider sx={{ my: 4 }} />
+      <Divider sx={{ mt: 4, mb: 3 }} />
 
       {/* Documento de identidad */}
-      <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+      <Typography variant="subtitle1" fontWeight={600} mb={3}>
         Documento de Identidad
       </Typography>
       <Grid container spacing={3}>
@@ -198,7 +271,9 @@ export const PersonalInfoForm = () => {
         <Grid item xs={12} md={6}>
           <TextField
             label="Número de documento"
+            placeholder="Ingresa tu número"
             fullWidth
+            InputLabelProps={{ shrink: true }}
             {...register("document_number", {
               required:
                 watch("document_type") === "Ruc"

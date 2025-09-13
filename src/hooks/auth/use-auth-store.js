@@ -24,6 +24,7 @@ import {
 import { useUsersStore } from '../../hooks';
 import { userApi } from '../../api';
 import { createRequestPasswordResetModel } from '../../shared/models'
+import { getAuthConfig } from '../../shared/utils';
 
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: "select_account" });
@@ -40,6 +41,8 @@ export const useAuthStore = () => {
     role,
     extra_data,
   } = useSelector((state) => state.auth);
+
+  const { token } = useSelector((state) => state.auth);
 
   const { startCreateUser, findUserByEmail } = useUsersStore();
 
@@ -111,6 +114,12 @@ export const useAuthStore = () => {
 
       if (data.status === "Inactivo") {
         dispatch(logout());
+        return false;
+      }
+
+      if (data.role === "Personal Externo" || data.role === "Almacenero" || data.role === "Transportista") {
+        dispatch(logout());
+        openSnackbar("Este rol no tiene permitido iniciar sesión en esta aplicación.");
         return false;
       }
       
@@ -194,7 +203,7 @@ export const useAuthStore = () => {
     try {
       const user = FirebaseAuth.currentUser;
       await updatePassword(user, password);
-      await userApi.patch(`/reset-password-flag/${uid}`);
+      await userApi.patch(`/reset-password-flag/${uid}`, {}, getAuthConfig(token));
       dispatch(authenticated());
       openSnackbar("Contraseña actualizada exitosamente.");
       return true;

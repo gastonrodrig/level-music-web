@@ -40,7 +40,6 @@ export const ServiceTypePage = () => {
 
   const columns = [
     { id: "name", label: "Nombre", sortable: true },
-    { id: "description", label: "Descripción", sortable: true },
     { id: "category", label: "Categoría", sortable: true },
     { id: "status", label: "Estado", sortable: true },
   ];
