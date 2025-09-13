@@ -22,6 +22,11 @@ export const useCheckAuth = () => {
         return;
       }
 
+      if (data.role === "Personal Externo" || data.role === "Almacenero" || data.role === "Transportista") {
+        dispatch(logout());
+        return false;
+      }
+
       dispatch(login({ 
         uid: data.auth_id, 
         email: data.email, 

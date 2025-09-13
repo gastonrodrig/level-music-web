@@ -6,7 +6,6 @@ import {
   EventQuotationsPage,
   WorkerPage,
   WorkerTypePage,
-  ClientPage,
   ResourcePage,
   ResourceMaintenancePage,
   StorehousePage,
@@ -15,7 +14,9 @@ import {
   ServiceEditPage,
   ServiceTypePage,
   ProviderPage,
-  EventFeaturedPage
+  EventFeaturedPage,
+  ClientPersonPage,
+  ClientCompanyPage
 } from '../pages';
 import { AdminLayout } from '../layout/admin-layout';
 
@@ -51,7 +52,8 @@ export const AdminRoutes = () => {
         <Route path="provider" element={<ProviderPage />} />
 
         {/* Clientes */}
-        <Route path="client" element={<ClientPage />} />
+        <Route path="client-person" element={<ClientPersonPage />} />
+        <Route path="client-company" element={<ClientCompanyPage />} />
 
         {/* Rutas no encontradas */}
         <Route path="*" element={<Navigate to="/not-found" replace />} />

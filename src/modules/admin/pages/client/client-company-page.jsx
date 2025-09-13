@@ -1,59 +1,62 @@
-import { useEffect, useState } from "react";
-import { useServiceTypeStore } from "../../../../../hooks";
-import { useScreenSizes } from "../../../../../shared/constants/screen-width";
-import { Box, Button, CircularProgress, TextField, Typography } from "@mui/material";
-import { AddCircleOutline, Edit } from "@mui/icons-material";
-import { TableComponent } from "../../../../../shared/ui/components";
-import { ServiceTypeModal } from "../../../components";
+import { useEffect, useState } from 'react';
+import { Box, Typography, Button, TextField, CircularProgress } from '@mui/material';
+import { AddCircleOutline, Edit } from '@mui/icons-material';
+import { useClientCompanyStore } from '../../../../hooks';
+import { TableComponent } from '../../../../shared/ui/components';
+import { useScreenSizes } from '../../../../shared/constants/screen-width';
+import { ClientCompanyModal } from '../../components/client';
 
-export const ServiceTypePage = () => {
+export const ClientCompanyPage = () => {
   const {
-    serviceTypes, 
+    clientsCompany,
     total,
     loading,
     searchTerm,
     rowsPerPage,
-    currentPage,
+    currentPage, 
     orderBy,
     order,
-    selected,
+    selected, 
     setSearchTerm,
     setRowsPerPageGlobal,
     setPageGlobal,
     setOrderBy,
     setOrder,
-    startLoadingServiceTypePaginated,
-    setSelectedServiceType,
-  } = useServiceTypeStore();
+    startLoadingClientsCompanyPaginated,
+    setSelectedClientCompany,
+  } = useClientCompanyStore();
   const { isLg } = useScreenSizes();
-  
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [isModalOpen, setIsModalOpen] = useState(false); 
 
   useEffect(() => {
-    startLoadingServiceTypePaginated();
+    startLoadingClientsCompanyPaginated();
   }, [currentPage, rowsPerPage, searchTerm, orderBy, order]);
 
   const openModal = (payload) => {
-    setSelectedServiceType(payload);
-    setIsModalOpen(true);
+    setSelectedClientCompany(payload);
+    setIsModalOpen(true); 
   };
 
   const columns = [
-    { id: "name", label: "Nombre", sortable: true },
-    { id: "category", label: "Categoría", sortable: true },
-    { id: "status", label: "Estado", sortable: true },
+    { id: 'company_name', label: 'Nombre empresa', sortable: true, width: '140px', truncate: true },
+    { id: 'contact_person', label: 'Persona contacto', sortable: true, width: '140px', truncate: true },
+    { id: 'email', label: 'Correo', sortable: true, width: '140px', truncate: true },
+    { id: 'phone', label: '# Telefono', sortable: true, width: '140px', truncate: true },
+    { id: 'document_number', label: '# Ruc', sortable: true, width: '140px', truncate: true },
+    { id: 'status', label: 'Estado', sortable: true, width: '140px', truncate: true },
   ];
 
   const actions = [
-    {
-      label: "Editar",
-      icon: <Edit />,
+    { 
+      label: 'Editar', 
+      icon: <Edit />, 
       onClick: (row) => openModal(row),
     },
   ];
 
   return (
-    <>
+    <Box>
       <Box
         sx={{
           borderRadius: 2,
@@ -62,8 +65,8 @@ export const ServiceTypePage = () => {
       >
         <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ px: 3, py: 2 }}>
           <Box>
-            <Typography sx={{ fontWeight: 600, fontSize: 24 }}>Listado de Tipos de Servicios</Typography>
-            <Typography sx={{ color: 'text.secondary', fontSize: 16 }}>Administra los tipos de servicios</Typography>
+            <Typography sx={{ fontWeight: 600, fontSize: 24 }}>Listado de Clientes Empresa</Typography>
+            <Typography sx={{ color: 'text.secondary', fontSize: 16 }}>Administra los clientes empresa</Typography>
           </Box>
           <Button
             variant="contained"
@@ -71,7 +74,7 @@ export const ServiceTypePage = () => {
             sx={{ backgroundColor: '#212121', color: '#fff', borderRadius: 2, textTransform: 'none', px: 3, py: 1.5 }}
             onClick={() => openModal()} 
           >
-            {isLg ? 'Agregar Tipo de Servicio' : 'Agregar'}
+            {isLg ? 'Agregar Cliente Empresa' : 'Agregar'}
           </Button>
         </Box>
 
@@ -94,7 +97,7 @@ export const ServiceTypePage = () => {
           <Box display="flex" justifyContent="center" alignItems="center" sx={{ py: 5 }}>
             <CircularProgress />
           </Box>
-        ) : serviceTypes.length === 0 ? (
+        ) : clientsCompany.length === 0 ? (
           <Box display="flex" justifyContent="center" alignItems="center" sx={{ py: 5 }}>
             <Typography sx={{ color: 'text.secondary', fontSize: 16 }}>
               No se encontraron resultados.
@@ -102,7 +105,7 @@ export const ServiceTypePage = () => {
           </Box>
         ) : (
           <TableComponent
-            rows={serviceTypes}
+            rows={clientsCompany}
             columns={columns}
             order={order}
             orderBy={orderBy}
@@ -125,14 +128,14 @@ export const ServiceTypePage = () => {
         )}
       </Box>
 
-      <ServiceTypeModal
+      <ClientCompanyModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        serviceType={selected}
-        setServiceType={setSelectedServiceType}
+        clientCompany={selected}
+        setClientCompany={setSelectedClientCompany}
         loading={loading}
       />
-    </>
+
+    </Box>
   );
 };
-

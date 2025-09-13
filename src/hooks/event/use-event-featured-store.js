@@ -23,6 +23,7 @@ export const useEventFeaturedStore = () => {
     selected, 
     total, 
     loading, 
+    loadingImages,
     currentPage, 
     rowsPerPage 
   } = useSelector((state) => state.eventFeatured);
@@ -35,16 +36,16 @@ export const useEventFeaturedStore = () => {
 
   const openSnackbar = (message) => dispatch(showSnackbar({ message }));
 
-  const startCreateEventFeatured = async (eventType) => {
+  const startCreateEventFeatured = async (eventFeatured) => {
+    if (!isValidEventFeatured(eventFeatured)) return false;
     dispatch(setLoadingEventFeatured(true));
     try {
-      const payload = createEventFeaturedModel(eventType);
+      const payload = createEventFeaturedModel(eventFeatured);
       await eventFeaturedApi.post('/', payload, getAuthConfig(token, true));
       startLoadingEventFeaturedPaginated();
       openSnackbar("El evento destacado fue creado exitosamente.");
       return true;
     } catch (error) {
-      console.log(error);
       const message = error.response?.data?.message;
       openSnackbar(message ?? "Ocurrió un error al crear el evento destacado.");
       return false;
@@ -98,11 +99,11 @@ export const useEventFeaturedStore = () => {
   };
 
   const startUpdateEventFeatured = async (id, eventFeatured) => {
+    if (!isValidEventFeatured(eventFeatured)) return false;
     dispatch(setLoadingEventFeatured(true));
     try {
       const payload = updateEventFeaturedModel(eventFeatured);
-      const isFormData = payload instanceof FormData;
-      await eventFeaturedApi.patch(`/${id}`, payload, getAuthConfig(token, isFormData));
+      await eventFeaturedApi.patch(`/${id}`, payload, getAuthConfig(token, true));
       startLoadingEventFeaturedPaginated();
       openSnackbar("El evento destacado fue actualizado exitosamente.");
       return true;
@@ -131,11 +132,15 @@ export const useEventFeaturedStore = () => {
     }
   };
 
-  const validateAttributes = (attributes) => {
-    if (attributes.length === 0) {
-      openSnackbar("Debe agregar al menos un atributo al tipo de servicio.");
+  const isValidEventFeatured = (eventFeatured) => {
+    if (!eventFeatured.services || eventFeatured.services.length === 0) {
+      openSnackbar("Debes agregar al menos un servicio.");
       return false;
-    } 
+    }
+    if (!eventFeatured.images || eventFeatured.images.length === 0) {
+      openSnackbar("Debes agregar al menos una imagen.");
+      return false;
+    }
     return true;
   };
 
@@ -158,6 +163,7 @@ export const useEventFeaturedStore = () => {
     selected,
     total,
     loading,
+    loadingImages,
     searchTerm,
     rowsPerPage,
     currentPage,
@@ -178,6 +184,5 @@ export const useEventFeaturedStore = () => {
     startUpdateEventFeatured,
     setSelectedEventFeatured,
     startDeleteEventFeatured,
-    validateAttributes
   };
 };

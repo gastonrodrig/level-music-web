@@ -4,29 +4,35 @@ import {
   Typography,
   TextField,
   Button,
+  IconButton,
+  MenuItem,
+  Select,
   FormControl,
   InputLabel,
-  Select,
-  MenuItem,
   FormHelperText,
 } from "@mui/material";
+import { useClientPersonStore } from "../../../../hooks";
+import { Close } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
-import { useUsersStore } from "../../../hooks/user/use-users-store";
 import { useMemo, useEffect } from "react";
 
-export const ExtraInformationModal = ({ 
-  open, 
-  onClose 
+export const ClientPersonModal = ({
+  open,
+  onClose,
+  clientPerson = {},
+  setClientPerson,
+  loading,
 }) => {
-  const { uid, loadingClientProfile, startUpdateExtraData } = useUsersStore();
+  const isEditing = !!clientPerson?._id;
+  const { startCreateClientPerson, startUpdateClientPerson } = useClientPersonStore();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
     watch,
     setValue,
-    reset,
   } = useForm({
     mode: "onBlur",
   });
@@ -34,33 +40,35 @@ export const ExtraInformationModal = ({
   useEffect(() => {
     if (open) {
       reset({
-        first_name: "",
-        last_name: "",
-        phone: "",
-        document_type: "",
-        document_number: "",
+        first_name: clientPerson?.first_name ?? "",
+        last_name: clientPerson?.last_name ?? "",
+        email: clientPerson?.email ?? "",
+        phone: clientPerson?.phone ?? "",
+        document_type: clientPerson?.document_type ?? "",
+        document_number: clientPerson?.document_number ?? "",
+        status: clientPerson?.status ?? "Activo",
       });
     }
-  }, [open, reset]);
+  }, [open, reset, clientPerson]);
 
   const onSubmit = async (data) => {
     try {
-      const success = await startUpdateExtraData(uid, data);
-      if (success) onClose();
+      const success = isEditing
+        ? await startUpdateClientPerson(clientPerson._id, data)
+        : await startCreateClientPerson(data);
+      if (success) {
+        setClientPerson(data); 
+        onClose();
+      } 
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
   };
 
-  const isButtonDisabled = useMemo(() => loadingClientProfile, [loadingClientProfile]);
+  const isButtonDisabled = useMemo(() => loading, [loading]);
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      hideBackdrop={false}
-      disableEscapeKeyDown
-    >
+    <Modal open={open} onClose={onClose}>
       <Box
         component="form"
         onSubmit={handleSubmit(onSubmit)}
@@ -76,18 +84,25 @@ export const ExtraInformationModal = ({
           p: 4,
         }}
       >
-        <Typography variant="h6" mb={2}>
-          Complete la información adicional
-        </Typography>
-        <Typography variant="body2" mb={3}>
-          Por favor, proporciona la siguiente información adicional para completar tu perfil.
-        </Typography>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={3}
+        >
+          <Typography variant="h6" fontWeight={600}>
+            {isEditing ? "Editar cliente persona" : "Agregar cliente persona"}
+          </Typography>
+          <IconButton onClick={onClose}>
+            <Close />
+          </IconButton>
+        </Box>
 
         <Box display="flex" gap={2} mb={2} sx={{ flexDirection: "column" }}>
-          
-          {/* Nombre */}
+
+          {/* Nombre del Cliente */}
           <TextField
-            label="Nombre"
+            label="Nombre del Cliente"
             fullWidth
             {...register("first_name", {
               required: "El nombre es obligatorio"              
@@ -96,15 +111,27 @@ export const ExtraInformationModal = ({
             helperText={errors.first_name?.message}
           />
 
-          {/* Apellido */}
+          {/* Apellido del cliente */}
           <TextField
-            label="Apellido"
+            label="Apellido del cliente"
             fullWidth
             {...register("last_name", {
               required: "El apellido es obligatorio"
             })}
             error={!!errors.last_name}
             helperText={errors.last_name?.message}
+          />
+
+          {/* Email */}
+          <TextField
+            label="Correo"
+            fullWidth
+            {...register("email", {
+              required: "El correo es obligatorio",
+              pattern: { value: /^\S+@\S+$/i, message: "Formato inválido" }
+            })}
+            error={!!errors.email}
+            helperText={errors.email?.message}
           />
 
           {/* Teléfono */}
@@ -171,6 +198,25 @@ export const ExtraInformationModal = ({
             error={!!errors.document_number}
             helperText={errors.document_number?.message}
           />
+          
+          {/* Estado */}
+          { isEditing && (
+            <FormControl fullWidth error={!!errors.status}>
+              <InputLabel id="status-label">Estado</InputLabel>
+              <Select
+                labelId="status-label"
+                value={watch("status") || "Activo"}
+                {...register("status", {
+                  required: "Selecciona un estado",
+                })}
+                onChange={(e) => setValue("status", e.target.value)}
+              >
+                <MenuItem value="Activo">Activo</MenuItem>
+                <MenuItem value="Inactivo">Inactivo</MenuItem>
+              </Select>
+              <FormHelperText>{errors.status?.message}</FormHelperText>
+            </FormControl>
+          )}
         </Box>
 
         <Button
@@ -188,7 +234,7 @@ export const ExtraInformationModal = ({
             fontWeight: 600,
           }}
         >
-          Guardar Información
+          {isEditing ? "Guardar cambios" : "Agregar"}
         </Button>
       </Box>
     </Modal>

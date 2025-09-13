@@ -3,17 +3,24 @@ import { createSlice } from '@reduxjs/toolkit';
 export const stepperSlice = createSlice({
   name: 'stepper',
   initialState: {
-    currentPage: 0
+    flows: {} // { quotation: { currentPage: 0 }, onboarding: { currentPage: 2 } }
   },
   reducers: {
-    nextPage(state) {
-      state.currentPage += 1;
+    nextPage(state, action) {
+      const { id } = action.payload;
+      state.flows[id].currentPage += 1;
     },
-    previousPage(state) {
-      state.currentPage = Math.max(0, state.currentPage - 1);
+    previousPage(state, action) {
+      const { id } = action.payload;
+      state.flows[id].currentPage = Math.max(0, state.flows[id].currentPage - 1);
     },
     goToPage(state, action) {
-      state.currentPage = action.payload;
+      const { id, page } = action.payload;
+      state.flows[id].currentPage = page;
+    },
+    initStepper(state, action) {
+      const { id } = action.payload;
+      state.flows[id] = { currentPage: 0 };
     }
   }
 });
@@ -21,5 +28,6 @@ export const stepperSlice = createSlice({
 export const { 
   nextPage, 
   previousPage, 
-  goToPage 
+  goToPage, 
+  initStepper 
 } = stepperSlice.actions;

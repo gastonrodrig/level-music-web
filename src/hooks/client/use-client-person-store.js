@@ -1,30 +1,30 @@
 import { useDispatch, useSelector } from "react-redux";
 import { userApi } from "../../api";
 import {
-  refreshClients,
-  selectedClient,
-  setLoadingClient,
-  setPageClient,
-  setRowsPerPageClient,
+  refreshClientsPerson,
+  selectedClientPerson,
+  setLoadingClientPerson,
+  setPageClientPerson,
+  setRowsPerPageClientPerson,
   showSnackbar,
 } from "../../store";
 import { 
-  createClientModel, 
-  updateClientModel, 
+  createClientPersonModel, 
+  updateClientPersonModel, 
 } from "../../shared/models";
 import { getAuthConfig, getAuthConfigWithParams } from "../../shared/utils";
 import { useState } from "react";
 
-export const useClientStore = () => {
+export const useClientPersonStore = () => {
   const dispatch = useDispatch();
   const {
-    clients,
+    clientsPerson,
     selected,
     total,
     loading,
     currentPage,
     rowsPerPage,
-  } = useSelector((state) => state.client);
+  } = useSelector((state) => state.clientPerson);
   
   const { token } = useSelector((state) => state.auth);
 
@@ -34,25 +34,25 @@ export const useClientStore = () => {
 
   const openSnackbar = (message) => dispatch(showSnackbar({ message }));
 
-  const startCreateClient = async (client) => {
-    dispatch(setLoadingClient(true));
+  const startCreateClientPerson = async (clientPerson) => {
+    dispatch(setLoadingClientPerson(true));
     try {
-      const payload = createClientModel(client);
+      const payload = createClientPersonModel(clientPerson);
       await userApi.post("/client-admin", payload, getAuthConfig(token));
-      await startLoadingClientsPaginated();
-      openSnackbar("El cliente fue creado exitosamente.");
+      await startLoadingClientsPersonPaginated();
+      openSnackbar("El cliente persona fue creado exitosamente.");
       return true;
     } catch (error) {
       const message = error.response?.data?.message;
-      openSnackbar(message ?? "Ocurrió un error al registrar el cliente.");
+      openSnackbar(message ?? "Ocurrió un error al registrar el cliente persona.");
       return false;
     } finally {
-      dispatch(setLoadingClient(false));
+      dispatch(setLoadingClientPerson(false));
     }
   };
 
-  const startLoadingClientsPaginated = async () => {
-    dispatch(setLoadingClient(true));
+  const startLoadingClientsPersonPaginated = async () => {
+    dispatch(setLoadingClientPerson(true));
     try {
       const limit = rowsPerPage;
       const offset = currentPage * rowsPerPage;
@@ -63,9 +63,10 @@ export const useClientStore = () => {
           search: searchTerm.trim(),
           sortField: orderBy,
           sortOrder: order,
+          clientType: "Persona", 
         })
       );
-      dispatch(refreshClients({
+      dispatch(refreshClientsPerson({
         items: data.items,
         total: data.total,
         page: currentPage,
@@ -73,45 +74,45 @@ export const useClientStore = () => {
       return true;
     } catch (error) {
       const message = error.response?.data?.message;
-      openSnackbar(message ?? "Ocurrió un error al cargar los clientes.");
+      openSnackbar(message ?? "Ocurrió un error al cargar los clientes persona.");
       return false;
     } finally {
-      dispatch(setLoadingClient(false));
+      dispatch(setLoadingClientPerson(false));
     }
   };
 
-  const startUpdateClient = async (id, client) => {
-    dispatch(setLoadingClient(true));
+  const startUpdateClientPerson = async (id, client) => {
+    dispatch(setLoadingClientPerson(true));
     try {
-      const payload = updateClientModel(client);
-      await userApi.put(`/${id}`, payload, getAuthConfig(token));
-      await startLoadingClientsPaginated();
-      openSnackbar("El cliente fue actualizado exitosamente.");
+      const payload = updateClientPersonModel(client);
+      await userApi.patch(`/client-admin/${id}`, payload, getAuthConfig(token));
+      await startLoadingClientsPersonPaginated();
+      openSnackbar("El cliente persona fue actualizado exitosamente.");
       return true;
     } catch (error) {
       const message = error.response?.data?.message;
       openSnackbar(message ?? "Ocurrió un error al actualizar el cliente.");
       return false;
     } finally {
-      dispatch(setLoadingClient(false));
+      dispatch(setLoadingClientPerson(false));
     }
   };
 
-  const setSelectedClient = (client) => {
-    dispatch(selectedClient({ ...client }));
+  const setSelectedClientPerson = (client) => {
+    dispatch(selectedClientPerson({ ...client }));
   };
 
   const setPageGlobal = (page) => {
-    dispatch(setPageClient(page));
+    dispatch(setPageClientPerson(page));
   };
 
   const setRowsPerPageGlobal = (rows) => {
-    dispatch(setRowsPerPageClient(rows));
+    dispatch(setRowsPerPageClientPerson(rows));
   };
 
   return {
     // state
-    clients,
+    clientsPerson,
     selected,
     total,
     loading,
@@ -129,9 +130,9 @@ export const useClientStore = () => {
     setRowsPerPageGlobal,
 
     // actions
-    startCreateClient,
-    startLoadingClientsPaginated,
-    startUpdateClient,
-    setSelectedClient,
+    startCreateClientPerson,
+    startLoadingClientsPersonPaginated,
+    startUpdateClientPerson,
+    setSelectedClientPerson,
   };
 };

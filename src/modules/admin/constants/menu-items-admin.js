@@ -5,7 +5,8 @@ import {
   VolumeUp,
   Store,
   RoomService,
-  Person
+  Person,
+  Person2Outlined
 } from '@mui/icons-material';
 
 export const menuItems = [
@@ -75,9 +76,19 @@ export const menuItems = [
   },
   { 
     text: 'Gestionar Clientes', 
-    breadcrumb: 'Clientes',
-    icon: Person,
-    href: '/admin/client' 
+    icon: Person, 
+    subItems: [
+      { 
+        text: 'Persona', 
+        breadcrumb: 'Clientes - Persona',
+        href: '/admin/client-person' 
+      },
+      { 
+        text: 'Empresa', 
+        breadcrumb: 'Clientes - Empresa',
+        href: '/admin/client-company' 
+      }
+    ]
   },
   { 
     text: 'Gestionar Servicios', 
