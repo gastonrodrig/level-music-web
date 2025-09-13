@@ -24,6 +24,22 @@ export const useServiceStore = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [orderBy, setOrderBy] = useState('name');
   const [order, setOrder] = useState('asc');
+  const listAllServices = async () => {
+    dispatch(setLoadingService(true));
+    try{
+      const {data }= await serviceApi.get('/all');
+      dispatch(refreshService({
+        items: data.items,
+        total: data.total,
+      }));
+    return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    } finally {
+      dispatch(setLoadingService(false));
+    }
+  };
 
   const startCreateService = async (serviceType) => {
     dispatch(setLoadingService(true));
@@ -129,5 +145,6 @@ export const useServiceStore = () => {
     startLoadingServicePaginated,
     startUpdateService,
     setSelectedService,
+    listAllServices,
   };
 };

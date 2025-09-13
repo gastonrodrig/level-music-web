@@ -1,16 +1,35 @@
 import { Box, Typography, TextField, Button,Divider,Link,MenuItem } from '@mui/material';
 import { AddCircleOutline, Edit } from '@mui/icons-material';
+import { ServiceDetailBox } from '../../../components';
 
 import { useScreenSizes } from '../../../../../shared/constants/screen-width';
-import { useServiceTypeStore,useProviderStore } from '../../../../../hooks';
-import { useEffect } from 'react';
+import { useServiceTypeStore,useProviderStore,useServiceStore } from '../../../../../hooks';
+import { useEffect,useState } from 'react';
 export const ServiceAddPage = () => {
 
    const { startLoadingAllServiceTypes,serviceTypes } = useServiceTypeStore();
    const { startLoadingProviderPaginated,provider } = useProviderStore();
+   const { listAllServices,services } = useServiceStore();
+   const [details, setDetails] = useState([]);
+   const [openDetailIdx, setOpenDetailIdx] = useState(null);
+   const handleAddDetail = () => {
+  setDetails([...details, { ref_price: '', details: [] }]);
+  setOpenDetailIdx(details.length);
+};
+const handleSubmitDetail = (data, idx) => {
+  const updated = [...details];
+  updated[idx] = data;
+  setDetails(updated);
+  setOpenDetailIdx(null);
+};
+const handleDeleteDetail = idx => {
+  setDetails(details.filter((_, i) => i !== idx));
+  setOpenDetailIdx(null);
+};
    useEffect(() => {
     startLoadingAllServiceTypes();
     startLoadingProviderPaginated();
+    listAllServices();
   }, []);
   const { isLg } = useScreenSizes();
   return (
@@ -75,13 +94,27 @@ export const ServiceAddPage = () => {
               variant="contained"
               startIcon={<AddCircleOutline />}
               sx={{ backgroundColor: '#212121', color: '#fff', borderRadius: 2, textTransform: 'none', px: 3, py: 1.5 }}
+              onClick={handleAddDetail}
             >
               {isLg ? 'Agregar Detalle' : 'Agregar'}
             </Button>
-            <Box>
-
-            </Box>
+           
       </Box>
+       {/* Renderiza los detalles */}
+            <Box sx={{ maxWidth: 1200, margin: '0 auto', mt: 2 }}>
+              {details.map((detail, idx) => (
+                <ServiceDetailBox
+                  key={idx}
+                  index={idx}
+                  initialData={detail}
+                  open={openDetailIdx === idx}
+                  onClose={() => setOpenDetailIdx(null)}
+                  onSubmit={handleSubmitDetail}
+                  onDelete={handleDeleteDetail}
+                  loading={false}
+                />
+              ))}
+            </Box>
     </Box>
 
   );
