@@ -107,8 +107,8 @@ export const PersonalInfoForm = () => {
             )}
           />
 
-          {/* Botón de autocompletar si está autenticado */}
-          {status === 'authenticated' && (
+          {/* Botón de autocompletar si está autenticado y es persona natural */}
+          {status === 'authenticated' && clientType === 'PERSONA' && (
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
               <Button
                 variant="contained"

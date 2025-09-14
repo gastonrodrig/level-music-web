@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useFormContext } from 'react-hook-form';
+import React, { useEffect, useState } from "react";
+import { useFormContext } from "react-hook-form";
 import {
   Box,
   Grid,
@@ -20,7 +20,7 @@ import {
   Alert,
   Checkbox,
   FormControlLabel,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Done as DoneIcon,
   MusicNote as MusicIcon,
@@ -33,19 +33,19 @@ import {
   Lightbulb as LightIcon,
   Construction as StructureIcon,
   MiscellaneousServices as TechIcon,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 
 // Categorías disponibles
 const CATEGORIES = {
-  FOTOGRAFIA: 'Fotografía',
-  ENTRETENIMIENTO: 'Entretenimiento',
-  GASTRONOMIA: 'Gastronomía',
-  ESTRUCTURA: 'Estructura',
-  ILUMINACION: 'Iluminación',
-  DECORACION: 'Decoración',
-  SERVICIO: 'Servicio',
-  TECNOLOGIA: 'Tecnología',
-  PERSONALIZADO: 'Personalizado',
+  FOTOGRAFIA: "Fotografía",
+  ENTRETENIMIENTO: "Entretenimiento",
+  GASTRONOMIA: "Gastronomía",
+  ESTRUCTURA: "Estructura",
+  ILUMINACION: "Iluminación",
+  DECORACION: "Decoración",
+  SERVICIO: "Servicio",
+  TECNOLOGIA: "Tecnología",
+  PERSONALIZADO: "Personalizado",
 };
 
 // Iconos por categoría
@@ -64,98 +64,97 @@ const categoryIcon = {
 // Servicios mock basados en tu estructura real del backend
 const mockServices = [
   {
-    _id: '1',
-    name: 'DJ Profesional',
-    description: 'Música en vivo con equipo de sonido profesional',
-    category: 'Entretenimiento',
-    status: 'Activo',
+    _id: "1",
+    name: "DJ Profesional",
+    description: "Música en vivo con equipo de sonido profesional",
+    category: "Entretenimiento",
+    status: "Activo",
     attributes: [
-      { name: 'Horas de servicio', type: 'numero', required: true },
-      { name: 'Género musical', type: 'texto', required: false },
-    ]
+      { name: "Horas de servicio", type: "numero", required: true },
+      { name: "Género musical", type: "texto", required: false },
+    ],
   },
   {
-    _id: '2',
-    name: 'Fotografía de Eventos',
-    description: 'Sesión fotográfica profesional del evento',
-    category: 'Fotografía',
-    status: 'Activo',
+    _id: "2",
+    name: "Fotografía de Eventos",
+    description: "Sesión fotográfica profesional del evento",
+    category: "Fotografía",
+    status: "Activo",
     attributes: [
-      { name: 'Horas de cobertura', type: 'numero', required: true },
-      { name: 'Entrega digital', type: 'select', required: true },
-    ]
+      { name: "Horas de cobertura", type: "numero", required: true },
+      { name: "Entrega digital", type: "select", required: true },
+    ],
   },
   {
-    _id: '3',
-    name: 'Catering Completo',
-    description: 'Servicio de alimentación para el evento',
-    category: 'Gastronomía',
-    status: 'Activo',
+    _id: "3",
+    name: "Catering Completo",
+    description: "Servicio de alimentación para el evento",
+    category: "Gastronomía",
+    status: "Activo",
     attributes: [
-      { name: 'Número de personas', type: 'numero', required: true },
-      { name: 'Tipo de menú', type: 'texto', required: true },
-    ]
+      { name: "Número de personas", type: "numero", required: true },
+      { name: "Tipo de menú", type: "texto", required: true },
+    ],
   },
   {
-    _id: '4',
-    name: 'Decoración Temática',
-    description: 'Ambientación y decoración personalizada',
-    category: 'Decoración',
-    status: 'Activo',
+    _id: "4",
+    name: "Decoración Temática",
+    description: "Ambientación y decoración personalizada",
+    category: "Decoración",
+    status: "Activo",
     attributes: [
-      { name: 'Tema', type: 'texto', required: true },
-      { name: 'Área a decorar', type: 'texto', required: false },
-    ]
+      { name: "Tema", type: "texto", required: true },
+      { name: "Área a decorar", type: "texto", required: false },
+    ],
   },
   {
-    _id: '5',
-    name: 'Iluminación Especial',
-    description: 'Sistema de iluminación LED personalizable con efectos ambientales',
-    category: 'Iluminación',
-    status: 'Activo',
-    attributes: [
-      { name: 'Horas de servicio', type: 'texto', required: false }
-    ]
+    _id: "5",
+    name: "Iluminación Especial",
+    description:
+      "Sistema de iluminación LED personalizable con efectos ambientales",
+    category: "Iluminación",
+    status: "Activo",
+    attributes: [{ name: "Horas de servicio", type: "texto", required: false }],
   },
   {
-    _id: '6',
-    name: 'Sonido Profesional',
-    description: 'Equipos de audio de alta calidad para eventos',
-    category: 'Tecnología',
-    status: 'Activo',
+    _id: "6",
+    name: "Sonido Profesional",
+    description: "Equipos de audio de alta calidad para eventos",
+    category: "Tecnología",
+    status: "Activo",
     attributes: [
-      { name: 'Potencia requerida', type: 'numero', required: true },
-      { name: 'Tipo de evento', type: 'texto', required: true },
-    ]
+      { name: "Potencia requerida", type: "numero", required: true },
+      { name: "Tipo de evento", type: "texto", required: true },
+    ],
   },
   {
-    _id: '7',
-    name: 'Servicio de Mozos',
-    description: 'Personal profesional para atención al cliente',
-    category: 'Servicio',
-    status: 'Activo',
+    _id: "7",
+    name: "Servicio de Mozos",
+    description: "Personal profesional para atención al cliente",
+    category: "Servicio",
+    status: "Activo",
     attributes: [
-      { name: 'Cantidad de mozos', type: 'numero', required: true },
-      { name: 'Horario de servicio', type: 'texto', required: false },
-    ]
+      { name: "Cantidad de mozos", type: "numero", required: true },
+      { name: "Horario de servicio", type: "texto", required: false },
+    ],
   },
   {
-    _id: '8',
-    name: 'Estructura y Carpas',
-    description: 'Montaje de estructuras y carpas para eventos al aire libre',
-    category: 'Estructura',
-    status: 'Activo',
+    _id: "8",
+    name: "Estructura y Carpas",
+    description: "Montaje de estructuras y carpas para eventos al aire libre",
+    category: "Estructura",
+    status: "Activo",
     attributes: [
-      { name: 'Área a cubrir', type: 'numero', required: true },
-      { name: 'Tipo de estructura', type: 'texto', required: true },
-    ]
-  }
+      { name: "Área a cubrir", type: "numero", required: true },
+      { name: "Tipo de estructura", type: "texto", required: true },
+    ],
+  },
 ];
 
 // Componente principal
 export const ServicesForm = ({ onChange }) => {
   const { setValue } = useFormContext();
-  
+
   // Estados
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState(mockServices);
@@ -164,7 +163,7 @@ export const ServicesForm = ({ onChange }) => {
   const [notesById, setNotesById] = useState({});
   const [attrValuesById, setAttrValuesById] = useState({});
   const [otherSelected, setOtherSelected] = useState(false);
-  const [otherText, setOtherText] = useState('');
+  const [otherText, setOtherText] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
@@ -172,7 +171,9 @@ export const ServicesForm = ({ onChange }) => {
   useEffect(() => {
     setLoading(true);
     setTimeout(() => {
-      const activeServices = mockServices.filter(service => service.status === 'Activo');
+      const activeServices = mockServices.filter(
+        (service) => service.status === "Activo"
+      );
       setItems(activeServices);
       setLoading(false);
     }, 800); // Simula carga de 0.8 segundos
@@ -185,7 +186,7 @@ export const ServicesForm = ({ onChange }) => {
     setSelectedIds((prev) => {
       const isCurrentlySelected = prev.includes(id);
       let newSelection;
-      
+
       if (isCurrentlySelected) {
         newSelection = prev.filter((x) => x !== id);
         // Limpiar datos asociados
@@ -200,7 +201,7 @@ export const ServicesForm = ({ onChange }) => {
       }
 
       // Actualizar formulario
-      setValue('additionalServices', newSelection.join(','));
+      setValue("additionalServices", newSelection.join(","));
       return newSelection;
     });
   };
@@ -213,23 +214,23 @@ export const ServicesForm = ({ onChange }) => {
   const saveDialog = () => {
     setDialogOpen(false);
     setEditingId(null);
-    
+
     // Actualizar formulario con notas y atributos
-    setValue('serviceNotes', JSON.stringify(notesById));
-    setValue('serviceAttributes', JSON.stringify(attrValuesById));
+    setValue("serviceNotes", JSON.stringify(notesById));
+    setValue("serviceAttributes", JSON.stringify(attrValuesById));
   };
 
   const updateNote = (id, note) => {
-    setNotesById(prev => ({ ...prev, [id]: note }));
+    setNotesById((prev) => ({ ...prev, [id]: note }));
   };
 
   const updateAttribute = (serviceId, attrName, value) => {
-    setAttrValuesById(prev => ({
+    setAttrValuesById((prev) => ({
       ...prev,
       [serviceId]: {
         ...prev[serviceId],
-        [attrName]: value
-      }
+        [attrName]: value,
+      },
     }));
   };
 
@@ -237,7 +238,7 @@ export const ServicesForm = ({ onChange }) => {
   const categories = React.useMemo(() => {
     const grouped = {};
     items.forEach((item) => {
-      const cat = item.category || 'Sin categoría';
+      const cat = item.category || "Sin categoría";
       if (!grouped[cat]) grouped[cat] = [];
       grouped[cat].push(item);
     });
@@ -245,9 +246,11 @@ export const ServicesForm = ({ onChange }) => {
   }, [items]);
 
   // Obtener servicio actual para edición
-  const editingService = editingId ? items.find(s => s._id === editingId) : null;
-  const currentNote = editingId ? (notesById[editingId] || '') : '';
-  const currentAttrs = editingId ? (attrValuesById[editingId] || {}) : {};
+  const editingService = editingId
+    ? items.find((s) => s._id === editingId)
+    : null;
+  const currentNote = editingId ? notesById[editingId] || "" : "";
+  const currentAttrs = editingId ? attrValuesById[editingId] || {} : {};
 
   // Notificar cambios al componente padre
   useEffect(() => {
@@ -260,11 +263,23 @@ export const ServicesForm = ({ onChange }) => {
       other: otherSelected ? otherText : undefined,
     };
     onChange?.(payload);
-  }, [selectedIds, notesById, attrValuesById, otherSelected, otherText, onChange]);
+  }, [
+    selectedIds,
+    notesById,
+    attrValuesById,
+    otherSelected,
+    otherText,
+    onChange,
+  ]);
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight={300}>
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight={300}
+      >
         <CircularProgress />
         <Typography sx={{ ml: 2 }}>Cargando servicios...</Typography>
       </Box>
@@ -285,13 +300,15 @@ export const ServicesForm = ({ onChange }) => {
         Servicios Adicionales
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Selecciona los servicios adicionales que necesitas para tu evento. Puedes personalizar cada servicio según tus necesidades.
+        Selecciona los servicios adicionales que necesitas para tu evento.
+        Puedes personalizar cada servicio según tus necesidades.
       </Typography>
 
       {/* Indicador de servicios seleccionados */}
       {selectedIds.length > 0 && (
         <Alert severity="info" sx={{ mb: 3 }}>
-          {selectedIds.length} servicio{selectedIds.length > 1 ? 's' : ''} seleccionado{selectedIds.length > 1 ? 's' : ''}
+          {selectedIds.length} servicio{selectedIds.length > 1 ? "s" : ""}{" "}
+          seleccionado{selectedIds.length > 1 ? "s" : ""}
         </Alert>
       )}
 
@@ -302,20 +319,29 @@ export const ServicesForm = ({ onChange }) => {
             <Card
               elevation={0}
               sx={{
-                height: '100%',
-                border: '1px solid',
-                borderColor: isSelected(service._id) ? 'primary.main' : 'divider',
-                bgcolor: isSelected(service._id) ? 'primary.50' : 'background.paper',
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  borderColor: 'primary.main',
+                height: "100%",
+                border: "1px solid",
+                borderColor: isSelected(service._id)
+                  ? "primary.main"
+                  : "divider",
+                bgcolor: isSelected(service._id)
+                  ? "primary.50"
+                  : "background.paper",
+                transition: "all 0.2s ease",
+                "&:hover": {
+                  borderColor: "primary.main",
                   boxShadow: 2,
                 },
               }}
             >
               <CardActionArea
                 onClick={() => toggleService(service._id)}
-                sx={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'stretch' }}
+                sx={{
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "stretch",
+                }}
               >
                 <CardHeader
                   avatar={categoryIcon[service.category]}
@@ -330,9 +356,9 @@ export const ServicesForm = ({ onChange }) => {
                     </Stack>
                   }
                   subheader={
-                    <Chip 
-                      size="small" 
-                      label={service.category} 
+                    <Chip
+                      size="small"
+                      label={service.category}
                       variant="outlined"
                       sx={{ mt: 0.5 }}
                     />
@@ -343,7 +369,7 @@ export const ServicesForm = ({ onChange }) => {
                   <Typography variant="body2" color="text.secondary">
                     {service.description}
                   </Typography>
-                  
+
                   {service.attributes && service.attributes.length > 0 && (
                     <Box sx={{ mt: 1 }}>
                       <Typography variant="caption" color="text.secondary">
@@ -355,7 +381,9 @@ export const ServicesForm = ({ onChange }) => {
               </CardActionArea>
 
               {isSelected(service._id) && (
-                <Box sx={{ p: 1, borderTop: '1px solid', borderColor: 'divider' }}>
+                <Box
+                  sx={{ p: 1, borderTop: "1px solid", borderColor: "divider" }}
+                >
                   <Button
                     size="small"
                     startIcon={<EditIcon />}
@@ -376,7 +404,15 @@ export const ServicesForm = ({ onChange }) => {
       </Grid>
 
       {/* Opción "Otro" */}
-      <Box sx={{ mt: 4, p: 3, border: '1px dashed', borderColor: 'divider', borderRadius: 2 }}>
+      <Box
+        sx={{
+          mt: 4,
+          p: 3,
+          border: "1px dashed",
+          borderColor: "divider",
+          borderRadius: 2,
+        }}
+      >
         <FormControlLabel
           control={
             <Checkbox
@@ -384,15 +420,15 @@ export const ServicesForm = ({ onChange }) => {
               onChange={(e) => {
                 setOtherSelected(e.target.checked);
                 if (!e.target.checked) {
-                  setOtherText('');
-                  setValue('otherServices', '');
+                  setOtherText("");
+                  setValue("otherServices", "");
                 }
               }}
             />
           }
           label="Otro servicio no listado"
         />
-        
+
         {otherSelected && (
           <TextField
             fullWidth
@@ -402,7 +438,7 @@ export const ServicesForm = ({ onChange }) => {
             value={otherText}
             onChange={(e) => {
               setOtherText(e.target.value);
-              setValue('otherServices', e.target.value);
+              setValue("otherServices", e.target.value);
             }}
             sx={{ mt: 2 }}
           />
@@ -411,20 +447,42 @@ export const ServicesForm = ({ onChange }) => {
 
       {/* Resumen de selección */}
       {(selectedIds.length > 0 || otherSelected) && (
-        <Box sx={{ mt: 4, p: 3, bgcolor: 'grey.50', borderRadius: 2 }}>
+        <Box sx={{ 
+          mt: 4, 
+          p: 3, 
+          bgcolor: (theme) => theme.palette.mode === 'dark' ? 'grey.800' : 'grey.50', 
+          borderRadius: 2 
+        }}>
           <Typography variant="h6" gutterBottom>
             Tu Selección
           </Typography>
-          
+
           {selectedIds.map((id) => {
-            const service = items.find(s => s._id === id);
+            const service = items.find((s) => s._id === id);
             if (!service) return null;
-            
-            const hasCustomization = notesById[id] || (attrValuesById[id] && Object.keys(attrValuesById[id]).length > 0);
-            
+
+            const hasCustomization =
+              notesById[id] ||
+              (attrValuesById[id] &&
+                Object.keys(attrValuesById[id]).length > 0);
+
             return (
-              <Box key={id} sx={{ mb: 2, p: 2, bgcolor: 'white', borderRadius: 1, border: '1px solid', borderColor: 'divider' }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
+              <Box
+                key={id}
+                sx={{
+                  mb: 2,
+                  p: 2,
+                  bgcolor: (theme) => theme.palette.mode === 'dark' ? 'grey.700' : 'white',
+                  borderRadius: 1,
+                  border: "1px solid",
+                  borderColor: "divider",
+                }}
+              >
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
                   <Box>
                     <Typography variant="subtitle2" fontWeight={600}>
                       {service.name}
@@ -433,29 +491,49 @@ export const ServicesForm = ({ onChange }) => {
                       {service.category}
                     </Typography>
                     {hasCustomization && (
-                      <Chip size="small" label="Personalizado" color="primary" sx={{ ml: 1 }} />
+                      <Chip
+                        size="small"
+                        label="Personalizado"
+                        color="primary"
+                        sx={{ ml: 1 }}
+                      />
                     )}
                   </Box>
                   <Button
                     size="small"
                     startIcon={<EditIcon />}
                     onClick={() => openCustomize(id)}
+                    sx={{
+                      color: (theme) => theme.palette.mode === 'dark' ? 'white' : 'primary.main'
+                    }}
                   >
                     Editar
                   </Button>
                 </Stack>
-                
+
                 {notesById[id] && (
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1, fontStyle: 'italic' }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mt: 1, fontStyle: "italic" }}
+                  >
                     "{notesById[id]}"
                   </Typography>
                 )}
               </Box>
             );
           })}
-          
+
           {otherSelected && otherText && (
-            <Box sx={{ p: 2, bgcolor: 'white', borderRadius: 1, border: '1px solid', borderColor: 'divider' }}>
+            <Box
+              sx={{
+                p: 2,
+                bgcolor: (theme) => theme.palette.mode === 'dark' ? 'grey.700' : 'white',
+                borderRadius: 1,
+                border: "1px solid",
+                borderColor: "divider",
+              }}
+            >
               <Typography variant="subtitle2" fontWeight={600}>
                 Servicio Personalizado
               </Typography>
@@ -468,43 +546,45 @@ export const ServicesForm = ({ onChange }) => {
       )}
 
       {/* Modal de personalización */}
-      <Dialog 
-        open={dialogOpen} 
-        onClose={() => setDialogOpen(false)} 
-        maxWidth="sm" 
+      <Dialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        maxWidth="sm"
         fullWidth
         PaperProps={{
           sx: {
             borderRadius: 2,
-            p: 0
-          }
+            p: 0,
+          },
         }}
       >
-        <DialogTitle sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          borderBottom: '1px solid',
-          borderColor: 'divider',
-          pb: 2
-        }}>
+        <DialogTitle
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            borderBottom: "1px solid",
+            borderColor: "divider",
+            pb: 2,
+          }}
+        >
           <Typography variant="h6" fontWeight={600}>
             Personalizar: {editingService?.name}
           </Typography>
           <Button
             onClick={() => setDialogOpen(false)}
-            sx={{ minWidth: 'auto', p: 1 }}
+            sx={{ minWidth: "auto", p: 1 }}
             color="inherit"
           >
             ✕
           </Button>
         </DialogTitle>
-        
+
         <DialogContent sx={{ p: 3 }}>
           <Typography variant="body1" fontWeight={500} sx={{ mb: 2 }}>
             Describe cómo quieres personalizar este servicio
           </Typography>
-          
+
           <TextField
             fullWidth
             multiline
@@ -513,71 +593,45 @@ export const ServicesForm = ({ onChange }) => {
             value={currentNote}
             onChange={(e) => updateNote(editingId, e.target.value)}
             variant="outlined"
-            sx={{ 
+            sx={{
               mb: 3,
-              '& .MuiOutlinedInput-root': {
+              "& .MuiOutlinedInput-root": {
                 borderRadius: 2,
-              }
+              },
             }}
           />
-
-          {/* Atributos del servicio si existen */}
-          {editingService?.attributes && editingService.attributes.length > 0 && (
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="body2" fontWeight={500} sx={{ mb: 2 }}>
-                Información adicional requerida:
-              </Typography>
-              
-              {editingService.attributes.map((attr) => (
-                <TextField
-                  key={attr.name}
-                  fullWidth
-                  label={attr.name + (attr.required ? ' *' : '')}
-                  type={attr.type === 'numero' ? 'number' : 'text'}
-                  value={currentAttrs[attr.name] || ''}
-                  onChange={(e) => updateAttribute(editingId, attr.name, e.target.value)}
-                  required={attr.required}
-                  variant="outlined"
-                  sx={{ 
-                    mb: 2,
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                    }
-                  }}
-                />
-              ))}
-            </Box>
-          )}
         </DialogContent>
-        
-        <DialogActions sx={{ 
-          p: 3, 
-          pt: 0, 
-          gap: 2,
-          justifyContent: 'flex-end'
-        }}>
-          <Button 
+
+        <DialogActions
+          sx={{
+            p: 3,
+            pt: 0,
+            gap: 2,
+            justifyContent: "flex-end",
+          }}
+        >
+          <Button
             onClick={() => setDialogOpen(false)}
             variant="outlined"
-            sx={{ 
+            sx={{
               borderRadius: 2,
               px: 3,
-              py: 1
+              py: 1,
             }}
           >
             Cancelar
           </Button>
-          <Button 
-            onClick={saveDialog} 
+          <Button
+            onClick={saveDialog}
             variant="contained"
-            sx={{ 
+            sx={{
               borderRadius: 2,
               px: 3,
               py: 1,
-              bgcolor: 'primary.main',
-              '&:hover': {
-                bgcolor: 'primary.dark'
-              }
+              bgcolor: "primary.main",
+              "&:hover": {
+                bgcolor: "primary.dark",
+              },
             }}
           >
             Guardar

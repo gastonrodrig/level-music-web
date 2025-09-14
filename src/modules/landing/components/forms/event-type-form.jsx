@@ -191,7 +191,15 @@ export const EventTypeForm = () => {
 
       {/* Resumen */}
       {selectedCategory && (
-        <Box mt={4} p={2} borderRadius={2} bgcolor="rgba(255,255,255,0.05)">
+        <Box 
+          mt={4} 
+          p={3} 
+          sx={{
+            border: "1px dashed",
+            borderColor: "divider",
+            borderRadius: 2,
+          }}
+        >
           <Typography variant="subtitle1" fontWeight={600}>
             Tu selección
           </Typography>
