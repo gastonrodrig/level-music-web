@@ -10,6 +10,8 @@ import {
 } from "../../store";
 import { useState } from "react";
 import { serviceApi } from "../../api";
+import { getAuthConfig, getAuthConfigWithParams } from "../../shared/utils";
+
 
 export const useServiceStore = () => {
   const dispatch = useDispatch();
@@ -21,6 +23,7 @@ export const useServiceStore = () => {
     currentPage,
     rowsPerPage,  
   } = useSelector((state) => state.service);
+  const { token } = useSelector((state) => state.auth);
   const [searchTerm, setSearchTerm] = useState('');
   const [orderBy, setOrderBy] = useState('name');
   const [order, setOrder] = useState('asc');
@@ -67,21 +70,22 @@ export const useServiceStore = () => {
     try {
       const limit  = rowsPerPage;
       const offset = currentPage * rowsPerPage;
-      const { data } = await serviceApi.get('/paginated', {
-        params: {
-          limit,
-          offset,
-          search: searchTerm.trim(),
-          sortField: orderBy,
-          sortOrder: order,
-        },
-      });
+      const { data } = await serviceApi.get('/paginated', 
+        getAuthConfigWithParams(token, {
+                limit,
+                offset,
+                search: searchTerm.trim(),
+                sortField: orderBy,
+                sortOrder: order,
+              })
+            );
       console.log(data);
       dispatch(refreshService({
         items: data.items,
         total: data.total,
         page:  currentPage,
       }));
+      console.log('refreshService dispatched:', { items: data.items, total: data.total });
       return true;
     } catch (error) {
       console.log(error);
@@ -111,6 +115,7 @@ export const useServiceStore = () => {
       dispatch(setLoadingService(false));
     }
   };
+
 
   const setSelectedService = (serviceType) => {
     dispatch(selectedService({ ...serviceType }));
