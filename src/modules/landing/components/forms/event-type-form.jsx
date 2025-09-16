@@ -4,61 +4,44 @@ import {
   Grid,
   Card,
   CardActionArea,
+  CardMedia,
   CardContent,
   Stack,
   TextField,
+  useTheme,
 } from '@mui/material';
-import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
-import Diversity3Icon from '@mui/icons-material/Diversity3';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import CelebrationIcon from '@mui/icons-material/Celebration';
-import EventIcon from '@mui/icons-material/Event';
-import WorkIcon from '@mui/icons-material/Work';
-import GroupsIcon from '@mui/icons-material/Groups';
-import SchoolIcon from '@mui/icons-material/School';
-import EditIcon from '@mui/icons-material/Edit';
-import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
+import {
+  BusinessCenter,
+  Diversity3,
+  Favorite,
+  Celebration,
+  Event,
+  Work,
+  Groups,
+  School,
+  Edit,
+  CheckCircleRounded
+} from '@mui/icons-material';
 import { useFormContext } from 'react-hook-form';
+import { 
+  categoriesEvents as categories,
+  socialEvents
+} from '../../constants';
 
 export const EventTypeForm = () => {
   const { setValue, watch, register } = useFormContext();
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
 
   const selectedCategory = watch('eventCategory');
   const selectedType = watch('eventType');
   const customType = watch('customEventType', '');
 
-  // Categorías principales
-  const categories = [
-    {
-      key: 'corporativo',
-      title: 'Eventos Corporativos',
-      desc: 'Conferencias, seminarios y networking',
-      icon: <BusinessCenterIcon />,
-    },
-    {
-      key: 'social',
-      title: 'Eventos Sociales',
-      desc: 'Bodas, cumpleaños y celebraciones familiares',
-      icon: <Diversity3Icon />,
-    },
-  ];
-
-  // Tipos de eventos sociales
-  const socialEvents = [
-    { key: 'boda', label: 'Boda', desc: 'Ceremonia y recepción', icon: <FavoriteIcon /> },
-    { key: 'cumple', label: 'Cumpleaños', desc: 'Fiesta de todas las edades', icon: <CelebrationIcon /> },
-    { key: 'aniversario', label: 'Aniversario', desc: 'Bodas de plata, oro, etc.', icon: <EventIcon /> },
-    { key: 'babyshower', label: 'Baby Shower', desc: 'Celebración previa al bebé', icon: <GroupsIcon /> },
-    { key: 'graduacion', label: 'Graduación', desc: 'Logros académicos o profesionales', icon: <SchoolIcon /> },
-    { key: 'otros', label: 'Otros', desc: 'Especifica tu tipo de evento', icon: <EditIcon /> },
-  ];
-
-  // Tipos de eventos corporativos
   const corporateEvents = [
-    { key: 'conferencia', label: 'Conferencia', desc: 'Charlas profesionales', icon: <WorkIcon /> },
-    { key: 'seminario', label: 'Seminario', desc: 'Formación y aprendizaje', icon: <SchoolIcon /> },
-    { key: 'networking', label: 'Networking', desc: 'Conexiones y relaciones', icon: <GroupsIcon /> },
-    { key: 'otros', label: 'Otros', desc: 'Especifica tu tipo de evento corporativo', icon: <EditIcon /> },
+  { key: 'conferencia', label: 'Conferencia', desc: 'Charlas profesionales', icon: <Work /> },
+  { key: 'seminario', label: 'Seminario', desc: 'Formación y aprendizaje', icon: <School /> },
+  { key: 'networking', label: 'Networking', desc: 'Conexiones y relaciones', icon: <Groups /> },
+  { key: 'otros', label: 'Otros', desc: 'Especifica tu tipo de evento corporativo', icon: <Edit /> },
   ];
 
   const handleCategoryPick = (key) => {
@@ -75,14 +58,25 @@ export const EventTypeForm = () => {
   };
 
   const currentOptions =
-    selectedCategory === 'social' ? socialEvents : selectedCategory === 'corporativo' ? corporateEvents : [];
+    selectedCategory === 'social'
+      ? socialEvents
+      : selectedCategory === 'corporativo'
+      ? corporateEvents
+      : [];
 
   return (
     <Box>
-      {/* Selección categoría */}
-      <Typography variant="h6" fontWeight={700} mb={2} textAlign="center">
-        Selecciona la categoría de tu evento
-      </Typography>
+      {/* Encabezado */}
+      <Box textAlign="center" mb={4}>
+        <Typography variant="h5" fontWeight={800} gutterBottom>
+          ¿Qué tipo de evento deseas organizar?
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Selecciona la categoría de tu evento y luego el tipo específico.
+        </Typography>
+      </Box>
+
+      {/* Selección categoría con estilo visual */}
       <Grid container spacing={3} mb={4} justifyContent="center">
         {categories.map((cat) => {
           const isSelected = selectedCategory === cat.key;
@@ -90,20 +84,48 @@ export const EventTypeForm = () => {
             <Grid item xs={12} md={6} key={cat.key}>
               <Card
                 sx={{
-                  border: `2px solid ${isSelected ? '#f7931e' : 'transparent'}`,
                   borderRadius: 3,
+                  overflow: 'hidden',
+                  border: `2px solid ${isSelected ? '#f7931e' : 'transparent'}`,
+                  boxShadow: isSelected
+                    ? '0 10px 28px rgba(247,147,30,.35)'
+                    : isDark
+                    ? '0 6px 20px rgba(0,0,0,.3)'
+                    : '0 6px 20px rgba(2,8,23,.06)',
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
-                  '&:hover': { boxShadow: '0 6px 16px rgba(0,0,0,0.25)' },
                 }}
               >
                 <CardActionArea onClick={() => handleCategoryPick(cat.key)}>
-                  <CardContent>
-                    <Stack direction="row" spacing={1} alignItems="center">
+                  <Box sx={{ position: 'relative' }}>
+                    <CardMedia
+                      component="img"
+                      height="180"
+                      image={cat.image}
+                      alt={cat.title}
+                      sx={{ objectFit: 'cover' }}
+                    />
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        bgcolor: 'rgba(0,0,0,0.6)',
+                        color: '#fff',
+                        px: 2,
+                        py: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,
+                      }}
+                    >
                       {cat.icon}
                       <Typography fontWeight={700}>{cat.title}</Typography>
-                      {isSelected && <CheckCircleRoundedIcon color="warning" />}
-                    </Stack>
+                      {isSelected && <CheckCircleRounded color="warning" />}
+                    </Box>
+                  </Box>
+                  <CardContent>
                     <Typography variant="body2" color="text.secondary">
                       {cat.desc}
                     </Typography>
@@ -128,7 +150,7 @@ export const EventTypeForm = () => {
                 <Grid item xs={12} md={4} key={evt.key}>
                   <Card
                     sx={{
-                      border: `2px solid ${isSelected ? '#f7931e' : 'transparent'}`,
+                      border: `2px solid ${isSelected ? '#f7931e' : isDark ? '#494949' : '#efefef'}`,
                       borderRadius: 2,
                       cursor: 'pointer',
                     }}
@@ -138,7 +160,7 @@ export const EventTypeForm = () => {
                         <Stack direction="row" spacing={1} alignItems="center">
                           {evt.icon}
                           <Typography fontWeight={600}>{evt.label}</Typography>
-                          {isSelected && <CheckCircleRoundedIcon color="warning" />}
+                          {isSelected && <CheckCircleRounded color="warning" />}
                         </Stack>
                         <Typography variant="body2" color="text.secondary">
                           {evt.desc}
@@ -154,12 +176,7 @@ export const EventTypeForm = () => {
           {/* Campo "Otros" */}
           {selectedType === 'otros' && (
             <Box mt={3}>
-              <Typography
-                variant="subtitle1"
-                fontWeight={600}
-                gutterBottom
-                sx={{ color: 'text.primary' }}
-              >
+              <Typography variant="subtitle1" fontWeight={600} gutterBottom>
                 Especifica tu tipo de evento
               </Typography>
               <TextField
@@ -169,7 +186,6 @@ export const EventTypeForm = () => {
               />
             </Box>
           )}
-
         </>
       )}
 
