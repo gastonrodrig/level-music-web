@@ -17,7 +17,6 @@ export const ServicePage = () => {
     currentPage, 
     orderBy,
     order,
-    selected, 
     setSearchTerm,
     setRowsPerPageGlobal,
     setPageGlobal,
@@ -25,31 +24,18 @@ export const ServicePage = () => {
     setOrder,
     startLoadingServicePaginated,
     setSelectedService,
-    
-    listAllServices,
   } = useServiceStore();
+
   const { isLg } = useScreenSizes();
   const navigate = useNavigate();
-  useEffect(() => {
-  setSearchTerm('');
-  setOrderBy('name');
-  setOrder('asc');
-  setPageGlobal(0);
-  setRowsPerPageGlobal(5); // o el valor por defecto
-}, []);
+
   useEffect(() => {
     startLoadingServicePaginated();
   }, [currentPage, rowsPerPage, searchTerm, orderBy, order]);
 
-  const mappedRows = (services || []).map(({ service, serviceDetails }) => ({
-    ...service,                         // _id, provider_name, service_type_name, etc.
-    status: serviceDetails?.[0]?.status || '',
-    serviceDetails,                     // por si lo necesitas en acciones
-  }));
   const columns = [
     { id: 'provider_name', label: 'Proveedor', sortable: true },
-    { id: 'service_type_name', label: 'Tipo de Servicio', sortable: true },
-    { id: 'status', label: 'Estado' },
+    { id: 'service_type_name', label: 'Tipo de Servicio', sortable: true }
   ];
 
   const actions = [
@@ -57,10 +43,9 @@ export const ServicePage = () => {
       label: 'Editar', 
       icon: <Edit />, 
       onClick: (row) => {
-      setSelectedService(row);
-      navigate(`/admin/service/${row._id}`); // <-- navega directamente
-    },
-      url: (row) => `/admin/service/${row._id}`,
+        setSelectedService(row);
+        navigate(`/admin/service/edit`);
+      },
     },
   ];
 
@@ -115,7 +100,7 @@ export const ServicePage = () => {
           </Box>
         ) : (
           <TableComponent
-            rows={mappedRows}
+            rows={services}
             columns={columns}
             order={order}
             orderBy={orderBy}

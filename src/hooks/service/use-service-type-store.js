@@ -55,9 +55,11 @@ export const useServiceTypeStore = () => {
     try {
       const { data } = await serviceTypeApi.get('/all');
       dispatch(listAllServiceTypes(data));
+      return true;
     } catch (error) {
       const message = error.response?.data?.message;
       openSnackbar(message ?? "Ocurrió un error al cargar los tipos de servicio.");
+      return false;
     } finally {
       dispatch(setLoadingServiceType(false));
     }
