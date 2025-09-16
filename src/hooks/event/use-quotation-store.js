@@ -33,6 +33,11 @@ export const useQuotationStore = () => {
   const openSnackbar = (message) => dispatch(showSnackbar({ message }));
 
   const startCreateQuotationLanding = async (quotation) => {
+    // Validación: mínimo un tipo de servicio seleccionado
+    if (!quotation.services_requested || quotation.services_requested.length === 0) {
+      openSnackbar("Debes seleccionar al menos un tipo de servicio.");
+      return false;
+    }
     dispatch(setLoadingQuotation(true));
     try {
       const payload = createQuotationLandingModel(quotation);
