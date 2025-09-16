@@ -68,8 +68,9 @@ export const useServiceStore = () => {
   const startLoadingServicePaginated = async () => {
     dispatch(setLoadingService(true));
     try {
-      const limit  = rowsPerPage;
-      const offset = currentPage * rowsPerPage;
+      const limit = Number(rowsPerPage) || 5;
+    const page = Number(currentPage) || 0;
+    const offset = page * limit;
       const { data } = await serviceApi.get('/paginated', 
         getAuthConfigWithParams(token, {
                 limit,
@@ -83,7 +84,7 @@ export const useServiceStore = () => {
       dispatch(refreshService({
         items: data.items,
         total: data.total,
-        page:  currentPage,
+        page: page,
       }));
       console.log('refreshService dispatched:', { items: data.items, total: data.total });
       return true;
@@ -99,7 +100,7 @@ export const useServiceStore = () => {
     dispatch(setLoadingService(true));
     try {
       const payload = updateServiceModel(serviceType);
-      await serviceApi.put(`/${id}`, payload);
+      await serviceApi.patch(`/${id}`, payload);
       dispatch(showSnackbar({
         message: `El servicio fue actualizado exitosamente.`,
         severity: 'success',

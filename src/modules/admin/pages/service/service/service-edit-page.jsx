@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Typography, TextField, Button,Divider,Link,MenuItem, Chip } from '@mui/material';
 import { AddCircleOutline, Edit,Add  } from '@mui/icons-material';
 import SaveIcon from '@mui/icons-material/Save';
@@ -10,14 +10,11 @@ import { useEffect,useState } from 'react';
 
 export const ServiceEditPage = () => {
   const { serviceId } = useParams();
-
-  
-  
+  const navigate = useNavigate();
    const { startLoadingAllServiceTypes,serviceTypes } = useServiceTypeStore();
    const { startLoadingProviderPaginated,provider } = useProviderStore();
-   const { listAllServices,startCreateService,startUpdateService,services,setSelectedService, selected } = useServiceStore();
+   const { startUpdateService,services,setSelectedService, selected, selectedService } = useServiceStore();
    const [details, setDetails] = useState([]);
-   const [serviceDetails, setServiceDetails] = useState({});
    const [openDetailIdx, setOpenDetailIdx] = useState(null);
    const [selectedProvider, setSelectedProvider] = useState(null);
    const [selectedServiceType, setSelectedServiceType] = useState(null);
@@ -28,8 +25,11 @@ const [selectedFields, setSelectedFields] = useState({}); // { idx: [fields] }
  useEffect(() => {
     startLoadingAllServiceTypes();
     startLoadingProviderPaginated();
-    listAllServices();
+  
   }, []);
+  useEffect(() => {
+  console.log('selected:', selected);
+}, [selected]);
 useEffect(() => {
     if (!serviceId || !Array.isArray(provider) || !Array.isArray(serviceTypes) || !Array.isArray(services)) return;
 
@@ -38,25 +38,50 @@ useEffect(() => {
     if (!serviceObj && selected && selected.service?._id === serviceId) {
       serviceObj = selected;
     }
-    if (serviceObj) {
-      setSelectedProvider(provider.find(p => p._id === serviceObj.service.provider));
-      setSelectedServiceType(serviceTypes.find(st => st._id === serviceObj.service.service_type));
-      setDetails(serviceObj.serviceDetails.map(detail => ({
-        ref_price: detail.ref_price,
-        details: detail.details,
-        _id: detail._id,           // <-- agrega el _id
+    if (!serviceObj) {
+          navigate('/admin/service', { replace: true });
+          return;
+        }
+     if (serviceObj) {
+    setSelectedProvider(provider.find(p => p._id === serviceObj.service.provider));
+    setSelectedServiceType(serviceTypes.find(st => st._id === serviceObj.service.service_type));
+    
+    setDetails(serviceObj.serviceDetails.map(detail => ({
+      ref_price: detail.ref_price,
+      details: detail.details,
+      _id: detail._id,  // <-- aquí debe venir el id correcto
       status: detail.status 
-      })));
+    })));
     }
   }, [serviceId, provider, serviceTypes, services, selected]);
+  useEffect(() => {
+  if (details.length > 0) {
+    setSelectedFields(prev => {
+      const newFields = {};
+      details.forEach((detail, idx) => {
+        // Toma los nombres de los campos del objeto details
+        const detailFieldNames = Object.keys(detail.details || {});
+        // Genera el array de campos para el detalle actual
+        newFields[idx] = detailFieldNames.map(name => ({
+          name,
+          type: 'text', // Puedes ajustar el tipo si tienes esa info
+          required: false // Puedes ajustar si tienes esa info
+        }));
+      });
+      return newFields;
+    });
+  }
+}, [details]);
 
 const handleAddCustomAttribute = (name) => {
   setCustomAttributes([...customAttributes, { name, type: 'text', required: false }]);
 };
 const handleAddFieldToDetail = (idx, field) => {
-  setSelectedFields(prev => ({
+ setSelectedFields(prev => ({
     ...prev,
-    [idx]: [...(prev[idx] || []), field]
+    [idx]: prev[idx]
+      ? [...prev[idx].filter(f => f.name !== field.name), field]
+      : [field]
   }));
   setOpenFieldModalIdx(null);
 };
@@ -72,7 +97,9 @@ const handleSubmitDetail = (data, idx) => {
   const updated = [...details];
   updated[idx] = {
     ref_price: data.ref_price,
-    details: data.details
+    details: data.details,
+    _id: details[idx]._id,      // <-- conserva el id original
+    status: details[idx].status 
   };
   setDetails(updated);
   setOpenDetailIdx(null);
@@ -103,7 +130,8 @@ const handleCreateService = async () => {
     return;
   }
   const serviceObject = {
-    serviceDetails: details.map(detail => ({
+    serviceDetails: details.map(detail => {
+    const obj = {
       details: Object.fromEntries(
         Object.entries(detail.details).map(([key, value]) => {
           const num = Number(value);
@@ -111,17 +139,16 @@ const handleCreateService = async () => {
         })
       ),
       ref_price: Number(detail.ref_price),
-      status: serviceDetails.status // Incluye status si tu backend lo requiere
-    }))
+      status: detail.status || "Activo"
+    };
+    // Solo agrega _id si existe y es válido (no vacío, no undefined)
+    if (detail._id) obj._id = detail._id;
+    return obj;
+  })
   };
-  console.log('Creando servicio con datos:', serviceObject);
+  console.log('serviceObject to submit:', serviceObject);
   await startUpdateService(serviceId, serviceObject);
 };
-   useEffect(() => {
-    startLoadingAllServiceTypes();
-    startLoadingProviderPaginated();
-    listAllServices();
-  }, []);
   const { isLg } = useScreenSizes();
   return (
     <Box sx={{ p: 4 }}>

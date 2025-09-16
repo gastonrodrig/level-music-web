@@ -35,14 +35,24 @@ const allAttributes = [
   ...customAttributes
 ];
 const handleAddDetail = () => {
-  setDetails([...details, { ref_price: '', details: {} }]); // <-- objeto vacío
-  setOpenDetailIdx(details.length);
+  setDetails(prev => [...prev, { ref_price: '', details: {} }]);
+  setSelectedFields(prev => ({
+    ...prev,
+    [details.length]: selectedServiceType?.attributes
+      ? [...selectedServiceType.attributes]
+      : []
+  }));
 };
 const handleSubmitDetail = (data, idx) => {
-  const updated = [...details];
+   const updated = [...details];
+  // Solo guarda los campos que están en selectedFields[idx]
+  const detailsObj = {};
+  (selectedFields[idx] || []).forEach(field => {
+    detailsObj[field.name] = data.details?.[field.name] ?? '';
+  });
   updated[idx] = {
     ref_price: data.ref_price,
-    details: data.details
+    details: detailsObj
   };
   setDetails(updated);
   setOpenDetailIdx(null);
