@@ -59,6 +59,8 @@ export const EventFeaturedModal = ({
     urlsToFiles,
     handleImagesChange,
     handleRemoveImage,
+    imageError,
+    setImageError,
   } = useImageManager(watch, setValue);
 
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
@@ -109,6 +111,7 @@ export const EventFeaturedModal = ({
           featured_description: eventFeatured?.featured_description ?? "",
           services: eventFeatured?.services ?? [],
           images: files,
+          event_id: eventFeatured?.event_id ?? eventFeatured?.event?._id ?? "",
         });
 
         setPreviews(files.map((f) => URL.createObjectURL(f)));
@@ -119,13 +122,16 @@ export const EventFeaturedModal = ({
   }, [open, eventFeatured]);
 
   const onSubmit = async (data) => {
+    // Log para depuración de event_id
+    console.log("onSubmit event_id:", data.event_id, "| data:", data);
+
     const payload = {
       ...data,
       images: Array.from(data.images || []),
     };
 
     const success = isEditing
-      ? await startUpdateEventFeatured(eventFeatured._id, payload)
+      ? await startUpdateEventFeatured(eventFeatured?._id, payload)
       : await startCreateEventFeatured(payload);
 
     if (success) {
@@ -237,7 +243,9 @@ export const EventFeaturedModal = ({
             mb={3}
           >
             <Typography variant="h6" fontWeight={600}>
-              {isEditing ? "Editar Evento Destacado" : "Agregar Evento Destacado"}
+              {isEditing
+                ? "Editar Evento Destacado"
+                : "Agregar Evento Destacado"}
             </Typography>
             <IconButton onClick={onClose}>
               <Close />
@@ -253,7 +261,8 @@ export const EventFeaturedModal = ({
                 required: "El código del evento es obligatorio",
                 pattern: {
                   value: /^EVT-\d{8}-[A-Z0-9]{6}$/,
-                  message: "El código debe tener el formato EVT-YYYYMMDD-XXXXXX",
+                  message:
+                    "El código debe tener el formato EVT-YYYYMMDD-XXXXXX",
                 },
               })}
               inputProps={{
@@ -452,107 +461,116 @@ export const EventFeaturedModal = ({
             </Button>
           </Box>
 
-          {/* Carrusel de vista previa */}
-          <Box mb={2}>
-          {loadingImages ? (
-            <Typography
-              textAlign="center"
-              color="text.secondary"
-              fontSize={14}
-              my={2}
-            >
-              Cargando imagenes...
-            </Typography>
-          ) : previews.length > 0 ? (
-            <Swiper spaceBetween={10} slidesPerView={1}>
-              {groupsOf4.map((group, gi) => (
-                <SwiperSlide key={gi}>
-                  <Box
-                    display="grid"
-                    gridTemplateColumns="repeat(4, 1fr)"
-                    gap={1}
-                    mb={2}
-                  >
-                    {group.map((src, i) => {
-                      const globalIndex = gi * 4 + i;
-                      return (
-                        <Box
-                          key={i}
-                          sx={{
-                            position: "relative",
-                            width: "100%",
-                            pt: "100%",
-                          }}
-                        >
-                          <Box
-                            component="img"
-                            src={src}
-                            alt={`preview-${i}`}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              handleOpenPreview(src);
-                            }}
-                            sx={{
-                              position: "absolute",
-                              top: 0,
-                              left: 0,
-                              width: "100%",
-                              height: "100%",
-                              objectFit: "cover",
-                              borderRadius: 1.5,
-                              border: (theme) =>
-                                `1px solid ${
-                                  theme.palette.mode === "dark" ? "#3c3c3c" : "#e0e0e0"
-                                }`,
-                              cursor: "pointer",
-                              transition: "transform 0.2s ease",
-                              "&:hover": {
-                                transform: "scale(1.02)",
-                              },
-                            }}
-                          />
-
-                          {/* Botón para eliminar imagen */}
-                          <IconButton
-                            size="small"
-                            sx={{
-                              position: "absolute",
-                              top: 4,
-                              right: 4,
-                              bgcolor: "rgba(0,0,0,0.5)",
-                              "&:hover": { bgcolor: "rgba(0,0,0,0.7)" },
-                            }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleRemoveImage(globalIndex);
-                            }}
-                          >
-                            <Close fontSize="small" sx={{ color: "#fff" }} />
-                          </IconButton>
-                        </Box>
-                      );
-                    })}
-                  </Box>
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          ) : (
-            <Typography
-              textAlign="center"
-              color="text.secondary"
-              fontSize={14}
-              my={4}
-            >
-              No hay imágenes disponibles
+          {/*  Mostrar mensaje de error si existe */}
+          {imageError && (
+            <Typography color="error" fontSize={14} fontWeight={600} mb={2}>
+              {imageError}
             </Typography>
           )}
-        </Box>
+
+          {/* Carrusel de vista previa */}
+          <Box mb={2}>
+            {loadingImages ? (
+              <Typography
+                textAlign="center"
+                color="text.secondary"
+                fontSize={14}
+                my={2}
+              >
+                Cargando imagenes...
+              </Typography>
+            ) : previews.length > 0 ? (
+              <Swiper spaceBetween={10} slidesPerView={1}>
+                {groupsOf4.map((group, gi) => (
+                  <SwiperSlide key={gi}>
+                    <Box
+                      display="grid"
+                      gridTemplateColumns="repeat(4, 1fr)"
+                      gap={1}
+                      mb={2}
+                    >
+                      {group.map((src, i) => {
+                        const globalIndex = gi * 4 + i;
+                        return (
+                          <Box
+                            key={i}
+                            sx={{
+                              position: "relative",
+                              width: "100%",
+                              pt: "100%",
+                            }}
+                          >
+                            <Box
+                              component="img"
+                              src={src}
+                              alt={`preview-${i}`}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleOpenPreview(src);
+                              }}
+                              sx={{
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                                borderRadius: 1.5,
+                                border: (theme) =>
+                                  `1px solid ${
+                                    theme.palette.mode === "dark"
+                                      ? "#3c3c3c"
+                                      : "#e0e0e0"
+                                  }`,
+                                cursor: "pointer",
+                                transition: "transform 0.2s ease",
+                                "&:hover": {
+                                  transform: "scale(1.02)",
+                                },
+                              }}
+                            />
+
+                            {/* Botón para eliminar imagen */}
+                            <IconButton
+                              size="small"
+                              sx={{
+                                position: "absolute",
+                                top: 4,
+                                right: 4,
+                                bgcolor: "rgba(0,0,0,0.5)",
+                                "&:hover": { bgcolor: "rgba(0,0,0,0.7)" },
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveImage(globalIndex);
+                              }}
+                            >
+                              <Close fontSize="small" sx={{ color: "#fff" }} />
+                            </IconButton>
+                          </Box>
+                        );
+                      })}
+                    </Box>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            ) : (
+              <Typography
+                textAlign="center"
+                color="text.secondary"
+                fontSize={14}
+                my={4}
+              >
+                No hay imágenes disponibles
+              </Typography>
+            )}
+          </Box>
 
           {/* Modal de vista previa */}
           <ImagePreviewModal
             open={previewModalOpen}
-            src={selectedImage} 
+            src={selectedImage}
             onClose={handleClosePreview}
           />
 
