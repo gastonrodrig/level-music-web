@@ -37,7 +37,7 @@ export const useEventStore = () => {
 
   // const startCreateEventType = async (eventType) => {
   //   dispatch(setLoadingEventType(true));
-  //   try {
+  //   try {                                               
   //     const payload = createEventTypeModel(eventType);
   //     await eventTypeApi.post('/', payload, getAuthConfig(token));
   //     startLoadingEventTypePaginated();

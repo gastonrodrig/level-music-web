@@ -1,10 +1,7 @@
-
-export const MAX_IMAGE_SIZE_MB = 40; // Tamaño máximo en MB
 import { useState, useEffect, useCallback } from "react";
 
 export const useImageManager = (watch, setValue) => {
   const [previews, setPreviews] = useState([]);
-  const [imageError, setImageError] = useState("");
 
   const urlsToFiles = useCallback(async (urls) => {
     const files = await Promise.all(
@@ -20,17 +17,11 @@ export const useImageManager = (watch, setValue) => {
 
   const handleImagesChange = (e) => {
     const files = Array.from(e.target.files || []);
-    const validFiles = files.filter((f) => f.size <= MAX_IMAGE_SIZE_MB * 1024 * 1024);
-    if (validFiles.length < files.length) {
-      setImageError(`Algunas imágenes superan el tamaño máximo de ${MAX_IMAGE_SIZE_MB}MB y no fueron agregadas.`);
-    } else {
-      setImageError("");
-    }
-    const localUrls = validFiles.map((f) => URL.createObjectURL(f));
+    const localUrls = files.map((f) => URL.createObjectURL(f));
     setPreviews((prev) => [...prev, ...localUrls]);
     const current = watch("images") || [];
     const currentArr = Array.isArray(current) ? current : Array.from(current);
-    const updated = [...currentArr, ...validFiles];
+    const updated = [...currentArr, ...files];
     setValue("images", updated, { shouldValidate: true, shouldDirty: true });
   };
 
@@ -58,7 +49,5 @@ export const useImageManager = (watch, setValue) => {
     urlsToFiles,
     handleImagesChange,
     handleRemoveImage,
-    imageError,
-    setImageError,
   };
 };

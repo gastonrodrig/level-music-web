@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { getAuth, signOut } from "firebase/auth";
-import { useAuthStore } from "../auth/use-auth-store";
+import { useAuthStore } from "../auth";
 
 export const useSessionTimeout = () => {
   const auth = getAuth();
@@ -8,13 +8,9 @@ export const useSessionTimeout = () => {
   const [timeLeft, setTimeLeft] = useState(null);
   const [expired, setExpired] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [modalCountdown, setModalCountdown] = useState(2); // 2 segundos
+  const [modalCountdown, setModalCountdown] = useState(2); 
 
-  // logout seguro
   const forceLogout = useCallback(async () => {
-//  const showModal = true;
-// const modalCountdown = 5;
-// const forceLogout = () => alert('Cerrar sesión (demo)');
     try {
       await signOut(auth);
       onLogout();
@@ -25,6 +21,7 @@ export const useSessionTimeout = () => {
     }
   }, [auth, onLogout]);
 
+  //  Token de Firebase
   useEffect(() => {
     const user = auth.currentUser;
     if (!user) return;
@@ -38,19 +35,18 @@ export const useSessionTimeout = () => {
       timer = setTimeout(() => {
         setExpired(true);
         setShowModal(true);
-        setModalCountdown(2); // reinicia a 2 seg
+        setModalCountdown(2);
       }, remaining);
     });
 
     return () => clearTimeout(timer);
   }, [auth]);
 
-  // Manejo del contador del modal
+  // Manejo del contador solo para mostrar el tiempo restante en el modal
   useEffect(() => {
     if (!showModal) return;
 
     if (modalCountdown === 0) {
-      forceLogout();
       return;
     }
 
@@ -59,7 +55,13 @@ export const useSessionTimeout = () => {
     }, 1000);
 
     return () => clearTimeout(countdownTimer);
-  }, [showModal, modalCountdown, forceLogout]);
+  }, [showModal, modalCountdown]);
 
-  return { expired, timeLeft, showModal, modalCountdown, forceLogout };
+  return { 
+    expired, 
+    timeLeft, 
+    showModal, 
+    modalCountdown, 
+    forceLogout 
+  };
 };
