@@ -45,25 +45,20 @@ fields = [],
 const watchedRefPrice = watch("ref_price");
 const watchedDetails = watch("details");
 
-
-   useEffect(() => {
- 
-    onSubmit({
+ useEffect(() => {
+    // Enviar el formulario automáticamente cuando cambian los campos
+    handleFormSubmit({
       ref_price: watchedRefPrice,
-      details: watchedDetails,
-    }, index);
-  
-  // eslint-disable-next-line
-}, [watchedRefPrice, watchedDetails]);
+      details: watchedDetails
+    });
+    // eslint-disable-next-line
+  }, [watchedRefPrice, watchedDetails, fields.length]);
+
       const handleFormSubmit = (data) => {
-        const detailsObj = {};
-        fields.forEach((field) => {
-          detailsObj[field.name] = data.details?.[field.name];
-        });
         onSubmit({
-          ref_price: data.ref_price,
-          details: detailsObj,
-        }, index);
+        ref_price: data.ref_price,
+        details: data.details, // <-- esto incluye todos los campos llenados
+      }, index);
       };
     return (
         <Box sx={{ p: 3, borderRadius: 3, bgcolor: "#1f1e1e", mb: 2 }}>
@@ -141,6 +136,7 @@ const watchedDetails = watch("details");
               helperText={errors.details?.[field.name]?.message}
               fullWidth
               sx={{ mb: 0 }}
+              onBlur={handleSubmit(handleFormSubmit)}
             />
           </Box>
           

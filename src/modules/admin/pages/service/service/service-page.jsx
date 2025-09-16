@@ -5,6 +5,7 @@ import { useServiceStore } from '../../../../../hooks';
 import { TableComponent } from '../../../../../shared/ui/components';
 import { useScreenSizes } from '../../../../../shared/constants/screen-width';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export const ServicePage = () => {
   const {
@@ -24,9 +25,18 @@ export const ServicePage = () => {
     setOrder,
     startLoadingServicePaginated,
     setSelectedService,
+    
     listAllServices,
   } = useServiceStore();
   const { isLg } = useScreenSizes();
+  const navigate = useNavigate();
+  useEffect(() => {
+  setSearchTerm('');
+  setOrderBy('name');
+  setOrder('asc');
+  setPageGlobal(0);
+  setRowsPerPageGlobal(5); // o el valor por defecto
+}, []);
   useEffect(() => {
     startLoadingServicePaginated();
   }, [currentPage, rowsPerPage, searchTerm, orderBy, order]);
@@ -47,7 +57,9 @@ export const ServicePage = () => {
       label: 'Editar', 
       icon: <Edit />, 
       onClick: (row) => {
-      setSelectedService(row);},
+      setSelectedService(row);
+      navigate(`/admin/service/${row._id}`); // <-- navega directamente
+    },
       url: (row) => `/admin/service/${row._id}`,
     },
   ];
