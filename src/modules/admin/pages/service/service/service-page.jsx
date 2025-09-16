@@ -24,23 +24,30 @@ export const ServicePage = () => {
     setOrder,
     startLoadingServicePaginated,
     setSelectedService,
+    listAllServices,
   } = useServiceStore();
   const { isLg } = useScreenSizes();
-
   useEffect(() => {
     startLoadingServicePaginated();
   }, [currentPage, rowsPerPage, searchTerm, orderBy, order]);
 
+  const mappedRows = (services || []).map(({ service, serviceDetails }) => ({
+    ...service,                         // _id, provider_name, service_type_name, etc.
+    status: serviceDetails?.[0]?.status || '',
+    serviceDetails,                     // por si lo necesitas en acciones
+  }));
   const columns = [
     { id: 'provider_name', label: 'Proveedor', sortable: true },
     { id: 'service_type_name', label: 'Tipo de Servicio', sortable: true },
-    { id: 'status', label: 'Estado' , sortable: true },
+    { id: 'status', label: 'Estado' },
   ];
 
   const actions = [
     { 
       label: 'Editar', 
       icon: <Edit />, 
+      onClick: (row) => {
+      setSelectedService(row);},
       url: (row) => `/admin/service/${row._id}`,
     },
   ];
@@ -88,7 +95,7 @@ export const ServicePage = () => {
           <Box display="flex" justifyContent="center" alignItems="center" sx={{ py: 5 }}>
             <CircularProgress />
           </Box>
-        ) : services.length === 0 ? (
+        ) : (services?.length ?? 0) === 0 ?  (
           <Box display="flex" justifyContent="center" alignItems="center" sx={{ py: 5 }}>
             <Typography sx={{ color: 'text.secondary', fontSize: 16 }}>
               No se encontraron resultados.
@@ -96,7 +103,7 @@ export const ServicePage = () => {
           </Box>
         ) : (
           <TableComponent
-            rows={services}
+            rows={mappedRows}
             columns={columns}
             order={order}
             orderBy={orderBy}
