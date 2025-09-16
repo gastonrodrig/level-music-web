@@ -8,7 +8,7 @@ import { useScreenSizes } from '../../../../shared/constants/screen-width';
 
 export const EventTypePage = () => {
   const {
-    eventType,
+    eventTypes,
     total,
     loading,
     searchTerm,
@@ -95,7 +95,7 @@ export const EventTypePage = () => {
           <Box display="flex" justifyContent="center" alignItems="center" sx={{ py: 5 }}>
             <CircularProgress />
           </Box>
-        ) : eventType.length === 0 ? (
+        ) : eventTypes.length === 0 ? (
           <Box display="flex" justifyContent="center" alignItems="center" sx={{ py: 5 }}>
             <Typography sx={{ color: 'text.secondary', fontSize: 16 }}>
               No se encontraron resultados.
@@ -103,7 +103,7 @@ export const EventTypePage = () => {
           </Box>
         ) : (
           <TableComponent
-            rows={eventType}
+            rows={eventTypes}
             columns={columns}
             order={order}
             orderBy={orderBy}

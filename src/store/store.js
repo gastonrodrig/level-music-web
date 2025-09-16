@@ -16,6 +16,7 @@ import {
   clientProfileSlice,
   clientPersonSlice,
   clientCompanySlice,
+  quotationSlice
 } from './';
 
 export const store = configureStore({
@@ -35,6 +36,7 @@ export const store = configureStore({
     maintenance: maintenanceSlice.reducer,
     clientProfile: clientProfileSlice.reducer,
     clientPerson: clientPersonSlice.reducer,
-    clientCompany: clientCompanySlice.reducer
+    clientCompany: clientCompanySlice.reducer,
+    quotation: quotationSlice.reducer,
   },
 });

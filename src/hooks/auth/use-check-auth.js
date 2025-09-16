@@ -28,6 +28,7 @@ export const useCheckAuth = () => {
       }
 
       dispatch(login({ 
+        _id: data._id,
         uid: data.auth_id, 
         email: data.email, 
         firstName: data.first_name || null, 

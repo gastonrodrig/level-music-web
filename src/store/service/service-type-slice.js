@@ -37,6 +37,7 @@ export const serviceTypeSlice = createSlice({
     }
   },
 });
+
 export const {  
   refreshServiceType,
   selectedServiceType,

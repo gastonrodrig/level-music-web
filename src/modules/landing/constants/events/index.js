@@ -1,2 +1,2 @@
 export * from './categories-events';
-export * from './social-events';
+export * from './service-type';
