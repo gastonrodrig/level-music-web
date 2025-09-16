@@ -38,7 +38,7 @@ export const PersonalInfoForm = () => {
     setValue
   } = useFormContext();
 
-  const clientType = watch("client_type", "PERSONA");
+  const clientType = watch("client_type", "Persona");
 
   const handleAutofill = () => {
     if (status === 'authenticated') {
@@ -54,7 +54,7 @@ export const PersonalInfoForm = () => {
   useEffect(() => {
     const currentDocType = watch("document_type");
 
-    if (clientType === "EMPRESA") {
+    if (clientType === "Empresa") {
       if (currentDocType !== "Ruc") {
         setValue("document_type", "Ruc");
         setValue("document_number", "");
@@ -64,7 +64,7 @@ export const PersonalInfoForm = () => {
       setValue("last_name", "");
       setValue("email", "");
       setValue("phone", "");
-    } else if (clientType === "PERSONA") {
+    } else if (clientType === "Persona") {
       // Limpiar campos de empresa que no aplican
       setValue("company_name", "");
       setValue("contact_person", "");
@@ -90,16 +90,16 @@ export const PersonalInfoForm = () => {
           <Controller
             name="client_type"
             control={control}
-            defaultValue="PERSONA"
+            defaultValue="Persona"
             render={({ field }) => (
               <RadioGroup row {...field}>
                 <FormControlLabel
-                  value="PERSONA"
+                  value="Persona"
                   control={<Radio />}
                   label="Persona Natural"
                 />
                 <FormControlLabel
-                  value="EMPRESA"
+                  value="Empresa"
                   control={<Radio />}
                   label="Empresa"
                 />
@@ -108,7 +108,7 @@ export const PersonalInfoForm = () => {
           />
 
           {/* Botón de autocompletar si está autenticado y es persona natural */}
-          {status === 'authenticated' && clientType === 'PERSONA' && (
+          {status === 'authenticated' && clientType === 'Persona' && (
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
               <Button
                 variant="contained"
@@ -135,7 +135,7 @@ export const PersonalInfoForm = () => {
 
       {/* Campos dinámicos */}
       <Grid container spacing={3}>
-        {clientType === "PERSONA" ? (
+        {clientType === "Persona" ? (
           <>
             <Grid item xs={12} md={6}>
               <TextField
@@ -253,9 +253,9 @@ export const PersonalInfoForm = () => {
                     field.onChange(e);
                     setValue("document_number", "");
                   }}
-                  disabled={clientType === "EMPRESA"}
+                  disabled={clientType === "Empresa"}
                 >
-                  {clientType === "EMPRESA"
+                  {clientType === "Empresa"
                     ? [<MenuItem key="Ruc" value="Ruc">Ruc</MenuItem>]
                     : [
                         <MenuItem key="Dni" value="Dni">Dni</MenuItem>,
@@ -299,6 +299,59 @@ export const PersonalInfoForm = () => {
           />
         </Grid>
       </Grid>
+
+      {/* Resumen */}
+      <Box
+        mt={4}
+        p={3}
+        sx={{
+          border: "1px dashed",
+          borderColor: "divider",
+          borderRadius: 2,
+          bgcolor: (theme) =>
+            theme.palette.mode === "dark"
+              ? "rgba(255,255,255,0.05)"
+              : "rgba(0,0,0,0.05)",
+        }}
+      >
+        <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+          Resumen de Información Personal
+        </Typography>
+        <Typography variant="body2">
+          Tipo de Cliente: {clientType === "Persona" ? "Persona Natural" : "Empresa"}
+        </Typography>
+
+        {clientType === "Persona" ? (
+          <>
+            <Typography variant="body2">
+              Nombre: {watch("first_name") || "-"}
+            </Typography>
+            <Typography variant="body2">
+              Apellido: {watch("last_name") || "-"}
+            </Typography>
+          </>
+        ) : (
+          <>
+            <Typography variant="body2">
+              Empresa: {watch("company_name") || "-"}
+            </Typography>
+            <Typography variant="body2">
+              Contacto: {watch("contact_person") || "-"}
+            </Typography>
+          </>
+        )}
+
+        <Typography variant="body2">
+          Correo: {watch("email") || "-"}
+        </Typography>
+        <Typography variant="body2">
+          Teléfono: {watch("phone") || "-"}
+        </Typography>
+        <Typography variant="body2">
+          Documento: {watch("document_type") || "-"}{" "}
+          {watch("document_number") || ""}
+        </Typography>
+      </Box>
     </Box>
   );
 };

@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  eventType: [],
+  eventTypes: [],
   selected: null,
   total: 0,
   currentPage: 0,
@@ -13,9 +13,9 @@ export const eventTypeSlice = createSlice({
   name: 'eventType',
   initialState,
   reducers: {
-    refreshEventType: (state, action) => {
+    refreshEventTypes: (state, action) => {
       const { items, total, page } = action.payload;
-      state.eventType = items; 
+      state.eventTypes = items; 
       state.total = total;
       state.currentPage = page;
       state.loading = false; 
@@ -32,13 +32,17 @@ export const eventTypeSlice = createSlice({
     setRowsPerPageEventType: (state, action) => {
       state.rowsPerPage = action.payload;
     },
+    listAllEventTypes: (state, action) => {
+      state.eventTypes = action.payload;
+    },
   },
 });
 
 export const {
-  refreshEventType,
+  refreshEventTypes,
   selectedEventType,
   setLoadingEventType,
   setPageEventType,
   setRowsPerPageEventType,
+  listAllEventTypes,
 } = eventTypeSlice.actions;

@@ -1,7 +1,8 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { eventTypeApi } from '../../api';
 import {
-  refreshEventType,
+  listAllEventTypes,
+  refreshEventTypes,
   selectedEventType,
   setLoadingEventType,
   setPageEventType,
@@ -18,7 +19,7 @@ import { getAuthConfig, getAuthConfigWithParams } from '../../shared/utils';
 export const useEventTypeStore = () => {
   const dispatch = useDispatch();
   const { 
-    eventType, 
+    eventTypes, 
     selected, 
     total, 
     loading, 
@@ -51,6 +52,21 @@ export const useEventTypeStore = () => {
     }
   };
 
+  const startLoadingAllEventTypes = async () => {
+    dispatch(setLoadingEventType(true));
+    try {
+      const { data } = await eventTypeApi.get('/all');
+      dispatch(listAllEventTypes(data));
+      return true;
+    } catch (error) {
+      const message = error.response?.data?.message;
+      openSnackbar(message ?? "Ocurrió un error al cargar los tipos de evento.");
+      return false;
+    } finally {
+      dispatch(setLoadingEventType(false));
+    }
+  };
+
   const startLoadingEventTypePaginated = async () => {
     dispatch(setLoadingEventType(true));
     try {
@@ -65,7 +81,7 @@ export const useEventTypeStore = () => {
           sortOrder: order,
         })
       );
-      dispatch(refreshEventType({
+      dispatch(refreshEventTypes({
         items: data.items,
         total: data.total,
         page:  currentPage,
@@ -120,7 +136,7 @@ export const useEventTypeStore = () => {
 
   return {
     // state
-    eventType,
+    eventTypes,
     selected,
     total,
     loading,
@@ -139,6 +155,7 @@ export const useEventTypeStore = () => {
 
     // actions
     startCreateEventType,
+    startLoadingAllEventTypes,
     startLoadingEventTypePaginated,
     startUpdateEventType,
     setSelectedEventType,

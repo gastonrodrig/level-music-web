@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import {
   Box,
@@ -18,7 +18,7 @@ import {
   EventDetailsForm,
   ServicesForm,
 } from "../components/";
-import { useServiceTypeStore, useStepperStore } from "../../../hooks";
+import { useAuthStore, useEventTypeStore, useQuotationStore, useServiceTypeStore, useStepperStore } from "../../../hooks";
 import { useScreenSizes } from "../../../shared/constants/screen-width";
 import { useDispatch } from "react-redux";
 import { showSnackbar } from "../../../store";
@@ -32,9 +32,11 @@ export const QuotationPage = () => {
     defaultValues: {
       // Paso 0: tipo de evento
       eventCategory: "",
+      eventType: "",
+      user_id: null,
 
       // Paso 1: Datos básicos
-      client_type: "PERSONA",
+      client_type: "Persona",
       first_name: "",
       last_name: "",
       company_name: "",
@@ -45,25 +47,27 @@ export const QuotationPage = () => {
       document_number: "",
 
       // Paso 2: detalles
-      eventType: "",
-      attendeesCount: 0,
+      attendeesCount: "",
       startTime: null,
       endTime: null,
       exactAddress: "",
       placeReference: "",
       placeType: "",
       placeCapacity: "",
-
-      // Paso 3: servicios
-      foodService: false,
-      foodDetails: "",
-      additionalServices: "",
-      imageFile: null,
     },
   });
 
   const { handleSubmit, reset, setValue, watch, trigger } = formMethods;
   const { startLoadingAllServiceTypes } = useServiceTypeStore();
+  const { startLoadingAllEventTypes } = useEventTypeStore();
+  const { loading, startCreateQuotationLanding } = useQuotationStore();
+  const { _id, status } = useAuthStore();
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      setValue("user_id", _id);
+    }
+  }, [_id, setValue]);
 
   // store stepper
   const { currentPage, goNext, goBack, isFirst, isLast } = useStepperStore(
@@ -73,22 +77,20 @@ export const QuotationPage = () => {
 
   const { isMd } = useScreenSizes();
 
-  // Observar tipo de evento
   const selectedEventType = watch("eventType");
   const customEventType = watch("customEventType");
   const clientType = watch("client_type");
 
-  // Auto-ajustar documento cuando es empresa
   useEffect(() => {
-    if (clientType === "EMPRESA") {
+    if (clientType === "Empresa") {
       setValue("document_type", "Ruc");
       setValue("document_number", "");
     }
   }, [clientType, setValue]);
 
-  // Cargar servicios
   useEffect(() => {
     startLoadingAllServiceTypes();
+    startLoadingAllEventTypes();
   }, []);
 
   const handleEventTypeSelect = (eventType) => {
@@ -96,8 +98,8 @@ export const QuotationPage = () => {
   };
 
   const onNext = async () => {
+    // Validaciones del paso 1
     if (currentPage === 0) {
-      // Validar que haya seleccionado un tipo de evento
       if (!selectedEventType) {
         dispatch(
           showSnackbar({ message: "Debes seleccionar un tipo de evento." })
@@ -105,7 +107,6 @@ export const QuotationPage = () => {
         return;
       }
 
-      // Validar que si seleccionó "otros", debe escribir algo en el campo personalizado
       if (
         selectedEventType === "otros" &&
         (!customEventType || customEventType.trim().length === 0)
@@ -124,7 +125,8 @@ export const QuotationPage = () => {
   };
 
   const onFinish = handleSubmit((data) => {
-    console.log("Datos completos:", data);
+    console.log(data)
+    startCreateQuotationLanding(data);
     reset();
   });
 
@@ -135,17 +137,15 @@ export const QuotationPage = () => {
       case 1:
         return <PersonalInfoForm />;
       case 2:
-        return <EventDetailsForm selectedEventType={selectedEventType} />;
-      case 3:
-        return (
-          <ServicesForm
-            onChange={(payload) => console.log("Services selected:", payload)}
-          />
-        );
+        return <EventDetailsForm />;
+      case 3: 
+        return <ServicesForm/>;
       default:
         return null;
     }
   };
+
+  const isButtonDisabled = useMemo(() => loading, [loading]);
 
   return (
     <FormProvider {...formMethods}>
@@ -213,6 +213,7 @@ export const QuotationPage = () => {
             <Button
               variant="contained"
               color="primary"
+              disabled={isButtonDisabled}
               onClick={isLast ? onFinish : onNext}
               endIcon={isLast ? <Done /> : <ArrowForward />}
               sx={{

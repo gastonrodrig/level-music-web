@@ -33,6 +33,7 @@ googleProvider.addScope("email");
 export const useAuthStore = () => {
   const dispatch = useDispatch();
   const { 
+    _id,
     status, 
     uid, 
     email, 
@@ -57,6 +58,7 @@ export const useAuthStore = () => {
       if (!ok) {
         const { data: newUser } = await startCreateUser(user, "google");
         dispatch(login({
+          _id: newUser._id,
           uid: newUser.auth_id,
           email: newUser.email,
           firstName: null,
@@ -78,6 +80,7 @@ export const useAuthStore = () => {
         } 
         const needsPassword = !!data.needs_password_change;
         dispatch(login({
+          _id: data._id,
           uid: data.auth_id,
           email: data.email,
           firstName: data.first_name,
@@ -125,6 +128,7 @@ export const useAuthStore = () => {
       
       const needsPassword = !!data.needs_password_change;
       dispatch(login({
+        _id: data._id,
         uid: data.auth_id,
         email: data.email,
         firstName: data.first_name,
@@ -164,6 +168,7 @@ export const useAuthStore = () => {
         const { user } = await createUserWithEmailAndPassword(FirebaseAuth, email, password);
         const { data: newUser } = await startCreateUser(user, "email/password");
         dispatch(login({ 
+          _id: newUser._id,
           uid: newUser.auth_id, 
           email: newUser.email, 
           displayName: null, 
@@ -276,6 +281,7 @@ export const useAuthStore = () => {
 
   return { 
     // state
+    _id,
     status, 
     uid, 
     email, 

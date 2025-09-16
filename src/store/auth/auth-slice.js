@@ -8,6 +8,7 @@ export const authSlice = createSlice({
                                   // 'checking' | 'first-login-password' | 
                                   // 'sending-reset-email' | 'reset-email-sent' | 
                                   // 'changing-password'
+    _id: null, 
     uid: null, 
     email: null,
     firstName: null,
@@ -29,6 +30,7 @@ export const authSlice = createSlice({
         return;
       }
 
+      state._id = payload._id;
       state.uid = payload.uid; 
       state.email = payload.email;
       state.firstName = payload.firstName ?? null; 
@@ -46,6 +48,7 @@ export const authSlice = createSlice({
     },
     logout: (state) => {
       state.status = 'not-authenticated';
+      state._id = null;
       state.uid = null;
       state.email = null;
       state.firstName = null;

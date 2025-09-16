@@ -50,6 +50,19 @@ export const useServiceTypeStore = () => {
     }
   };
 
+  const startLoadingAllServiceTypes = async () => {
+    dispatch(setLoadingServiceType(true));
+    try {
+      const { data } = await serviceTypeApi.get('/all');
+      dispatch(listAllServiceTypes(data));
+    } catch (error) {
+      const message = error.response?.data?.message;
+      openSnackbar(message ?? "Ocurrió un error al cargar los tipos de servicio.");
+    } finally {
+      dispatch(setLoadingServiceType(false));
+    }
+  };
+
   const startLoadingServiceTypePaginated = async () => {
     dispatch(setLoadingServiceType(true));
     try {
@@ -115,20 +128,6 @@ export const useServiceTypeStore = () => {
 
   const setRowsPerPageGlobal = (rows) => {
     dispatch(setRowsPerPageServiceType(rows));
-  };
-
-  const startLoadingAllServiceTypes = async () => {
-    dispatch(setLoadingServiceType(true));
-    try {
-      const { data } = await serviceTypeApi.get('/all');
-      dispatch(listAllServiceTypes(data));
-    } catch (error) {
-      console.log(error);
-      const message = error.response?.data?.message;
-      openSnackbar(message ?? "Ocurrió un error al cargar los tipos de servicio.");
-    } finally {
-      dispatch(setLoadingServiceType(false));
-    }
   };
 
   return {
