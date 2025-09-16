@@ -8,5 +8,6 @@ export * from './logo';
 export * from './message-dialog';
 export * from './nav-bar';
 export * from './protected-drawer';
+export * from './session-timeout-modal';
 export * from './side-menu';
 export * from './table';

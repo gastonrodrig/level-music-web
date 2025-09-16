@@ -59,8 +59,6 @@ export const EventFeaturedModal = ({
     urlsToFiles,
     handleImagesChange,
     handleRemoveImage,
-    imageError,
-    setImageError,
   } = useImageManager(watch, setValue);
 
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
@@ -122,9 +120,6 @@ export const EventFeaturedModal = ({
   }, [open, eventFeatured]);
 
   const onSubmit = async (data) => {
-    // Log para depuración de event_id
-    console.log("onSubmit event_id:", data.event_id, "| data:", data);
-
     const payload = {
       ...data,
       images: Array.from(data.images || []),
@@ -460,13 +455,6 @@ export const EventFeaturedModal = ({
               />
             </Button>
           </Box>
-
-          {/*  Mostrar mensaje de error si existe */}
-          {imageError && (
-            <Typography color="error" fontSize={14} fontWeight={600} mb={2}>
-              {imageError}
-            </Typography>
-          )}
 
           {/* Carrusel de vista previa */}
           <Box mb={2}>
