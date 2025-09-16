@@ -124,7 +124,6 @@ export const FeaturedEventModal = ({ open, onClose, event, sx }) => {
               return (
                 <Accordion
                   key={`${title}-${idx}`}
-                  defaultExpanded={idx === 0}
                   disableGutters
                   sx={{
                     borderRadius: 2,
