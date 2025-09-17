@@ -275,7 +275,11 @@ export const ServiceAddPage = () => {
       <ServiceFieldModal
         open={openFieldModalIdx !== null}
         onClose={() => setOpenFieldModalIdx(null)}
-        attributes={allAttributes}
+        attributes={
+          allAttributes.filter(attr =>
+            !(selectedFields[openFieldModalIdx] || []).some(f => f.name === attr.name)
+          )
+        }
         onAddAttribute={(field) =>
           handleAddFieldToDetail(openFieldModalIdx, field)
         }
