@@ -106,9 +106,8 @@ export const ServiceEditPage = () => {
   }, [selected, provider, serviceTypes]);
 
   const onSubmit = async (data) => {
-    console.log(data)
-    // const success = await startUpdateService(selected._id, data);
-    // if (success) navigate('/admin/service');
+    const success = await startUpdateService(selected._id, data);
+    if (success) navigate('/admin/service');
   };
 
   const allAttributes = [
@@ -136,7 +135,7 @@ export const ServiceEditPage = () => {
                 labelId="provider-label"
                 value={watch("provider_id") || ""}
                 {...register("provider_id", {
-                  required: "Proveedor requerido",
+                  default: "Proveedor requerido",
                   onChange: (e) => {
                     setValue("provider_id", e.target.value);
                     const found = provider.find((p) => p._id === e.target.value);
@@ -191,7 +190,7 @@ export const ServiceEditPage = () => {
                 labelId="service-type-label"
                 value={watch("service_type_id") || ""}
                 {...register("service_type_id", {
-                  required: "Tipo de servicio requerido",
+                  default: "Tipo de servicio requerido",
                   onChange: (e) => {
                     setValue("service_type_id", e.target.value);
                     const found = serviceTypes.find((st) => st._id === e.target.value);

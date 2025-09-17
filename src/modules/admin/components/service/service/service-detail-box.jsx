@@ -127,7 +127,7 @@ export const ServiceDetailBox = ({
             fullWidth
             InputLabelProps={{ shrink: true }}
             {...register(`serviceDetails.${index}.ref_price`, {
-              required: "El precio es obligatorio",
+              default: "El precio es obligatorio",
             })}
             error={!!errors.serviceDetails?.[index]?.ref_price}
             helperText={errors.serviceDetails?.[index]?.ref_price?.message}
@@ -157,7 +157,7 @@ export const ServiceDetailBox = ({
                 >
                   <Typography fontWeight={500} mb={1}>
                     {field.name}{" "}
-                    {field.required && (
+                    {field.default && (
                       <Typography component="span" color="error">
                         *
                       </Typography>
@@ -172,7 +172,7 @@ export const ServiceDetailBox = ({
                   {...register(
                     `serviceDetails.${index}.details.${field.name}`,
                     {
-                      required: field.required ? "Campo requerido" : false,
+                      default: field.default ? "Campo requerido" : false,
                     }
                   )}
                   error={
