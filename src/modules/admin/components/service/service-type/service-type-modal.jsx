@@ -269,9 +269,9 @@ export const ServiceTypeModal = ({
                     </Box>
                     <Box display="flex" gap={1} alignItems="center">
                       <Typography fontWeight={600} fontSize={14}>
-                        Requerido:
+                        Por defecto:
                       </Typography>
-                      <Checkbox checked={field.required} disabled size="small" />
+                      <Checkbox checked={field.default} disabled size="small" />
                     </Box>
                   </Box>
                 </Box>

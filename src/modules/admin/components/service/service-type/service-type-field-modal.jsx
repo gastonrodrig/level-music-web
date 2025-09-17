@@ -35,7 +35,7 @@ export const ServiceTypeFieldModal = ({
     defaultValues: {
       name: "",
       type: "numérico",
-      required: false,
+      default: false,
     },
   });
 
@@ -44,7 +44,7 @@ export const ServiceTypeFieldModal = ({
       reset({
         name: field?.name ?? "",
         type: field?.type ?? "numérico",
-        required: field?.required ?? false,
+        default: field?.default ?? false,
       });
     }
   }, [open, reset, field]);
@@ -104,7 +104,7 @@ export const ServiceTypeFieldModal = ({
 
           <Box display="flex" alignItems="center" gap={1}>
             <Controller
-              name="required"
+              name="default"
               control={control}
               render={({ field }) => (
                 <Checkbox
@@ -113,7 +113,7 @@ export const ServiceTypeFieldModal = ({
                 />
               )}
             />
-            <Typography>Requerido</Typography>
+            <Typography>Por defecto</Typography>
           </Box>
         </Box>
 
