@@ -54,6 +54,7 @@ export const ServiceAddPage = () => {
     handleSubmit,
     setValue,
     watch,
+    getValues,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -265,7 +266,7 @@ export const ServiceAddPage = () => {
             onDelete={() => remove(idx)}
             onAddField={() => setOpenFieldModalIdx(idx)}
             onRemoveField={(fieldIdx) =>
-              handleRemoveFieldFromDetail(idx, fieldIdx)
+              handleRemoveFieldFromDetail(idx, fieldIdx, getValues, setValue)
             }
           />
         ))}
