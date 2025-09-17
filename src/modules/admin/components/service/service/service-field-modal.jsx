@@ -5,6 +5,7 @@ import {
   IconButton,
   TextField,
   Button,
+  useTheme,
 } from "@mui/material";
 import { Close, Add } from "@mui/icons-material";
 import { useState } from "react";
@@ -16,6 +17,8 @@ export const ServiceFieldModal = ({
   onAddAttribute,
   onAddCustom,
 }) => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
   const [customName, setCustomName] = useState("");
 
   return (
@@ -51,7 +54,18 @@ export const ServiceFieldModal = ({
           Atributos disponibles del tipo de servicio:
         </Typography>
         {attributes?.map((attr, idx) => (
-          <Box key={idx} sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1, bgcolor: "#000", borderRadius: 3, p: 1 }}>
+          <Box 
+            key={idx} 
+            sx={{ 
+              mb: 2, 
+              display: "flex", 
+              alignItems: "center", 
+              gap: 1, 
+              bgcolor: isDark ? "#1f1e1e" : "#f5f5f5", 
+              borderRadius: 3, 
+              p: 1 
+            }}
+          >
             <IconButton color="primary" onClick={() => onAddAttribute(attr)}>
               <Add />
             </IconButton>
@@ -61,7 +75,6 @@ export const ServiceFieldModal = ({
               disabled
               sx={{
                 "& .MuiInputBase-input.Mui-disabled": {
-                  color: "black",
                   fontWeight: 500,
                   backgroundColor: "transparent",
                 },

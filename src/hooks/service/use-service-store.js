@@ -121,6 +121,15 @@ export const useServiceStore = () => {
       openSnackbar("Debe agregar al menos un detalle al servicio.");
       return false;
     }
+    for (const detail of details) {
+      const hasEmptyField = Object.entries(detail.details).some(
+        ([key, value]) => value === null || value === undefined || value.trim() === ""
+      );
+      if (hasEmptyField) {
+        openSnackbar("Todos los campos del detalle deben estar completos.");
+        return false;
+      }
+    }
     return true;
   };
 

@@ -20,7 +20,7 @@ export const ServiceDetailBox = ({
   fields = [],
 }) => {
   const theme = useTheme();
-  const { isMd } = useScreenSizes(); // Hook personalizado para tamaños de pantalla
+  const { isMd } = useScreenSizes(); 
   const isDark = theme.palette.mode === "dark";
 
   return (
@@ -172,7 +172,7 @@ export const ServiceDetailBox = ({
                   {...register(
                     `serviceDetails.${index}.details.${field.name}`,
                     {
-                      required: field.required ? "Campo requerido" : false,
+                      required: "Campo requerido",
                     }
                   )}
                   error={

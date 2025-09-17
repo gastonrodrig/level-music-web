@@ -72,7 +72,7 @@ export const ServiceEditPage = () => {
     mode: 'onBlur',
   });
 
-  const { fields: details, append, remove, update } = useFieldArray({
+  const { fields: details, remove } = useFieldArray({
     control,
     name: 'serviceDetails',
   });
@@ -118,7 +118,7 @@ export const ServiceEditPage = () => {
   const isButtonDisabled = useMemo(() => loading, [loading]);
 
   return (
-    <Box component="form" sx={{ p: 4 }} onSubmit={handleSubmit(onSubmit)}>
+    <Box component="form" sx={{ px: 4, pt: 2 }} onSubmit={handleSubmit(onSubmit)}>
       <Typography variant="h4" sx={{ mb: 4 }}>
         Editando Servicio
       </Typography>
@@ -172,7 +172,7 @@ export const ServiceEditPage = () => {
               <FormHelperText>{errors.provider_id?.message}</FormHelperText>
             </FormControl>
             {selectedProvider && (
-              <Box sx={{ mt: 2, p: 2, borderRadius: 2, bgcolor: '#1f1e1e' }}>
+              <Box sx={{ mt: 2, p: 2, borderRadius: 2, bgcolor: isDark ? "#1f1e1e" : "#f5f5f5",}}>
                 <Typography variant="body2">Nombre: {selectedProvider.name}</Typography>
                 <Typography variant="body2">Teléfono: {selectedProvider.phone}</Typography>
                 <Typography variant="body2">Email: {selectedProvider.email}</Typography>
@@ -227,7 +227,7 @@ export const ServiceEditPage = () => {
               <FormHelperText>{errors.service_type_id?.message}</FormHelperText>
             </FormControl>
             {selectedServiceType && (
-              <Box sx={{ mt: 2, p: 2, borderRadius: 2, bgcolor: '#1f1e1e' }}>
+              <Box sx={{ mt: 2, p: 2, borderRadius: 2, bgcolor: isDark ? "#1f1e1e" : "#f5f5f5", }}>
                 <Typography variant="body2">
                   Nombre: {selectedServiceType.category}
                 </Typography>
@@ -262,7 +262,7 @@ export const ServiceEditPage = () => {
           mt: 2,
         }}
       >
-        <Typography variant="h4" sx={{ fontSize: 25 }}>
+        <Typography variant="h4" sx={{ fontSize: 25, mt: 1 }}>
           Detalles del Servicio
         </Typography>
         <Button

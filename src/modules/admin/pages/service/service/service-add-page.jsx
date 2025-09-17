@@ -99,7 +99,7 @@ export const ServiceAddPage = () => {
         <Grid container spacing={4}>
           {/* Proveedor */}
           <Grid item xs={12} md={6}>
-            <Typography variant="h4" component="div" sx={{ mb: 2, fontSize: 18 }}>
+            <Typography variant="h4" sx={{ mb: 2, fontSize: 18 }}>
               Proveedor *
             </Typography>
             <FormControl fullWidth error={!!errors.provider_id} sx={{ mb: 2 }}>
@@ -154,7 +154,7 @@ export const ServiceAddPage = () => {
 
           {/* Tipo de servicio */}
           <Grid item xs={12} md={6}>
-            <Typography variant="h4" component="div" sx={{ mb: 2, fontSize: 18 }}>
+            <Typography variant="h4" sx={{ mb: 2, fontSize: 18 }}>
               Tipo de servicio *
             </Typography>
             <FormControl fullWidth error={!!errors.service_type_id} sx={{ mb: 2 }}>
