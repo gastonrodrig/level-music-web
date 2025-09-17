@@ -135,7 +135,7 @@ export const ServiceEditPage = () => {
                 labelId="provider-label"
                 value={watch("provider_id") || ""}
                 {...register("provider_id", {
-                  default: "Proveedor requerido",
+                  required: "Proveedor requerido",
                   onChange: (e) => {
                     setValue("provider_id", e.target.value);
                     const found = provider.find((p) => p._id === e.target.value);
@@ -190,7 +190,7 @@ export const ServiceEditPage = () => {
                 labelId="service-type-label"
                 value={watch("service_type_id") || ""}
                 {...register("service_type_id", {
-                  default: "Tipo de servicio requerido",
+                  required: "Tipo de servicio requerido",
                   onChange: (e) => {
                     setValue("service_type_id", e.target.value);
                     const found = serviceTypes.find((st) => st._id === e.target.value);

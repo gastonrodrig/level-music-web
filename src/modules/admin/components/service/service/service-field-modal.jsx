@@ -67,7 +67,7 @@ export const ServiceFieldModal = ({
                 },
               }}
             />
-            {attr.default && <Typography color="error">*</Typography>}
+            {attr.required && <Typography color="error">*</Typography>}
           </Box>
         ))}
 
