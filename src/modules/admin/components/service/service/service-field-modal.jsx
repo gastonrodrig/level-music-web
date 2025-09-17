@@ -20,10 +20,31 @@ export const ServiceFieldModal = ({
 
   return (
     <Modal open={open} onClose={onClose}>
-      <Box sx={{ p: 4, bgcolor: "#23232a", borderRadius: 3, maxWidth: 800, mx: "auto", mt: "30vh" }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-          <Typography variant="h6">Agregar Campo</Typography>
-          <IconButton onClick={onClose}><Close /></IconButton>
+      <Box 
+        sx={{ 
+          p: 3, 
+          bgcolor: "background.paper", 
+          borderRadius: 3, 
+          width: { xs: "90%", sm: 600 },
+          mx: "auto", 
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+      >
+        <Box 
+          display="flex" 
+          justifyContent="space-between" 
+          alignItems="center" 
+          mb={2}
+        >
+          <Typography variant="h6" fontWeight={600}>
+            Agregar Campo
+          </Typography>
+          <IconButton onClick={onClose}>
+            <Close />
+          </IconButton>
         </Box>
 
         <Typography fontWeight={500} mb={2}>

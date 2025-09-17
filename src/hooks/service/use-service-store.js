@@ -30,6 +30,12 @@ export const useServiceStore = () => {
   const [orderBy, setOrderBy] = useState("name");
   const [order, setOrder] = useState("asc");
 
+  const [customAttributes, setCustomAttributes] = useState([]);
+  const [selectedFields, setSelectedFields] = useState({});
+  const [openFieldModalIdx, setOpenFieldModalIdx] = useState(null);
+  const [selectedProvider, setSelectedProvider] = useState(null);
+  const [selectedServiceType, setSelectedServiceType] = useState(null);
+
   const openSnackbar = (message) => dispatch(showSnackbar({ message }));
 
   const startCreateService = async (serviceType) => {
@@ -86,7 +92,7 @@ export const useServiceStore = () => {
       return true;
     } catch (error) {
       const message = error.response?.data?.message;
-      openSnackbar(message ?? "Ocurrió un error al cargar .");
+      openSnackbar(message ?? "Ocurrió un error al cargar.");
       return false;
     } finally {
       dispatch(setLoadingService(false));
@@ -130,8 +136,33 @@ export const useServiceStore = () => {
     dispatch(setRowsPerPageService(rows));
   };
 
+  const handleAddDetail = (append, details) => {
+    append({ ref_price: "", details: {} });
+    setSelectedFields((prev) => ({
+      ...prev,
+      [details.length]: selectedServiceType?.attributes
+        ? [...selectedServiceType.attributes]
+        : [],
+    }));
+  };
+
+  const handleAddFieldToDetail = (idx, field) => {
+    setSelectedFields((prev) => ({
+      ...prev,
+      [idx]: [...(prev[idx] || []), field],
+    }));
+    setOpenFieldModalIdx(null);
+  };
+
+  const handleRemoveFieldFromDetail = (detailIdx, fieldIdx) => {
+    setSelectedFields((prev) => ({
+      ...prev,
+      [detailIdx]: prev[detailIdx].filter((_, idx) => idx !== fieldIdx),
+    }));
+  };
+
   return {
-    // state
+    // state global redux
     services,
     selected,
     total,
@@ -142,6 +173,18 @@ export const useServiceStore = () => {
     orderBy,
     order,
 
+    // state local del hook
+    customAttributes,
+    setCustomAttributes,
+    selectedFields,
+    setSelectedFields,
+    openFieldModalIdx,
+    setOpenFieldModalIdx,
+    selectedProvider,
+    setSelectedProvider,
+    selectedServiceType,
+    setSelectedServiceType,
+
     // setters
     setSearchTerm,
     setOrderBy,
@@ -149,11 +192,16 @@ export const useServiceStore = () => {
     setPageGlobal,
     setRowsPerPageGlobal,
 
-    // actions
+    // acciones redux
     startCreateService,
     startLoadingServicePaginated,
     startUpdateService,
     setSelectedService,
     startLoadingAllServices,
+
+    // gestión de detalles y campos dinámicos
+    handleAddDetail,
+    handleAddFieldToDetail,
+    handleRemoveFieldFromDetail,
   };
 };
