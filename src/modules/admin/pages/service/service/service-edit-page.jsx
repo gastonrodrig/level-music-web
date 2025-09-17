@@ -1,42 +1,55 @@
-import { useParams, useNavigate } from 'react-router-dom';
-import { Box, 
+import { 
+  Box, 
   Typography, 
-  TextField, 
   Button,
   Divider,
-  Link,
   MenuItem, 
   Chip,
   Grid,
-  Select,
+  Select, 
   FormHelperText, 
   FormControl,
   useTheme,
 } from '@mui/material';
-import { AddCircleOutline, Edit,Add, Save  } from '@mui/icons-material';
-import SaveIcon from '@mui/icons-material/Save';
+import { AddCircleOutline, Save  } from '@mui/icons-material';
 import { ServiceDetailBox,ServiceFieldModal } from '../../../components';
-
 import { useScreenSizes } from '../../../../../shared/constants/screen-width';
-import { useServiceTypeStore,useProviderStore,useServiceStore } from '../../../../../hooks';
-import { useEffect,useState } from 'react';
+import { 
+  useServiceTypeStore,
+  useProviderStore,
+  useServiceStore 
+} from '../../../../../hooks';
+import { useEffect,useMemo,useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
-
+import { useNavigate } from 'react-router-dom';
 
 export const ServiceEditPage = () => {
-    const navigate = useNavigate();
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  const navigate = useNavigate();
+
   const { startLoadingAllServiceTypes, serviceTypes } = useServiceTypeStore();
   const { startLoadingProviderPaginated, provider } = useProviderStore();
-  const { startUpdateService, selected } = useServiceStore();
-  const theme = useTheme();
-    const isDark = theme.palette.mode === "dark";
-  const [customAttributes, setCustomAttributes] = useState([]);
-  const [selectedFields, setSelectedFields] = useState({});
-  const [openFieldModalIdx, setOpenFieldModalIdx] = useState(null);
-  const [selectedProvider, setSelectedProvider] = useState(null);
-  const [selectedServiceType, setSelectedServiceType] = useState(null);
 
-  // RHF principal
+  const { 
+    loading,
+    selected,
+    customAttributes,
+    setCustomAttributes,
+    selectedFields,
+    openFieldModalIdx,
+    setOpenFieldModalIdx,
+    selectedProvider,
+    setSelectedProvider,
+    selectedServiceType,
+    setSelectedFields,
+    setSelectedServiceType,
+    handleAddDetail,
+    handleAddFieldToDetail,
+    handleRemoveFieldFromDetail,
+    startUpdateService, 
+  } = useServiceStore();
+
   const {
     register,
     control,
@@ -44,11 +57,11 @@ export const ServiceEditPage = () => {
     setValue,
     watch,
     formState: { errors },
-    loading,
+    getValues
   } = useForm({
     defaultValues: {
-      provider_id: selected?.provider || '',
-      service_type_id: selected?.service_type || '',
+      provider_id: selected?.provider || "",
+      service_type_id: selected?.service_type || "",
       serviceDetails: selected?.serviceDetails?.map(detail => ({
         ref_price: detail.ref_price,
         details: detail.details,
@@ -63,6 +76,8 @@ export const ServiceEditPage = () => {
     control,
     name: 'serviceDetails',
   });
+
+  const { isLg } = useScreenSizes();
 
   useEffect(() => {
     startLoadingAllServiceTypes();
@@ -90,56 +105,18 @@ export const ServiceEditPage = () => {
     });
   }, [selected, provider, serviceTypes]);
 
-  const handleAddDetail = () => {
-    append({ ref_price: '', details: {} });
-    setSelectedFields(prev => ({
-      ...prev,
-      [details.length]: selectedServiceType?.attributes
-        ? [...selectedServiceType.attributes]
-        : [],
-    }));
-  };
-
-  const handleAddFieldToDetail = (idx, field) => {
-    setSelectedFields(prev => ({
-      ...prev,
-      [idx]: [...(prev[idx] || []), field],
-    }));
-    setOpenFieldModalIdx(null);
-  };
-
-  const handleRemoveFieldFromDetail = (detailIdx, fieldIdx) => {
-    setSelectedFields(prev => ({
-      ...prev,
-      [detailIdx]: prev[detailIdx].filter((_, idx) => idx !== fieldIdx),
-    }));
-  };
-
   const onSubmit = async (data) => {
-  const serviceObject = {
-    provider_id: data.provider_id,
-    service_type_id: data.service_type_id,
-    serviceDetails: data.serviceDetails.map(detail => ({
-      details: Object.fromEntries(
-        Object.entries(detail.details).map(([key, value]) => {
-          const num = Number(value);
-          return [key, isNaN(num) || value === '' ? value : num];
-        })
-      ),
-      ref_price: Number(detail.ref_price),
-      status: detail.status || 'Activo',
-      _id: detail._id,
-    })),
+    console.log(data)
+    // const success = await startUpdateService(selected._id, data);
+    // if (success) navigate('/admin/service');
   };
-  await startUpdateService(selected._id, serviceObject);
-};
 
   const allAttributes = [
     ...(selectedServiceType?.attributes || []),
     ...customAttributes,
   ];
 
-  const { isLg } = useScreenSizes();
+  const isButtonDisabled = useMemo(() => loading, [loading]);
 
   return (
     <Box component="form" sx={{ p: 4 }} onSubmit={handleSubmit(onSubmit)}>
@@ -180,6 +157,7 @@ export const ServiceEditPage = () => {
                   borderRadius: 2,
                   bgcolor: isDark ? "#1f1e1e" : "#f5f5f5",
                 }}
+                disabled
               >
                 <MenuItem value="">
                   <Typography sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
@@ -234,7 +212,7 @@ export const ServiceEditPage = () => {
                   borderRadius: 2,
                   bgcolor: isDark ? "#1f1e1e" : "#f5f5f5",
                 }}
-                disabled={details.length > 0}
+                disabled
               >
                 <MenuItem value="">
                   <Typography sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
@@ -317,7 +295,9 @@ export const ServiceEditPage = () => {
             initialData={detail}
             onDelete={() => remove(idx)}
             onAddField={() => setOpenFieldModalIdx(idx)}
-            onRemoveField={(fieldIdx) => handleRemoveFieldFromDetail(idx, fieldIdx)}
+            onRemoveField={(fieldIdx) => 
+              handleRemoveFieldFromDetail(idx, fieldIdx, getValues, setValue)
+            }
           />
         ))}
       </Box>
@@ -337,24 +317,24 @@ export const ServiceEditPage = () => {
       />
 
       <Box sx={{ display: 'flex', justifyContent: 'end', mt: 4 }}>
-          <Button
-            type="submit"
-            variant="contained"
-            startIcon={<Save />}
-            sx={{
-              fontSize: 16,
-              backgroundColor: '#212121',
-              color: '#fff',
-              borderRadius: 2,
-              textTransform: 'none',
-              px: 3,
-              py: 1.5
-            }}
-            disabled={loading} // Usa tu estado de loading
-          >
-            Guardar Cambios
-          </Button>
-        </Box>
-    </Box>
-  );
+        <Button
+          type="submit"
+          variant="contained"
+          startIcon={<Save />}
+          sx={{
+            fontSize: 16,
+            backgroundColor: '#212121',
+            color: '#fff',
+            borderRadius: 2,
+            textTransform: 'none',
+            px: 3,
+            py: 1.5
+          }}
+          disabled={isButtonDisabled} 
+        >
+          Guardar Cambios
+        </Button>
+      </Box>
+  </Box>
+);
 };

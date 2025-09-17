@@ -117,10 +117,10 @@ export const useServiceStore = () => {
   };
 
   const validateDetails = (details) => {
-    if (details.length === 0) {
+    if (!details.length) {
       openSnackbar("Debe agregar al menos un detalle al servicio.");
       return false;
-    } 
+    }
     return true;
   };
 
@@ -154,11 +154,21 @@ export const useServiceStore = () => {
     setOpenFieldModalIdx(null);
   };
 
-  const handleRemoveFieldFromDetail = (detailIdx, fieldIdx) => {
-    setSelectedFields((prev) => ({
-      ...prev,
-      [detailIdx]: prev[detailIdx].filter((_, idx) => idx !== fieldIdx),
-    }));
+  const handleRemoveFieldFromDetail = (detailIdx, fieldIdx, getValues, setValue) => {
+    setSelectedFields((prev) => {
+      const updatedFields = { ...prev };
+      const removedField = updatedFields[detailIdx][fieldIdx];
+      updatedFields[detailIdx] = updatedFields[detailIdx].filter((_, idx) => idx !== fieldIdx);
+      if (removedField) {
+        const currentDetails = getValues(`serviceDetails.${detailIdx}.details`);
+        if (currentDetails && currentDetails[removedField.name]) {
+          delete currentDetails[removedField.name];
+          setValue(`serviceDetails.${detailIdx}.details`, currentDetails);
+        }
+      }
+
+      return updatedFields;
+    });
   };
 
   return {
