@@ -92,7 +92,7 @@ export const ServicePage = () => {
           <Box display="flex" justifyContent="center" alignItems="center" sx={{ py: 5 }}>
             <CircularProgress />
           </Box>
-        ) : (services?.length ?? 0) === 0 ?  (
+        ) : services.length === 0 ?  (
           <Box display="flex" justifyContent="center" alignItems="center" sx={{ py: 5 }}>
             <Typography sx={{ color: 'text.secondary', fontSize: 16 }}>
               No se encontraron resultados.

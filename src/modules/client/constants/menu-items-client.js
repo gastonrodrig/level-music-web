@@ -25,7 +25,21 @@ export const menuItems = [
         text: 'Por Realizar', 
         breadcrumb: 'Eventos Por Realizar',
         href: '/cliente/event-to-do' 
-      }
+      },
+      { 
+        text: 'Cotizaciones', 
+        breadcrumb: 'Cotizaciones',
+        href: '/cliente/event-quotes',
+        subItems: [
+          {
+           text: 'Detalle Cotización', 
+           breadcrumb: 'Detalle Cotización',
+          href: '/cliente/event-quotes/details' 
+          },
+        
+        ],
+      },
+      
     ]
   },
   { 
