@@ -47,7 +47,7 @@ export const AdminRoutes = () => {
         {/* Servicios */}
         <Route path="service" element={<ServicePage />} />
         <Route path="service/new" element={<ServiceAddPage />} />
-        <Route path="service/:serviceId" element={<ServiceEditPage />} />
+        <Route path="service/edit" element={<ServiceEditPage />} />
         <Route path="service-type" element={<ServiceTypePage />} />
         <Route path="provider" element={<ProviderPage />} />
 

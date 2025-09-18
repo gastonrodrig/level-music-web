@@ -107,7 +107,7 @@ export const menuItems = [
           {
             text: 'Editar Servicio',
             breadcrumb: 'Editar Servicio',
-            href: '/admin/service/:serviceId',
+            href: '/admin/service/edit',
           },
         ],
       },

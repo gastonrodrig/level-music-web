@@ -5,6 +5,6 @@ export const updateServiceTypeModel = (serviceType) => ({
   attributes: serviceType.attributes.map(attr => ({
     name: attr.name,
     type: attr.type,
-    required: attr.required,
+    default: attr.default,
   })),
 });

@@ -5,6 +5,7 @@ import { useServiceStore } from '../../../../../hooks';
 import { TableComponent } from '../../../../../shared/ui/components';
 import { useScreenSizes } from '../../../../../shared/constants/screen-width';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export const ServicePage = () => {
   const {
@@ -16,7 +17,6 @@ export const ServicePage = () => {
     currentPage, 
     orderBy,
     order,
-    selected, 
     setSearchTerm,
     setRowsPerPageGlobal,
     setPageGlobal,
@@ -25,7 +25,9 @@ export const ServicePage = () => {
     startLoadingServicePaginated,
     setSelectedService,
   } = useServiceStore();
+
   const { isLg } = useScreenSizes();
+  const navigate = useNavigate();
 
   useEffect(() => {
     startLoadingServicePaginated();
@@ -33,15 +35,17 @@ export const ServicePage = () => {
 
   const columns = [
     { id: 'provider_name', label: 'Proveedor', sortable: true },
-    { id: 'service_type_name', label: 'Tipo de Servicio', sortable: true },
-    { id: 'status', label: 'Estado' , sortable: true },
+    { id: 'service_type_name', label: 'Tipo de Servicio', sortable: true }
   ];
 
   const actions = [
     { 
       label: 'Editar', 
       icon: <Edit />, 
-      url: (row) => `/admin/service/${row._id}`,
+      onClick: (row) => {
+        setSelectedService(row);
+        navigate(`/admin/service/edit`);
+      },
     },
   ];
 
@@ -88,7 +92,7 @@ export const ServicePage = () => {
           <Box display="flex" justifyContent="center" alignItems="center" sx={{ py: 5 }}>
             <CircularProgress />
           </Box>
-        ) : services.length === 0 ? (
+        ) : (services?.length ?? 0) === 0 ?  (
           <Box display="flex" justifyContent="center" alignItems="center" sx={{ py: 5 }}>
             <Typography sx={{ color: 'text.secondary', fontSize: 16 }}>
               No se encontraron resultados.
