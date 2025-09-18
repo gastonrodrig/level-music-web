@@ -28,9 +28,18 @@ export const menuItems = [
       },
       { 
         text: 'Cotizaciones', 
-        breadcrumb: 'Eventos Por Cotizar',
-        href: '/cliente/event-quotes' 
-      }
+        breadcrumb: 'Cotizaciones',
+        href: '/cliente/event-quotes',
+        subItems: [
+          {
+           text: 'Detalle Cotización', 
+           breadcrumb: 'Detalle Cotización',
+          href: '/cliente/event-quotes/details' 
+          },
+        
+        ],
+      },
+      
     ]
   },
   { 

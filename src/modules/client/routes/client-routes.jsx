@@ -3,24 +3,29 @@ import { DashboardPage,
    EventMadePage,
    EventToDoPage,
    QuotationPage, 
-  ProfilePage
-  } from "../pages";
+   EventQuotesDetails,
+   ProfilePage
+} from "../pages";
 import { ClientLayout } from '../layout/client-layout';
 
 export const ClientRoutes = () => {
   return (
     <Routes>
       <Route element={<ClientLayout />}>
-      {/* Dashboard */}
+        {/* Dashboard */}
         <Route path="/" element={<DashboardPage />} />
-       {/* Eventos */}
+
+        {/* Eventos */}
         <Route path="event-made" element={<EventMadePage />} />
         <Route path="event-to-do" element={<EventToDoPage />} />
         <Route path="event-quotes" element={<QuotationPage />} />
-       {/* Clientes */}
+        <Route path="event-quotes/details" element={<EventQuotesDetails />} />
+
+        {/* Clientes */}
         <Route path="edit-profile" element={<ProfilePage />} />
-            
-       <Route path="*" element={<Navigate to="/not-found" replace />} />
+
+        {/* Catch all */}
+        <Route path="*" element={<Navigate to="/not-found" replace />} />
       </Route>
     </Routes>
   );

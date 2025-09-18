@@ -1,3 +1,4 @@
 export * from './event-made';
 export * from './event-to-do';
-export * from './event-quotes';
+export * from './event-quotes/event-quotes';
+export * from './event-quotes/event-quotes-details';
