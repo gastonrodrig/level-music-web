@@ -14,7 +14,7 @@ export const createQuotationLandingModel = (f) => ({
   user_id: f.user_id || null,
 
   event_type_id: f.event_type_id,
-  event_type_name: f.eventCustomType !== "" ? f.eventCustomType : f.event_type_name,
+  event_type_name: f.customEventType !== "" ? f.customEventType : f.event_type_name,
 
   services_requested: 
     f.services_requested.map(s => ({

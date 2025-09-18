@@ -18,24 +18,32 @@ import {
   EventDetailsForm,
   ServicesForm,
 } from "../components/";
-import { useAuthStore, useEventTypeStore, useQuotationStore, useServiceTypeStore, useStepperStore } from "../../../hooks";
+import {
+  useAuthStore,
+  useEventTypeStore,
+  useQuotationStore,
+  useServiceTypeStore,
+  useStepperStore,
+} from "../../../hooks";
 import { useScreenSizes } from "../../../shared/constants/screen-width";
 import { useDispatch } from "react-redux";
 import { showSnackbar } from "../../../store";
 import { ArrowBack, ArrowForward, Done } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 
 export const QuotationPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const formMethods = useForm({
     mode: "onBlur",
     defaultValues: {
-      // Paso 0: tipo de evento
       eventCategory: "",
       eventType: "",
+      event_type_id: null,
+      event_type_name: null,
+      customEventType: "",
       user_id: null,
-
-      // Paso 1: Datos básicos
       client_type: "Persona",
       first_name: "",
       last_name: "",
@@ -45,8 +53,6 @@ export const QuotationPage = () => {
       phone: "",
       document_type: "Dni",
       document_number: "",
-
-      // Paso 2: detalles
       attendeesCount: "",
       startTime: null,
       endTime: null,
@@ -69,7 +75,6 @@ export const QuotationPage = () => {
     }
   }, [_id, setValue]);
 
-  // store stepper
   const { currentPage, goNext, goBack, isFirst, isLast } = useStepperStore(
     "quotation",
     StepSections.length
@@ -125,15 +130,17 @@ export const QuotationPage = () => {
   };
 
   const onFinish = handleSubmit((data) => {
-    if (!data.services_requested || data.services_requested.length === 0) {
-    dispatch(
-      showSnackbar({ message: "Debes seleccionar al menos un servicio adicional." })
-    );
-    return;
-  }
-    console.log(data)
-    startCreateQuotationLanding(data);
-    reset();
+    handleSubmit(async (data) => {
+      const success = await startCreateQuotationLanding(data);
+      if (success) {
+        if (status === 'authenticated') {
+          navigate('/cliente/event-quotes');
+        } else {
+          navigate('/');
+        }
+        reset();
+      }
+    })();
   });
 
   const renderCurrentComponent = () => {

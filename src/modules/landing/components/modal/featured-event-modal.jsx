@@ -1,4 +1,3 @@
-import React, { useRef } from "react";
 import {
   Box,
   Modal,
@@ -15,7 +14,7 @@ import { Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 
-export const FeaturedEventModal = ({ open, onClose, event, sx }) => {
+export const FeaturedEventModal = ({ open, onClose, event }) => {
   return (
     <Modal open={open} onClose={onClose}>
       <Box

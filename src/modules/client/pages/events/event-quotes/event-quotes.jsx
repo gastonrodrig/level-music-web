@@ -5,6 +5,7 @@ import { useQuotationStore, useAuthStore } from '../../../../../hooks';
 import { TableComponent } from '../../../../../shared/ui/components';
 import { useScreenSizes } from '../../../../../shared/constants/screen-width';
 import { useNavigate } from 'react-router-dom';
+import { formatDay } from '../../../../../shared/utils';
 
 export const QuotationPage = () => {
   const {
@@ -32,21 +33,27 @@ export const QuotationPage = () => {
     startLoadingUserEvents(_id);
   }, [currentPage, rowsPerPage, searchTerm, orderBy, order]);
 
-  // const mappedQuotations = quotations.map(q => ({
-  //   event_code: q.event_code,
-  //   exact_address: q.exact_address,
-  //   place_size: q.place_size,
-  //   date: new Date(q.date).toLocaleDateString('es-PE'),
-  //   estimated_price: q.estimated_price ? `S/ ${q.estimated_price}` : 'Pendiente',
-  //   final_price: q.final_price ? `S/ ${q.final_price}` : '-',
-  //   status: q.final_price > 0 ? 'Cotizado' : 'Pendiente',
-  // }));
-
   const columns = [
-    { id: 'event_code', label: 'Código Evento', sortable: true },
-    // { id: 'event_type_name', label: 'Tipo Evento', sortable: true },
-    { id: 'date', label: 'Fecha Evento', sortable: true },
-    { id: 'status', label: 'Estado', sortable: true }
+    { 
+      id: 'event_code', 
+      label: 'Código Evento', 
+      sortable: true 
+    },
+    { 
+      id: 'event_type_name', 
+      label: 'Tipo Evento', 
+      sortable: true 
+    },
+    { 
+      id: 'date', 
+      label: 'Fecha Evento', 
+      sortable: true, accessor: (row) => row.date ? formatDay(row.date) : 'N/A'
+    },
+    { 
+      id: 'status', 
+      label: 'Estado', 
+      sortable: true 
+    }
   ];
 
   const actions = [

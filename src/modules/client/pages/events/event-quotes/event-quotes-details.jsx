@@ -20,66 +20,21 @@ import {
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useQuotationStore } from "../../../../../hooks";
+import { useEffect } from "react";
 
 export const EventQuotesDetails = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
 
-  const { selected: selectedQuotation, loading } = useQuotationStore();
+  const { selected, loading } = useQuotationStore();
 
-  console.log("selectedQuotation:", selectedQuotation);
-
-  if (loading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "60vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (!selectedQuotation) {
-    return (
-      <Box
-        sx={{
-          px: 4,
-          py: 5,
-          textAlign: "center",
-          minHeight: "60vh",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Typography variant="h5" sx={{ mb: 2, color: "text.secondary" }}>
-          No hay cotización seleccionada
-        </Typography>
-        <Button
-          variant="contained"
-          sx={{
-            backgroundColor: "#212121",
-            color: "#fff",
-            borderRadius: 2,
-            textTransform: "none",
-            px: 3,
-            py: 1.5,
-          }}
-          startIcon={<ArrowBack />}
-          onClick={() => navigate(-1)}
-        >
-          Volver
-        </Button>
-      </Box>
-    );
-  }
+  useEffect(() => {
+    if (!selected) {
+      navigate('/cliente/event-quotes', { replace: true });
+      return;
+    }
+  }, [selected]);
 
   const formatDate = (dateString) =>
     dateString
@@ -95,14 +50,14 @@ export const EventQuotesDetails = () => {
       {/* Header principal */}
       <Box mb={2}>
         <Typography variant="h4" sx={{ fontWeight: 700 }}>
-          Boda de Aniversario
+          Evento {selected?.event_type_name} - {formatDate(selected.date)}
         </Typography>
         <Typography variant="body1" sx={{ color: "text.secondary" }}>
           Celebración de 25 años de matrimonio
         </Typography>
         <Chip label="Aprobado" color="success" size="small" sx={{ mt: 1 }} />
         <Typography variant="body2" sx={{ mt: 1, color: "text.secondary" }}>
-          Cod: {selectedQuotation.event_code}
+          Cod: {selected.event_code}
         </Typography>
       </Box>
 
@@ -126,7 +81,7 @@ export const EventQuotesDetails = () => {
                 </Typography>
               </Box>
               <Typography variant="h6">
-                {formatDate(selectedQuotation.date)}
+                {formatDate(selected.date)}
               </Typography>
             </Grid>
 
@@ -139,8 +94,8 @@ export const EventQuotesDetails = () => {
                 </Typography>
               </Box>
               <Typography variant="h6">
-                {selectedQuotation.start_time && selectedQuotation.end_time
-                  ? `${selectedQuotation.start_time} - ${selectedQuotation.end_time}`
+                {selected.start_time && selected.end_time
+                  ? `${selected.start_time} - ${selected.end_time}`
                   : "-"}
               </Typography>
             </Grid>
@@ -154,8 +109,8 @@ export const EventQuotesDetails = () => {
                 </Typography>
               </Box>
               <Typography variant="h6">
-                {(selectedQuotation.place_size ||
-                  selectedQuotation.attendees_count ||
+                {(selected.place_size ||
+                  selected.attendees_count ||
                   0) + " personas"}
               </Typography>
             </Grid>
@@ -169,7 +124,7 @@ export const EventQuotesDetails = () => {
                 </Typography>
               </Box>
               <Typography variant="h6">
-                {selectedQuotation.place_type || "-"}
+                {selected.place_type || "-"}
               </Typography>
             </Grid>
           </Grid>
@@ -180,7 +135,7 @@ export const EventQuotesDetails = () => {
         ¡Tu evento ha sido aprobado! Nos pondremos en contacto contigo pronto.
       </Typography>
       <Typography variant="caption" sx={{ color: "text.secondary", mb: 2 }}>
-        Solicitud creada el {formatDate(selectedQuotation.created_at)}
+        Solicitud creada el {formatDate(selected.created_at)}
       </Typography>
 
       <Divider sx={{ my: 3 }} />
@@ -211,25 +166,25 @@ export const EventQuotesDetails = () => {
                 Dirección
               </Typography>
               <Typography variant="body1" sx={{ mb: 1 }}>
-                {selectedQuotation.exact_address}
+                {selected.exact_address}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Referencia
               </Typography>
               <Typography variant="body1" sx={{ mb: 1 }}>
-                {selectedQuotation.location_reference || "Sin referencia"}
+                {selected.location_reference || "Sin referencia"}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Tipo de lugar
               </Typography>
               <Typography variant="body1" sx={{ mb: 1 }}>
-                {selectedQuotation.place_type}
+                {selected.place_type}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Tamaño
               </Typography>
               <Typography variant="body1">
-                {(selectedQuotation.place_size || "No especificado") + " m²"}
+                {(selected.place_size || "No especificado") + " m²"}
               </Typography>
             </CardContent>
           </Card>
@@ -249,8 +204,8 @@ export const EventQuotesDetails = () => {
                 <Category sx={{ mr: 1, color: "primary.main" }} />
                 <Typography variant="h6">Servicios Solicitados</Typography>
               </Box>
-              {selectedQuotation.services_requested?.length > 0 ? (
-                selectedQuotation.services_requested.map((service, idx) => (
+              {selected.services_requested?.length > 0 ? (
+                selected.services_requested.map((service, idx) => (
                   <Box key={idx} sx={{ mb: 2 }}>
                     <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                       {service.service_type_name}
@@ -293,7 +248,7 @@ export const EventQuotesDetails = () => {
           Volver a la lista
         </Button>
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          Última actualización: {formatDate(selectedQuotation.updated_at)}
+          Última actualización: {formatDate(selected.updated_at)}
         </Typography>
       </Box>
     </Box>
