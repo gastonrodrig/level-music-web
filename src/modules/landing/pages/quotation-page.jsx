@@ -130,17 +130,15 @@ export const QuotationPage = () => {
   };
 
   const onFinish = handleSubmit((data) => {
-    handleSubmit(async (data) => {
-      const success = await startCreateQuotationLanding(data);
-      if (success) {
-        if (status === 'authenticated') {
-          navigate('/cliente/event-quotes');
-        } else {
-          navigate('/');
-        }
-        reset();
+    const success = startCreateQuotationLanding(data);
+    if (success) {
+      if (status === 'authenticated') {
+        navigate('/cliente/event-quotes')
+      } else {
+        navigate('/');
       }
-    })();
+      reset();
+    }
   });
 
   const renderCurrentComponent = () => {

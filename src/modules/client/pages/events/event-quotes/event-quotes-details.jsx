@@ -8,7 +8,6 @@ import {
   CardContent,
   Chip,
   useTheme,
-  CircularProgress,
 } from "@mui/material";
 import {
   ArrowBack,
@@ -21,13 +20,14 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useQuotationStore } from "../../../../../hooks";
 import { useEffect } from "react";
+import { formatDateString } from "../../../../../shared/utils";
 
 export const EventQuotesDetails = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
 
-  const { selected, loading } = useQuotationStore();
+  const { selected } = useQuotationStore();
 
   useEffect(() => {
     if (!selected) {
@@ -36,28 +36,19 @@ export const EventQuotesDetails = () => {
     }
   }, [selected]);
 
-  const formatDate = (dateString) =>
-    dateString
-      ? new Date(dateString).toLocaleDateString("es-PE", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })
-      : "Sin fecha";
-
   return (
     <Box sx={{ px: 4, pt: 2, maxWidth: 1200, margin: "0 auto" }}>
       {/* Header principal */}
       <Box mb={2}>
         <Typography variant="h4" sx={{ fontWeight: 700 }}>
-          Evento {selected?.event_type_name} - {formatDate(selected.date)}
+          Evento {selected?.event_type_name} - {formatDateString(selected?.date)}
         </Typography>
         <Typography variant="body1" sx={{ color: "text.secondary" }}>
-          Celebración de 25 años de matrimonio
+          La información del evento y los servicios solicitados se muestran a continuación.
         </Typography>
-        <Chip label="Aprobado" color="success" size="small" sx={{ mt: 1 }} />
+        <Chip label={selected?.status || "-"} color="primary" size="small" sx={{ mt: 1 }} />
         <Typography variant="body2" sx={{ mt: 1, color: "text.secondary" }}>
-          Cod: {selected.event_code}
+          Código: {selected?.event_code}
         </Typography>
       </Box>
 
@@ -77,11 +68,11 @@ export const EventQuotesDetails = () => {
               <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
                 <CalendarToday sx={{ color: "primary.main" }} />
                 <Typography variant="body2" color="text.secondary">
-                  Fecha
+                  Fecha 
                 </Typography>
               </Box>
               <Typography variant="h6">
-                {formatDate(selected.date)}
+                {formatDateString(selected?.date)}
               </Typography>
             </Grid>
 
@@ -94,8 +85,8 @@ export const EventQuotesDetails = () => {
                 </Typography>
               </Box>
               <Typography variant="h6">
-                {selected.start_time && selected.end_time
-                  ? `${selected.start_time} - ${selected.end_time}`
+                {selected?.start_time && selected?.end_time
+                  ? `${selected?.start_time} - ${selected?.end_time}`
                   : "-"}
               </Typography>
             </Grid>
@@ -109,8 +100,8 @@ export const EventQuotesDetails = () => {
                 </Typography>
               </Box>
               <Typography variant="h6">
-                {(selected.place_size ||
-                  selected.attendees_count ||
+                {(selected?.place_size ||
+                  selected?.attendees_count ||
                   0) + " personas"}
               </Typography>
             </Grid>
@@ -120,22 +111,22 @@ export const EventQuotesDetails = () => {
               <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
                 <Category sx={{ color: "primary.main" }} />
                 <Typography variant="body2" color="text.secondary">
-                  Tipo
+                  Tipo Evento
                 </Typography>
               </Box>
               <Typography variant="h6">
-                {selected.place_type || "-"}
+                {selected?.event_type_name || "-"}
               </Typography>
             </Grid>
           </Grid>
         </CardContent>
       </Card>
 
-      <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
+      {/* <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
         ¡Tu evento ha sido aprobado! Nos pondremos en contacto contigo pronto.
-      </Typography>
+      </Typography> */}
       <Typography variant="caption" sx={{ color: "text.secondary", mb: 2 }}>
-        Solicitud creada el {formatDate(selected.created_at)}
+        Solicitud creada el {formatDateString(selected?.created_at)}
       </Typography>
 
       <Divider sx={{ my: 3 }} />
@@ -166,25 +157,25 @@ export const EventQuotesDetails = () => {
                 Dirección
               </Typography>
               <Typography variant="body1" sx={{ mb: 1 }}>
-                {selected.exact_address}
+                {selected?.exact_address}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Referencia
               </Typography>
               <Typography variant="body1" sx={{ mb: 1 }}>
-                {selected.location_reference || "Sin referencia"}
+                {selected?.location_reference || "Sin referencia"}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Tipo de lugar
               </Typography>
               <Typography variant="body1" sx={{ mb: 1 }}>
-                {selected.place_type}
+                {selected?.place_type}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Tamaño
               </Typography>
               <Typography variant="body1">
-                {(selected.place_size || "No especificado") + " m²"}
+                {(selected?.place_size || "No especificado") + " m²"}
               </Typography>
             </CardContent>
           </Card>
@@ -204,8 +195,8 @@ export const EventQuotesDetails = () => {
                 <Category sx={{ mr: 1, color: "primary.main" }} />
                 <Typography variant="h6">Servicios Solicitados</Typography>
               </Box>
-              {selected.services_requested?.length > 0 ? (
-                selected.services_requested.map((service, idx) => (
+              {selected?.services_requested?.length > 0 ? (
+                selected?.services_requested.map((service, idx) => (
                   <Box key={idx} sx={{ mb: 2 }}>
                     <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                       {service.service_type_name}
@@ -248,7 +239,7 @@ export const EventQuotesDetails = () => {
           Volver a la lista
         </Button>
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          Última actualización: {formatDate(selected.updated_at)}
+          Última actualización: {formatDateString(selected?.updated_at)}
         </Typography>
       </Box>
     </Box>

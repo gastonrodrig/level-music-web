@@ -31,7 +31,7 @@ export const QuotationPage = () => {
 
   useEffect(() => {
     startLoadingUserEvents(_id);
-  }, [currentPage, rowsPerPage, searchTerm, orderBy, order]);
+  }, [_id, currentPage, rowsPerPage, searchTerm, orderBy, order]);
 
   const columns = [
     { 
@@ -68,50 +68,70 @@ export const QuotationPage = () => {
   ];
 
   return (
-    <Box 
-      sx={{ 
-        borderRadius: 2, 
-        border: theme => `1px solid ${theme.palette.mode === 'dark' ? 'rgb(140, 140, 140)' : 'rgba(0,0,0,0.12)'}` 
+    <Box
+      sx={{
+        borderRadius: 2,
+        border: (theme) =>
+          `1px solid ${
+            theme.palette.mode === "dark"
+              ? "rgb(140, 140, 140)"
+              : "rgba(0,0,0,0.12)"
+          }`,
       }}
     >
       {/* Header */}
-      <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ px: 3, py: 2 }}>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        sx={{ px: 3, py: 2 }}
+      >
         <Box>
           <Typography sx={{ fontWeight: 600, fontSize: 24 }}>
             Listado de Cotizaciones
-            </Typography>
-          <Typography sx={{ color: 'text.secondary', fontSize: 16 }}>
+          </Typography>
+          <Typography sx={{ color: "text.secondary", fontSize: 16 }}>
             Observa las cotizaciones de tus eventos solicitados
-            </Typography>
+          </Typography>
         </Box>
       </Box>
 
       {/* Buscador */}
-      <Box 
-        display="flex" 
-        justifyContent="start" 
+      <Box
+        display="flex"
+        justifyContent="start"
         alignItems="center"
-         sx={{ px: 3, pb: { xs: 1, lg: 3 }, width: { xs: '100%', sm: '300px' } }}
+        sx={{ px: 3, pb: { xs: 1, lg: 3 }, width: { xs: "100%", sm: "300px" } }}
       >
         <TextField
           size="small"
           placeholder="Buscar..."
           value={searchTerm}
           fullWidth
-          onChange={e => setSearchTerm(e.target.value)}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
       </Box>
 
       {/* Tabla o Loading */}
       {loading ? (
-        <Box display="flex" justifyContent="center" alignItems="center" sx={{ py: 5 }}>
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          sx={{ py: 5 }}
+        >
           <CircularProgress />
         </Box>
       ) : quotations.length === 0 ? (
-        <Box display="flex" justifyContent="center" alignItems="center" sx={{ py: 5 }}>
-          <Typography sx={{ color: 'text.secondary', fontSize: 16 }}>
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          sx={{ py: 5 }}
+        >
+          <Typography sx={{ color: "text.secondary", fontSize: 16 }}>
             No se encontraron resultados.
-            </Typography>
+          </Typography>
         </Box>
       ) : (
         <TableComponent
@@ -119,16 +139,16 @@ export const QuotationPage = () => {
           columns={columns}
           order={order}
           orderBy={orderBy}
-          onRequestSort={prop => {
-            const isAsc = orderBy === prop && order === 'asc';
-            setOrder(isAsc ? 'desc' : 'asc');
+          onRequestSort={(prop) => {
+            const isAsc = orderBy === prop && order === "asc";
+            setOrder(isAsc ? "desc" : "asc");
             setOrderBy(prop);
           }}
           page={currentPage}
           rowsPerPage={rowsPerPage}
           total={total}
           onPageChange={(_, newPage) => setPageGlobal(newPage)}
-          onRowsPerPageChange={e => {
+          onRowsPerPageChange={(e) => {
             setRowsPerPageGlobal(parseInt(e.target.value, 10));
             setPageGlobal(0);
           }}

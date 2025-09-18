@@ -7,7 +7,6 @@ import {
   setPageQuotation,
   setRowsPerPageQuotation,
   refreshQuotations,
-
   showSnackbar,
 } from '../../store';
 import{
@@ -26,6 +25,7 @@ export const useQuotationStore = () => {
     currentPage, 
     rowsPerPage 
   } = useSelector((state) => state.quotation);
+  
   const { status } = useSelector((state) => state.auth);
 
   const { token } = useSelector((state) => state.auth);
@@ -93,7 +93,7 @@ export const useQuotationStore = () => {
     try {
       const limit  = rowsPerPage;
       const offset = currentPage * rowsPerPage;
-      const { data } = await eventApi.get('/quotation/paginated',
+      const { data } = await eventApi.get('/paginated',
         getAuthConfigWithParams(token, {
           limit,
           offset,
