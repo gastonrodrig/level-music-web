@@ -52,11 +52,17 @@ export const EventDetailsForm = () => {
           label="Cantidad de Asistentes"
           placeholder="Ingresa el número de asistentes"
           fullWidth
+          type="number"
           InputLabelProps={{ shrink: true }}
           sx={{ mb: 3, mt: 2 }}
           {...register("attendeesCount", {
             required: "La cantidad de asistentes es obligatoria",
             min: { value: 1, message: "Debe ser al menos 1 asistente" },
+            pattern: {
+            value: /^[0-9]+$/,
+            message: "Solo se permiten números",
+          },
+          valueAsNumber: true,
           })}
           error={!!errors.attendeesCount}
           helperText={errors.attendeesCount?.message}
@@ -174,6 +180,7 @@ export const EventDetailsForm = () => {
           label="Dirección Exacta"
           placeholder="Ingresa la dirección del evento"
           fullWidth
+          
           InputLabelProps={{ shrink: true }}
           sx={{ my: 3 }}
           {...register("exactAddress", {
@@ -199,13 +206,20 @@ export const EventDetailsForm = () => {
 
         {/* Tamaño del lugar */}
         <TextField
-          label="Tamaño del Lugar en m² + capacidad"
+          label="Tamaño del Lugar en m²"
           placeholder="Ej: 100m² para 50 personas"
           fullWidth
+          type="number"
           InputLabelProps={{ shrink: true }}
           {...register("placeCapacity", {
             required: "El tamaño del lugar es obligatorio",
+            pattern: {
+            value: /^[0-9]+$/,
+            message: "Solo se permiten números",
+          },
+          valueAsNumber: true,
           })}
+          
           error={!!errors.placeCapacity}
           helperText={errors.placeCapacity?.message}
         />

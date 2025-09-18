@@ -125,6 +125,12 @@ export const QuotationPage = () => {
   };
 
   const onFinish = handleSubmit((data) => {
+    if (!data.services_requested || data.services_requested.length === 0) {
+    dispatch(
+      showSnackbar({ message: "Debes seleccionar al menos un servicio adicional." })
+    );
+    return;
+  }
     console.log(data)
     startCreateQuotationLanding(data);
     reset();

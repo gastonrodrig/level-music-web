@@ -249,6 +249,9 @@ export const ServiceAddPage = () => {
             py: 1.5
           }}
           onClick={() => handleAddDetail(append, details)}
+          disabled={
+          !watch("provider_id") || !watch("service_type_id")
+        }
         >
           {isLg ? "Agregar Detalle" : "Agregar"}
         </Button>
