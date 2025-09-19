@@ -23,23 +23,24 @@ export const useSessionTimeout = () => {
 
   //  Token de Firebase
   useEffect(() => {
-    const user = auth.currentUser;
-    if (!user) return;
+     
+     const user = auth.currentUser;
+     if (!user) return;
 
-    let timer;
+     let timer;
     user.getIdTokenResult().then((tokenResult) => {
-      const expTime = new Date(tokenResult.expirationTime).getTime();
-      const remaining = expTime - Date.now();
-      setTimeLeft(remaining);
+       const expTime = new Date(tokenResult.expirationTime).getTime();
+       const remaining = expTime - Date.now();
+       setTimeLeft(remaining);
 
-      timer = setTimeout(() => {
-        setExpired(true);
-        setShowModal(true);
-        setModalCountdown(2);
+     timer = setTimeout(() => {
+         setExpired(true);
+       setShowModal(true);
+         setModalCountdown(2);
       }, remaining);
-    });
+     });
 
-    return () => clearTimeout(timer);
+     return () => clearTimeout(timer);
   }, [auth]);
 
   // Manejo del contador solo para mostrar el tiempo restante en el modal

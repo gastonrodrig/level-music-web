@@ -252,6 +252,7 @@ export const EventFeaturedModal = ({
             <TextField
               label="Código del evento"
               fullWidth
+              InputLabelProps={{ shrink: true }}
               {...register("eventCode", {
                 required: "El código del evento es obligatorio",
                 pattern: {
@@ -290,6 +291,7 @@ export const EventFeaturedModal = ({
             <TextField
               label="Descripción destacada"
               multiline
+              InputLabelProps={{ shrink: true }}
               rows={3}
               fullWidth
               {...register("featured_description", {

@@ -80,6 +80,7 @@ export const useQuotationStore = () => {
       );
       return true;
     } catch (error) {
+      console.log(error);
       const message = error.response?.data?.message;
       openSnackbar(message ?? "No se pudieron cargar las cotizaciones.");
       return false;
