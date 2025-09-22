@@ -3,6 +3,6 @@ export const updateServiceModel = (service) => ({
         _id: detail._id, // <-- agrega el _id si existe
         details: detail.details,
         ref_price: detail.ref_price,
-        status: detail.status || 'Activo'
+        status: detail.status,
     }))
 });
