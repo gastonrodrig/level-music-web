@@ -72,7 +72,7 @@ export const ServiceEditPage = () => {
     mode: 'onBlur',
   });
 
-  const { fields: details, remove } = useFieldArray({
+  const { fields: details, remove, append } = useFieldArray({
     control,
     name: 'serviceDetails',
   });
@@ -276,7 +276,7 @@ export const ServiceEditPage = () => {
             px: 3,
             py: 1.5
           }}
-          onClick={handleAddDetail}
+          onClick={() => handleAddDetail(append, details)}
         >
           {isLg ? 'Agregar Detalle' : 'Agregar'}
         </Button>
@@ -297,6 +297,10 @@ export const ServiceEditPage = () => {
             onRemoveField={(fieldIdx) => 
               handleRemoveFieldFromDetail(idx, fieldIdx, getValues, setValue)
             }
+            detailsCount={details.length} 
+            isEditMode={true}
+            watch={watch}
+            setValue={setValue}
           />
         ))}
       </Box>

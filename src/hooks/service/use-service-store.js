@@ -123,10 +123,10 @@ export const useServiceStore = () => {
     }
     for (const detail of details) {
       const hasEmptyField = Object.entries(detail.details).some(
-        ([key, value]) => value === null || value === undefined || value.trim() === ""
+        ([key, value]) => value !== null && value !== undefined && value.trim() !== ""
       );
-      if (hasEmptyField) {
-        openSnackbar("Todos los campos del detalle deben estar completos.");
+      if (!hasEmptyField) {
+        openSnackbar("Al menos un detalle debe estar completo.");
         return false;
       }
     }

@@ -6,9 +6,11 @@ import {
   Button,
   Grid,
   useTheme,
+  Chip,
 } from "@mui/material";
 import { Delete, Add, Close } from "@mui/icons-material";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
+
 
 export const ServiceDetailBox = ({
   index,
@@ -18,7 +20,12 @@ export const ServiceDetailBox = ({
   onAddField,
   onRemoveField,
   fields = [],
+  detailsCount,
+  isEditMode,
+  watch,
+  setValue,
 }) => {
+  
   const theme = useTheme();
   const { isMd } = useScreenSizes(); 
   const isDark = theme.palette.mode === "dark";
@@ -62,7 +69,7 @@ export const ServiceDetailBox = ({
         <Box display="flex" gap={1} flexDirection={isMd ? "column" : "row"}>
           {/* Botón eliminar detalle */}
           {!isMd ? (
-            <IconButton color="error" onClick={onDelete}>
+            <IconButton color="error" onClick={onDelete} disabled={detailsCount === 1} >
               <Delete />
             </IconButton>
           ) : (
@@ -77,6 +84,7 @@ export const ServiceDetailBox = ({
                 color: "#fff",
                 fontWeight: 600,
               }}
+              disabled={detailsCount === 1}
             >
               Eliminar Detalle
             </Button>
@@ -119,7 +127,7 @@ export const ServiceDetailBox = ({
       {/* Campos */}
       <Grid container spacing={2}>
         {/* Precio de Referencia */}
-        <Grid item xs={12}>
+        <Grid item xs={12} sx={{ display: isEditMode ? "flex" : "block" }}>
           <TextField
             label="Precio de Referencia (S/.)"
             placeholder="Ingresa el precio de referencia"
@@ -132,6 +140,21 @@ export const ServiceDetailBox = ({
             error={!!errors.serviceDetails?.[index]?.ref_price}
             helperText={errors.serviceDetails?.[index]?.ref_price?.message}
           />
+          {isEditMode && (
+            
+           <Chip
+            label={watch(`serviceDetails.${index}.status`) === "Activo" ? "Activo" : "Inactivo"}
+            color={watch(`serviceDetails.${index}.status`) === "Activo" ? "success" : "warning"}
+            onClick={() =>
+              setValue(
+                `serviceDetails.${index}.status`,
+                watch(`serviceDetails.${index}.status`) === "Activo" ? "Inactivo" : "Activo"
+              )
+            }
+            sx={{ ml: 2 }}
+          />
+          
+        )}
         </Grid>
 
         {/* Mensaje si no hay campos configurados */}
