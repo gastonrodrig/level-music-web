@@ -1,6 +1,6 @@
 export const createMaintenanceModel = (maintenance) => ({
   type: maintenance.type,
   description: maintenance.description,
-  resource_id: maintenance.resource_id,
+  equipment_id: maintenance.equipment_id,
   date: maintenance.date,
 });

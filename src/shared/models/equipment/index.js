@@ -1,2 +1,2 @@
 export * from './maintenance';
-export * from './resource';
+export * from './equipment';

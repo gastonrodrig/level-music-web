@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  resources: [],
+  equipments: [],
   selected: null,
   total: 0,
   currentPage: 0,
@@ -9,36 +9,36 @@ const initialState = {
   loading: false,
 };
 
-export const resourceSlice = createSlice({
-  name: "resource",
+export const equipmentSlice = createSlice({
+  name: "equipment",
   initialState,
   reducers: {
-    refreshResource: (state, action) => {
+    refreshEquipment: (state, action) => {
       const { items, total, page } = action.payload;
-      state.resources = items;
+      state.equipments = items;
       state.total = total;
       state.currentPage = page;
       state.loading = false;
     },
-    selectedResource: (state, action) => {
+    selectedEquipment: (state, action) => {
       state.selected = action.payload;
     },
-    setLoadingResource: (state, action) => {
+    setLoadingEquipment: (state, action) => {
       state.loading = action.payload;
     },
-    setPageResource: (state, action) => {
+    setPageEquipment: (state, action) => {
       state.currentPage = action.payload;
     },
-    setRowsPerPageResource: (state, action) => {
+    setRowsPerPageEquipment: (state, action) => {
       state.rowsPerPage = action.payload;
     },
   },
 });
 
 export const {
-  refreshResource,
-  selectedResource,
-  setLoadingResource,
-  setPageResource,
-  setRowsPerPageResource,
-} = resourceSlice.actions;
+  refreshEquipment,
+  selectedEquipment,
+  setLoadingEquipment,
+  setPageEquipment,
+  setRowsPerPageEquipment,
+} = equipmentSlice.actions;

@@ -6,7 +6,7 @@ export * from './provider';
 // export * from './storehouse';
 export * from './theme';
 export * from './worker';
-export * from './resource';
+export * from './equipment';
 export * from './client';
 
 

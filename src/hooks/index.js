@@ -7,5 +7,5 @@ export * from './extra';
 export * from './user';
 export * from './worker';
 export * from './routes';
-export * from './resource';
+export * from './equipment';
 export * from './client';

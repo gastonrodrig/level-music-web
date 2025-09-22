@@ -6,8 +6,8 @@ import {
   EventQuotationsPage,
   WorkerPage,
   WorkerTypePage,
-  ResourcePage,
-  ResourceMaintenancePage,
+  EquipmentPage,
+  EquipmentMaintenancePage,
   StorehousePage,
   ServicePage,
   ServiceAddPage,
@@ -38,8 +38,8 @@ export const AdminRoutes = () => {
         <Route path="worker-types" element={<WorkerTypePage />} />
 
         {/* Equipos */}
-        <Route path="resource" element={<ResourcePage />} />
-        <Route path="resource-maintenance" element={<ResourceMaintenancePage />} />
+        <Route path="equipments" element={<EquipmentPage />} />
+        <Route path="equipment-maintenance" element={<EquipmentMaintenancePage />} />
 
         {/* Almacén */}
         <Route path="storehouse" element={<StorehousePage />} />

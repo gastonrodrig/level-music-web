@@ -15,25 +15,25 @@ import {
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import { useEffect, useMemo, useState } from "react";
-import { useResourceStore } from "../../../../hooks";
 import { useForm } from "react-hook-form";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import dayjs from "dayjs";
+import { useEquipmentStore } from "../../../../hooks";
 
-export const ResourceModal = ({
+export const EquipmentModal = ({
   open,
   onClose,
-  resource = {},
-  setResource,
+  equipment = {},
+  setEquipment,
   loading,
 }) => {
-  const isEditing = !!resource?._id;
-  const { startCreateResource, startUpdateResource } = useResourceStore();
+  const isEditing = !!equipment?._id;
+  const { startCreateEquipment, startUpdateEquipment } = useEquipmentStore();
 
-  console.log(resource);
+  console.log(equipment);
 
   const {
     register,
@@ -47,7 +47,7 @@ export const ResourceModal = ({
   });
 
   const [showLastMaintenanceDate, setShowLastMaintenanceDate] = useState(
-    !!resource?.last_maintenance_date
+    !!equipment?.last_maintenance_date
   );
 
   useEffect(() => {
@@ -55,31 +55,31 @@ export const ResourceModal = ({
       const today = new Date().toISOString().split("T")[0];
       
       let last = '';
-      if (resource.last_maintenance_date) {
-        last = new Date(resource.last_maintenance_date)
+      if (equipment.last_maintenance_date) {
+        last = new Date(equipment.last_maintenance_date)
           .toISOString()
           .split('T')[0];
       }
 
       let next = today;
-      if (resource.next_maintenance_date) {
-        next = new Date(resource.next_maintenance_date)
+      if (equipment.next_maintenance_date) {
+        next = new Date(equipment.next_maintenance_date)
           .toISOString()
           .split('T')[0];
       }
 
       reset({
-        name: resource.name ?? '',
-        description: resource.description ?? '',
-        resource_type: resource.resource_type ?? 'Sonido',
-        maintenance_interval_days: resource.maintenance_interval_days ?? 0,
+        name: equipment.name ?? '',
+        description: equipment.description ?? '',
+        equipment_type: equipment.equipment_type ?? 'Sonido',
+        maintenance_interval_days: equipment.maintenance_interval_days ?? 0,
         last_maintenance_date: last,
         next_maintenance_date: next,
       });
 
       setShowLastMaintenanceDate(!!last);
     }
-  }, [open, reset, resource]);
+  }, [open, reset, equipment]);
 
   useEffect(() => {
     const intervalDays = parseInt(watch("maintenance_interval_days"), 10);
@@ -109,10 +109,10 @@ export const ResourceModal = ({
     try {
       if (!showLastMaintenanceDate) delete data.last_maintenance_date;
       const success = isEditing
-        ? await startUpdateResource(resource._id, data)
-        : await startCreateResource(data);
+        ? await startUpdateEquipment(equipment._id, data)
+        : await startCreateEquipment(data);
       if (success) {
-        setResource(data); 
+        setEquipment(data); 
         onClose();
       } 
     } catch (error) {
@@ -146,7 +146,7 @@ export const ResourceModal = ({
           mb={3}
         >
           <Typography variant="h6" fontWeight={600}>
-            {isEditing ? "Editar recurso" : "Agregar recurso"}
+            {isEditing ? "Editar equipo" : "Agregar equipo"}
           </Typography>
           <IconButton onClick={onClose}>
             <Close />
@@ -178,21 +178,21 @@ export const ResourceModal = ({
             helperText={errors.description?.message}
           />
 
-          {/* Tipo de recurso */}
-          <FormControl fullWidth error={!!errors.resource_type}>
-            <InputLabel id="type-label">Tipo de recurso</InputLabel>
+          {/* Tipo de equipo */}
+          <FormControl fullWidth error={!!errors.equipment_type}>
+            <InputLabel id="type-label">Tipo de equipo</InputLabel>
             <Select
               labelId="type-label"
-              value={watch("resource_type") || "Sonido"}
-              {...register("resource_type", {
-                required: "Selecciona un tipo de recurso",
+              value={watch("equipment_type") || "Sonido"}
+              {...register("equipment_type", {
+                required: "Selecciona un tipo de equipo",
               })}
-              onChange={(e) => setValue("resource_type", e.target.value)}
+              onChange={(e) => setValue("equipment_type", e.target.value)}
             >
               <MenuItem value="Sonido">Sonido</MenuItem>
               <MenuItem value="Luz">Luz</MenuItem>
             </Select>
-            <FormHelperText>{errors.resource_type?.message}</FormHelperText>
+            <FormHelperText>{errors.equipment_type?.message}</FormHelperText>
           </FormControl>
 
           {/* Intervalo de mantenimiento */}
@@ -215,7 +215,7 @@ export const ResourceModal = ({
           />
 
           {/* Última fecha de mantenimiento */}
-          { (!isEditing || resource.maintenance_count <= 1) && (
+          { (!isEditing || equipment.maintenance_count <= 1) && (
             <FormControlLabel
               control={
                 <Checkbox

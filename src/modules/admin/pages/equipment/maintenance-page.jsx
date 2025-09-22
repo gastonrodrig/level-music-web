@@ -7,13 +7,13 @@ import {
   CircularProgress
 } from '@mui/material';
 import { AddCircleOutline, Edit } from '@mui/icons-material';
-import { useMaintenanceStore } from '../../../../hooks/resource/use-maintenance-store';
+import { useMaintenanceStore } from '../../../../hooks/equipment/use-maintenance-store';
 import { TableComponent } from '../../../../shared/ui/components';
 import { MaintenanceModal } from '../../components';
 import { useScreenSizes } from '../../../../shared/constants/screen-width';
 import { formatDay } from '../../../../shared/utils';
 
-export const ResourceMaintenancePage = () => {
+export const EquipmentMaintenancePage = () => {
   const {
     maintenances,
     total,
@@ -46,9 +46,9 @@ export const ResourceMaintenancePage = () => {
   };
 
   const columns = [
-    { id: 'resource_serial_number', label: 'Número de serie', sortable: true },
-    { id: 'resource_name', label: 'Nombre del recurso', sortable: true },
-    { id: 'resource_type', label: 'Tipo de recurso', sortable: true },
+    { id: 'equipment_serial_number', label: 'Número de serie', sortable: true },
+    { id: 'equipment_name', label: 'Nombre del equipo', sortable: true },
+    { id: 'equipment_type', label: 'Tipo de equipo', sortable: true },
     { id: 'type', label: 'Tipo de mantenimiento', sortable: true },
     { id: 'status', label: 'Estado', sortable: true },
     {

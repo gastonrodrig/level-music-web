@@ -1,2 +1,2 @@
-export * from './resource-slice';
+export * from './equipment-slice';
 export * from './maintenance-slice';

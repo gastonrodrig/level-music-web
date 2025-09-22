@@ -1,2 +1,2 @@
-export * from './resource-api';
+export * from './equipment-api';
 export * from './maintenance-api';

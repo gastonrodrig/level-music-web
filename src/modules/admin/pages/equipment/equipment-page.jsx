@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Box, Typography, Button, TextField, CircularProgress } from '@mui/material';
 import { AddCircleOutline, Edit } from '@mui/icons-material';
-import { useResourceStore } from '../../../../hooks/resource/use-resource-store';
+import { useEquipmentStore } from '../../../../hooks/equipment/use-equipment-store';
 import { TableComponent } from '../../../../shared/ui/components';
-import { ResourceModal } from '../../components/resource/resource-modal';
+import { EquipmentModal } from '../../components/equipment/equipment-modal';
 import { useScreenSizes } from '../../../../shared/constants/screen-width';
 import { formatDay } from '../../../../shared/utils';
 
-export const ResourcePage = () => {
+export const EquipmentPage = () => {
   const {
-    resources,
+    equipments,
     total,
     loading,
     searchTerm,
@@ -23,19 +23,19 @@ export const ResourcePage = () => {
     setPageGlobal,
     setOrderBy,
     setOrder,
-    startLoadingResourcesPaginated,
-    setSelectedResource
-  } = useResourceStore();
+    startLoadingEquipmentsPaginated,
+    setSelectedEquipment,
+  } = useEquipmentStore();
   const { isLg } = useScreenSizes();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    startLoadingResourcesPaginated();
+    startLoadingEquipmentsPaginated();
   }, [currentPage, rowsPerPage, searchTerm, orderBy, order]);
 
   const openModal = (payload) => {
-    setSelectedResource(payload || {});
+    setSelectedEquipment(payload || {});
     setIsModalOpen(true);
   };
 
@@ -46,7 +46,7 @@ export const ResourcePage = () => {
       sortable: true 
     },
     { 
-      id: 'resource_type', 
+      id: 'equipment_type', 
       label: 'Tipo', 
       sortable: true 
     },
@@ -91,8 +91,8 @@ export const ResourcePage = () => {
       >
         <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ px: 3, py: 2 }}>
           <Box>
-            <Typography sx={{ fontWeight: 600, fontSize: 24 }}>Listado de Recursos</Typography>
-            <Typography sx={{ color: 'text.secondary', fontSize: 16 }}>Administra los recursos</Typography>
+            <Typography sx={{ fontWeight: 600, fontSize: 24 }}>Listado de Equipos</Typography>
+            <Typography sx={{ color: 'text.secondary', fontSize: 16 }}>Administra los equipos</Typography>
           </Box>
           <Button
             variant="contained"
@@ -100,7 +100,7 @@ export const ResourcePage = () => {
             sx={{ backgroundColor: '#212121', color: '#fff', borderRadius: 2, textTransform: 'none', px: 3, py: 1.5 }}
             onClick={() => openModal()}
           >
-            {isLg ? 'Agregar Recurso' : 'Agregar'}
+            {isLg ? 'Agregar Equipo' : 'Agregar'}
           </Button>
         </Box>
 
@@ -123,7 +123,7 @@ export const ResourcePage = () => {
           <Box display="flex" justifyContent="center" alignItems="center" sx={{ py: 5 }}>
             <CircularProgress />
           </Box>
-        ) : resources.length === 0 ? (
+        ) : equipments.length === 0 ? (
           <Box display="flex" justifyContent="center" alignItems="center" sx={{ py: 5 }}>
             <Typography sx={{ color: 'text.secondary', fontSize: 16 }}>
               No se encontraron resultados.
@@ -131,7 +131,7 @@ export const ResourcePage = () => {
           </Box>
         ) : (
           <TableComponent
-            rows={resources}
+            rows={equipments}
             columns={columns}
             order={order}
             orderBy={orderBy}
@@ -154,11 +154,11 @@ export const ResourcePage = () => {
         )}
       </Box>
 
-      <ResourceModal
+      <EquipmentModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        resource={selected}
-        setResource={setSelectedResource}
+        equipment={selected}
+        setEquipment={setSelectedEquipment}
         loading={loading}
       />
     </>

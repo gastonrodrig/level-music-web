@@ -1,2 +1,2 @@
-export * from './resource-page';
+export * from './equipment-page';
 export * from './maintenance-page';

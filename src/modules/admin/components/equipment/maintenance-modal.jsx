@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import { useEffect, useMemo, useState } from "react";
-import { useMaintenanceStore, useResourceStore } from "../../../../hooks";
+import { useMaintenanceStore, useEquipmentStore } from "../../../../hooks";
 import { useForm } from "react-hook-form";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -30,7 +30,7 @@ export const MaintenanceModal = ({
   loading,
 }) => {
   const isChangingStatus = !!maintenance?._id; 
-  const { startSearchingResource } = useResourceStore();
+  const { startSearchingEquipment } = useEquipmentStore();
   const { startCreateMaintenance, startChangeMaintenanceStatus } = useMaintenanceStore();
   
   // Estados para el manejo de la funcionalidad de reagendado y cancelado
@@ -53,7 +53,7 @@ export const MaintenanceModal = ({
     if (open) {
       reset({
         type: maintenance.type ?? "Correctivo",
-        resourceName: maintenance.resource_name ?? "",
+        equipmentName: maintenance.equipment_name ?? "",
         description: maintenance.description ?? "",
       });
       // Resetear estados locales
@@ -70,20 +70,20 @@ export const MaintenanceModal = ({
     const formattedValue = value.toUpperCase();
     setValue("serialNumber", formattedValue);
     if (/^[A-Z0-9]{12}$/.test(formattedValue)) {
-      const { ok, data } = await startSearchingResource(formattedValue);
+      const { ok, data } = await startSearchingEquipment(formattedValue);
       if (ok) {
-        setValue("resource_id", data._id);
-        setValue("resourceName", data.name);
-        setValue("resourceType", data.resource_type);
+        setValue("equipment_id", data._id);
+        setValue("equipmentName", data.name);
+        setValue("equipmentType", data.equipment_type);
       } else {
-        setValue("resource_id", "");
-        setValue("resourceName", "");
-        setValue("resourceType", "");
+        setValue("equipment_id", "");
+        setValue("equipmentName", "");
+        setValue("equipmentType", "");
       }
     } else {
-      setValue("resource_id", "");
-      setValue("resourceName", "");
-      setValue("resourceType", "");
+      setValue("equipment_id", "");
+      setValue("equipmentName", "");
+      setValue("equipmentType", "");
     }
   };
 
@@ -210,7 +210,7 @@ export const MaintenanceModal = ({
 
               {/* Numero de serie */}
               <TextField
-                label="Número de serie del recurso"
+                label="Número de serie del equipo"
                 fullWidth
                 {...register("serialNumber", {
                   required: "El número de serie es obligatorio",
@@ -233,11 +233,11 @@ export const MaintenanceModal = ({
                 disabled={isChangingStatus}
               />
 
-              {/* Nombre del recurso ingresado */}
+              {/* Nombre del equipo ingresado */}
               <TextField
-                label="Nombre del Recurso"
+                label="Nombre del Equipo"
                 fullWidth
-                value={watch("resourceName") || ""}
+                value={watch("equipmentName") || ""}
                 InputProps={{
                   readOnly: true,
                   style: {
@@ -249,11 +249,11 @@ export const MaintenanceModal = ({
                 disabled
               />
 
-              {/* Tipo del recurso ingresado */}
+              {/* Tipo del equipo ingresado */}
               <TextField
-                label="Tipo del Recurso"
+                label="Tipo del Equipos"
                 fullWidth
-                value={watch("resourceType") || ""}
+                value={watch("equipmentType") || ""}
                 InputProps={{
                   readOnly: true,
                   style: {
@@ -307,7 +307,7 @@ export const MaintenanceModal = ({
                   <strong>Fecha:</strong> {formatDay(maintenance.date)}
                 </Typography>
                 <Typography mb={1} variant="body2">
-                  <strong>Recurso:</strong> {maintenance.resource_name}
+                  <strong>Equipo:</strong> {maintenance.equipment_name}
                 </Typography>
               </Box>
               <Box>
