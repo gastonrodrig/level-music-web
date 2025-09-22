@@ -33,8 +33,6 @@ export const EquipmentModal = ({
   const isEditing = !!equipment?._id;
   const { startCreateEquipment, startUpdateEquipment } = useEquipmentStore();
 
-  console.log(equipment);
-
   const {
     register,
     handleSubmit,

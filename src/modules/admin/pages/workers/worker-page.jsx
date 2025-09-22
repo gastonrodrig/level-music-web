@@ -46,7 +46,7 @@ export const WorkerPage = () => {
     { id: 'last_name', label: 'Apellido', sortable: true, width: '140px', truncate: true },
     { id: 'email', label: 'Correo', sortable: true, width: '140px', truncate: true },
     { id: 'phone', label: 'Teléfono', sortable: true, width: '140px', truncate: true },
-    { id: 'role', label: 'Tipo de Trabajador', sortable: true, width: '140px', truncate: true },
+    { id: 'worker_type_name', label: 'Tipo de Trabajador', sortable: true, width: '140px', truncate: true },
     { id: 'status', label: 'Estado', sortable: true, width: '140px', truncate: true },
   ];
 
