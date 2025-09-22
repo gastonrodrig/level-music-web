@@ -32,6 +32,9 @@ export const workersSlice = createSlice({
     setRowsPerPageWorker: (state, action) => {
       state.rowsPerPage = action.payload;
     },
+    listAllWorkers: (state, action) => {
+      state.workers = action.payload;
+    }
   },
 });
 
@@ -41,4 +44,5 @@ export const {
   setLoadingWorker,
   setPageWorker,
   setRowsPerPageWorker,
+  listAllWorkers
 } = workersSlice.actions;
