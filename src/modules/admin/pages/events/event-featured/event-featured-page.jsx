@@ -1,15 +1,20 @@
-import { useEffect } from "react";
-import { useQuotationStore } from "../../../../hooks";
-import { useScreenSizes } from "../../../../shared/constants/screen-width";
-import { TableComponent } from "../../../../shared/ui/components";
-import { formatDay } from "../../../../shared/utils";
-import { Edit, AddCircleOutline } from "@mui/icons-material";
-import { Box, Typography, Button, TextField, CircularProgress } from "@mui/material";
+import { useEffect, useState } from "react";
+import {
+  Box,
+  Typography,
+  Button,
+  TextField,
+  CircularProgress,
+} from "@mui/material";
+import { AddCircleOutline, Edit } from "@mui/icons-material";
+import { useEventFeaturedStore } from "../../../../../hooks";
+import { TableComponent } from "../../../../../shared/ui/components";
+import { EventFeaturedModal } from "../../../components";
+import { useScreenSizes } from "../../../../../shared/constants/screen-width";
 
-export const EventQuotationsPage = () => {
+export const EventFeaturedPage = () => {
   const {
-    quotations,
-    selected,
+    eventFeatured,
     total,
     loading,
     searchTerm,
@@ -17,48 +22,37 @@ export const EventQuotationsPage = () => {
     currentPage,
     orderBy,
     order,
+    selected,
     setSearchTerm,
+    setRowsPerPageGlobal,
+    setPageGlobal,
     setOrderBy,
     setOrder,
-    setPageGlobal,
-    setRowsPerPageGlobal,
-    startLoadingQuotationPaginated,
-  } = useQuotationStore();
-  
-  const { isLg } = useScreenSizes();
+    startLoadingEventFeaturedPaginated,
+    setSelectedEventFeatured,
+  } = useEventFeaturedStore();
 
-  const columns = [
-    { 
-      id: "event_code", 
-      label: "Evento", 
-      sortable: false 
-    },
-    {
-      id: "date",
-      label: "Fecha",
-      sortable: true,
-      accessor: (row) => (row.date ? formatDay(row.date) : "N/A"),
-    },
-    { 
-      id: "attendees_count", 
-      label: "Asistentes", 
-      sortable: false 
-    },
-    { 
-      id: "status", 
-      label: "Estado", 
-      sortable: false 
-    },
-  ];
+  const { isLg } = useScreenSizes();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    startLoadingQuotationPaginated();
+    startLoadingEventFeaturedPaginated();
   }, [currentPage, rowsPerPage, searchTerm, orderBy, order]);
+
+  const openModal = (payload) => {
+    setSelectedEventFeatured(payload);
+    setIsModalOpen(true);
+  };
+
+  const columns = [
+    { id: "title", label: "Título", sortable: true },
+  ];
 
   const actions = [
     {
       label: "Editar",
       icon: <Edit />,
+      onClick: (row) => openModal(row),
     },
   ];
 
@@ -75,6 +69,7 @@ export const EventQuotationsPage = () => {
             }`,
         }}
       >
+        {/* Header con título y botón */}
         <Box
           display="flex"
           justifyContent="space-between"
@@ -83,10 +78,10 @@ export const EventQuotationsPage = () => {
         >
           <Box>
             <Typography sx={{ fontWeight: 600, fontSize: 24 }}>
-              Listado de cotizaciones
+              Listado de eventos destacados
             </Typography>
             <Typography sx={{ color: "text.secondary", fontSize: 16 }}>
-              Administra las cotizaciones
+              Administra los eventos destacados
             </Typography>
           </Box>
           <Button
@@ -100,21 +95,18 @@ export const EventQuotationsPage = () => {
               px: 3,
               py: 1.5,
             }}
-            onClick={() => {}}
+            onClick={() => openModal()}
           >
-            {isLg ? "Agregar Cotización" : "Agregar"}
+            {isLg ? "Agregar Evento Destacado" : "Agregar"}
           </Button>
         </Box>
 
+        {/* Barra de búsqueda */}
         <Box
           display="flex"
           justifyContent="start"
           alignItems="center"
-          sx={{
-            px: 3,
-            pb: { xs: 1, lg: 3 },
-            width: { xs: "100%", sm: "300px" },
-          }}
+          sx={{ px: 3, pb: { xs: 1, lg: 3 }, width: { xs: "100%", sm: "300px" } }}
         >
           <TextField
             size="small"
@@ -125,29 +117,20 @@ export const EventQuotationsPage = () => {
           />
         </Box>
 
+        {/* Tabla o estado de carga */}
         {loading ? (
-          <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            sx={{ py: 5 }}
-          >
+          <Box display="flex" justifyContent="center" alignItems="center" sx={{ py: 5 }}>
             <CircularProgress />
           </Box>
-        ) : quotations.length === 0 ? (
-          <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            sx={{ py: 5 }}
-          >
+        ) : eventFeatured.length === 0 ? (
+          <Box display="flex" justifyContent="center" alignItems="center" sx={{ py: 5 }}>
             <Typography sx={{ color: "text.secondary", fontSize: 16 }}>
               No se encontraron resultados.
             </Typography>
           </Box>
         ) : (
           <TableComponent
-            rows={quotations}
+            rows={eventFeatured}
             columns={columns}
             order={order}
             orderBy={orderBy}
@@ -169,6 +152,15 @@ export const EventQuotationsPage = () => {
           />
         )}
       </Box>
+
+      {/* Modal */}
+      <EventFeaturedModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        eventFeatured={selected}
+        setEventFeatured={setSelectedEventFeatured}
+        loading={loading}
+      />
     </>
   );
 };

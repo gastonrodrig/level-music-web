@@ -1,20 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
-  Box,
-  Typography,
-  Button,
-  TextField,
-  CircularProgress,
-} from "@mui/material";
-import { AddCircleOutline, Edit } from "@mui/icons-material";
-import { useEventFeaturedStore } from "../../../../hooks";
-import { TableComponent } from "../../../../shared/ui/components";
-import { EventFeaturedModal } from "../../components";
-import { useScreenSizes } from "../../../../shared/constants/screen-width";
+  useEquipmentStore,
+  useQuotationStore,
+  useServiceDetailStore,
+  useServiceTypeStore,
+  useWorkerStore,
+} from "../../../../../hooks";
+import { useScreenSizes } from "../../../../../shared/constants/screen-width";
+import { TableComponent } from "../../../../../shared/ui/components";
+import { formatDay } from "../../../../../shared/utils";
+import { Group, AddCircleOutline } from "@mui/icons-material";
+import { Box, Typography, Button, TextField, CircularProgress } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
-export const EventFeaturedPage = () => {
+export const EventQuotationsPage = () => {
   const {
-    eventFeatured,
+    quotations,
+    selected,
     total,
     loading,
     searchTerm,
@@ -22,37 +24,63 @@ export const EventFeaturedPage = () => {
     currentPage,
     orderBy,
     order,
-    selected,
     setSearchTerm,
-    setRowsPerPageGlobal,
-    setPageGlobal,
     setOrderBy,
     setOrder,
-    startLoadingEventFeaturedPaginated,
-    setSelectedEventFeatured,
-  } = useEventFeaturedStore();
+    setPageGlobal,
+    setRowsPerPageGlobal,
+    startLoadingQuotationPaginated,
+    setSelectedQuotation,
+  } = useQuotationStore();
 
+  const { startLoadingAllEquipments } = useEquipmentStore();
+  const { startLoadingAllWorkers } = useWorkerStore();
+  const { startLoadingAllServiceDetails } = useServiceDetailStore();
+  const { startLoadingAllServiceTypes } = useServiceTypeStore();
+  
   const { isLg } = useScreenSizes();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  useEffect(() => {
-    startLoadingEventFeaturedPaginated();
-  }, [currentPage, rowsPerPage, searchTerm, orderBy, order]);
-
-  const openModal = (payload) => {
-    setSelectedEventFeatured(payload);
-    setIsModalOpen(true);
-  };
+  const navigate = useNavigate();
 
   const columns = [
-    { id: "title", label: "Título", sortable: true },
+    { 
+      id: "event_code", 
+      label: "Evento", 
+      sortable: false 
+    },
+    {
+      id: "date",
+      label: "Fecha",
+      sortable: true,
+      accessor: (row) => (row.date ? formatDay(row.date) : "N/A"),
+    },
+    { 
+      id: "attendees_count", 
+      label: "Asistentes", 
+      sortable: false 
+    },
+    { 
+      id: "status", 
+      label: "Estado", 
+      sortable: false 
+    },
   ];
 
+  useEffect(() => {
+    startLoadingQuotationPaginated();
+    startLoadingAllEquipments();
+    startLoadingAllWorkers();
+    startLoadingAllServiceDetails();
+    startLoadingAllServiceTypes();
+  }, [currentPage, rowsPerPage, searchTerm, orderBy, order]);
+
   const actions = [
-    {
-      label: "Editar",
-      icon: <Edit />,
-      onClick: (row) => openModal(row),
+    { 
+      label: 'Asignar Recursos', 
+      icon: <Group />, 
+      onClick: (row) => {
+        setSelectedQuotation(row);
+        navigate(`/admin/quotations/assign`);
+      },
     },
   ];
 
@@ -69,7 +97,6 @@ export const EventFeaturedPage = () => {
             }`,
         }}
       >
-        {/* Header con título y botón */}
         <Box
           display="flex"
           justifyContent="space-between"
@@ -78,10 +105,10 @@ export const EventFeaturedPage = () => {
         >
           <Box>
             <Typography sx={{ fontWeight: 600, fontSize: 24 }}>
-              Listado de eventos destacados
+              Listado de cotizaciones
             </Typography>
             <Typography sx={{ color: "text.secondary", fontSize: 16 }}>
-              Administra los eventos destacados
+              Administra las cotizaciones
             </Typography>
           </Box>
           <Button
@@ -95,18 +122,21 @@ export const EventFeaturedPage = () => {
               px: 3,
               py: 1.5,
             }}
-            onClick={() => openModal()}
+            onClick={() => {}}
           >
-            {isLg ? "Agregar Evento Destacado" : "Agregar"}
+            {isLg ? "Agregar Cotización" : "Agregar"}
           </Button>
         </Box>
 
-        {/* Barra de búsqueda */}
         <Box
           display="flex"
           justifyContent="start"
           alignItems="center"
-          sx={{ px: 3, pb: { xs: 1, lg: 3 }, width: { xs: "100%", sm: "300px" } }}
+          sx={{
+            px: 3,
+            pb: { xs: 1, lg: 3 },
+            width: { xs: "100%", sm: "300px" },
+          }}
         >
           <TextField
             size="small"
@@ -117,20 +147,29 @@ export const EventFeaturedPage = () => {
           />
         </Box>
 
-        {/* Tabla o estado de carga */}
         {loading ? (
-          <Box display="flex" justifyContent="center" alignItems="center" sx={{ py: 5 }}>
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            sx={{ py: 5 }}
+          >
             <CircularProgress />
           </Box>
-        ) : eventFeatured.length === 0 ? (
-          <Box display="flex" justifyContent="center" alignItems="center" sx={{ py: 5 }}>
+        ) : quotations.length === 0 ? (
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            sx={{ py: 5 }}
+          >
             <Typography sx={{ color: "text.secondary", fontSize: 16 }}>
               No se encontraron resultados.
             </Typography>
           </Box>
         ) : (
           <TableComponent
-            rows={eventFeatured}
+            rows={quotations}
             columns={columns}
             order={order}
             orderBy={orderBy}
@@ -152,15 +191,6 @@ export const EventFeaturedPage = () => {
           />
         )}
       </Box>
-
-      {/* Modal */}
-      <EventFeaturedModal
-        open={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        eventFeatured={selected}
-        setEventFeatured={setSelectedEventFeatured}
-        loading={loading}
-      />
     </>
   );
 };

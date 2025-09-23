@@ -7,6 +7,7 @@ import {
   setPageEquipment,
   setRowsPerPageEquipment,
   showSnackbar,
+  listAllEquipments
 } from "../../store";
 import { useState } from "react";
 import { equipmentApi } from "../../api";
@@ -42,6 +43,22 @@ export const useEquipmentStore = () => {
     } catch (error) {
       const message = error.response?.data?.message;
       openSnackbar(message ?? "Ocurrió un error al registrar el equipo.");
+      return false;
+    } finally {
+      dispatch(setLoadingEquipment(false));
+    }
+  };
+
+  const startLoadingAllEquipments = async () => {
+    dispatch(setLoadingEquipment(true));
+    try {
+      // Implement API call to load service details here
+      const { data } = await equipmentApi.get("/all", getAuthConfig(token));
+      dispatch(listAllEquipments(data));
+      return true;
+    } catch (error) {
+      const message = error.response?.data?.message;
+      openSnackbar(message ?? "Ocurrió un error al cargar los equipos.");
       return false;
     } finally {
       dispatch(setLoadingEquipment(false));
@@ -144,6 +161,7 @@ export const useEquipmentStore = () => {
 
     // actions
     startCreateEquipment,
+    startLoadingAllEquipments,
     startLoadingEquipmentsPaginated,
     startUpdateEquipment,
     setSelectedEquipment,

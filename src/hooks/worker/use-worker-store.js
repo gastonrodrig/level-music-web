@@ -1,7 +1,9 @@
 import { useDispatch, useSelector } from 'react-redux';
 import {
+  listAllWorkers,
   refreshWorkers,
   selectedWorker,
+  setLoadingServiceDetail,
   setLoadingWorker,
   setPageWorker,
   setRowsPerPageWorker,
@@ -45,6 +47,20 @@ export const useWorkerStore = () => {
     } catch (error) {
       const message = error.response?.data?.message;
       openSnackbar(message ?? "Ocurrió un error al crear el trabajador.");
+      return false;
+    } finally {
+      dispatch(setLoadingWorker(false));
+    }
+  };
+  const startLoadingAllWorkers = async () => {
+    dispatch(setLoadingWorker(true));
+    try {
+      const { data } = await workerApi.get("/all", getAuthConfig(token));
+      dispatch(listAllWorkers(data));
+      return true;
+    } catch (error) {
+      const message = error.response?.data?.message;
+      openSnackbar(message ?? "Ocurrió un error al cargar los trabajadores.");
       return false;
     } finally {
       dispatch(setLoadingWorker(false));
@@ -130,6 +146,7 @@ export const useWorkerStore = () => {
 
     //actions
     startCreateWorker,
+    startLoadingAllWorkers,
     startLoadingWorkerPaginated,
     startUpdateWorker,
     setSelectedWorker,

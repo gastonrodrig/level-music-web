@@ -32,6 +32,9 @@ export const equipmentSlice = createSlice({
     setRowsPerPageEquipment: (state, action) => {
       state.rowsPerPage = action.payload;
     },
+    listAllEquipments: (state, action) => {
+      state.equipments = action.payload;
+    }
   },
 });
 
@@ -41,4 +44,5 @@ export const {
   setLoadingEquipment,
   setPageEquipment,
   setRowsPerPageEquipment,
+  listAllEquipments
 } = equipmentSlice.actions;

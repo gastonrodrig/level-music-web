@@ -16,7 +16,10 @@ import {
   ProviderPage,
   EventFeaturedPage,
   ClientPersonPage,
-  ClientCompanyPage
+  ClientCompanyPage,
+  AssignResourcesPage,
+  EventQuotationAddPage,
+  EventQuotationEditPage
 } from '../pages';
 import { AdminLayout } from '../layout/admin-layout';
 
@@ -30,7 +33,10 @@ export const AdminRoutes = () => {
         {/* Eventos */}
         <Route path="events" element={<EventPage />} />
         <Route path="event-types" element={<EventTypePage />} />
-        <Route path="quotes" element={<EventQuotationsPage />} />
+        <Route path="quotations" element={<EventQuotationsPage />} />
+        <Route path="quotations/assign" element={<AssignResourcesPage />} />
+        <Route path="quotations/new" element={<EventQuotationAddPage />} />
+        <Route path="quotations/edit" element={<EventQuotationEditPage />} />
         <Route path="featured-events" element={<EventFeaturedPage />} />
 
         {/* Trabajadores */}
