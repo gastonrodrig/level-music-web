@@ -33,7 +33,24 @@ export const menuItems = [
       { 
         text: 'Cotizaciones',
         breadcrumb: 'Cotizaciones',
-        href: '/admin/quotes' 
+        href: '/admin/quotations',
+        subItems: [
+          {
+            text: 'Asignar Recursos',
+            breadcrumb: 'Asignar Recursos',
+            href: '/admin/quotations/assign',
+          },
+          {
+            text: 'Nueva Cotización',
+            breadcrumb: 'Nueva Cotización',
+            href: '/admin/quotations/new',
+          },
+          {
+            text: 'Editar Cotización',
+            breadcrumb: 'Editar Cotización',
+            href: '/admin/quotations/edit',
+          }
+        ],
       }, 
       { 
         text: 'Destacados',
@@ -80,12 +97,12 @@ export const menuItems = [
     subItems: [
       { 
         text: 'Persona', 
-        breadcrumb: 'Clientes - Persona',
+        breadcrumb: 'Persona',
         href: '/admin/client-person' 
       },
       { 
         text: 'Empresa', 
-        breadcrumb: 'Clientes - Empresa',
+        breadcrumb: 'Empresa',
         href: '/admin/client-company' 
       }
     ]

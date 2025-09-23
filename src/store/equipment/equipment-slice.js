@@ -1,8 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { listAllWorkers } from "../worker";
 
 const initialState = {
-  equipment: [],
+  equipments: [],
   selected: null,
   total: 0,
   currentPage: 0,
@@ -34,7 +33,7 @@ export const equipmentSlice = createSlice({
       state.rowsPerPage = action.payload;
     },
     listAllEquipments: (state, action) => {
-      state.equipment = action.payload;
+      state.equipments = action.payload;
     }
   },
 });

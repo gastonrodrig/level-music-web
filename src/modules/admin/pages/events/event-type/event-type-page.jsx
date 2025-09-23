@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Box, Typography, Button, TextField, CircularProgress } from '@mui/material';
 import { AddCircleOutline, Edit } from '@mui/icons-material';
-import { useEventTypeStore } from '../../../../hooks';
-import { TableComponent } from '../../../../shared/ui/components';
-import { EventTypeModal } from '../../components';
-import { useScreenSizes } from '../../../../shared/constants/screen-width';
+import { useEventTypeStore } from '../../../../../hooks';
+import { TableComponent } from '../../../../../shared/ui/components';
+import { EventTypeModal } from '../../../components';
+import { useScreenSizes } from '../../../../../shared/constants/screen-width';
 
 export const EventTypePage = () => {
   const {

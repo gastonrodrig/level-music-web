@@ -7,6 +7,7 @@ import {
   setPageEquipment,
   setRowsPerPageEquipment,
   showSnackbar,
+  listAllEquipments
 } from "../../store";
 import { useState } from "react";
 import { equipmentApi } from "../../api";
