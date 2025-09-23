@@ -29,7 +29,7 @@ export const ServiceAddPage = () => {
   const navigate = useNavigate();
 
   const { startLoadingAllServiceTypes, serviceTypes } = useServiceTypeStore();
-  const { startLoadingProviderPaginated, provider } = useProviderStore();
+  const { startLoadingAllProvider, provider } = useProviderStore();
 
   const {
     loading,
@@ -74,7 +74,7 @@ export const ServiceAddPage = () => {
 
   useEffect(() => {
     startLoadingAllServiceTypes();
-    startLoadingProviderPaginated();
+    startLoadingAllProvider();
   }, []);
 
   const onSubmit = async (data) => {

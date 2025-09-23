@@ -29,7 +29,7 @@ export const ServiceEditPage = () => {
   const navigate = useNavigate();
 
   const { startLoadingAllServiceTypes, serviceTypes } = useServiceTypeStore();
-  const { startLoadingProviderPaginated, provider } = useProviderStore();
+  const { startLoadingAllProvider, provider } = useProviderStore();
 
   const { 
     loading,
@@ -62,12 +62,17 @@ export const ServiceEditPage = () => {
     defaultValues: {
       provider_id: selected?.provider || "",
       service_type_id: selected?.service_type || "",
-      serviceDetails: selected?.serviceDetails?.map(detail => ({
-        ref_price: detail.ref_price,
-        details: detail.details,
-        _id: detail._id,
-        status: detail.status,
-      })) || [],
+      serviceDetails: selected?.serviceDetails?.map(detail => {
+        const obj = {
+          ref_price: detail.ref_price,
+          details: detail.details,
+          status: detail.status,
+        };
+        if (typeof detail._id === "string" && detail._id.length === 24) {
+          obj._id = detail._id;
+        }
+        return obj;
+      }) || [],
     },
     mode: 'onBlur',
   });
@@ -81,7 +86,7 @@ export const ServiceEditPage = () => {
 
   useEffect(() => {
     startLoadingAllServiceTypes();
-    startLoadingProviderPaginated();
+    startLoadingAllProvider();
   }, []);
 
   useEffect(() => {
@@ -106,6 +111,15 @@ export const ServiceEditPage = () => {
   }, [selected, provider, serviceTypes]);
 
   const onSubmit = async (data) => {
+    data.serviceDetails = data.serviceDetails.map(detail => {
+    if (!detail._id) {
+      const { _id, ...rest } = detail;
+      console.log(rest);
+      return rest;
+    }
+    console.log(detail);
+    return detail;
+  });
     const success = await startUpdateService(selected._id, data);
     if (success) navigate('/admin/service');
   };

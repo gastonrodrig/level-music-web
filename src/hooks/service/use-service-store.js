@@ -123,7 +123,7 @@ export const useServiceStore = () => {
     }
     for (const detail of details) {
       const hasEmptyField = Object.entries(detail.details).some(
-        ([key, value]) => value !== null && value !== undefined && value.trim() !== ""
+        ([key, value]) => value !== null && value !== undefined && (typeof value === "string" ? value.trim() !== "" : value !== "")
       );
       if (!hasEmptyField) {
         openSnackbar("Al menos un detalle debe estar completo.");
@@ -146,7 +146,7 @@ export const useServiceStore = () => {
   };
 
   const handleAddDetail = (append, details) => {
-    append({ ref_price: "", details: {} });
+    append({ ref_price: Number(""), details: {}, status: "Activo" });
     setSelectedFields((prev) => ({
       ...prev,
       [details.length]: selectedServiceType?.attributes
