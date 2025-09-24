@@ -27,7 +27,7 @@ export const ServicePage = () => {
   } = useServiceStore();
 
   const { startLoadingAllServiceTypes } = useServiceTypeStore();
-  const { startLoadingAllProvider } = useProviderStore();
+  const { startLoadingAllProviders } = useProviderStore();
 
   const { isLg } = useScreenSizes();
   const navigate = useNavigate();
@@ -35,7 +35,7 @@ export const ServicePage = () => {
   useEffect(() => {
     startLoadingServicePaginated();
     startLoadingAllServiceTypes();
-    startLoadingAllProvider();
+    startLoadingAllProviders();
   }, [currentPage, rowsPerPage, searchTerm, orderBy, order]);
 
   const columns = [
