@@ -31,6 +31,9 @@ export const providerSlice = createSlice({
     setRowsPerPageProvider: (state, action) => {
       state.rowsPerPage = action.payload;
     },
+    listAllProviders: (state, action) => {
+      state.provider = action.payload;
+    },
   },
 });
 export const {
@@ -39,4 +42,5 @@ export const {
   setLoadingProvider,
   setPageProvider,
   setRowsPerPageProvider,
+  listAllProviders,
 } = providerSlice.actions;

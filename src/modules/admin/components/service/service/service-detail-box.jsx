@@ -6,7 +6,7 @@ import {
   Button,
   Grid,
   useTheme,
-  Chip,
+  Switch,
 } from "@mui/material";
 import { Delete, Add, Close } from "@mui/icons-material";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
@@ -24,6 +24,7 @@ export const ServiceDetailBox = ({
   isEditMode,
   watch,
   setValue,
+  initialData,
 }) => {
   
   const theme = useTheme();
@@ -44,7 +45,7 @@ export const ServiceDetailBox = ({
         display="flex"
         justifyContent="space-between"
         alignItems="center"
-        mb={2}
+        mb={5}
       >
         <Box
           display={'flex'}
@@ -52,10 +53,34 @@ export const ServiceDetailBox = ({
           alignItems={'flex-start'}
           justifyContent={"space-between"}
           gap={2}
+          
+        >
+        <Grid
+          item
+          xs={12}
+          sx={isEditMode ? { display: "flex" } : { display: "block" }}
         >
           <Typography variant="h6" fontWeight={600}>
             Detalle #{index + 1}
           </Typography>
+          {isEditMode && (
+            <Box sx={{ display: "flex", alignItems: "center", ml: 2 }}>
+              <Switch
+                checked={watch(`serviceDetails.${index}.status`) === "Activo"}
+                onChange={() =>
+                  setValue(
+                    `serviceDetails.${index}.status`,
+                    watch(`serviceDetails.${index}.status`) === "Activo" ? "Inactivo" : "Activo"
+                  )
+                }
+                color="success"
+              />
+              <Typography sx={{ ml: 1 }}>
+                {watch(`serviceDetails.${index}.status`) === "Activo" ? "Activo" : "Inactivo"}
+              </Typography>
+            </Box>
+          )}
+        </Grid>
 
           <Typography 
             fontSize={16} 
@@ -69,7 +94,7 @@ export const ServiceDetailBox = ({
         <Box display="flex" gap={1} flexDirection={isMd ? "column" : "row"}>
           {/* Botón eliminar detalle */}
           {!isMd ? (
-            <IconButton color="error" onClick={onDelete} disabled={detailsCount === 1} >
+            <IconButton color="error" onClick={onDelete} disabled={detailsCount === 1 || !!initialData._id} >
               <Delete />
             </IconButton>
           ) : (
@@ -84,7 +109,7 @@ export const ServiceDetailBox = ({
                 color: "#fff",
                 fontWeight: 600,
               }}
-              disabled={detailsCount === 1}
+              disabled={detailsCount === 1 || !!initialData._id}
             >
               Eliminar Detalle
             </Button>
@@ -125,11 +150,11 @@ export const ServiceDetailBox = ({
       </Box>
 
       {/* Campos */}
-      <Grid container spacing={2}>
+      <Grid container spacing={2} >
         {/* Precio de Referencia */}
-        <Grid item xs={12} sx={{ display: isEditMode ? "flex" : "block" }}>
-          <TextField
-            label="Precio de Referencia (S/.)"
+        
+          <TextField sx={{ ml: 2 }}
+            label="Precio por hora de Referencia (S/.)"
             placeholder="Ingresa el precio de referencia"
             type="number"
             fullWidth
@@ -140,22 +165,7 @@ export const ServiceDetailBox = ({
             error={!!errors.serviceDetails?.[index]?.ref_price}
             helperText={errors.serviceDetails?.[index]?.ref_price?.message}
           />
-          {isEditMode && (
-            
-           <Chip
-            label={watch(`serviceDetails.${index}.status`) === "Activo" ? "Activo" : "Inactivo"}
-            color={watch(`serviceDetails.${index}.status`) === "Activo" ? "success" : "warning"}
-            onClick={() =>
-              setValue(
-                `serviceDetails.${index}.status`,
-                watch(`serviceDetails.${index}.status`) === "Activo" ? "Inactivo" : "Activo"
-              )
-            }
-            sx={{ ml: 2 }}
-          />
-          
-        )}
-        </Grid>
+        
 
         {/* Mensaje si no hay campos configurados */}
         {fields.length === 0 && (

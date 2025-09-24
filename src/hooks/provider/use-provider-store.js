@@ -6,6 +6,7 @@ import {
   setPageProvider,
   setRowsPerPageProvider,
   showSnackbar,
+  listAllProviders,
 } from "../../store";
 import { createProviderModel, updateProviderModel } from "../../shared/models";
 import { useState } from "react";
@@ -47,6 +48,22 @@ export const useProviderStore = () => {
       dispatch(setLoadingProvider(false));
     }
   };
+
+   const startLoadingAllProvider = async () => {
+      dispatch(setLoadingProvider(true));
+      try {
+        const { data } = await providerApi.get('/all');
+        dispatch(listAllProviders(data));
+        return true;
+      } catch (error) {
+        const message = error.response?.data?.message;
+        openSnackbar(message ?? "Ocurrió un error al cargar los proveedores.");
+        return false;
+      } finally {
+        dispatch(setLoadingProvider(false));
+      }
+    };
+
 
   const startLoadingProviderPaginated = async () => {
     dispatch(setLoadingProvider(true));
@@ -130,5 +147,6 @@ return {
     startLoadingProviderPaginated,
     startUpdateProvider,
     setSelectedProvider,
+    startLoadingAllProvider,
   };
 }
