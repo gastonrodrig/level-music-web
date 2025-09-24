@@ -24,6 +24,7 @@ export const ServiceDetailBox = ({
   isEditMode,
   watch,
   setValue,
+  initialData,
 }) => {
   
   const theme = useTheme();
@@ -93,7 +94,7 @@ export const ServiceDetailBox = ({
         <Box display="flex" gap={1} flexDirection={isMd ? "column" : "row"}>
           {/* Botón eliminar detalle */}
           {!isMd ? (
-            <IconButton color="error" onClick={onDelete} disabled={detailsCount === 1} >
+            <IconButton color="error" onClick={onDelete} disabled={detailsCount === 1 || !!initialData._id} >
               <Delete />
             </IconButton>
           ) : (
@@ -108,7 +109,7 @@ export const ServiceDetailBox = ({
                 color: "#fff",
                 fontWeight: 600,
               }}
-              disabled={detailsCount === 1}
+              disabled={detailsCount === 1 || !!initialData._id}
             >
               Eliminar Detalle
             </Button>
@@ -149,10 +150,10 @@ export const ServiceDetailBox = ({
       </Box>
 
       {/* Campos */}
-      <Grid container spacing={2}>
+      <Grid container spacing={2} >
         {/* Precio de Referencia */}
         
-          <TextField
+          <TextField sx={{ ml: 2 }}
             label="Precio por hora de Referencia (S/.)"
             placeholder="Ingresa el precio de referencia"
             type="number"
