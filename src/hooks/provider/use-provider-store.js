@@ -49,21 +49,21 @@ export const useProviderStore = () => {
     }
   };
 
-   const startLoadingAllProvider = async () => {
-      dispatch(setLoadingProvider(true));
-      try {
-        const { data } = await providerApi.get('/all');
-        dispatch(listAllProviders(data));
-        return true;
-      } catch (error) {
-        const message = error.response?.data?.message;
-        openSnackbar(message ?? "Ocurrió un error al cargar los proveedores.");
-        return false;
-      } finally {
-        dispatch(setLoadingProvider(false));
-      }
-    };
-
+  const startLoadingAllProvider = async () => {
+    dispatch(setLoadingProvider(true));
+    try {
+      const { data } = await providerApi.get('/all', getAuthConfig(token));
+      dispatch(listAllProviders(data));
+      return true;
+    } catch (error) {
+      console.log(error);
+      const message = error.response?.data?.message;
+      openSnackbar(message ?? "Ocurrió un error al cargar los proveedores.");
+      return false;
+    } finally {
+      dispatch(setLoadingProvider(false));
+    }
+  };
 
   const startLoadingProviderPaginated = async () => {
     dispatch(setLoadingProvider(true));
@@ -123,7 +123,7 @@ export const useProviderStore = () => {
     dispatch(setRowsPerPageProvider(rows));
   };
 
-return {
+  return {
     // state
     provider,
     selected,

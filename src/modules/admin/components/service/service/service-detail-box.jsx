@@ -11,7 +11,6 @@ import {
 import { Delete, Add, Close } from "@mui/icons-material";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
 
-
 export const ServiceDetailBox = ({
   index,
   register,
@@ -24,7 +23,7 @@ export const ServiceDetailBox = ({
   isEditMode,
   watch,
   setValue,
-  initialData,
+  initialData = {}
 }) => {
   
   const theme = useTheme();
@@ -151,22 +150,27 @@ export const ServiceDetailBox = ({
 
       {/* Campos */}
       <Grid container spacing={2} >
+        
         {/* Precio de Referencia */}
-        
-          <TextField sx={{ ml: 2 }}
-            label="Precio por hora de Referencia (S/.)"
-            placeholder="Ingresa el precio de referencia"
-            type="number"
-            fullWidth
-            InputLabelProps={{ shrink: true }}
-            {...register(`serviceDetails.${index}.ref_price`, {
-              required: "El precio es obligatorio",
-            })}
-            error={!!errors.serviceDetails?.[index]?.ref_price}
-            helperText={errors.serviceDetails?.[index]?.ref_price?.message}
-          />
-        
+        <TextField
+          sx={{ ml: 2 }}
+          label="Precio por hora de Referencia (S/.)"
+          placeholder="Ingresa el precio de referencia"
+          type="number"
+          fullWidth
+          InputLabelProps={{ shrink: true }}
+          {...register(`serviceDetails.${index}.ref_price`, {
+            required: "El precio es obligatorio",
+            min: {
+              value: 0,
+              message: "El precio no puede ser negativo",
+            },
+          })}
+          error={!!errors.serviceDetails?.[index]?.ref_price}
+          helperText={errors.serviceDetails?.[index]?.ref_price?.message}
+        />
 
+        
         {/* Mensaje si no hay campos configurados */}
         {fields.length === 0 && (
           <Grid item xs={12}>

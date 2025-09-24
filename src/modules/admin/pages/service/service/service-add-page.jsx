@@ -19,7 +19,7 @@ import {
   useProviderStore,
   useServiceStore,
 } from "../../../../../hooks";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
@@ -28,8 +28,8 @@ export const ServiceAddPage = () => {
   const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
 
-  const { startLoadingAllServiceTypes, serviceTypes } = useServiceTypeStore();
-  const { startLoadingAllProvider, provider } = useProviderStore();
+  const { serviceTypes } = useServiceTypeStore();
+  const { provider } = useProviderStore();
 
   const {
     loading,
@@ -71,11 +71,6 @@ export const ServiceAddPage = () => {
   });
 
   const { isLg } = useScreenSizes();
-
-  useEffect(() => {
-    startLoadingAllServiceTypes();
-    startLoadingAllProvider();
-  }, []);
 
   const onSubmit = async (data) => {
     const success = await startCreateService(data);
@@ -271,6 +266,10 @@ export const ServiceAddPage = () => {
             onRemoveField={(fieldIdx) =>
               handleRemoveFieldFromDetail(idx, fieldIdx, getValues, setValue)
             }
+            detailsCount={details.length} 
+            isEditMode={false}
+            watch={watch}
+            setValue={setValue}
           />
         ))}
       </Box>

@@ -19,7 +19,7 @@ import {
   useProviderStore,
   useServiceStore 
 } from '../../../../../hooks';
-import { useEffect,useMemo,useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 
@@ -28,8 +28,8 @@ export const ServiceEditPage = () => {
   const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
 
-  const { startLoadingAllServiceTypes, serviceTypes } = useServiceTypeStore();
-  const { startLoadingAllProvider, provider } = useProviderStore();
+  const { serviceTypes } = useServiceTypeStore();
+  const { provider } = useProviderStore();
 
   const { 
     loading,
@@ -85,11 +85,6 @@ export const ServiceEditPage = () => {
   const { isLg } = useScreenSizes();
 
   useEffect(() => {
-    startLoadingAllServiceTypes();
-    startLoadingAllProvider();
-  }, []);
-
-  useEffect(() => {
     if (!selected) {
       navigate('/admin/service', { replace: true });
       return;
@@ -112,14 +107,13 @@ export const ServiceEditPage = () => {
 
   const onSubmit = async (data) => {
     data.serviceDetails = data.serviceDetails.map(detail => {
-    if (!detail._id) {
-      const { _id, ...rest } = detail;
-      console.log(rest);
-      return rest;
-    }
-    console.log(detail);
-    return detail;
-  });
+      if (!detail._id) {
+        const { _id, ...rest } = detail;
+        return rest;
+      }
+      return detail;
+    });
+    console.log(data)
     const success = await startUpdateService(selected._id, data);
     if (success) navigate('/admin/service');
   };
@@ -312,7 +306,7 @@ export const ServiceEditPage = () => {
               handleRemoveFieldFromDetail(idx, fieldIdx, getValues, setValue)
             }
             detailsCount={details.length} 
-            isEditMode={true}
+            isEditMode
             watch={watch}
             setValue={setValue}
           />
@@ -352,6 +346,6 @@ export const ServiceEditPage = () => {
           Guardar Cambios
         </Button>
       </Box>
-  </Box>
-);
+    </Box>
+  );
 };

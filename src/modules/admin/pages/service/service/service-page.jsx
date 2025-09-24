@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Box, Typography, Button, TextField, CircularProgress } from '@mui/material';
 import { AddCircleOutline, Edit } from '@mui/icons-material';
-import { useServiceStore } from '../../../../../hooks';
+import { useProviderStore, useServiceStore, useServiceTypeStore } from '../../../../../hooks';
 import { TableComponent } from '../../../../../shared/ui/components';
 import { useScreenSizes } from '../../../../../shared/constants/screen-width';
 import { Link } from 'react-router-dom';
@@ -26,11 +26,16 @@ export const ServicePage = () => {
     setSelectedService,
   } = useServiceStore();
 
+  const { startLoadingAllServiceTypes } = useServiceTypeStore();
+  const { startLoadingAllProvider } = useProviderStore();
+
   const { isLg } = useScreenSizes();
   const navigate = useNavigate();
 
   useEffect(() => {
     startLoadingServicePaginated();
+    startLoadingAllServiceTypes();
+    startLoadingAllProvider();
   }, [currentPage, rowsPerPage, searchTerm, orderBy, order]);
 
   const columns = [

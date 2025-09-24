@@ -123,7 +123,10 @@ export const useServiceStore = () => {
     }
     for (const detail of details) {
       const hasEmptyField = Object.entries(detail.details).some(
-        ([key, value]) => value !== null && value !== undefined && (typeof value === "string" ? value.trim() !== "" : value !== "")
+        ([key, value]) =>
+          value !== null &&
+          value !== undefined &&
+          (typeof value === "string" ? value.trim() !== "" : value !== "")
       );
       if (!hasEmptyField) {
         openSnackbar("Al menos un detalle debe estar completo.");
@@ -163,22 +166,36 @@ export const useServiceStore = () => {
     setOpenFieldModalIdx(null);
   };
 
-  const handleRemoveFieldFromDetail = (detailIdx, fieldIdx, getValues, setValue) => {
-    setSelectedFields((prev) => {
-      const updatedFields = { ...prev };
-      const removedField = updatedFields[detailIdx][fieldIdx];
-      updatedFields[detailIdx] = updatedFields[detailIdx].filter((_, idx) => idx !== fieldIdx);
-      if (removedField) {
-        const currentDetails = getValues(`serviceDetails.${detailIdx}.details`);
-        if (currentDetails && currentDetails[removedField.name]) {
-          delete currentDetails[removedField.name];
-          setValue(`serviceDetails.${detailIdx}.details`, currentDetails);
-        }
-      }
+const handleRemoveFieldFromDetail = (detailIdx, fieldIdx, getValues, setValue) => {
+  setSelectedFields((prev) => {
+    const updatedFields = { ...prev };
+    const removedField = updatedFields[detailIdx][fieldIdx];
 
-      return updatedFields;
-    });
-  };
+    // Eliminar del array visual de campos
+    updatedFields[detailIdx] = updatedFields[detailIdx].filter((_, idx) => idx !== fieldIdx);
+
+    if (removedField) {
+      const currentDetails = getValues(`serviceDetails.${detailIdx}.details`);
+
+      if (currentDetails && currentDetails[removedField.name] !== undefined) {
+        // Crear un nuevo objeto para RHF
+        const updatedDetails = { ...currentDetails };
+
+        // Eliminar la propiedad del objeto
+        delete updatedDetails[removedField.name];
+
+        // Actualizar RHF forzando validación y estado sucio
+        setValue(`serviceDetails.${detailIdx}.details`, updatedDetails, {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
+      }
+    }
+
+    return updatedFields;
+  });
+};
+
 
   return {
     // state global redux
