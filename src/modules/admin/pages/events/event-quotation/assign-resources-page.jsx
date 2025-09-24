@@ -28,6 +28,7 @@ import {
 } from "../../../../../hooks";
 import { useForm } from "react-hook-form";
 import { QuotationInfoCard } from "../../../components/event/quotation";
+import { useMemo } from "react";
 
 export const AssignResourcesPage = () => {
   const theme = useTheme();
@@ -67,6 +68,7 @@ export const AssignResourcesPage = () => {
       serviceDetails: [],
       name: "",
       description: "",
+      service_id: "",
     },
     mode: "onBlur",
   });
@@ -77,6 +79,20 @@ export const AssignResourcesPage = () => {
       serviciosAsignados: assignedServices,
     });
   };
+    // id del servicio elegido en el select
+  const serviceId = watch("service_id");
+
+  // objeto servicio seleccionado (solo para referencia/mostrar en store)
+  const selectedServiceObj = useMemo(
+    () => (services || []).find((s) => s._id === serviceId) || null,
+    [services, serviceId]
+  );
+
+  // detalles filtrados por service_id
+  const filteredDetails = useMemo(
+    () => (serviceDetail || []).filter((d) => d.service_id === serviceId),
+    [serviceDetail, serviceId]
+  );
 
   console.log("Servicios:", services);
   console.log("Servicio seleccionado:", serviceDetail);
@@ -135,19 +151,23 @@ export const AssignResourcesPage = () => {
                   label="Servicio"
                   value={watch("service_id") || ""}
                   onChange={(e) => {
-                    const selectedId = e.target.value;
-                    setValue("service_id", selectedId, { shouldValidate: true });
+                    const id = e.target.value;
+                    setValue("service_id", id, { shouldValidate: true });
+
+                    // Actualiza el store con el objeto servicio
+                    if (handleSelectService) handleSelectService(selectedServiceObj);
+
+                    // Limpia selección de detalle y precio
+                    if (handleSelectDetail) handleSelectDetail(null);
+                    if (setCustomPrice) setCustomPrice(0);
                   }}
                   inputProps={{ name: "service_id" }}
                   size="small"
-                  disabled={loading}
                 >
                   {services.map((type) => (
                     <MenuItem key={type._id} value={type._id}>
                       <Box>
-                        <Typography fontWeight={500}>
-                          {type.service_type_name}
-                        </Typography>
+                        <Typography fontWeight={500}>{type.service_type_name}</Typography>
                         <Typography variant="body2" color="text.secondary">
                           {type.provider_name}
                         </Typography>
@@ -159,29 +179,38 @@ export const AssignResourcesPage = () => {
               </FormControl>
             </Grid>
 
-            {/* Paquete */}
+           {/* Paquete */}
             <Grid item xs={12} md={3}>
-              <TextField
-                select
-                label="Paquete"
-                fullWidth
-                value={selectedDetail?._id || ""}
-                onChange={(e) => handleSelectDetail(e.target.value)}
-                disabled={!selectedService}
-              >
-                {/* <MenuItem value="">Seleccionar paquete</MenuItem>
-                {selectedService?.serviceDetails.map((d) => {
-                  const entries = Object.entries(d.details).slice(0, 2);
-                  return (
-                    <MenuItem key={d._id} value={d._id}>
-                      <Typography>Paquete – S/. {d.ref_price}</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {entries.map(([k, v]) => `${k}: ${v}`).join(", ")}
-                      </Typography>
-                    </MenuItem>
-                  );
-                })} */}
-              </TextField>
+              <FormControl fullWidth size="small">
+                <InputLabel id="package-label">Paquete</InputLabel>
+                <Select
+                  labelId="package-label"
+                  value={selectedDetail?._id || ""}
+                  onChange={(e) => {
+                    const id = e.target.value
+                    setValue("service_detail_id", id, { shouldValidate: true })
+                    const det = filteredDetails.find((d) => d._id === id)
+                    handleSelectDetail(det)
+                    setCustomPrice(det.ref_price)
+                  }}
+                  inputProps={{ name: "service_detail_id" }}
+                  disabled={!serviceId}
+                >
+                  {filteredDetails.map((d) => {
+                    const entries = Object.entries(d.details).slice(0, 2)
+                    return (
+                      <MenuItem key={d._id} value={d._id}>
+                        <Box sx={{ display: "flex", flexDirection: "column" }}>
+                          <Typography>Paquete – S/. {d.ref_price}</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {entries.map(([k, v]) => `${k}: ${v}`).join(", ")}
+                          </Typography>
+                        </Box>
+                      </MenuItem>
+                    )
+                  })}
+                </Select>
+              </FormControl>
             </Grid>
 
             {/* Horas */}
