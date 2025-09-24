@@ -70,12 +70,14 @@ export const ServiceAddPage = () => {
     name: "serviceDetails",
   });
 
-  const { isLg } = useScreenSizes();
-
   useEffect(() => {
-    startLoadingAllServiceTypes();
-    startLoadingAllProviders();
-  }, []);
+    // Si no hay proveedores o tipos de servicio, redirige al listado
+    if (!provider.length || !serviceTypes.length) {
+      navigate("/admin/service");
+    }
+  }, [provider, serviceTypes, navigate]);
+
+  const { isLg } = useScreenSizes();
 
   const onSubmit = async (data) => {
     const success = await startCreateService(data);
