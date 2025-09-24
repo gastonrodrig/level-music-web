@@ -42,13 +42,13 @@ export const WorkerModal = ({
   useEffect(() => {
     if (open) {
       reset({
-        first_name: worker?.first_name ?? '',
-        last_name: worker?.last_name ?? '',
-        email: worker?.email ?? '',
-        phone: worker?.phone ?? '',
-        worker_type_id: worker?.worker_type?._id ?? worker?.worker_type ?? '',
-        document_type: worker?.document_type ?? '',
-        document_number: worker?.document_number ?? '',
+        first_name: worker?.first_name ?? "",
+        last_name: worker?.last_name ?? "",
+        email: worker?.email ?? "",
+        phone: worker?.phone ?? "",
+        worker_type_id: worker?.worker_type?._id ?? worker?.worker_type ?? "",
+        document_type: worker?.document_type ?? "",
+        document_number: worker?.document_number ?? "",
         status: worker?.status,
       });
     }
@@ -66,7 +66,7 @@ export const WorkerModal = ({
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
   const isButtonDisabled = useMemo(() => loading, [loading]);
 
@@ -87,7 +87,12 @@ export const WorkerModal = ({
           p: 4,
         }}
       >
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={3}
+        >
           <Typography variant="h6" fontWeight={600}>
             {isEditing ? "Editar trabajador" : "Agregar trabajador"}
           </Typography>
@@ -98,33 +103,40 @@ export const WorkerModal = ({
 
         <Box mb={2}>
           <Grid container spacing={2}>
-
             {/* Tipo de Trabajador */}
             <Grid item xs={12}>
               <FormControl fullWidth error={!!errors.worker_type_id}>
-                <InputLabel id="worker-type-label">Tipo de Trabajador</InputLabel>
+                <InputLabel id="worker-type-label">
+                  Tipo de Trabajador
+                </InputLabel>
                 <Select
                   labelId="worker-type-label"
                   label="Tipo de Trabajador"
                   value={watch("worker_type_id") || ""}
                   onChange={(e) => {
                     const selectedId = e.target.value;
-                    setValue("worker_type_id", selectedId, { shouldValidate: true });
+                    setValue("worker_type_id", selectedId, {
+                      shouldValidate: true,
+                    });
+
+                    // Buscar el objeto del tipo seleccionado
+                    const selectedType = workerTypes.find(
+                      (wt) => wt._id === selectedId
+                    );
+                    setValue("role", selectedType ? selectedType.name : "");
                   }}
                   inputProps={{ name: "worker_type_id" }}
-                  disabled={isEditing || loading} //  deshabilita mientras carga
+                  disabled={isEditing} // solo deshabilita si está editando
                 >
-                  {loading ? (
-                    <MenuItem disabled>Cargando...</MenuItem>
-                  ) : (
-                    workerTypes.map((type) => (
-                      <MenuItem key={type._id} value={type._id}>
-                        {type.name}
-                      </MenuItem>
-                    ))
-                  )}
+                  {workerTypes.map((type) => (
+                    <MenuItem key={type._id} value={type._id}>
+                      {type.name}
+                    </MenuItem>
+                  ))}
                 </Select>
-                <FormHelperText>{errors.worker_type_id?.message}</FormHelperText>
+                <FormHelperText>
+                  {errors.worker_type_id?.message}
+                </FormHelperText>
               </FormControl>
             </Grid>
 
@@ -192,13 +204,17 @@ export const WorkerModal = ({
             {/* Tipo de documento y Número de documento */}
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth error={!!errors.document_type}>
-                <InputLabel id="document-type-label">Tipo de Documento</InputLabel>
+                <InputLabel id="document-type-label">
+                  Tipo de Documento
+                </InputLabel>
                 <Select
                   labelId="document-type-label"
                   label="Tipo de Documento"
-                  value={watch("document_type") || ''}
-                  {...register("document_type", { required: "Selecciona un tipo de documento" })}
-                  onChange={e => setValue("document_type", e.target.value)}
+                  value={watch("document_type") || ""}
+                  {...register("document_type", {
+                    required: "Selecciona un tipo de documento",
+                  })}
+                  onChange={(e) => setValue("document_type", e.target.value)}
                 >
                   <MenuItem value="Dni">Dni</MenuItem>
                   <MenuItem value="Ruc">Ruc</MenuItem>
@@ -224,7 +240,7 @@ export const WorkerModal = ({
             </Grid>
 
             {/* Estado */}
-            { isEditing && (
+            {isEditing && (
               <Grid item xs={12}>
                 <FormControl fullWidth error={!!errors.status}>
                   <InputLabel id="status-label">Estado</InputLabel>
@@ -234,7 +250,7 @@ export const WorkerModal = ({
                     {...register("status", {
                       required: "Selecciona un estado",
                     })}
-                    onChange={e => setValue("status", e.target.value)}
+                    onChange={(e) => setValue("status", e.target.value)}
                   >
                     <MenuItem value="Activo">Activo</MenuItem>
                     <MenuItem value="Inactivo">Inactivo</MenuItem>

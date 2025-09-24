@@ -3,6 +3,7 @@ import {
   useEquipmentStore,
   useQuotationStore,
   useServiceDetailStore,
+  useServiceStore,
   useServiceTypeStore,
   useWorkerStore,
 } from "../../../../../hooks";
@@ -36,7 +37,7 @@ export const EventQuotationsPage = () => {
   const { startLoadingAllEquipments } = useEquipmentStore();
   const { startLoadingAllWorkers } = useWorkerStore();
   const { startLoadingAllServiceDetails } = useServiceDetailStore();
-  const { startLoadingAllServiceTypes } = useServiceTypeStore();
+  const { startLoadingAllServices } = useServiceStore();
   
   const { isLg } = useScreenSizes();
   const navigate = useNavigate();
@@ -70,7 +71,7 @@ export const EventQuotationsPage = () => {
     startLoadingAllEquipments();
     startLoadingAllWorkers();
     startLoadingAllServiceDetails();
-    startLoadingAllServiceTypes();
+    startLoadingAllServices();
   }, [currentPage, rowsPerPage, searchTerm, orderBy, order]);
 
   const actions = [
