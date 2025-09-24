@@ -103,35 +103,31 @@ export const WorkerModal = ({
 
             {/* Tipo de Trabajador */}
           <Grid item xs={12}>
-      <FormControl fullWidth error={!!errors.worker_type_id}>
-        <InputLabel id="worker-type-label">Tipo de Trabajador</InputLabel>
-        <Select
-          labelId="worker-type-label"
-          label="Tipo de Trabajador"
-          value={watch("worker_type_id") || ""}
-          onChange={(e) => {
-            const selectedId = e.target.value;
-            setValue("worker_type_id", selectedId, { shouldValidate: true });
+            <FormControl fullWidth error={!!errors.worker_type_id}>
+              <InputLabel id="worker-type-label">Tipo de Trabajador</InputLabel>
+              <Select
+                labelId="worker-type-label"
+                label="Tipo de Trabajador"
+                value={watch("worker_type_id") || ""}
+                onChange={(e) => {
+                  const selectedId = e.target.value;
+                  setValue("worker_type_id", selectedId, { shouldValidate: true });
 
-            //  Buscar el objeto del tipo seleccionado
-            const selectedType = workerTypes.find((wt) => wt._id === selectedId);
-            setValue("role", selectedType ? selectedType.name : "");
-          }}
-          inputProps={{ name: "worker_type_id" }}
-          disabled={isEditing || loading} //  deshabilita mientras carga
-        >
-          {loading ? (
-            <MenuItem disabled>Cargando...</MenuItem>
-          ) : (
-            workerTypes.map((type) => (
-              <MenuItem key={type._id} value={type._id}>
-                {type.name}
-              </MenuItem>
-            ))
-          )}
-        </Select>
-        <FormHelperText>{errors.worker_type_id?.message}</FormHelperText>
-      </FormControl>
+                  // Buscar el objeto del tipo seleccionado
+                  const selectedType = workerTypes.find((wt) => wt._id === selectedId);
+                  setValue("role", selectedType ? selectedType.name : "");
+                }}
+                inputProps={{ name: "worker_type_id" }}
+                disabled={isEditing} // solo deshabilita si está editando
+              >
+                {workerTypes.map((type) => (
+                  <MenuItem key={type._id} value={type._id}>
+                    {type.name}
+                  </MenuItem>
+                ))}
+              </Select>
+              <FormHelperText>{errors.worker_type_id?.message}</FormHelperText>
+            </FormControl>
     </Grid>
 
             {/* Nombres */}
