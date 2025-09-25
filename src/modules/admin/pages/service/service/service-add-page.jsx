@@ -71,7 +71,6 @@ export const ServiceAddPage = () => {
   });
 
   useEffect(() => {
-    // Si no hay proveedores o tipos de servicio, redirige al listado
     if (!provider.length || !serviceTypes.length) {
       navigate("/admin/service");
     }

@@ -40,8 +40,6 @@ export const AssignResourcesPage = () => {
   const { workers } = useWorkerStore();
   const { services } = useServiceStore(); 
 
-  console.log({ serviceDetail, equipments, workers, services });
-
   const {
     selectedService,
     selectedDetail,
@@ -73,29 +71,18 @@ export const AssignResourcesPage = () => {
     mode: "onBlur",
   });
 
-  const onSubmit = (data) => {
-    console.log("Submit asignación:", {
-      form: data,
-      serviciosAsignados: assignedServices,
-    });
-  };
-    // id del servicio elegido en el select
   const serviceId = watch("service_id");
 
-  // objeto servicio seleccionado (solo para referencia/mostrar en store)
-  const selectedServiceObj = useMemo(
-    () => (services || []).find((s) => s._id === serviceId) || null,
-    [services, serviceId]
-  );
+  const onSubmit = (data) => {
+
+  };
+
 
   // detalles filtrados por service_id
   const filteredDetails = useMemo(
     () => (serviceDetail || []).filter((d) => d.service_id === serviceId),
     [serviceDetail, serviceId]
   );
-
-  console.log("Servicios:", services);
-  console.log("Servicio seleccionado:", serviceDetail);
 
   return (
     <Box component="form" sx={{ px: 4, pt: 2 }} onSubmit={handleSubmit(onSubmit)}>
@@ -115,7 +102,6 @@ export const AssignResourcesPage = () => {
           p: 3,
           borderRadius: 3,
           bgcolor: isDark ? "#1f1e1e" : "#f5f5f5",
-          boxShadow: 1,
           mb: 3,
           mt: 2
         }}
@@ -141,7 +127,7 @@ export const AssignResourcesPage = () => {
           <Grid container spacing={2} alignItems="center">
 
             {/* Servicio */}
-            <Grid item xs={12} md={3}>
+            <Grid item xs={12} md={4}>
               <FormControl fullWidth>
                 <InputLabel id="service-label" shrink>
                   Servicio
@@ -153,17 +139,15 @@ export const AssignResourcesPage = () => {
                   onChange={(e) => {
                     const id = e.target.value;
                     setValue("service_id", id, { shouldValidate: true });
-
-                    // Actualiza el store con el objeto servicio
-                    if (handleSelectService) handleSelectService(selectedServiceObj);
-
-                    // Limpia selección de detalle y precio
-                    if (handleSelectDetail) handleSelectDetail(null);
-                    if (setCustomPrice) setCustomPrice(0);
+                    handleSelectService(id, services);
                   }}
                   inputProps={{ name: "service_id" }}
-                  size="small"
+                  sx={{ height: 60 }}
+                  displayEmpty
                 >
+                  <MenuItem value="">
+                    <em>Seleccione un servicio</em>
+                  </MenuItem>
                   {services.map((type) => (
                     <MenuItem key={type._id} value={type._id}>
                       <Box>
@@ -180,28 +164,33 @@ export const AssignResourcesPage = () => {
             </Grid>
 
            {/* Paquete */}
-            <Grid item xs={12} md={3}>
+            <Grid item xs={12} md={4}>
               <FormControl fullWidth size="small">
-                <InputLabel id="package-label">Paquete</InputLabel>
+                <InputLabel id="package-label" shrink>
+                  Paquete
+                </InputLabel>
                 <Select
                   labelId="package-label"
-                  value={selectedDetail?._id || ""}
+                  value={watch("service_detail_id") || ""}
                   onChange={(e) => {
-                    const id = e.target.value
-                    setValue("service_detail_id", id, { shouldValidate: true })
-                    const det = filteredDetails.find((d) => d._id === id)
-                    handleSelectDetail(det)
-                    setCustomPrice(det.ref_price)
+                    const id = e.target.value;
+                    setValue("service_detail_id", id, { shouldValidate: true });
+                    handleSelectDetail(id, filteredDetails);
                   }}
                   inputProps={{ name: "service_detail_id" }}
+                  sx={{ height: 60 }}
                   disabled={!serviceId}
+                  displayEmpty
                 >
+                  <MenuItem value="">
+                    <em>Seleccione un paquete</em>
+                  </MenuItem>
                   {filteredDetails.map((d) => {
                     const entries = Object.entries(d.details).slice(0, 2)
                     return (
                       <MenuItem key={d._id} value={d._id}>
                         <Box sx={{ display: "flex", flexDirection: "column" }}>
-                          <Typography>Paquete – S/. {d.ref_price}</Typography>
+                          <Typography>Paquete – S/. {d.ref_price} (por hora)</Typography>
                           <Typography variant="caption" color="text.secondary">
                             {entries.map(([k, v]) => `${k}: ${v}`).join(", ")}
                           </Typography>
@@ -215,36 +204,21 @@ export const AssignResourcesPage = () => {
 
             {/* Horas */}
             <Grid item xs={12} md={2}>
-              <TextField
-                select
-                label="Horas"
-                fullWidth
-                size="small"
-                value={hours}
-                onChange={(e) => setHours(Number(e.target.value))}
-              >
-                {Array.from({ length: 10 }, (_, i) => i + 1).map((h) => (
-                  <MenuItem key={h} value={h}>
-                    {h} horas
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-
-            {/* Precio */}
-            <Grid item xs={12} md={2}>
-              <TextField
-                type="number"
-                label="Precio"
-                fullWidth
-                size="small"
-                value={customPrice}
-                onChange={(e) => setCustomPrice(Number(e.target.value))}
-                inputProps={{
-                  min: selectedDetail?.ref_price || 0,
-                }}
-                disabled={!selectedDetail}
-              />
+              <FormControl fullWidth size="small">
+                <InputLabel id="hours-label">Horas</InputLabel>
+                <Select
+                  labelId="hours-label"
+                  value={hours}
+                  onChange={(e) => setHours(Number(e.target.value))}
+                  sx={{ height: 60 }}
+                >
+                  {Array.from({ length: 10 }, (_, i) => i + 1).map((h) => (
+                    <MenuItem key={h} value={h}>
+                      {h} horas
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
 
             {/* Agregar */}
@@ -254,12 +228,13 @@ export const AssignResourcesPage = () => {
                 fullWidth
                 startIcon={<Add />}
                 onClick={handleAddService}
-                disabled={!selectedDetail}
+                disabled={!watch("service_detail_id")}
                 sx={{
                   textTransform: "none",
                   borderRadius: 2,
                   color: "#fff",
                   fontWeight: 600,
+                  py: 2,
                 }}
               >
                 Agregar
@@ -386,76 +361,6 @@ export const AssignResourcesPage = () => {
         </Typography>
         <Typography fontSize={14} color="text.secondary" align="center" my={5}>
           No hay equipos adicionales asignados aún
-        </Typography>
-      </Box>
-
-      {/* ---------------- TRABAJADORES ---------------- */}
-      <Box
-        sx={{
-          p: 3,
-          borderRadius: 3,
-          bgcolor: isDark ? "#1f1e1e" : "#f5f5f5",
-          boxShadow: 1,
-          mb: 3,
-        }}
-      >
-        <Box flexDirection={"row"} display={"flex"} alignItems="center" mb={2} gap={1}>
-          <Group sx={{ mt: "2px" }} />
-          <Typography sx={{ fontSize: 20, fontWeight: 500 }}>
-            Asignación de Trabajadores
-          </Typography>
-        </Box>
-
-        {/* Cartita interna */}
-        <Box
-          sx={{
-            p: 2,
-            borderRadius: 2,
-            border: "1px solid",
-            borderColor: isDark ? "#333" : "#e0e0e0",
-            bgcolor: isDark ? "#141414" : "#fcfcfc",
-            mb: 2,
-          }}
-        >
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} md={3}>
-              <TextField select label="Rol en el evento" fullWidth size="small">
-                <MenuItem value="">Seleccionar rol</MenuItem>
-                {/* map roles */}
-              </TextField>
-            </Grid>
-            <Grid item xs={12} md={3}>
-              <TextField select label="Trabajador" fullWidth size="small">
-                <MenuItem value="">Seleccionar trabajador</MenuItem>
-                {/* {workers.map(w => <MenuItem key={w._id} value={w._id}>{w.first_name} {w.last_name}</MenuItem>)} */}
-              </TextField>
-            </Grid>
-            <Grid item xs={12} md={2}>
-              <TextField label="Horas" fullWidth size="small" defaultValue="8" />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Button
-                variant="contained"
-                fullWidth
-                startIcon={<Add />}
-                sx={{
-                  textTransform: "none",
-                  borderRadius: 2,
-                  color: "#fff",
-                  fontWeight: 600,
-                }}
-              >
-                Agregar
-              </Button>
-            </Grid>
-          </Grid>
-        </Box>
-
-        <Typography fontSize={15} sx={{ mt: 2, mb: 1 }}>
-          Trabajadores Asignados (0)
-        </Typography>
-        <Typography fontSize={14} color="text.secondary" align="center" my={5}>
-          No hay trabajadores adicionales asignados aún
         </Typography>
       </Box>
 
