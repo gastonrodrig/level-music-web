@@ -8,29 +8,30 @@ export const useAssignResourcesStore = () => {
   const [customPrice, setCustomPrice] = useState("");
   const [assignedServices, setAssignedServices] = useState([]);
 
-  const handleSelectService = (serviceId, serviceDetail) => {
-    const s = serviceDetail.find((sd) => sd.service._id === serviceId);
+  const handleSelectService = (serviceId, services) => {
+    const s = services.find((srv) => srv._id === serviceId);
     setSelectedService(s);
     setSelectedDetail(null);
     setCustomPrice("");
   };
 
-  const handleSelectDetail = (detailId) => {
-    const d = selectedService?.serviceDetails.find((det) => det._id === detailId);
+  const handleSelectDetail = (detailId, filteredDetails) => {
+    const d = filteredDetails.find((det) => det._id === detailId);
     setSelectedDetail(d);
-    setCustomPrice(d?.ref_price || "");
+    setCustomPrice(d?.ref_price);
   };
 
   const handleAddService = () => {
     if (!selectedService || !selectedDetail) return;
     const newItem = {
-      service_type_name: selectedService.service.service_type_name,
-      provider_name: selectedService.service.provider_name,
+      service_type_name: selectedService.service_type_name,
+      provider_name: selectedService.provider_name,
       hours,
       details: selectedDetail.details,
       ref_price: selectedDetail.ref_price,
       customPrice: Math.max(customPrice, selectedDetail.ref_price),
     };
+    console.log(newItem)
     setAssignedServices((prev) => [...prev, newItem]);
     setSelectedService(null);
     setSelectedDetail(null);
