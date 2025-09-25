@@ -1,1 +1,2 @@
-export * from './service-assignment-card';
+export * from './assign-service-card';
+export * from './assign-equipment-card';

@@ -3,24 +3,11 @@ import {
   Box,
   useTheme,
   TextField,
-  Chip,
   Grid,
   Button,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Select,
-  FormHelperText,
-  IconButton,
 } from "@mui/material";
 import {
-  Add,
-  Delete,
-  Group,
-  Speaker,
-  ViewInArSharp,
-} from "@mui/icons-material";
-import {
+  useAssignEquipmentStore,
   useAssignServicesStore,
   useEquipmentStore,
   useQuotationStore,
@@ -28,10 +15,14 @@ import {
   useServiceStore,
   useWorkerStore,
 } from "../../../../../hooks";
+import {
+  QuotationInfoCard,
+  AssignServiceCard,
+  AssignEquipmentCard,
+} from "../../../components";
+import { Add, Speaker } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
-import { QuotationInfoCard, ServiceAssignment } from "../../../components";
 import { useEffect, useMemo } from "react";
-import { useScreenSizes } from "../../../../../shared/constants/screen-width";
 import { useNavigate } from "react-router-dom";
 
 export const AssignResourcesPage = () => {
@@ -43,7 +34,7 @@ export const AssignResourcesPage = () => {
   const { serviceDetail } = useServiceDetailStore();
   const { equipments } = useEquipmentStore();
   const { workers } = useWorkerStore();
-  const { services } = useServiceStore(); 
+  const { services } = useServiceStore();
 
   const {
     selectedDetail,
@@ -54,12 +45,19 @@ export const AssignResourcesPage = () => {
     handleAddService,
   } = useAssignServicesStore();
 
+  const { 
+    assignedEquipments, 
+    handleAddEquipment, 
+    setAssignedEquipments, 
+    handleSelectEquipment 
+  } = useAssignEquipmentStore();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
-    setValue
+    setValue,
   } = useForm({
     defaultValues: {
       provider_id: "",
@@ -69,15 +67,18 @@ export const AssignResourcesPage = () => {
       description: "",
       service_id: "",
       service_detail_id: "",
-      hours: 1,
-      custom_price: 0,
+      service_hours: 1,
+      service_price: "",
+      equipment_id: "",
+      equipment_hours: 1,
+      equipment_price: ""
     },
     mode: "onBlur",
   });
 
   useEffect(() => {
     if (!selected) {
-      navigate('/admin/quotations', { replace: true });
+      navigate("/admin/quotations", { replace: true });
       return;
     }
   }, [selected]);
@@ -87,14 +88,24 @@ export const AssignResourcesPage = () => {
   };
 
   const serviceId = watch("service_id");
+  const equipmentType = watch("equipment_type");
 
   const filteredDetails = useMemo(
     () => (serviceDetail || []).filter((d) => d.service_id === serviceId),
     [serviceDetail, serviceId]
   );
 
+  const filteredEquipments = useMemo(
+    () => (equipments || []).filter((d) => d.equipment_type === equipmentType),
+    [equipments, equipmentType]
+  );
+
   return (
-    <Box component="form" sx={{ px: 0, pt: 2 }} onSubmit={handleSubmit(onSubmit)}>
+    <Box
+      component="form"
+      sx={{ px: 4, pt: 2 }}
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <Typography variant="h4" sx={{ mb: 2 }}>
         Asignación de Recursos
       </Typography>
@@ -106,7 +117,8 @@ export const AssignResourcesPage = () => {
       <QuotationInfoCard selected={selected} />
 
       {/* Servicios Adicionales */}
-      <ServiceAssignment
+      <AssignServiceCard
+        isDark={isDark}
         services={services}
         filteredDetails={filteredDetails}
         assignedServices={assignedServices}
@@ -119,6 +131,19 @@ export const AssignResourcesPage = () => {
         setValue={setValue}
         errors={errors}
         serviceId={serviceId}
+      />
+
+      {/* Equipos */}
+      <AssignEquipmentCard
+        isDark={isDark}
+        equipmentType={equipmentType}
+        watch={watch}
+        setValue={setValue}
+        handleSelectEquipment={handleSelectEquipment}
+        filteredEquipments={filteredEquipments}
+        handleAddEquipment={handleAddEquipment}
+        assignedEquipments={assignedEquipments}
+        setAssignedEquipments={setAssignedEquipments}
       />
 
       {/* Información de la asignación */}
@@ -150,7 +175,7 @@ export const AssignResourcesPage = () => {
             <TextField
               fullWidth
               label="Descripción del Evento"
-              placeholder="Ingrese una descripción"
+              placeholder="Ingrese una breve descripción"
               InputLabelProps={{ shrink: true }}
               {...register("description", { required: true })}
               error={!!errors.description}

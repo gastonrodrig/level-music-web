@@ -16,7 +16,8 @@ import {
 import { Add, Delete, ViewInArSharp } from "@mui/icons-material";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
 
-export const ServiceAssignment = ({
+export const AssignServiceCard = ({
+  isDark,
   services,
   filteredDetails,
   assignedServices,
@@ -30,19 +31,17 @@ export const ServiceAssignment = ({
   errors,
   serviceId,
 }) => {
-  const theme = useTheme();
-  const isDark = theme.palette.mode === "dark";
   const { isSm } = useScreenSizes();
 
   const resetForm = () => {
     setValue("service_id", "");
     setValue("service_detail_id", "");
-    setValue("custom_price", "");
-    setValue("hours", 1);
+    setValue("service_price", "");
+    setValue("service_hours", 1);
   };
 
-  const customPrice = watch("custom_price");
-  const hours = watch("hours");
+  const servicePrice = watch("service_price");
+  const serviceHours = watch("service_hours");
 
   return (
     <Box
@@ -50,8 +49,7 @@ export const ServiceAssignment = ({
         p: 3,
         borderRadius: 3,
         bgcolor: isDark ? "#1f1e1e" : "#f5f5f5",
-        mb: 3,
-        mt: 2
+        my: 2,
       }}
     >
       <Box
@@ -163,8 +161,8 @@ export const ServiceAssignment = ({
               <InputLabel id="hours-label">Horas</InputLabel>
               <Select
                 labelId="hours-label"
-                value={hours}
-                onChange={(e) => setValue("hours", e.target.value)}
+                value={serviceHours}
+                onChange={(e) => setValue("service_hours", e.target.value)}
                 sx={{ height: 60 }}
               >
                 {Array.from({ length: 10 }, (_, i) => i + 1).map((h) => (
@@ -197,10 +195,10 @@ export const ServiceAssignment = ({
             <TextField
               label="Precio Hora"
               placeholder="Ej: 250"
-              value={watch("custom_price")}
+              value={servicePrice}
               onChange={(e) => {
                 const value = e.target.value ? Number(e.target.value) : "";  // Convertimos el valor
-                setValue("custom_price", value);
+                setValue("service_price", value);
               }}
               fullWidth
               InputLabelProps={{ shrink: true }}
@@ -219,7 +217,7 @@ export const ServiceAssignment = ({
               fullWidth
               startIcon={<Add />}
               onClick={() => {
-                const success = handleAddService(customPrice, hours); 
+                const success = handleAddService(servicePrice, serviceHours);
                 if (success) resetForm(); 
               }}
               disabled={!watch("service_detail_id")}
@@ -262,18 +260,18 @@ export const ServiceAssignment = ({
                 <Typography fontWeight={600}>{servicio.service_type_name}</Typography>
                 <Box display="flex" flexDirection={!isSm ? "column" : "row"} gap={1} mt={1} sx={{ alignItems: "flex-start" }}>
                   <Chip label={servicio.provider_name} size="small" />
-                  <Chip label={`Horas: ${servicio.hours}`} size="small" />
+                  <Chip label={`Horas: ${servicio.service_hours}`} size="small" />
                 </Box>
               </Grid>
 
               {/* Precio */}
               <Grid item xs={6} textAlign="right">
                 <Typography fontSize={13} sx={{ textDecoration: "line-through", color: "text.secondary" }}>
-                  Ref: S/ {servicio.ref_price}/hora × {servicio.hours}h
+                  Ref: S/ {servicio.ref_price}/hora × {servicio.service_hours}h
                 </Typography>
-                <Typography fontSize={14}>S/ {servicio.customPrice}/hora × {servicio.hours}h</Typography>
+                <Typography fontSize={14}>S/ {servicio.service_price}/hora × {servicio.service_hours}h</Typography>
                 <Typography fontWeight={600} color="green">
-                  S/ {(servicio.customPrice) * servicio.hours}
+                  S/. {(servicio.service_price) * servicio.service_hours}
                 </Typography>
                 <IconButton
                   size="small"
@@ -321,7 +319,7 @@ export const ServiceAssignment = ({
       {assignedServices.length > 0 && (
         <Typography textAlign="right" fontWeight={600} color="green">
           Total Servicios Adicionales: S/{" "}
-          {assignedServices.reduce((acc, servicio) => acc + servicio.customPrice * servicio.hours, 0).toFixed(2)}
+          {assignedServices.reduce((acc, servicio) => acc + servicio.service_price * servicio.service_hours, 0).toFixed(2)}
         </Typography>
       )}
     </Box>

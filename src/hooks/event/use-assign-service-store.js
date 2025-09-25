@@ -22,16 +22,16 @@ export const useAssignServicesStore = () => {
     setSelectedDetail(d);
   };
 
-  const handleAddService = (customPrice, hours) => {
-    if (!validateData(customPrice)) return false; 
+  const handleAddService = (servicePrice, serviceHours) => {
+    if (!validateData(servicePrice)) return false; 
 
     const newItem = {
       service_type_name: selectedService.service_type_name,
       provider_name: selectedService.provider_name,
-      hours,
+      service_hours: serviceHours,
       details: selectedDetail.details,
       ref_price: selectedDetail.ref_price,
-      customPrice: customPrice,
+      service_price: servicePrice,
     };
 
     // Agrega el nuevo servicio
@@ -43,16 +43,32 @@ export const useAssignServicesStore = () => {
     return true; 
   };
 
-  const validateData = (customPrice) => {
+  const validateData = (servicePrice) => {
+    // Verificar si se ha seleccionado un servicio
     if (!selectedService) {
       openSnackbar("Debe seleccionar un servicio.");
       return false;
     } 
+
+    // Verificar si el servicio ya ha sido agregado
     if (!selectedDetail) {
       openSnackbar("Debe seleccionar un paquete.");
       return false;
     }
-    if (!customPrice || customPrice <= 0) {
+
+    // Verificar si el servicio ya ha sido agregado
+    const isServiceAlreadyAdded = assignedServices.some(
+      (item) =>
+        item.service_type_name === selectedService.service_type_name &&
+        item.details === selectedDetail.details
+    );
+    if (isServiceAlreadyAdded) {
+      openSnackbar("Este servicio ya ha sido asignado.");
+      return false;
+    }
+
+    // Validar el precio personalizado
+    if (!servicePrice || servicePrice <= 0) {
       openSnackbar("Debe ingresar un precio personalizado válido.");
       return false;
     }
