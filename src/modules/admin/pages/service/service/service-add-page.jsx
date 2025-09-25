@@ -19,7 +19,7 @@ import {
   useProviderStore,
   useServiceStore,
 } from "../../../../../hooks";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
@@ -28,8 +28,8 @@ export const ServiceAddPage = () => {
   const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
 
-  const { serviceTypes } = useServiceTypeStore();
-  const { provider } = useProviderStore();
+  const { startLoadingAllServiceTypes, serviceTypes } = useServiceTypeStore();
+  const { startLoadingAllProviders, provider } = useProviderStore();
 
   const {
     loading,
@@ -69,6 +69,13 @@ export const ServiceAddPage = () => {
     control,
     name: "serviceDetails",
   });
+
+  useEffect(() => {
+    // Si no hay proveedores o tipos de servicio, redirige al listado
+    if (!provider.length || !serviceTypes.length) {
+      navigate("/admin/service");
+    }
+  }, [provider, serviceTypes, navigate]);
 
   const { isLg } = useScreenSizes();
 
@@ -266,10 +273,6 @@ export const ServiceAddPage = () => {
             onRemoveField={(fieldIdx) =>
               handleRemoveFieldFromDetail(idx, fieldIdx, getValues, setValue)
             }
-            detailsCount={details.length} 
-            isEditMode={false}
-            watch={watch}
-            setValue={setValue}
           />
         ))}
       </Box>

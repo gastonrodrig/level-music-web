@@ -49,7 +49,7 @@ export const useProviderStore = () => {
     }
   };
 
-  const startLoadingAllProvider = async () => {
+  const startLoadingAllProviders = async () => {
     dispatch(setLoadingProvider(true));
     try {
       const { data } = await providerApi.get('/all', getAuthConfig(token));
@@ -147,6 +147,6 @@ export const useProviderStore = () => {
     startLoadingProviderPaginated,
     startUpdateProvider,
     setSelectedProvider,
-    startLoadingAllProvider,
+    startLoadingAllProviders,
   };
 }
