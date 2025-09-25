@@ -2,4 +2,4 @@ export * from './use-event-type-store';
 export * from './use-event-featured-store';
 export * from './use-event-store';
 export * from './use-quotation-store';
-export * from './use-assign-resources-stores';
+export * from './use-assign-service-store';
