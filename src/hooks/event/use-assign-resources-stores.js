@@ -31,7 +31,6 @@ export const useAssignResourcesStore = () => {
       ref_price: selectedDetail.ref_price,
       customPrice: Math.max(customPrice, selectedDetail.ref_price),
     };
-    console.log(newItem)
     setAssignedServices((prev) => [...prev, newItem]);
     setSelectedService(null);
     setSelectedDetail(null);
@@ -49,9 +48,20 @@ export const useAssignResourcesStore = () => {
 
   // --- Equipos ---
   const [assignedEquipments, setAssignedEquipments] = useState([]);
-  const handleAddEquipment = (equipment) => {
-    setAssignedEquipments((prev) => [...prev, equipment]);
+
+  const handleAddEquipment = ({ equipment_id, equipments, hours, price }) => {
+    const eq = equipments.find((e) => e._id === equipment_id);
+    if (!eq) return;
+
+    const newItem = {
+      ...eq,           // todos los datos del equipo
+      hours,           // las horas seleccionadas
+      price,           // el precio ingresado
+    };
+
+    setAssignedEquipments((prev) => [...prev, newItem]);
   };
+
   const resetEquipments = () => setAssignedEquipments([]);
 
   // --- Trabajadores ---
