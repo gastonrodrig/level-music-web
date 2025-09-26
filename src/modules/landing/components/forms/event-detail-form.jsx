@@ -27,8 +27,8 @@ export const EventDetailsForm = () => {
   // Valores en tiempo real
   const attendeesCount = watch("attendeesCount");
   const eventDate = watch("eventDate");
-  const startTime = watch("startTime");
-  const endTime = watch("endTime");
+  const availableFrom = watch("availableFrom");
+  const availableTo = watch("availableTo");
   const placeType = watch("placeType");
   const exactAddress = watch("exactAddress");
   const placeReference = watch("placeReference");
@@ -99,7 +99,7 @@ export const EventDetailsForm = () => {
         </Typography>
         <DemoContainer components={["TimePicker", "TimePicker"]}>
           <Controller
-            name="startTime"
+            name="availableFrom"
             control={control}
             rules={{ required: "La hora de inicio es obligatoria" }}
             render={({ field }) => (
@@ -110,15 +110,15 @@ export const EventDetailsForm = () => {
                 ampm={true}
                 slotProps={{
                   textField: {
-                    error: !!errors.startTime,
-                    helperText: errors.startTime?.message,
+                    error: !!errors.availableFrom,
+                    helperText: errors.availableFrom?.message,
                   },
                 }}
               />
             )}
           />
           <Controller
-            name="endTime"
+            name="availableTo"
             control={control}
             rules={{ required: "La hora de fin es obligatoria" }}
             render={({ field }) => (
@@ -129,8 +129,8 @@ export const EventDetailsForm = () => {
                 ampm={true}
                 slotProps={{
                   textField: {
-                    error: !!errors.endTime,
-                    helperText: errors.endTime?.message,
+                    error: !!errors.availableTo,
+                    helperText: errors.availableTo?.message,
                   },
                 }}
               />
@@ -256,8 +256,8 @@ export const EventDetailsForm = () => {
           </Typography>
           <Typography variant="body2">
             <strong>Horario:</strong>{" "}
-            {startTime ? startTime.format("HH:mm") : "?"} -{" "}
-            {endTime ? endTime.format("HH:mm") : "?"}
+            {availableFrom ? availableFrom.format("HH:mm") : "?"} -{" "}
+            {availableTo ? availableTo.format("HH:mm") : "?"}
           </Typography>
           <Typography variant="body2">
             <strong>Tipo de lugar:</strong>{" "}

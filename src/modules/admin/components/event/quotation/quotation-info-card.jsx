@@ -74,7 +74,7 @@ export const QuotationInfoCard = ({ selected }) => {
                     Horario
                   </Typography>
                   <Typography fontSize={14}>
-                    {selected?.start_time} - {selected?.end_time}
+                    {selected?.available_from} - {selected?.available_to}
                   </Typography>
                 </Box>
 

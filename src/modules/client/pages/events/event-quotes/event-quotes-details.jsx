@@ -85,8 +85,8 @@ export const EventQuotesDetails = () => {
                 </Typography>
               </Box>
               <Typography variant="h6">
-                {selected?.start_time && selected?.end_time
-                  ? `${selected?.start_time} - ${selected?.end_time}`
+                {selected?.available_from && selected?.available_to
+                  ? `${selected?.available_from} - ${selected?.available_to}`
                   : "-"}
               </Typography>
             </Grid>
