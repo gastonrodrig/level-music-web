@@ -35,7 +35,6 @@ export const MaintenanceModal = ({
   
   // Estados para el manejo de la funcionalidad de reagendado y cancelado
   const [showRescheduleOptions, setShowRescheduleOptions] = useState(false);
-  const [showCancelOptions, setShowCancelOptions] = useState(false);
 
   const {
     register,
@@ -58,7 +57,6 @@ export const MaintenanceModal = ({
       });
       // Resetear estados locales
       setShowRescheduleOptions(false);
-      setShowCancelOptions(false);
     }
     if (isChangingStatus) {
       unregister('serialNumber');
@@ -90,9 +88,9 @@ export const MaintenanceModal = ({
   const getStatusOptions = (currentStatus, maintenanceType) => {
     // Opciones base según el estado actual
     if (currentStatus === 'Programado') {
-      // Para mantenimiento Correctivo: En Progreso, Reagendar, Cancelar
+      // Para mantenimiento Correctivo: En Progreso
       if (maintenanceType === 'Correctivo') {
-        return ['En Progreso', 'Reagendar', 'Cancelar'];
+        return ['En Progreso'];
       }
       // Para mantenimiento Preventivo: En Progreso, Reagendar
       if (maintenanceType === 'Preventivo') {
@@ -116,17 +114,20 @@ export const MaintenanceModal = ({
   const mapStatusToBackend = (uiStatus) => {
     const statusMap = {
       'Reagendar': 'Reagendado',
-      'Cancelar': 'Cancelado'
     };
     return statusMap[uiStatus] || uiStatus;
   };
 
   const onSubmit = async (data) => {
+    console.log('🔍 Datos originales del formulario:', data);
+    
     // Mapear el status a los valores que espera el backend
     const mappedData = {
       ...data,
       status: mapStatusToBackend(data.status)
     };
+
+    console.log('📤 Datos que se enviarán al backend:', mappedData);
 
     try {
       const success = isChangingStatus
@@ -265,31 +266,7 @@ export const MaintenanceModal = ({
                 disabled
               />
 
-              {/* Fecha del mantenimiento */}
-              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
-                <DemoContainer components={["DatePicker"]}>
-                  <DatePicker
-                    label="Fecha del mantenimiento"
-                    value={watch("date") ? dayjs(watch("date")) : null}
-                    onChange={(date) =>
-                      setValue("date", date ? date.format("YYYY-MM-DD") : "")
-                    }
-                    minDate={dayjs()}
-                    maxDate={dayjs().add(7, 'day')}
-                    disabled={isChangingStatus}
-                    slotProps={{
-                      textField: {
-                        fullWidth: true,
-                        ...register("date", {
-                          required: "La fecha es obligatoria",
-                        }),
-                        error: !!errors.date,
-                        helperText: errors.date?.message ?? "",
-                      },
-                    }}
-                  />
-                </DemoContainer>
-              </LocalizationProvider>
+
             </>
           )}
 
@@ -325,13 +302,9 @@ export const MaintenanceModal = ({
                     onChange={(e) => {
                       setValue("status", e.target.value);
                       setShowRescheduleOptions(e.target.value === "Reagendar");
-                      setShowCancelOptions(e.target.value === "Cancelar");
                       if (e.target.value !== "Reagendar") {
                         setValue("reagendation_reason", "");
                         setValue("rescheduled_date", "");
-                      }
-                      if (e.target.value !== "Cancelar") {
-                        setValue("cancelation_reason", "");
                       }
                     }}
                     renderValue={(selected) => selected}
@@ -399,25 +372,7 @@ export const MaintenanceModal = ({
                       </DemoContainer>
                     </LocalizationProvider>
                   </Box>
-                )}
-
-                {/* Opciones que aparecen cuando se selecciona "Cancelar" */}
-                {showCancelOptions && (
-                  <Box mt={2}>
-                    {/* Campo de motivo de cancelación */}
-                    <TextField
-                      label="Motivo de cancelación"
-                      fullWidth
-                      multiline
-                      minRows={2}
-                      {...register("cancelation_reason", {
-                        required: showCancelOptions ? "El motivo de cancelación es obligatorio" : false,
-                      })}
-                      error={!!errors.cancelation_reason}
-                      helperText={errors.cancelation_reason?.message}
-                    />
-                  </Box>
-                )}
+                )} 
               </Box>
             </>
           )}
