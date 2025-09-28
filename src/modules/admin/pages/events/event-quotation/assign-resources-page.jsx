@@ -9,16 +9,19 @@ import {
 import {
   useAssignEquipmentStore,
   useAssignServicesStore,
+  useAssignWorkerStore,
   useEquipmentStore,
   useQuotationStore,
   useServiceDetailStore,
   useServiceStore,
   useWorkerStore,
+  useWorkerTypeStore,
 } from "../../../../../hooks";
 import {
   QuotationInfoCard,
   AssignServiceCard,
   AssignEquipmentCard,
+  AssignWorkerCard,
 } from "../../../components";
 import { useForm } from "react-hook-form";
 import { useEffect, useMemo } from "react";
@@ -33,6 +36,7 @@ export const AssignResourcesPage = () => {
   const { serviceDetail } = useServiceDetailStore();
   const { equipments } = useEquipmentStore();
   const { workers } = useWorkerStore();
+  const { workerTypes } = useWorkerTypeStore();
   const { services } = useServiceStore();
 
   const {
@@ -44,13 +48,21 @@ export const AssignResourcesPage = () => {
     handleAddService,
   } = useAssignServicesStore();
 
-  const { 
-    assignedEquipments, 
-    handleAddEquipment, 
+  const {
+    assignedEquipments,
+    handleAddEquipment,
     handleChangeEquipmentType,
-    setAssignedEquipments, 
-    handleSelectEquipment
+    setAssignedEquipments,
+    handleSelectEquipment,
   } = useAssignEquipmentStore();
+
+  const {
+    assignedWorkers,
+    handleAddWorker,
+    handleSelectWorkerType,
+    setAssignedWorkers,
+    handleSelectWorker,
+  } = useAssignWorkerStore();
 
   const {
     register,
@@ -71,7 +83,10 @@ export const AssignResourcesPage = () => {
       service_price: "",
       equipment_id: "",
       equipment_hours: 1,
-      equipment_price: ""
+      equipment_price: "",
+      worker_id: "",
+      worker_hours: 1,
+      worker_price: "",
     },
     mode: "onBlur",
   });
@@ -84,11 +99,17 @@ export const AssignResourcesPage = () => {
   }, [selected]);
 
   const onSubmit = (data) => {
-
+    // Aquí iría el submit final con todos los recursos asignados
+    console.log("Asignación enviada:", data, {
+      assignedServices,
+      assignedEquipments,
+      assignedWorkers,
+    });
   };
 
   const serviceId = watch("service_id");
   const equipmentType = watch("equipment_type");
+  const workerTypeId = watch("worker_type_id");
 
   const filteredDetails = useMemo(
     () => (serviceDetail || []).filter((d) => d.service_id === serviceId),
@@ -98,6 +119,11 @@ export const AssignResourcesPage = () => {
   const filteredEquipments = useMemo(
     () => (equipments || []).filter((d) => d.equipment_type === equipmentType),
     [equipments, equipmentType]
+  );
+
+  const filteredWorkers = useMemo(
+    () => (workers || []).filter((w) => w.worker_type === workerTypeId),
+    [workers, workerTypeId]
   );
 
   return (
@@ -147,6 +173,20 @@ export const AssignResourcesPage = () => {
         setAssignedEquipments={setAssignedEquipments}
       />
 
+      {/* Trabajadores */}
+      <AssignWorkerCard
+        isDark={isDark}
+        workerTypes={workerTypes}
+        watch={watch}
+        setValue={setValue}
+        handleSelectWorker={handleSelectWorker}
+        filteredWorkers={filteredWorkers}
+        handleSelectWorkerType={handleSelectWorkerType}
+        handleAddWorker={handleAddWorker}
+        assignedWorkers={assignedWorkers}
+        setAssignedWorkers={setAssignedWorkers}
+      />
+
       {/* Información de la asignación */}
       <Box
         sx={{
@@ -186,7 +226,7 @@ export const AssignResourcesPage = () => {
         </Grid>
       </Box>
 
-      {/* Botón de Guardar/Enviar (opcional) */}
+      {/* Botón de Guardar/Enviar */}
       <Box sx={{ display: "flex", justifyContent: "flex-end", pb: 4 }}>
         <Button
           type="submit"

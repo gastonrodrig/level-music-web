@@ -6,6 +6,7 @@ import {
   useServiceStore,
   useServiceTypeStore,
   useWorkerStore,
+  useWorkerTypeStore,
 } from "../../../../../hooks";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
 import { TableComponent } from "../../../../../shared/ui/components";
@@ -38,6 +39,7 @@ export const EventQuotationsPage = () => {
   const { startLoadingAllWorkers } = useWorkerStore();
   const { startLoadingAllServiceDetails } = useServiceDetailStore();
   const { startLoadingAllServices } = useServiceStore();
+  const { startLoadingAllWorkerTypes } = useWorkerTypeStore();
   
   const { isLg } = useScreenSizes();
   const navigate = useNavigate();
@@ -72,6 +74,7 @@ export const EventQuotationsPage = () => {
     startLoadingAllWorkers();
     startLoadingAllServiceDetails();
     startLoadingAllServices();
+    startLoadingAllWorkerTypes(); 
   }, [currentPage, rowsPerPage, searchTerm, orderBy, order]);
 
   const actions = [

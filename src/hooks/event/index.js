@@ -4,3 +4,4 @@ export * from './use-event-store';
 export * from './use-quotation-store';
 export * from './use-assign-service-store';
 export * from './use-assign-equipment-store';
+export * from './use-assign-worker-store';
