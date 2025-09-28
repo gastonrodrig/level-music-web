@@ -20,7 +20,6 @@ import {
   AssignServiceCard,
   AssignEquipmentCard,
 } from "../../../components";
-import { Add, Speaker } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
 import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
@@ -48,8 +47,9 @@ export const AssignResourcesPage = () => {
   const { 
     assignedEquipments, 
     handleAddEquipment, 
+    handleChangeEquipmentType,
     setAssignedEquipments, 
-    handleSelectEquipment 
+    handleSelectEquipment
   } = useAssignEquipmentStore();
 
   const {
@@ -141,6 +141,7 @@ export const AssignResourcesPage = () => {
         setValue={setValue}
         handleSelectEquipment={handleSelectEquipment}
         filteredEquipments={filteredEquipments}
+        handleChangeEquipmentType={handleChangeEquipmentType}
         handleAddEquipment={handleAddEquipment}
         assignedEquipments={assignedEquipments}
         setAssignedEquipments={setAssignedEquipments}

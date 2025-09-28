@@ -10,6 +10,10 @@ export const useAssignEquipmentStore = () => {
 
   const openSnackbar = (message) => dispatch(showSnackbar({ message }));
 
+  const handleChangeEquipmentType = () => {
+    setSelectedEquipment(null);
+  };
+
   const handleSelectEquipment = (equipmentId, equipments) => {
     const eq = equipments.find((e) => e._id === equipmentId);
     setSelectedEquipment(eq);
@@ -56,14 +60,12 @@ export const useAssignEquipmentStore = () => {
     return true;
   };
 
-  const resetEquipments = () => setAssignedEquipments([]);
-
   return {
     selectedEquipment,
     assignedEquipments,
+    handleChangeEquipmentType,
     handleSelectEquipment,
     handleAddEquipment,
-    resetEquipments,
     setAssignedEquipments
   };
 };

@@ -21,6 +21,7 @@ export const AssignEquipmentCard = ({
   setValue,
   filteredEquipments,
   assignedEquipments,
+  handleChangeEquipmentType,
   handleSelectEquipment,
   handleAddEquipment,
   setAssignedEquipments
@@ -80,9 +81,10 @@ export const AssignEquipmentCard = ({
                 labelId="type-equipment-label"
                 label="Tipo de Equipo"
                 value={equipmentType || ""}
-                onChange={(e) =>
-                  setValue("equipment_type", e.target.value, { shouldValidate: true })
-                }
+                onChange={(e) => {
+                  setValue("equipment_type", e.target.value, { shouldValidate: true });
+                  handleChangeEquipmentType();
+                }}
                 inputProps={{ name: "equipment_type" }}
                 sx={{ height: 60 }}
                 displayEmpty
@@ -316,14 +318,14 @@ export const AssignEquipmentCard = ({
         ))
       ) : (
         <Typography fontSize={14} color="text.secondary" align="center" my={5}>
-          No hay equipos adicionales asignados aún
+          No hay equipos asignados aún
         </Typography>
       )}
 
       {/* Total */}
       {assignedEquipments.length > 0 && (
         <Typography textAlign="right" fontWeight={600} color="green">
-          Total Equipos Adicionales: S/{" "}
+          Total Equipos: S/{" "}
           {assignedEquipments.reduce((acc, equipo) => acc + equipo.equipment_price * equipo.equipment_hours, 0).toFixed(2)}
         </Typography>
       )}
