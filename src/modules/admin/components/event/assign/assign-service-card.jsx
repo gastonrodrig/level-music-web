@@ -110,7 +110,6 @@ export const AssignServiceCard = ({
                   </MenuItem>
                 ))}
               </Select>
-              <FormHelperText>{errors.service_id?.message}</FormHelperText>
             </FormControl>
           </Grid>
 
@@ -150,8 +149,6 @@ export const AssignServiceCard = ({
                   );
                 })}
               </Select>
-
-              <FormHelperText>{errors.service_detail_id?.message}</FormHelperText>
             </FormControl>
           </Grid>
 
