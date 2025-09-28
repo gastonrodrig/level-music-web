@@ -81,6 +81,13 @@ export const EventFeaturedModal = ({
     }
     const formattedValue = value.toUpperCase();
     setValue("eventCode", formattedValue);
+    // Validar formato EVT-YYYYMMDD-XXXXXX
+    const codeRegex = /^EVT-\d{8}-[A-Z0-9]{6}$/;
+    if (!codeRegex.test(formattedValue)) {
+      setValue("event_id", "");
+      setValue("title", "");
+      return;
+    }
     const { ok, data } = await startSearchingEvent(formattedValue);
     if (ok) {
       setValue("event_id", data._id);
@@ -251,6 +258,7 @@ export const EventFeaturedModal = ({
           <Box display="flex" flexDirection="column" gap={2} mb={3}>
             <TextField
               label="Código del evento"
+              placeholder="Ingrese el código del evento"
               fullWidth
               InputLabelProps={{ shrink: true }}
               {...register("eventCode", {
@@ -262,8 +270,7 @@ export const EventFeaturedModal = ({
                 },
               })}
               inputProps={{
-                maxLength: 19,
-                style: { textTransform: "uppercase" },
+                maxLength: 19
               }}
               onChange={(e) => handleCodeChange(e.target.value.toUpperCase())}
               helperText={
@@ -290,6 +297,7 @@ export const EventFeaturedModal = ({
 
             <TextField
               label="Descripción destacada"
+              placeholder="Ingrese la descripción del evento destacado"
               multiline
               InputLabelProps={{ shrink: true }}
               rows={3}

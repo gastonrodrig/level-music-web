@@ -1,9 +1,8 @@
 import { toTimeString } from "../../../utils";
 
 export const createQuotationLandingModel = (f) => ({
-  date: f.eventDate,
-  available_from: toTimeString(f.availableFrom),
-  available_to: toTimeString(f.availableTo),
+  start_time: toTimeString(f.startTime),
+  end_time: toTimeString(f.endTime),
 
   attendees_count: Number(f.attendeesCount),
   exact_address: f.exactAddress,

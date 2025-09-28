@@ -6,13 +6,11 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@mui/material";
-import { TimePicker } from "@mui/x-date-pickers/TimePicker";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { useFormContext, Controller } from "react-hook-form";
-import "dayjs/locale/es";
 import dayjs from "dayjs";
 
 export const EventDetailsForm = () => {
@@ -26,9 +24,8 @@ export const EventDetailsForm = () => {
 
   // Valores en tiempo real
   const attendeesCount = watch("attendeesCount");
-  const eventDate = watch("eventDate");
-  const availableFrom = watch("availableFrom");
-  const availableTo = watch("availableTo");
+  const startTime = watch("startTime");
+  const endTime = watch("endTime");
   const placeType = watch("placeType");
   const exactAddress = watch("exactAddress");
   const placeReference = watch("placeReference");
@@ -54,7 +51,7 @@ export const EventDetailsForm = () => {
           fullWidth
           type="number"
           InputLabelProps={{ shrink: true }}
-          sx={{ mb: 3, mt: 2 }}
+          sx={{ mt: 2 }}
           {...register("attendeesCount", {
             required: "La cantidad de asistentes es obligatoria",
             min: { value: 1, message: "Debe ser al menos 1 asistente" },
@@ -68,74 +65,68 @@ export const EventDetailsForm = () => {
           helperText={errors.attendeesCount?.message}
         />
 
-        {/* Fecha del Evento */}
-        <DemoContainer components={["DatePicker"]}>
-          <DatePicker
-            label="Fecha del evento"
-            value={
-              watch("eventDate") ? dayjs(watch("eventDate")) : null
-            }
-            onChange={(date) => {
-              const formatted = date ? date.format("YYYY-MM-DD") : "";
-              setValue("eventDate", formatted);
-            }}
-            minDate={dayjs().startOf('day')}
-            slotProps={{
-              textField: {
-                fullWidth: true,
-                ...register("eventDate", {
-                  required: "La fecha del evento es obligatoria"
-                }),
-                error: !!errors.eventDate,
-                helperText: errors.eventDate?.message ?? "",
-              },
-            }}
-          />
-        </DemoContainer>
-
-        {/* Horario del Evento */}
+        {/* Fecha y Hora del Evento */}
         <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1, mt: 2 }}>
-          Horario del Evento
+          Fecha y Hora del Evento
         </Typography>
-        <DemoContainer components={["TimePicker", "TimePicker"]}>
-          <Controller
-            name="availableFrom"
-            control={control}
-            rules={{ required: "La hora de inicio es obligatoria" }}
-            render={({ field }) => (
-              <TimePicker
-                label="Hora Inicio"
-                value={field.value}
-                onChange={field.onChange}
-                ampm={true}
-                slotProps={{
-                  textField: {
-                    error: !!errors.availableFrom,
-                    helperText: errors.availableFrom?.message,
-                  },
-                }}
-              />
-            )}
-          />
-          <Controller
-            name="availableTo"
-            control={control}
-            rules={{ required: "La hora de fin es obligatoria" }}
-            render={({ field }) => (
-              <TimePicker
-                label="Hora Fin"
-                value={field.value}
-                onChange={field.onChange}
-                ampm={true}
-                slotProps={{
-                  textField: {
-                    error: !!errors.availableTo,
-                    helperText: errors.availableTo?.message,
-                  },
-                }}
-              />
-            )}
-          />
+        <DemoContainer components={["DateTimePicker"]}>
+          <Box sx={{ display: "flex", gap: 2, flexDirection: { xs: "column", sm: "row" } }}>
+            <Controller
+              name="startDateTime"
+              control={control}
+              rules={{ required: "La fecha y hora de inicio son obligatorias" }}
+              render={({ field }) => (
+                <DateTimePicker
+                  label="Fecha y Hora de Inicio"
+                  value={field.value}
+                  onChange={field.onChange}
+                  minDateTime={dayjs().add(2, "day").startOf("day")}
+                  ampm={true}
+                  slotProps={{
+                    textField: {
+                      error: !!errors.startDateTime,
+                      helperText: errors.startDateTime?.message,
+                    },
+                  }}
+                />
+              )}
+            />
+
+            <Controller
+              name="endDateTime"
+              control={control}
+              rules={{
+                required: "La fecha y hora de fin son obligatorias",
+                validate: (value) => {
+                  const start = watch("startDateTime");
+                  if (!start || !value) return true;
+
+                  const diffHours = value.diff(start, "hour", true);
+                  if (diffHours <= 0) {
+                    return "La hora de fin debe ser posterior a la hora de inicio";
+                  }
+                  if (diffHours > 12) {
+                    return "La duración del evento no puede superar las 12 horas";
+                  }
+                  return true;
+                },
+              }}
+              render={({ field }) => (
+                <DateTimePicker
+                  label="Fecha y Hora de Fin"
+                  value={field.value}
+                  onChange={field.onChange}
+                  ampm={true}
+                  slotProps={{
+                    textField: {
+                      error: !!errors.endDateTime,
+                      helperText: errors.endDateTime?.message,
+                    },
+                  }}
+                />
+              )}
+            />
+          </Box>
         </DemoContainer>
 
         {/* Tipo de lugar */}
@@ -245,19 +236,9 @@ export const EventDetailsForm = () => {
             <strong>Asistentes:</strong> {attendeesCount || "-"}
           </Typography>
           <Typography variant="body2">
-            <strong>Fecha:</strong>{" "}
-            {eventDate
-              ? (typeof eventDate === 'string'
-                  ? dayjs(eventDate).isValid()
-                    ? dayjs(eventDate).format('DD/MM/YYYY')
-                    : eventDate
-                  : eventDate.format('DD/MM/YYYY'))
-              : "-"}
-          </Typography>
-          <Typography variant="body2">
             <strong>Horario:</strong>{" "}
-            {availableFrom ? availableFrom.format("HH:mm") : "?"} -{" "}
-            {availableTo ? availableTo.format("HH:mm") : "?"}
+            {startTime ? startTime.format("HH:mm") : "?"} -{" "}
+            {endTime ? endTime.format("HH:mm") : "?"}
           </Typography>
           <Typography variant="body2">
             <strong>Tipo de lugar:</strong>{" "}
