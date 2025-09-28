@@ -8,9 +8,10 @@ import {
 } from "@mui/material";
 import { AddCircleOutline, Edit } from "@mui/icons-material";
 import { useEventFeaturedStore } from "../../../../../hooks";
-import { TableComponent } from "../../../../../shared/ui/components";
+import { TableComponent, MessageDialog } from "../../../../../shared/ui/components";
 import { EventFeaturedModal } from "../../../components";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
+import { set } from "react-hook-form";
 
 export const EventFeaturedPage = () => {
   const {
@@ -30,10 +31,12 @@ export const EventFeaturedPage = () => {
     setOrder,
     startLoadingEventFeaturedPaginated,
     setSelectedEventFeatured,
+    startDeleteEventFeatured,
   } = useEventFeaturedStore();
 
   const { isLg } = useScreenSizes();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   useEffect(() => {
     startLoadingEventFeaturedPaginated();
@@ -43,6 +46,21 @@ export const EventFeaturedPage = () => {
     setSelectedEventFeatured(payload);
     setIsModalOpen(true);
   };
+
+  const handleDelete = (payload) =>{
+    setSelectedEventFeatured(payload);
+    setDeleteDialogOpen(true);
+  };
+  const handleConfirmDelete = async () => {
+  if(selected?._id){
+    const success = await startDeleteEventFeatured(selected?._id);
+    if(success){
+      setDeleteDialogOpen(false);
+    }
+  }
+  setSelectedEventFeatured(null);
+  };
+
 
   const columns = [
     { id: "title", label: "Título", sortable: true },
@@ -54,6 +72,11 @@ export const EventFeaturedPage = () => {
       icon: <Edit />,
       onClick: (row) => openModal(row),
     },
+    {
+      label: "Eliminar",
+      icon: <Edit />,
+      onClick: (row) => handleDelete(row),
+    }
   ];
 
   return (
@@ -160,6 +183,16 @@ export const EventFeaturedPage = () => {
         eventFeatured={selected}
         setEventFeatured={setSelectedEventFeatured}
         loading={loading}
+      />
+
+      {/* Dialogo de confirmación */}
+      <MessageDialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Eliminar evento destacado"
+        message="¿Estás seguro de que deseas eliminar este evento destacado? Esta acción no se puede deshacer."
+        confirmText="Eliminar"
       />
     </>
   );
