@@ -316,7 +316,7 @@ export const TableComponent = ({
                               py: 1,
                               px: 2,
                               fontSize: 14,
-                              color: (theme) => theme.palette.mode === 'dark' ? '#fff' : '#212121',
+                              color: action.label === 'Eliminar' ? '#d32f2f' : ((theme) => theme.palette.mode === 'dark' ? '#fff' : '#212121'),
                               '&:hover': {
                                 backgroundColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(36, 36, 36, 0.54)' : 'rgba(0, 0, 0, 0.04)',
                               },
@@ -327,7 +327,9 @@ export const TableComponent = ({
                                 {action.icon}
                               </span>
                             )}
-                            {action.label}
+                            <span style={action.label === 'Eliminar' ? { color: '#d32f2f' } : {}}>
+                              {action.label}
+                            </span>
                           </MenuItem>
                         ))}
                       </Menu>

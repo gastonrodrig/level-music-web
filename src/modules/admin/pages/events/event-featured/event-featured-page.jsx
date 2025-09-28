@@ -6,7 +6,7 @@ import {
   TextField,
   CircularProgress,
 } from "@mui/material";
-import { AddCircleOutline, Edit } from "@mui/icons-material";
+import { AddCircleOutline, Delete, Edit } from "@mui/icons-material";
 import { useEventFeaturedStore } from "../../../../../hooks";
 import { TableComponent, MessageDialog } from "../../../../../shared/ui/components";
 import { EventFeaturedModal } from "../../../components";
@@ -74,7 +74,7 @@ export const EventFeaturedPage = () => {
     },
     {
       label: "Eliminar",
-      icon: <Edit />,
+      icon: <Delete />,
       onClick: (row) => handleDelete(row),
     }
   ];
