@@ -129,8 +129,9 @@ export const QuotationPage = () => {
     if (isValid) goNext();
   };
 
-  const onFinish = handleSubmit((data) => {
-    const success = startCreateQuotationLanding(data);
+  const onFinish = handleSubmit(async (data) => {
+    console.log(data)
+    const success = await startCreateQuotationLanding(data);
     if (success) {
       if (status === 'authenticated') {
         navigate('/cliente/event-quotes')

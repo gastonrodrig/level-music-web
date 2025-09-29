@@ -15,8 +15,6 @@ import { Close } from "@mui/icons-material";
 import { useEffect, useMemo, useState } from "react";
 import { useMaintenanceStore, useEquipmentStore } from "../../../../hooks";
 import { useForm } from "react-hook-form";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { formatDay } from "../../../../shared/utils";
@@ -337,40 +335,38 @@ export const MaintenanceModal = ({
                     />
                     
                     {/* Campo de fecha de reagendamiento */}
-                    <LocalizationProvider dateAdapter={AdapterDayjs}  adapterLocale="es">
-                      <DemoContainer components={["DatePicker"]} >
-                        <DatePicker
-                          label="Fecha de reagendamiento"
-                          value={watch("rescheduled_date") ? dayjs(watch("rescheduled_date")) : null}
-                          onChange={(date) =>
-                            setValue("rescheduled_date", date ? date.format("YYYY-MM-DD") : "")
-                          }
-                          minDate={
-                            maintenance.type === 'Preventivo' 
-                              ? dayjs(maintenance.date).subtract(7, 'day')
-                              : dayjs().add(1, 'day')
-                          }
-                          maxDate={
-                            maintenance.type === 'Preventivo' 
-                              ? dayjs(maintenance.date).add(7, 'day')
-                              : dayjs().add(7, 'day')
-                          }
-                          slotProps={{
-                            textField: {
-                              fullWidth: true,
-                              ...register("rescheduled_date", {
-                                required: showRescheduleOptions ? "La fecha de reagendamiento es obligatoria" : false,
-                              }),
-                              error: !!errors.rescheduled_date,
-                              helperText: errors.rescheduled_date?.message ?? 
-                                (maintenance.type === 'Preventivo' 
-                                  ? "Selecciona una fecha entre una semana antes y después de la fecha original"
-                                  : "Selecciona una fecha entre mañana y los próximos 7 días"),
-                            },
-                          }}
-                        />
-                      </DemoContainer>
-                    </LocalizationProvider>
+                    <DemoContainer components={["DatePicker"]} >
+                      <DatePicker
+                        label="Fecha de reagendamiento"
+                        value={watch("rescheduled_date") ? dayjs(watch("rescheduled_date")) : null}
+                        onChange={(date) =>
+                          setValue("rescheduled_date", date ? date.format("YYYY-MM-DD") : "")
+                        }
+                        minDate={
+                          maintenance.type === 'Preventivo' 
+                            ? dayjs(maintenance.date).subtract(7, 'day')
+                            : dayjs().add(1, 'day')
+                        }
+                        maxDate={
+                          maintenance.type === 'Preventivo' 
+                            ? dayjs(maintenance.date).add(7, 'day')
+                            : dayjs().add(7, 'day')
+                        }
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            ...register("rescheduled_date", {
+                              required: showRescheduleOptions ? "La fecha de reagendamiento es obligatoria" : false,
+                            }),
+                            error: !!errors.rescheduled_date,
+                            helperText: errors.rescheduled_date?.message ?? 
+                              (maintenance.type === 'Preventivo' 
+                                ? "Selecciona una fecha entre una semana antes y después de la fecha original"
+                                : "Selecciona una fecha entre mañana y los próximos 7 días"),
+                          },
+                        }}
+                      />
+                    </DemoContainer>
                   </Box>
                 )} 
               </Box>

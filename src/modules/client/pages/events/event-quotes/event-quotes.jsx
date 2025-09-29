@@ -45,9 +45,9 @@ export const QuotationPage = () => {
       sortable: true 
     },
     { 
-      id: 'date', 
+      id: 'event_date', 
       label: 'Fecha Evento', 
-      sortable: true, accessor: (row) => row.date ? formatDay(row.date) : 'N/A'
+      sortable: true, accessor: (row) => row.event_date ? formatDay(row.event_date) : 'N/A'
     },
     { 
       id: 'status', 

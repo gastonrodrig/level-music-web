@@ -41,6 +41,7 @@ export const useQuotationStore = () => {
     dispatch(setLoadingQuotation(true));
     try {
       const payload = createQuotationLandingModel(quotation);
+      console.log(payload)
       await eventApi.post('/quotation/landing', payload);
       if (status === 'authenticated') {
         openSnackbar("La cotización fue solicitada exitosamente.");
@@ -49,6 +50,7 @@ export const useQuotationStore = () => {
       }
       return true;
     } catch (error) {
+      console.log(error);
       const message = error.response?.data?.message;
       openSnackbar(message ?? "Ocurrió un error al solicitar la cotización.");
       return false;
@@ -57,7 +59,7 @@ export const useQuotationStore = () => {
     }
   };
 
-    const startCreateQuotationAdmin = async (quotation) => {
+  const startCreateQuotationAdmin = async (quotation) => {
     if (!validateQuotationsLanding(quotation)) return false;
     dispatch(setLoadingQuotation(true));
     try {

@@ -16,8 +16,6 @@ import {
 import { Close } from "@mui/icons-material";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import dayjs from "dayjs";
@@ -229,44 +227,40 @@ export const EquipmentModal = ({
           )}
 
           {showLastMaintenanceDate && (
-            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
-              <DemoContainer components={["DatePicker"]}>
-                <DatePicker
-                  label="Última fecha de mantenimiento"
-                  value={
-                    watch("last_maintenance_date") ? dayjs(watch("last_maintenance_date")) : null
-                  }
-                  onChange={(date) => {
-                    const formatted = date ? date.format("YYYY-MM-DD") : "";
-                    setValue("last_maintenance_date", formatted);
-                  }}
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      ...register("last_maintenance_date", {
-                        required: "La fecha es obligatoria"
-                      }),
-                      error: !!errors.last_maintenance_date,
-                      helperText: errors.last_maintenance_date?.message ?? "",
-                    },
-                  }}
-                />
-              </DemoContainer>
-            </LocalizationProvider>
+            <DemoContainer components={["DatePicker"]}>
+              <DatePicker
+                label="Última fecha de mantenimiento"
+                value={
+                  watch("last_maintenance_date") ? dayjs(watch("last_maintenance_date")) : null
+                }
+                onChange={(date) => {
+                  const formatted = date ? date.format("YYYY-MM-DD") : "";
+                  setValue("last_maintenance_date", formatted);
+                }}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    ...register("last_maintenance_date", {
+                      required: "La fecha es obligatoria"
+                    }),
+                    error: !!errors.last_maintenance_date,
+                    helperText: errors.last_maintenance_date?.message ?? "",
+                  },
+                }}
+              />
+            </DemoContainer>
           )}
 
           {/* Próxima fecha de mantenimiento */}
-          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
-            <DemoContainer components={["DatePicker"]}>
-              <DatePicker
-                label="Próxima fecha de mantenimiento"
-                value={watch("next_maintenance_date") ? dayjs(watch("next_maintenance_date")) : null}
-                onChange={(date) => setValue("next_maintenance_date", date ? date.format("YYYY-MM-DD") : "")}
-                slotProps={{ textField: { fullWidth: true } }}
-                disabled
-              />
-            </DemoContainer>
-          </LocalizationProvider>
+          <DemoContainer components={["DatePicker"]}>
+            <DatePicker
+              label="Próxima fecha de mantenimiento"
+              value={watch("next_maintenance_date") ? dayjs(watch("next_maintenance_date")) : null}
+              onChange={(date) => setValue("next_maintenance_date", date ? date.format("YYYY-MM-DD") : "")}
+              slotProps={{ textField: { fullWidth: true } }}
+              disabled
+            />
+          </DemoContainer>
 
         </Box>
 
