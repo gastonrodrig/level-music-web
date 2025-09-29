@@ -13,7 +13,7 @@ import { TableComponent } from "../../../../../shared/ui/components";
 import { formatDay } from "../../../../../shared/utils";
 import { Group, AddCircleOutline } from "@mui/icons-material";
 import { Box, Typography, Button, TextField, CircularProgress } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export const EventQuotationsPage = () => {
   const {
@@ -115,21 +115,22 @@ export const EventQuotationsPage = () => {
               Administra las cotizaciones
             </Typography>
           </Box>
-          <Button
-            variant="contained"
-            startIcon={<AddCircleOutline />}
-            sx={{
-              backgroundColor: "#212121",
-              color: "#fff",
-              borderRadius: 2,
-              textTransform: "none",
-              px: 3,
-              py: 1.5,
-            }}
-            onClick={() => {}}
-          >
-            {isLg ? "Agregar Cotización" : "Agregar"}
-          </Button>
+          <Link to="/admin/quotations/new" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <Button
+              variant="contained"
+              startIcon={<AddCircleOutline />}
+              sx={{
+                backgroundColor: "#212121",
+                color: "#fff",
+                borderRadius: 2,
+                textTransform: "none",
+                px: 3,
+                py: 1.5,
+              }}
+            >
+              {isLg ? "Agregar Cotización" : "Agregar"}
+            </Button>
+          </Link>
         </Box>
 
         <Box
