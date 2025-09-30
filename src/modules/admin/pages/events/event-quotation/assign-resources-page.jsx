@@ -7,9 +7,6 @@ import {
   Button,
 } from "@mui/material";
 import {
-  useAssignEquipmentStore,
-  useAssignServicesStore,
-  useAssignWorkerStore,
   useEquipmentStore,
   useQuotationStore,
   useServiceDetailStore,
@@ -23,16 +20,17 @@ import {
   AssignEquipmentCard,
   AssignWorkerCard,
 } from "../../../components";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAssignationGuards } from "../../../../../hooks";
 
 export const AssignResourcesPage = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
 
-  const { loading, selected } = useQuotationStore();
+  const { loading, selected, startAssigningResources } = useQuotationStore();
   const { serviceDetail } = useServiceDetailStore();
   const { equipments } = useEquipmentStore();
   const { workers } = useWorkerStore();
@@ -40,76 +38,69 @@ export const AssignResourcesPage = () => {
   const { services } = useServiceStore();
 
   const {
-    selectedDetail,
-    assignedServices,
-    setAssignedServices,
-    handleSelectService,
-    handleSelectDetail,
-    handleAddService,
-  } = useAssignServicesStore();
-
-  const {
-    assignedEquipments,
-    handleAddEquipment,
-    handleChangeEquipmentType,
-    setAssignedEquipments,
-    handleSelectEquipment,
-  } = useAssignEquipmentStore();
-
-  const {
-    assignedWorkers,
-    handleAddWorker,
-    handleSelectWorkerType,
-    setAssignedWorkers,
-    handleSelectWorker,
-  } = useAssignWorkerStore();
-
-  const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
     setValue,
+    control,
   } = useForm({
     defaultValues: {
-      provider_id: "",
-      service_type_id: "",
-      serviceDetails: [],
-      name: "",
-      description: "",
       service_id: "",
       service_detail_id: "",
       service_hours: 1,
       service_price: "",
+
+      equipment_type: "",
       equipment_id: "",
       equipment_hours: 1,
       equipment_price: "",
+
+      worker_type_id: "",
       worker_id: "",
       worker_hours: 1,
       worker_price: "",
+
+      services: [],
+      equipments: [],
+      workers: [],
+
+      name: "",
+      description: "",
     },
     mode: "onBlur",
   });
 
-  useEffect(() => {
-    if (!selected) {
-      navigate("/admin/quotations", { replace: true });
-      return;
-    }
-  }, [selected]);
+  const {
+    fields: assignedServices,
+    append: addService,
+    remove: removeService,
+  } = useFieldArray({ control, name: "services" });
 
-  const onSubmit = (data) => {
-    // Aquí iría el submit final con todos los recursos asignados
-    console.log("Asignación enviada:", data, {
-      assignedServices,
-      assignedEquipments,
-      assignedWorkers,
-    });
-  };
+  const {
+    fields: assignedEquipments,
+    append: addEquipment,
+    remove: removeEquipment,
+  } = useFieldArray({ control, name: "equipments" });
+
+  const {
+    fields: assignedWorkers,
+    append: addWorker,
+    remove: removeWorker,
+  } = useFieldArray({ control, name: "workers" });
+
+  useEffect(() => {
+    if (!selected) navigate("/admin/quotations");
+  }, [selected, navigate]);
+
+  const { startAppendEquipment, startAppendService, startAppendWorker } = useAssignationGuards();
 
   const serviceId = watch("service_id");
   const equipmentType = watch("equipment_type");
   const workerTypeId = watch("worker_type_id");
+
+  const assignmentFromISO = selected?.start_time;
+  const assignmentToISO = selected?.end_time;
 
   const filteredDetails = useMemo(
     () => (serviceDetail || []).filter((d) => d.service_id === serviceId),
@@ -117,7 +108,7 @@ export const AssignResourcesPage = () => {
   );
 
   const filteredEquipments = useMemo(
-    () => (equipments || []).filter((d) => d.equipment_type === equipmentType),
+    () => (equipments || []).filter((e) => e.equipment_type === equipmentType),
     [equipments, equipmentType]
   );
 
@@ -126,12 +117,20 @@ export const AssignResourcesPage = () => {
     [workers, workerTypeId]
   );
 
+  const onSubmit = async (data) => {
+    const success = await startAssigningResources(selected._id, {
+      ...data,
+      services: data.services,
+      equipments: data.equipments,
+      workers: data.workers,
+      from: assignmentFromISO,
+      to: assignmentToISO, 
+    })
+
+  };
+
   return (
-    <Box
-      component="form"
-      sx={{ px: 4, pt: 2 }}
-      onSubmit={handleSubmit(onSubmit)}
-    >
+    <Box component="form" sx={{ px: 4, pt: 2 }} onSubmit={handleSubmit(onSubmit)}>
       <Typography variant="h4" sx={{ mb: 2 }}>
         Asignación de Recursos
       </Typography>
@@ -139,55 +138,59 @@ export const AssignResourcesPage = () => {
         Asigna trabajadores, servicios adicionales y equipos para el evento.
       </Typography>
 
-      {/* Información de la Cotización */}
       <QuotationInfoCard selected={selected} />
 
-      {/* Servicios Adicionales */}
       <AssignServiceCard
         isDark={isDark}
         services={services}
         filteredDetails={filteredDetails}
+        // useFieldArray
         assignedServices={assignedServices}
-        selectedDetail={selectedDetail}
-        handleSelectService={handleSelectService}
-        handleSelectDetail={handleSelectDetail}
-        handleAddService={handleAddService}
-        setAssignedServices={setAssignedServices}
+        addService={addService}
+        removeService={removeService}
+        // form
         watch={watch}
         setValue={setValue}
-        errors={errors}
-        serviceId={serviceId}
+        // availability
+        startAppendService={startAppendService}
+        from={assignmentFromISO}
+        to={assignmentToISO}
       />
 
-      {/* Equipos */}
       <AssignEquipmentCard
         isDark={isDark}
         equipmentType={equipmentType}
+        filteredEquipments={filteredEquipments}
+        // useFieldArray
+        assignedEquipments={assignedEquipments}
+        addEquipment={addEquipment}
+        removeEquipment={removeEquipment}
+        // form
         watch={watch}
         setValue={setValue}
-        handleSelectEquipment={handleSelectEquipment}
-        filteredEquipments={filteredEquipments}
-        handleChangeEquipmentType={handleChangeEquipmentType}
-        handleAddEquipment={handleAddEquipment}
-        assignedEquipments={assignedEquipments}
-        setAssignedEquipments={setAssignedEquipments}
+        // availability
+        startAppendEquipment={startAppendEquipment}
+        from={assignmentFromISO}
+        to={assignmentToISO}
       />
 
-      {/* Trabajadores */}
       <AssignWorkerCard
         isDark={isDark}
         workerTypes={workerTypes}
+        filteredWorkers={filteredWorkers}
+        // useFieldArray
+        assignedWorkers={assignedWorkers}
+        addWorker={addWorker}
+        removeWorker={removeWorker}
+        // form
         watch={watch}
         setValue={setValue}
-        handleSelectWorker={handleSelectWorker}
-        filteredWorkers={filteredWorkers}
-        handleSelectWorkerType={handleSelectWorkerType}
-        handleAddWorker={handleAddWorker}
-        assignedWorkers={assignedWorkers}
-        setAssignedWorkers={setAssignedWorkers}
+        // availability
+        startAppendWorker={startAppendWorker}
+        from={assignmentFromISO}
+        to={assignmentToISO}
       />
 
-      {/* Información de la asignación */}
       <Box
         sx={{
           p: 3,
@@ -226,7 +229,6 @@ export const AssignResourcesPage = () => {
         </Grid>
       </Box>
 
-      {/* Botón de Guardar/Enviar */}
       <Box sx={{ display: "flex", justifyContent: "flex-end", pb: 4 }}>
         <Button
           type="submit"

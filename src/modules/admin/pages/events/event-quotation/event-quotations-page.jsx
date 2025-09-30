@@ -51,15 +51,37 @@ export const EventQuotationsPage = () => {
       sortable: false 
     },
     {
-      id: "date",
+      id: "client_info",
+      label: "Cliente",
+      sortable: false,
+      accessor: (row) => {
+        if (row.client_info.client_type === "Persona") {
+          return row.client_info.first_name && row.client_info.last_name
+            ? `${row.client_info.first_name} ${row.client_info.last_name}`
+            : "N/A";
+        }
+        if (row.client_info.client_type === "Empresa") {
+          return row.client_info.company_name || "N/A";
+        }
+        return "N/A";
+      },
+    },
+    {
+      id: "phone",
+      label: "Teléfono",
+      sortable: false,
+      accessor: (row) => row.client_info.phone || "N/A",
+    },
+    {
+      id: "event_date",
       label: "Fecha",
       sortable: true,
-      accessor: (row) => (row.date ? formatDay(row.date) : "N/A"),
+      accessor: (row) => (row.event_date ? formatDay(row.event_date) : "N/A"),
     },
-    { 
-      id: "attendees_count", 
-      label: "Asistentes", 
-      sortable: false 
+    {
+      id: "event_type_name",
+      label: "Tipo de Evento",
+      sortable: false,
     },
     { 
       id: "status", 

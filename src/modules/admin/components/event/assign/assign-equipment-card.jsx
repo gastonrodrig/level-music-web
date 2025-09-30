@@ -13,18 +13,20 @@ import {
 } from "@mui/material";
 import { Add, Delete, Speaker } from "@mui/icons-material";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
+import { useMemo } from "react";
 
 export const AssignEquipmentCard = ({
   isDark,
   equipmentType,
-  watch,
-  setValue,
   filteredEquipments,
   assignedEquipments,
-  handleChangeEquipmentType,
-  handleSelectEquipment,
-  handleAddEquipment,
-  setAssignedEquipments
+  addEquipment,
+  removeEquipment,
+  watch,
+  setValue,
+  startAppendEquipment,
+  from,
+  to,
 }) => {
   const { isSm } = useScreenSizes();
 
@@ -34,32 +36,25 @@ export const AssignEquipmentCard = ({
     setValue("equipment_hours", 1);
   };
 
+  const equipmentId = watch("equipment_id");
   const equipmentPrice = watch("equipment_price");
-  const equipmentHours = watch("equipment_hours");
+  const equipmentHours = watch("equipment_hours") || 1;
+
+  const selectedEquipment = useMemo(
+    () => filteredEquipments.find((e) => e._id === equipmentId),
+    [filteredEquipments, equipmentId]
+  );
 
   return (
-    <Box
-      sx={{
-        p: 3,
-        borderRadius: 3,
-        bgcolor: isDark ? "#1f1e1e" : "#f5f5f5",
-        mb: 2,
-      }}
-    >
-      <Box
-        flexDirection={"row"}
-        display={"flex"}
-        alignItems="center"
-        mb={2}
-        gap={1}
-      >
+    <Box sx={{ p: 3, borderRadius: 3, bgcolor: isDark ? "#1f1e1e" : "#f5f5f5", mb: 2 }}>
+      <Box display="flex" alignItems="center" mb={2} gap={1}>
         <Speaker sx={{ mt: "2px" }} />
         <Typography sx={{ fontSize: 20, fontWeight: 500 }}>
           Asignación de Equipos
         </Typography>
       </Box>
 
-      {/* Cartita interna */}
+      {/* Card interna */}
       <Box
         sx={{
           p: 3,
@@ -83,7 +78,8 @@ export const AssignEquipmentCard = ({
                 value={equipmentType || ""}
                 onChange={(e) => {
                   setValue("equipment_type", e.target.value, { shouldValidate: true });
-                  handleChangeEquipmentType();
+                  // al cambiar tipo, limpiamos selección dependiente
+                  setValue("equipment_id", "");
                 }}
                 inputProps={{ name: "equipment_type" }}
                 sx={{ height: 60 }}
@@ -106,11 +102,8 @@ export const AssignEquipmentCard = ({
               </InputLabel>
               <Select
                 labelId="equipment-label"
-                value={watch("equipment_id") || ""}
-                onChange={(e) => {
-                  setValue("equipment_id", e.target.value, { shouldValidate: true });
-                  handleSelectEquipment(e.target.value, filteredEquipments);
-                }}
+                value={equipmentId || ""}
+                onChange={(e) => setValue("equipment_id", e.target.value, { shouldValidate: true })}
                 inputProps={{ name: "equipment_id" }}
                 sx={{ height: 60 }}
                 displayEmpty
@@ -157,18 +150,14 @@ export const AssignEquipmentCard = ({
             <TextField
               label="Precio por hora (S/)"
               placeholder="Ej: 250"
-              value={equipmentPrice}
+              value={equipmentPrice || ""}
               onChange={(e) => {
-                const value = e.target.value ? Number(e.target.value) : "";  
+                const value = e.target.value ? Number(e.target.value) : "";
                 setValue("equipment_price", value);
               }}
               fullWidth
               InputLabelProps={{ shrink: true }}
-              sx={{
-                "& .MuiInputBase-root": {
-                  height: 60,
-                },
-              }}
+              sx={{ "& .MuiInputBase-root": { height: 60 } }}
             />
           </Grid>
 
@@ -178,20 +167,21 @@ export const AssignEquipmentCard = ({
               variant="contained"
               fullWidth
               startIcon={<Add />}
-              onClick={() => {
-                const success = handleAddEquipment(equipmentPrice, equipmentHours);
-                if (success) resetForm();
+              onClick={async () => {
+                if (!selectedEquipment) return;
+                await startAppendEquipment({
+                  selectedEquipment,
+                  equipmentPrice,
+                  equipmentHours,
+                  assignedEquipments,
+                  append: addEquipment,
+                  onSuccess: resetForm,
+                  from,
+                  to,
+                });
               }}
-              disabled={
-                !watch("equipment_id") || !watch("equipment_hours") || !watch("equipment_price")
-              }
-              sx={{
-                textTransform: "none",
-                borderRadius: 2,
-                color: "#fff",
-                fontWeight: 600,
-                py: 2,
-              }}
+              disabled={!equipmentId || !equipmentHours || !equipmentPrice}
+              sx={{ textTransform: "none", borderRadius: 2, color: "#fff", fontWeight: 600, py: 2 }}
             >
               Agregar
             </Button>
@@ -204,11 +194,10 @@ export const AssignEquipmentCard = ({
         Equipos Asignados ({assignedEquipments.length})
       </Typography>
 
-      {/* Cartita interna */}
       {assignedEquipments.length > 0 ? (
         assignedEquipments.map((equipo, index) => (
           <Box
-            key={index}
+            key={equipo.id ?? `${equipo._id}-${index}`}
             sx={{
               p: 3,
               borderRadius: 2,
@@ -219,99 +208,38 @@ export const AssignEquipmentCard = ({
             }}
           >
             <Grid container spacing={2} alignItems="center">
-              {/* Encabezado */}
-              <Grid item xs={6} >
+              <Grid item xs={6}>
                 <Typography fontWeight={600}>{equipo.name}</Typography>
                 <Box display="flex" flexDirection={!isSm ? "column" : "row"} gap={1} mt={1} sx={{ alignItems: "flex-start" }}>
                   <Chip label={equipo.equipment_type} size="small" />
                 </Box>
               </Grid>
 
-              {/* Precio */}
               <Grid item xs={6} textAlign="right">
-                <Typography fontSize={14}>S/ {equipo.equipment_price}/hora × {equipo.equipment_hours}h</Typography>
-                <Typography fontWeight={600} color="green">
-                  S/. {(equipo.equipment_price) * (equipo.equipment_hours)}
+                <Typography fontSize={14}>
+                  S/ {equipo.equipment_price}/hora × {equipo.equipment_hours}h
                 </Typography>
-                <IconButton
-                  size="small"
-                  color="error"
-                  sx={{ ml: 1 }}
-                  onClick={() => {
-                    // Eliminar equipo de assignedEquipments
-                    const updatedEquipments = assignedEquipments.filter((s, i) => i !== index);
-                    setAssignedEquipments(updatedEquipments);
-                  }}
-                >
+                <Typography fontWeight={600} color="green">
+                  S/. {Number(equipo.equipment_price) * Number(equipo.equipment_hours)}
+                </Typography>
+                <IconButton size="small" color="error" sx={{ ml: 1 }} onClick={() => removeEquipment(index)}>
                   <Delete fontSize="small" />
                 </IconButton>
               </Grid>
             </Grid>
 
-            {/* Detalles */}
             <Grid container spacing={2} mt={1}>
-              {/* Descripción */}
               <Grid item xs={12} md={3}>
-                <Box 
-                  sx={{ 
-                    border: "1px solid", 
-                    borderColor: isDark ? "#515151ff" : "#e0e0e0",
-                    borderRadius: 2,
-                    bgcolor: isDark ? "#2d2d2dff" : "#f5f5f5",
-                    p: 1 
-                  }}
-                >
-                  <Typography fontSize={13} color="text.secondary">Descripción</Typography>
-                  <Typography fontSize={14} fontWeight={500}>{equipo.description}</Typography>
-                </Box>
+                <InfoBox isDark={isDark} label="Descripción" value={equipo.description} />
               </Grid>
-
-              {/* Número de Serie */}
               <Grid item xs={12} md={3}>
-                <Box 
-                  sx={{ 
-                    border: "1px solid", 
-                    borderColor: isDark ? "#515151ff" : "#e0e0e0",
-                    borderRadius: 2,
-                    bgcolor: isDark ? "#2d2d2dff" : "#f5f5f5",
-                    p: 1 
-                  }}
-                >
-                  <Typography fontSize={13} color="text.secondary">Número de Serie</Typography>
-                  <Typography fontSize={14} fontWeight={500}>{equipo.serial_number}</Typography>
-                </Box>
+                <InfoBox isDark={isDark} label="Número de Serie" value={equipo.serial_number} />
               </Grid>
-
-              {/* Ubicación */}
               <Grid item xs={12} md={3}>
-                <Box 
-                  sx={{ 
-                    border: "1px solid", 
-                    borderColor: isDark ? "#515151ff" : "#e0e0e0",
-                    borderRadius: 2,
-                    bgcolor: isDark ? "#2d2d2dff" : "#f5f5f5",
-                    p: 1 
-                  }}
-                >
-                  <Typography fontSize={13} color="text.secondary">Ubicación</Typography>
-                  <Typography fontSize={14} fontWeight={500}>{equipo.location}</Typography>
-                </Box>
+                <InfoBox isDark={isDark} label="Ubicación" value={equipo.location} />
               </Grid>
-
-              {/* Estado */}
               <Grid item xs={12} md={3}>
-                <Box 
-                  sx={{ 
-                    border: "1px solid", 
-                    borderColor: isDark ? "#515151ff" : "#e0e0e0",
-                    borderRadius: 2,
-                    bgcolor: isDark ? "#2d2d2dff" : "#f5f5f5",
-                    p: 1 
-                  }}
-                >
-                  <Typography fontSize={13} color="text.secondary">Estado</Typography>
-                  <Typography fontSize={14} fontWeight={500}>{equipo.status}</Typography>
-                </Box>
+                <InfoBox isDark={isDark} label="Estado" value={equipo.status} />
               </Grid>
             </Grid>
           </Box>
@@ -322,13 +250,33 @@ export const AssignEquipmentCard = ({
         </Typography>
       )}
 
-      {/* Total */}
       {assignedEquipments.length > 0 && (
         <Typography textAlign="right" fontWeight={600} color="green">
           Total Equipos: S/{" "}
-          {assignedEquipments.reduce((acc, equipo) => acc + equipo.equipment_price * equipo.equipment_hours, 0).toFixed(2)}
+          {assignedEquipments
+            .reduce((acc, eq) => acc + Number(eq.equipment_price) * Number(eq.equipment_hours), 0)
+            .toFixed(2)}
         </Typography>
       )}
     </Box>
   );
 };
+
+const InfoBox = ({ isDark, label, value }) => (
+  <Box
+    sx={{
+      border: "1px solid",
+      borderColor: isDark ? "#515151ff" : "#e0e0e0",
+      borderRadius: 2,
+      bgcolor: isDark ? "#2d2d2dff" : "#f5f5f5",
+      p: 1,
+    }}
+  >
+    <Typography fontSize={13} color="text.secondary">
+      {label}
+    </Typography>
+    <Typography fontSize={14} fontWeight={500}>
+      {value ?? "-"}
+    </Typography>
+  </Box>
+);

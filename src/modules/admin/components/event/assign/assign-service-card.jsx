@@ -8,28 +8,25 @@ import {
   MenuItem,
   TextField,
   Button,
-  FormHelperText,
   IconButton,
   Chip,
-  useTheme,
 } from "@mui/material";
 import { Add, Delete, ViewInArSharp } from "@mui/icons-material";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
+import { useMemo } from "react";
 
 export const AssignServiceCard = ({
   isDark,
   services,
   filteredDetails,
   assignedServices,
-  selectedDetail,
-  handleSelectService,
-  handleSelectDetail,
-  handleAddService,
-  setAssignedServices,
+  addService,
+  removeService,
   watch,
   setValue,
-  errors,
-  serviceId,
+  startAppendService,
+  from,
+  to,
 }) => {
   const { isSm } = useScreenSizes();
 
@@ -40,32 +37,31 @@ export const AssignServiceCard = ({
     setValue("service_hours", 1);
   };
 
+  const serviceId = watch("service_id");
+  const serviceDetailId = watch("service_detail_id");
   const servicePrice = watch("service_price");
   const serviceHours = watch("service_hours");
 
-  return (
-    <Box
-      sx={{
-        p: 3,
-        borderRadius: 3,
-        bgcolor: isDark ? "#1f1e1e" : "#f5f5f5",
-        my: 2,
-      }}
-    >
-      <Box
-          flexDirection={"row"}
-          display={"flex"}
-          alignItems="center"
-          mb={2}
-          gap={1}
-        >
-          <ViewInArSharp sx={{ mt: "2px" }} />
-          <Typography sx={{ fontSize: 20, fontWeight: 500 }}>
-            Asignación de Servicios Adicionales
-          </Typography>
-        </Box>
+  const selectedService = useMemo(
+    () => services.find((s) => s._id === serviceId),
+    [services, serviceId]
+  );
 
-      {/* Cartita interna */}
+  const selectedDetail = useMemo(
+    () => filteredDetails.find((d) => d._id === serviceDetailId),
+    [filteredDetails, serviceDetailId]
+  );
+
+  return (
+    <Box sx={{ p: 3, borderRadius: 3, bgcolor: isDark ? "#1f1e1e" : "#f5f5f5", my: 2 }}>
+      <Box display="flex" alignItems="center" mb={2} gap={1}>
+        <ViewInArSharp sx={{ mt: "2px" }} />
+        <Typography sx={{ fontSize: 20, fontWeight: 500 }}>
+          Asignación de Servicios Adicionales
+        </Typography>
+      </Box>
+
+      {/* Card interna */}
       <Box
         sx={{
           p: 3,
@@ -80,17 +76,14 @@ export const AssignServiceCard = ({
           {/* Servicio */}
           <Grid item xs={12} md={3}>
             <FormControl fullWidth>
-              <InputLabel id="service-label" shrink>
-                Servicio
-              </InputLabel>
+              <InputLabel id="service-label" shrink>Servicio</InputLabel>
               <Select
                 labelId="service-label"
                 label="Servicio"
-                value={watch("service_id") || ""}
+                value={serviceId || ""}
                 onChange={(e) => {
-                  const id = e.target.value;
-                  setValue("service_id", id, { shouldValidate: true });
-                  handleSelectService(id, services);
+                  setValue("service_id", e.target.value, { shouldValidate: true });
+                  setValue("service_detail_id", "");
                 }}
                 inputProps={{ name: "service_id" }}
                 sx={{ height: 60 }}
@@ -99,12 +92,12 @@ export const AssignServiceCard = ({
                 <MenuItem value="">
                   <em>Seleccione un servicio</em>
                 </MenuItem>
-                {services.map((type) => (
-                  <MenuItem key={type._id} value={type._id}>
+                {services.map((s) => (
+                  <MenuItem key={s._id} value={s._id}>
                     <Box>
-                      <Typography fontWeight={500}>{type.service_type_name}</Typography>
+                      <Typography fontWeight={500}>{s.service_type_name}</Typography>
                       <Typography variant="body2" color="text.secondary">
-                        {type.provider_name}
+                        {s.provider_name}
                       </Typography>
                     </Box>
                   </MenuItem>
@@ -116,17 +109,11 @@ export const AssignServiceCard = ({
           {/* Paquete */}
           <Grid item xs={12} md={3}>
             <FormControl fullWidth size="small">
-              <InputLabel id="package-label" shrink>
-                Paquete
-              </InputLabel>
+              <InputLabel id="package-label" shrink>Paquete</InputLabel>
               <Select
                 labelId="package-label"
-                value={watch("service_detail_id") || ""}
-                onChange={(e) => {
-                  const id = e.target.value;
-                  setValue("service_detail_id", id, { shouldValidate: true });
-                  handleSelectDetail(id, filteredDetails);
-                }}
+                value={serviceDetailId || ""}
+                onChange={(e) => setValue("service_detail_id", e.target.value, { shouldValidate: true })}
                 inputProps={{ name: "service_detail_id" }}
                 sx={{ height: 60 }}
                 disabled={!serviceId}
@@ -158,20 +145,18 @@ export const AssignServiceCard = ({
               <InputLabel id="hours-label">Horas</InputLabel>
               <Select
                 labelId="hours-label"
-                value={serviceHours}
+                value={serviceHours || 1}
                 onChange={(e) => setValue("service_hours", e.target.value)}
                 sx={{ height: 60 }}
               >
                 {Array.from({ length: 10 }, (_, i) => i + 1).map((h) => (
-                  <MenuItem key={h} value={h}>
-                    {h} horas
-                  </MenuItem>
+                  <MenuItem key={h} value={h}>{h} horas</MenuItem>
                 ))}
               </Select>
             </FormControl>
           </Grid>
 
-          {/* Precio de referencia (deshabilitado) */}
+          {/* Precio de referencia */}
           <Grid item xs={12} md={1.5}>
             <TextField
               label="Precio Ref."
@@ -179,11 +164,7 @@ export const AssignServiceCard = ({
               fullWidth
               disabled
               InputLabelProps={{ shrink: true }}
-              sx={{
-                "& .MuiInputBase-root": {
-                  height: 60,
-                },
-              }}
+              sx={{ "& .MuiInputBase-root": { height: 60 } }}
             />
           </Grid>
 
@@ -192,18 +173,14 @@ export const AssignServiceCard = ({
             <TextField
               label="Precio Hora"
               placeholder="Ej: 250"
-              value={servicePrice}
+              value={servicePrice || ""}
               onChange={(e) => {
-                const value = e.target.value ? Number(e.target.value) : "";  // Convertimos el valor
+                const value = e.target.value ? Number(e.target.value) : "";
                 setValue("service_price", value);
               }}
               fullWidth
               InputLabelProps={{ shrink: true }}
-              sx={{
-                "& .MuiInputBase-root": {
-                  height: 60,
-                },
-              }}
+              sx={{ "& .MuiInputBase-root": { height: 60 } }}
             />
           </Grid>
 
@@ -213,18 +190,22 @@ export const AssignServiceCard = ({
               variant="contained"
               fullWidth
               startIcon={<Add />}
-              onClick={() => {
-                const success = handleAddService(servicePrice, serviceHours);
-                if (success) resetForm(); 
+              onClick={async () => {
+                if (!selectedService || !selectedDetail) return;
+                await startAppendService({
+                  selectedService,
+                  selectedDetail,
+                  servicePrice,
+                  serviceHours,
+                  assignedServices,
+                  append: addService,
+                  onSuccess: resetForm,
+                  from,
+                  to,
+                });
               }}
-              disabled={!watch("service_detail_id")}
-              sx={{
-                textTransform: "none",
-                borderRadius: 2,
-                color: "#fff",
-                fontWeight: 600,
-                py: 2,
-              }}
+              disabled={!serviceDetailId}
+              sx={{ textTransform: "none", borderRadius: 2, color: "#fff", fontWeight: 600, py: 2 }}
             >
               Agregar
             </Button>
@@ -232,16 +213,15 @@ export const AssignServiceCard = ({
         </Grid>
       </Box>
 
-      {/* Resumen de Servicios Asignados */}
+      {/* Resumen */}
       <Typography fontSize={15} sx={{ mt: 2, mb: 1 }}>
         Servicios Asignados ({assignedServices.length})
       </Typography>
 
-      {/* Cartita interna */}
       {assignedServices.length > 0 ? (
         assignedServices.map((servicio, index) => (
           <Box
-            key={index}
+            key={servicio.id}
             sx={{
               p: 3,
               borderRadius: 2,
@@ -252,55 +232,40 @@ export const AssignServiceCard = ({
             }}
           >
             <Grid container spacing={2} alignItems="center">
-              {/* Encabezado */}
-              <Grid item xs={6} >
+              <Grid item xs={6}>
                 <Typography fontWeight={600}>{servicio.service_type_name}</Typography>
-                <Box display="flex" flexDirection={!isSm ? "column" : "row"} gap={1} mt={1} sx={{ alignItems: "flex-start" }}>
+                <Box
+                  display="flex"
+                  flexDirection={!isSm ? "column" : "row"}
+                  gap={1}
+                  mt={1}
+                  sx={{ alignItems: "flex-start" }}
+                >
                   <Chip label={servicio.provider_name} size="small" />
                   <Chip label={`Horas: ${servicio.service_hours}`} size="small" />
                 </Box>
               </Grid>
 
-              {/* Precio */}
               <Grid item xs={6} textAlign="right">
                 <Typography fontSize={13} sx={{ textDecoration: "line-through", color: "text.secondary" }}>
                   Ref: S/ {servicio.ref_price}/hora × {servicio.service_hours}h
                 </Typography>
-                <Typography fontSize={14}>S/ {servicio.service_price}/hora × {servicio.service_hours}h</Typography>
-                <Typography fontWeight={600} color="green">
-                  S/. {(servicio.service_price) * servicio.service_hours}
+                <Typography fontSize={14}>
+                  S/ {servicio.service_price}/hora × {servicio.service_hours}h
                 </Typography>
-                <IconButton
-                  size="small"
-                  color="error"
-                  sx={{ ml: 1 }}
-                  onClick={() => {
-                    // Eliminar servicio de assignedServices
-                    const updatedServices = assignedServices.filter((s, i) => i !== index);
-                    setAssignedServices(updatedServices);
-                  }}
-                >
+                <Typography fontWeight={600} color="green">
+                  S/. {Number(servicio.service_price) * Number(servicio.service_hours)}
+                </Typography>
+                <IconButton size="small" color="error" sx={{ ml: 1 }} onClick={() => removeService(index)}>
                   <Delete fontSize="small" />
                 </IconButton>
               </Grid>
             </Grid>
 
-            {/* Detalles */}
             <Grid container spacing={2} mt={0.5}>
               {Object.entries(servicio.details).map(([k, v]) => (
                 <Grid item xs={12} sm={6} md={3} key={k}>
-                  <Box 
-                    sx={{ 
-                      border: "1px solid", 
-                      borderColor: isDark ? "#515151ff" : "#e0e0e0",
-                      borderRadius: 2,
-                      bgcolor: isDark ? "#2d2d2dff" : "#f5f5f5",
-                      p: 1 
-                    }}
-                  >
-                    <Typography fontSize={13} color="text.secondary">{k}</Typography>
-                    <Typography fontSize={14} fontWeight={500}>{v}</Typography>
-                  </Box>
+                  <InfoBox isDark={isDark} label={k} value={v} />
                 </Grid>
               ))}
             </Grid>
@@ -312,13 +277,33 @@ export const AssignServiceCard = ({
         </Typography>
       )}
 
-      {/* Total */}
       {assignedServices.length > 0 && (
         <Typography textAlign="right" fontWeight={600} color="green">
           Total Servicios Adicionales: S/{" "}
-          {assignedServices.reduce((acc, servicio) => acc + servicio.service_price * servicio.service_hours, 0).toFixed(2)}
+          {assignedServices
+            .reduce((acc, s) => acc + Number(s.service_price) * Number(s.service_hours), 0)
+            .toFixed(2)}
         </Typography>
       )}
     </Box>
   );
 };
+
+const InfoBox = ({ isDark, label, value }) => (
+  <Box
+    sx={{
+      border: "1px solid",
+      borderColor: isDark ? "#515151ff" : "#e0e0e0",
+      borderRadius: 2,
+      bgcolor: isDark ? "#2d2d2dff" : "#f5f5f5",
+      p: 1,
+    }}
+  >
+    <Typography fontSize={13} color="text.secondary">
+      {label}
+    </Typography>
+    <Typography fontSize={14} fontWeight={500}>
+      {String(value)}
+    </Typography>
+  </Box>
+);

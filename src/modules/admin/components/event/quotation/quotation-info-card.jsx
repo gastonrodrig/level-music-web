@@ -1,6 +1,6 @@
 import { Box, Typography, Chip, Grid, useTheme } from "@mui/material";
 import { EventAvailable, Person } from "@mui/icons-material";
-import { formatDateString } from "../../../../../shared/utils";
+import { formatDateString, formatTimeRange } from "../../../../../shared/utils";
 
 export const QuotationInfoCard = ({ selected }) => {
   const theme = useTheme();
@@ -47,7 +47,7 @@ export const QuotationInfoCard = ({ selected }) => {
                     Fecha
                   </Typography>
                   <Typography fontSize={14}>
-                    {formatDateString(selected?.date)}
+                    {formatDateString(selected?.event_date)}
                   </Typography>
                 </Box>
 
@@ -74,7 +74,7 @@ export const QuotationInfoCard = ({ selected }) => {
                     Horario
                   </Typography>
                   <Typography fontSize={14}>
-                    {selected?.start_time} - {selected?.end_time}
+                    {formatTimeRange(selected?.start_time, selected?.end_time)}
                   </Typography>
                 </Box>
 

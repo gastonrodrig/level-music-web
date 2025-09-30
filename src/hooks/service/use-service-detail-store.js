@@ -22,7 +22,6 @@ export const useServiceDetailStore = () => {
     dispatch(setLoadingServiceDetail(true));
     try {
       const { data } = await serviceDetailApi.get("/all", getAuthConfig(token));
-      console.log(data);
       dispatch(listAllServiceDetails(data));
       return true;
     } catch (error) {
@@ -44,7 +43,3 @@ export const useServiceDetailStore = () => {
     startLoadingAllServiceDetails,
   };
 };
-
-
-
-      // Implement API call to load service details her
