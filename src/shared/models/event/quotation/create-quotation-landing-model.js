@@ -33,5 +33,6 @@ export const createQuotationLandingModel = (f) => ({
     phone: f.phone,
     document_type: f.document_type,
     document_number: f.document_number
-  }
+  },
+  is_quotation: true,
 });
