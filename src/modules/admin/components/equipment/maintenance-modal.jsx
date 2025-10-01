@@ -315,7 +315,6 @@ export const MaintenanceModal = ({
                   </Select>
                   <FormHelperText>{errors.status?.message}</FormHelperText>
                 </FormControl>
-                
 
                 {/* Opciones que aparecen cuando se selecciona "Reagendar" */}
                 {showRescheduleOptions && (

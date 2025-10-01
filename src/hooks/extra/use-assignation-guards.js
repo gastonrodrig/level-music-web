@@ -11,12 +11,13 @@ export const useAssignationGuards = () => {
   const isPriceValid = (price) => !!price && Number(price) > 0;
 
   
-  const checkEquipment = async (equipmentId) => {
+  const checkEquipmentMaintenance = async (equipmentId, date) => {
     try {
+      console.log(equipmentId, date);
       await equipmentApi.get(`/availability/${equipmentId}`,
         getAuthConfigWithParams(token, 
           { 
-            date: dateUTC
+            date: date
           }
           
         )
@@ -94,6 +95,7 @@ export const useAssignationGuards = () => {
     onSuccess,
     from,
     to,
+    eventDate
   }) => {
     if (!selectedEquipment) {
       openSnackbar("Debe seleccionar un equipo."); 
@@ -118,7 +120,7 @@ export const useAssignationGuards = () => {
       return false; 
     }
 
-    const availCheck = await checkEquipment(selectedEquipment._id, from);
+    const availCheck = await checkEquipmentMaintenance(selectedEquipment._id, eventDate);
     if (!availCheck.ok) { 
       openSnackbar(availCheck.message); 
       return false; 

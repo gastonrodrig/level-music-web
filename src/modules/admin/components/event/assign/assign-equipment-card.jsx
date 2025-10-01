@@ -27,6 +27,7 @@ export const AssignEquipmentCard = ({
   startAppendEquipment,
   from,
   to,
+  eventDate,
 }) => {
   const { isSm } = useScreenSizes();
 
@@ -178,6 +179,7 @@ export const AssignEquipmentCard = ({
                   onSuccess: resetForm,
                   from,
                   to,
+                  eventDate: eventDate,
                 });
               }}
               disabled={!equipmentId || !equipmentHours || !equipmentPrice}
