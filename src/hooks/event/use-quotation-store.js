@@ -111,7 +111,7 @@ export const useQuotationStore = () => {
     try {
       const limit  = rowsPerPage;
       const offset = currentPage * rowsPerPage;
-      const { data } = await eventApi.get('/paginated',
+      const { data } = await eventApi.get('/paginated/quotation',
         getAuthConfigWithParams(token, {
           limit,
           offset,
