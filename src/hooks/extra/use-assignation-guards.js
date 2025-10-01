@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { showSnackbar } from "../../store";
 import { getAuthConfigWithParams } from "../../shared/utils";
-import { assignationsApi } from "../../api";
+import { assignationsApi, equipmentApi } from "../../api";
 
 export const useAssignationGuards = () => {
   const dispatch = useDispatch();
@@ -9,6 +9,24 @@ export const useAssignationGuards = () => {
 
   const openSnackbar = (message) => dispatch(showSnackbar({ message }));
   const isPriceValid = (price) => !!price && Number(price) > 0;
+
+  
+  const checkEquipment = async (equipmentId) => {
+    try {
+      await equipmentApi.get(`/availability/${equipmentId}`,
+        getAuthConfigWithParams(token, 
+          { 
+            date: dateUTC
+          }
+          
+        )
+      );
+      return { ok: true };
+    } catch (error) {
+      const msg = error.response?.data?.message || "Equipo no disponible en ese rango.";
+      return { ok: false, message: msg };
+    }
+  };
 
   const checkEquipmentAvailability = async (equipmentId, from, to) => {
     try {
@@ -33,7 +51,7 @@ export const useAssignationGuards = () => {
     try {
       const fromUTC = new Date(from).toISOString();
       const toUTC   = new Date(to).toISOString();
-      await assignationsApi.get(`/availability/worker/${workerId}`,
+      await equipmentApi.get(`/availability/worker/${workerId}`,
         getAuthConfigWithParams(token, 
           { 
             from: fromUTC, 
@@ -97,6 +115,12 @@ export const useAssignationGuards = () => {
     const avail = await checkEquipmentAvailability(selectedEquipment._id, from, to);
     if (!avail.ok) { 
       openSnackbar(avail.message); 
+      return false; 
+    }
+
+    const availCheck = await checkEquipment(selectedEquipment._id, from);
+    if (!availCheck.ok) { 
+      openSnackbar(availCheck.message); 
       return false; 
     }
 
