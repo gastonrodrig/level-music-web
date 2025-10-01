@@ -72,7 +72,7 @@ export const QuotationPage = () => {
       icon: <DownloadIcon />,
       onClick: (row) => {
         setSelectedQuotation(row);
-        handleDownloadPdf();
+        handleDownloadPdf(row);
       },
     }
   ];
