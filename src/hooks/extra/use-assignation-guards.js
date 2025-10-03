@@ -10,7 +10,6 @@ export const useAssignationGuards = () => {
   const openSnackbar = (message) => dispatch(showSnackbar({ message }));
   const isPriceValid = (price) => !!price && Number(price) > 0;
 
-  
   const checkEquipmentMaintenance = async (equipmentId, date) => {
     try {
       console.log(equipmentId, date);
@@ -52,7 +51,7 @@ export const useAssignationGuards = () => {
     try {
       const fromUTC = new Date(from).toISOString();
       const toUTC   = new Date(to).toISOString();
-      await equipmentApi.get(`/availability/worker/${workerId}`,
+      await assignationsApi.get(`/availability/worker/${workerId}`,
         getAuthConfigWithParams(token, 
           { 
             from: fromUTC, 
