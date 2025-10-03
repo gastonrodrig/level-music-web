@@ -9,7 +9,7 @@ import {
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs";
 
-export const EventDetailsForm = () => {
+export const EventDetailsForm = ({ isDark }) => {
   const {
     register,
     control,
@@ -25,8 +25,9 @@ export const EventDetailsForm = () => {
         p: 3,
         borderRadius: 2,
         border: "1px solid",
-        borderColor: "divider",
+        borderColor: isDark ? "#333" : "divider", // 👈 igual que en tu otro código
         mb: 3,
+        bgcolor: isDark ? "#1f1e1e" : "#f5f5f5", // 👈 dinámico
       }}
     >
       <Typography fontWeight={600} sx={{ mb: 2 }}>
