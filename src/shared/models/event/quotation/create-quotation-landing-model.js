@@ -1,5 +1,3 @@
-import { formatDateTime } from "../../../utils";
-
 export const createQuotationLandingModel = (f) => ({
   event_date: new Date(f.startDateTime),
   start_time: new Date(f.startDateTime),
