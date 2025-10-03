@@ -17,16 +17,6 @@ export const menuItems = [
     icon: Event,
     subItems: [
       { 
-        text: 'Realizados', 
-        breadcrumb: 'Eventos Realizados',
-        href: '/cliente/event-made' 
-      },
-      { 
-        text: 'Por Realizar', 
-        breadcrumb: 'Eventos Por Realizar',
-        href: '/cliente/event-to-do' 
-      },
-      { 
         text: 'Cotizaciones', 
         breadcrumb: 'Cotizaciones',
         href: '/cliente/event-quotes',
@@ -39,7 +29,24 @@ export const menuItems = [
         
         ],
       },
+     
+      { 
+        text: 'En Seguimiento', 
+        breadcrumb: 'Eventos En Seguimiento',
+        href: '/cliente/event-to-do' 
+      },
+      { 
+        text: 'Realizados', 
+        breadcrumb: 'Eventos Realizados',
+        href: '/cliente/event-made' 
+      },
+      { 
+        text: 'Solicitudes de Reprogramación', 
+        breadcrumb: 'Solicitudes de Reprogramación',
+        href: '/cliente/reprogramings-requests' 
+      } 
       
+       
     ]
   },
   { 
