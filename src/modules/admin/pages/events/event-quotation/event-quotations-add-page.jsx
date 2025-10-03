@@ -3,6 +3,7 @@ import { useForm, FormProvider } from "react-hook-form";
 
 // Importa tus hijos
 import { EventDetailsForm, PersonalInfoForm } from "../../../components";
+import { useEffect } from "react";
 
 export const EventQuotationAddPage = () => {
   const methods = useForm({
@@ -35,7 +36,20 @@ export const EventQuotationAddPage = () => {
     mode: "onBlur",
   });
 
-  const { handleSubmit } = methods;
+  const { 
+    handleSubmit,
+    watch, 
+    setValue 
+  } = methods;
+
+  const clientType = watch("client_type");
+
+  useEffect(() => {
+    if (clientType === "Empresa") {
+      setValue("document_type", "Ruc");
+      setValue("document_number", "");
+    }
+  }, [clientType, setValue]);
 
   const onSubmit = (data) => {
     console.log("Cotización completa:", data);
