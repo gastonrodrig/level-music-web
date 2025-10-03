@@ -11,7 +11,7 @@ import {
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
 import { TableComponent } from "../../../../../shared/ui/components";
 import { formatDay } from "../../../../../shared/utils";
-import { Group, AddCircleOutline } from "@mui/icons-material";
+import { Group, AddCircleOutline, Edit } from "@mui/icons-material";
 import { Box, Typography, Button, TextField, CircularProgress } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -106,6 +106,14 @@ export const EventQuotationsPage = () => {
       onClick: (row) => {
         setSelectedQuotation(row);
         navigate(`/admin/quotations/assign`);
+      },
+    },
+    { 
+      label: 'Editar Cotización', 
+      icon: <Edit />, 
+      onClick: (row) => {
+        setSelectedQuotation(row);
+        navigate(`/admin/quotations/edit`);
       },
     },
   ];
