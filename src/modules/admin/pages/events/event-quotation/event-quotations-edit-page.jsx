@@ -22,8 +22,7 @@ export const EventQuotationEditPage = () => {
           Asigna trabajadores, servicios adicionales y equipos para el evento.
         </Typography>
 
-        <EventDetailsForm 
-          isDark={isDark}        
+        <EventDetailsForm       
         />
       </Box>
     </FormProvider>

@@ -1,5 +1,3 @@
-import { formatDateTime } from "../../../utils";
-
 export const createQuotationLandingModel = (f) => ({
   event_date: new Date(f.startDateTime),
   start_time: new Date(f.startDateTime),
@@ -33,5 +31,6 @@ export const createQuotationLandingModel = (f) => ({
     phone: f.phone,
     document_type: f.document_type,
     document_number: f.document_number
-  }
+  },
+  is_quotation: true,
 });

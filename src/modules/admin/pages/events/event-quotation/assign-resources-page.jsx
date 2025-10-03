@@ -172,6 +172,8 @@ export const AssignResourcesPage = () => {
         startAppendEquipment={startAppendEquipment}
         from={assignmentFromISO}
         to={assignmentToISO}
+        // event date
+        eventDate={selected?.event_date}
       />
 
       <AssignWorkerCard

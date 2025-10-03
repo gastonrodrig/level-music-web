@@ -5,17 +5,21 @@ import {
   TextField,
   Grid,
   MenuItem,
+  useTheme,
 } from "@mui/material";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs";
+import { EventAvailable } from "@mui/icons-material";
 
-export const EventDetailsForm = ({ isDark }) => {
+export const EventDetailsForm = () => {
   const {
     register,
     control,
     formState: { errors },
     watch,
   } = useFormContext();
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
 
   const startTime = watch("startDateTime");
 
@@ -24,16 +28,25 @@ export const EventDetailsForm = ({ isDark }) => {
       sx={{
         p: 3,
         borderRadius: 2,
-        border: "1px solid",
-        borderColor: isDark ? "#333" : "divider", // 👈 igual que en tu otro código
+        borderColor: "divider",
+        bgcolor: isDark ? "#1f1e1e" : "#f5f5f5",
         mb: 3,
-        bgcolor: isDark ? "#1f1e1e" : "#f5f5f5", // 👈 dinámico
       }}
     >
-      <Typography fontWeight={600} sx={{ mb: 2 }}>
-        Información del Evento
-      </Typography>
-
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "flex-start",
+          gap: 1,
+          mb: 3,
+        }}
+      >
+        <EventAvailable />
+        <Typography fontWeight={600}>
+          Información del Evento
+        </Typography>
+      </Box>
       <Grid container spacing={2}>
         {/* Nombre del Evento */}
         <Grid item xs={12} md={6}>

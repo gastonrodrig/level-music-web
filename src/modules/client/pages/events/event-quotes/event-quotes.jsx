@@ -1,8 +1,10 @@
 import { useEffect } from 'react';
 import { Box, Typography, TextField, CircularProgress } from '@mui/material';
-import { Edit } from '@mui/icons-material';
+import { Edit  } from '@mui/icons-material';
+import DownloadIcon from '@mui/icons-material/Download';
 import { useQuotationStore, useAuthStore } from '../../../../../hooks';
 import { TableComponent } from '../../../../../shared/ui/components';
+import { handleDownloadPdf } from '../../../../../modules/client/components/events';
 import { useScreenSizes } from '../../../../../shared/constants/screen-width';
 import { useNavigate } from 'react-router-dom';
 import { formatDay } from '../../../../../shared/utils';
@@ -63,6 +65,14 @@ export const QuotationPage = () => {
       onClick: (row) => {
         setSelectedQuotation(row);
         navigate(`/cliente/event-quotes/details`);
+      },
+    },
+    {
+      label: 'Descargar PDF',
+      icon: <DownloadIcon />,
+      onClick: (row) => {
+        setSelectedQuotation(row);
+        handleDownloadPdf();
       },
     }
   ];
