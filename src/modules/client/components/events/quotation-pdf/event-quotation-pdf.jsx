@@ -9,7 +9,7 @@ import { imagen_1 } from '../../../../../assets/images/carrousel';
 // Define estilos
 const styles = StyleSheet.create({
   page: { padding: 30, position: 'relative' },
-  section: { marginBottom: 10 },
+  section: { marginBottom: 10, marginTop:10 },
   logo: { width: 80, height: 80, marginBottom: 10 },
   bgImage: {
     position: 'absolute',
@@ -68,7 +68,7 @@ export const handleDownloadPdf = async (quotation) => {
 const PdfHeader = () => (
   <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
     <Image src={foto_3} style={styles.logo} />
-    <Text style={{ fontSize: 14, fontWeight: 'bold', textAlign: 'right' }}>
+    <Text style={{ fontSize: 14, fontWeight: 'bold', textAlign: 'right', color: '#b66f28ff' }}>
       www.levelmusiceventos.com
     </Text>
   </View>
@@ -99,6 +99,8 @@ const MyQuotationPdf = ({ quotation }) => {
     "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
   ];
+  const totalAsignaciones = (quotation.assignations || [])
+  .reduce((acc, a) => acc + ((Number(a.hourly_rate) || 0) * (Number(a.hours) || 0)), 0);
   const hoy = new Date();
   const dia = hoy.getDate();
   const mes = meses[hoy.getMonth()];
@@ -148,10 +150,82 @@ const MyQuotationPdf = ({ quotation }) => {
       <Text style={styles.texoParrafo}>.            La presente es para detallar la propuesta por el servicio de {servicios.map(s => s.name).join(', ')}
 profesional para el evento a realizarse el {fechaEventoFormateada} del presente en el {quotation.exact_address}
 </Text>
-      <View>
-
+<View style={{ marginTop: 10, marginBottom: 10 }}>
+  <Text style={styles.title}>Servicios Adicionales Asignados</Text>
+  <View>
+    <View style={{ flexDirection: "row", marginBottom: 4 }}>
+      <Text style={{ width: 120, fontSize: 12, fontWeight: 'bold' }}>Servicio</Text>
+      <Text style={{ width: 120, fontSize: 12, fontWeight: 'bold' }}>Proveedor</Text>
+      <Text style={{ width: 60, fontSize: 12, fontWeight: 'bold' }}>Horas</Text>
+      <Text style={{ width: 60, fontSize: 12, fontWeight: 'bold' }}>Tarifa por hora</Text>
+    </View>
+    {quotation.assignations?.filter(a => a.resource_type === "Servicio Adicional").map((a, idx) => (
+      <View key={a._id || idx} style={{ flexDirection: "row", marginBottom: 2 }}>
+        <Text style={{ width: 120, fontSize: 12 }}>{a.service_type_name || '-'}</Text>
+        <Text style={{ width: 120, fontSize: 12 }}>{a.service_provider_name || '-'}</Text>
+        <Text style={{ width: 60, fontSize: 12 }}>{a.hours ?? '-'}</Text>
+        <Text style={{ width: 60, fontSize: 12 }}>S/. {a.hourly_rate ?? '-'}</Text>
       </View>
-      
+    ))}
+    {quotation.assignations?.filter(a => a.resource_type === "Servicio Adicional").length === 0 && (
+      <Text style={{ fontSize: 12, color: "#888" }}>No hay servicios adicionales asignados.</Text>
+    )}
+  </View>
+</View>
+
+{/* Equipos */}
+<View style={{ marginTop: 10, marginBottom: 10 }}>
+  <Text style={styles.title}>Equipos Asignados</Text>
+  <View>
+    <View style={{ flexDirection: "row", marginBottom: 4 }}>
+      <Text style={{ width: 120, fontSize: 12, fontWeight: 'bold' }}>Equipo</Text>
+      <Text style={{ width: 120, fontSize: 12, fontWeight: 'bold' }}>Descripción</Text>
+      <Text style={{ width: 60, fontSize: 12, fontWeight: 'bold' }}>Horas</Text>
+      <Text style={{ width: 60, fontSize: 12, fontWeight: 'bold' }}>Tarifa por hora</Text>
+    </View>
+    {quotation.assignations?.filter(a => a.resource_type === "Equipo").map((a, idx) => (
+      <View key={a._id || idx} style={{ flexDirection: "row", marginBottom: 2 }}>
+        <Text style={{ width: 120, fontSize: 12 }}>{a.equipment_name || '-'}</Text>
+        <Text style={{ width: 120, fontSize: 12 }}>{a.equipment_description || '-'}</Text>
+        <Text style={{ width: 60, fontSize: 12 }}>{a.hours ?? '-'}</Text>
+        <Text style={{ width: 60, fontSize: 12 }}>S/. {a.hourly_rate ?? '-'}</Text>
+      </View>
+    ))}
+    {quotation.assignations?.filter(a => a.resource_type === "Equipo").length === 0 && (
+      <Text style={{ fontSize: 12, color: "#888" }}>No hay equipos asignados.</Text>
+    )}
+  </View>
+</View>
+
+{/* Trabajadores */}
+<View style={{ marginTop: 10, marginBottom: 10 }}>
+  <Text style={styles.title}>Trabajadores Asignados</Text>
+  <View>
+    <View style={{ flexDirection: "row", marginBottom: 4 }}>
+      <Text style={{ width: 120, fontSize: 12, fontWeight: 'bold' }}>Rol</Text>
+      <Text style={{ width: 120, fontSize: 12, fontWeight: 'bold' }}>Estado</Text>
+      <Text style={{ width: 60, fontSize: 12, fontWeight: 'bold' }}>Horas</Text>
+      <Text style={{ width: 60, fontSize: 12, fontWeight: 'bold' }}>Tarifa por hora</Text>
+    </View>
+    {quotation.assignations?.filter(a => a.resource_type === "Trabajador").map((a, idx) => (
+      <View key={a._id || idx} style={{ flexDirection: "row", marginBottom: 2 }}>
+        <Text style={{ width: 120, fontSize: 12 }}>{a.worker_role || '-'}</Text>
+        <Text style={{ width: 120, fontSize: 12 }}>{a.worker_status || '-'}</Text>
+        <Text style={{ width: 60, fontSize: 12 }}>{a.hours ?? '-'}</Text>
+        <Text style={{ width: 60, fontSize: 12 }}>S/.{a.hourly_rate ?? '-'}</Text>
+      </View>
+    ))}
+    {quotation.assignations?.filter(a => a.resource_type === "Trabajador").length === 0 && (
+      <Text style={{ fontSize: 12, color: "#888" }}>No hay trabajadores asignados.</Text>
+    )}
+  </View>
+</View>
+      <Text style={{paddingTop:30, fontSize: 12, color: "#000000ff" , fontWeight: 'bold' }}>Total: S/. {totalAsignaciones.toFixed(2)}</Text>
+      <PdfFooter/>
+    </Page>
+  <Page size="A4" style={styles.page}>
+  <View >
+      <PdfHeader />
       <View style={styles.section}>
         <Text style={styles.title}>Condiciones Generales</Text>
         <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 4 }}><Image src={foto_5} style={styles.checkIcon} /><Text style={styles.check}> Los precios son en Soles y NO incluyen el IGV.</Text></View>
@@ -167,11 +241,6 @@ profesional para el evento a realizarse el {fechaEventoFormateada} del presente 
         <View><Text style={styles.textoConditions}> CCI 00219119549140606452 </Text></View>
         <View><Text style={styles.textoConditions}> A nombre de Renzo Rodríguez Osco </Text></View>
       </View>
-      <PdfFooter/>
-    </Page>
-    <Page size="A4" style={styles.page}>
-    <View >
-      <PdfHeader />
       <Text style={styles.texoParrafo}>Agradeciendo la atención prestada, estaremos gustosos de poder servirlos</Text>
       <Text style={styles.texti}>Atentamente,</Text>
       <Image src={foto_6} style={styles.firma} />
