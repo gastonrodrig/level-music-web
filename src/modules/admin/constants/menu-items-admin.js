@@ -6,7 +6,8 @@ import {
   Store,
   RoomService,
   Person,
-  Person2Outlined
+  Person2Outlined,
+  Timelapse
 } from '@mui/icons-material';
 
 export const menuItems = [
@@ -20,11 +21,7 @@ export const menuItems = [
     text: 'Gestionar Eventos', 
     icon: Event, 
     subItems: [
-      { 
-        text: 'Eventos', 
-        breadcrumb: 'Eventos',
-        href: '/admin/events'
-      },
+     
       { 
         text: 'Tipo de Eventos', 
         breadcrumb: 'Tipo de Eventos',
@@ -52,10 +49,32 @@ export const menuItems = [
           }
         ],
       }, 
+       { 
+        text: 'En Seguimiento', 
+        breadcrumb: 'Eventos',
+        href: '/admin/events'
+      },
       { 
         text: 'Destacados',
         breadcrumb: 'Eventos Destacados',
         href: '/admin/featured-events' 
+      }
+          
+    ]
+  },
+   { 
+    text: 'Reprogramaciones', 
+    icon:   Timelapse,
+    subItems: [
+      { 
+        text: 'Solicitudes', 
+        breadcrumb: 'Solicitudes de Reprogramación de eventos',
+        href: '/admin/requests' 
+      },
+      { 
+        text: 'Reprogramar', 
+        breadcrumb: 'Reprogramar eventos',
+        href: '/admin/reschedule' 
       }
     ]
   },
@@ -63,15 +82,15 @@ export const menuItems = [
     text: 'Gestionar Trabajadores', 
     icon: People,
     subItems: [
+       { 
+        text: 'Tipo de Trabajadores', 
+        breadcrumb: 'Tipo de Trabajadores',
+        href: '/admin/worker-types' 
+      },
       { 
         text: 'Trabajadores', 
         breadcrumb: 'Trabajadores',
         href: '/admin/workers' 
-      },
-      { 
-        text: 'Tipo de Trabajadores', 
-        breadcrumb: 'Tipo de Trabajadores',
-        href: '/admin/worker-types' 
       }
     ]
   },
@@ -111,6 +130,17 @@ export const menuItems = [
     text: 'Gestionar Servicios', 
     icon: RoomService,
     subItems: [
+      
+      { 
+        text: 'Tipo de Servicios', 
+        breadcrumb: 'Tipo de Servicios',
+        href: '/admin/service-type' 
+      },
+      { 
+        text: 'Proveedores', 
+        breadcrumb: 'Proveedores',
+        href: '/admin/provider' 
+      },
       { 
         text: 'Servicios', 
         breadcrumb: 'Servicios',
@@ -127,16 +157,6 @@ export const menuItems = [
             href: '/admin/service/edit',
           },
         ],
-      },
-      { 
-        text: 'Tipo de Servicios', 
-        breadcrumb: 'Tipo de Servicios',
-        href: '/admin/service-type' 
-      },
-      { 
-        text: 'Proveedores', 
-        breadcrumb: 'Proveedores',
-        href: '/admin/provider' 
       }
     ]
   },

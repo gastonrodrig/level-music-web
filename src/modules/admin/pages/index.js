@@ -5,3 +5,4 @@ export * from './workers';
 export * from './equipment';
 export * from './storehouse';
 export * from './service';
+export * from './reprogramming';
