@@ -1,8 +1,10 @@
 import { Box, Typography, Button } from "@mui/material";
 import { useForm, FormProvider } from "react-hook-form";
+import { useEffect } from "react";
 
 // Importa tus hijos
 import { EventDetailsForm, PersonalInfoForm } from "../../../components";
+import { calcEstimatedPrice } from "../../../../../shared/utils";
 
 export const EventQuotationAddPage = () => {
   const methods = useForm({
@@ -31,11 +33,26 @@ export const EventQuotationAddPage = () => {
       services: [],
       equipments: [],
       workers: [],
+
+      estimated_price: 0,
     },
     mode: "onBlur",
   });
 
-  const { handleSubmit } = methods;
+  const { handleSubmit, watch, setValue } = methods;
+  const servicesWatch = watch("services");
+  const equipmentsWatch = watch("equipments");
+  const workersWatch = watch("workers");
+
+  useEffect(() => {
+  const total = calcEstimatedPrice({
+    services: servicesWatch || [],
+    equipments: equipmentsWatch || [],
+    workers: workersWatch || [],
+  });
+  setValue("estimated_price", total, { shouldValidate: true, shouldDirty: true });
+}, [servicesWatch, equipmentsWatch, workersWatch, setValue]);
+
 
   const onSubmit = (data) => {
     console.log("Cotización completa:", data);
@@ -53,12 +70,13 @@ export const EventQuotationAddPage = () => {
           Agregar Cotización
         </Typography>
         <Typography sx={{ mb: 3, fontSize: 16 }} color="text.secondary">
-          Crea una nueva cotización completando la información del evento, cliente y servicios requeridos.
+          Crea una nueva cotización completando la información del evento,
+          cliente y servicios requeridos.
         </Typography>
 
         {/* 1. Información del evento */}
         <EventDetailsForm />
-        
+
         <PersonalInfoForm />
 
         {/* Botón de enviar */}
