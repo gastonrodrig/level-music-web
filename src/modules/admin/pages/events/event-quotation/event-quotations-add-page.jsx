@@ -6,7 +6,8 @@ import {
   AssignWorkerCard,
   EventDetailsForm,
   PersonalInfoForm,
-  QuotationSummary
+  QuotationSummary,
+  StepHeader 
 } from "../../../components";
 import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
@@ -33,7 +34,7 @@ export const EventQuotationAddPage = () => {
 
   const openSnackbar = (message) => dispatch(showSnackbar({ message }));
 
-  const { loading, selected, startAssigningResources } = useQuotationStore();
+  const { loading, selected, startCreateQuotationAdmin } = useQuotationStore();
   const { serviceDetail } = useServiceDetailStore();
   const { equipments } = useEquipmentStore();
   const { workers } = useWorkerStore();
@@ -139,7 +140,7 @@ export const EventQuotationAddPage = () => {
 
   const { startAppendEquipment, startAppendService, startAppendWorker } =
     useAssignationGuards();
-
+  
   const startDT = watch("startDateTime");
   const endDT = watch("endDateTime");
 
@@ -176,20 +177,11 @@ export const EventQuotationAddPage = () => {
   );
 
   const onSubmit = async (data) => {
-    if (!data.startDateTime || !data.endDateTime) {
-      openSnackbar("Selecciona Fecha y Hora de Inicio y Fin antes de guardar.");
-      return;
-    }
-    console.log(data);
-    // const success = await startAssigningResources(selected._id, {
-    //   ...data,
-    //   services: data.services,
-    //   equipments: data.equipments,
-    //   workers: data.workers,
-    //   from: assignmentFromISO,
-    //   to: assignmentToISO,
-    // })
+    const success = await startCreateQuotationAdmin(data);
+    if (success) navigate("/admin/quotations");
   };
+
+  const isButtonDisabled = useMemo(() => loading, [loading]);
 
   return (
     <FormProvider {...methods}>
@@ -207,81 +199,17 @@ export const EventQuotationAddPage = () => {
         </Typography>
 
         {/* 1. Información del evento */}
-
-        <Box sx={{ display: "flex", alignItems: "center", mb: 2, mt: 2 }}>
-          <Box
-            sx={{
-              width: 28,
-              height: 28,
-              borderRadius: "50%",
-              bgcolor: "grey.900",
-              color: "white",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "0.875rem",
-              fontWeight: "bold",
-              mr: 1.5,
-            }}
-          >
-            1
-          </Box>
-          <Typography variant="subtitle1" fontWeight={600}>
-            Paso 1
-          </Typography>
-        </Box>
+        <StepHeader n={1} label="Paso 1" />
         <EventDetailsForm 
           eventTypes={eventTypes} 
           setValue={setValue}
         />
-        <Box sx={{ display: "flex", alignItems: "center", mb: 2, mt: 2 }}>
-          <Box
-            sx={{
-              width: 28,
-              height: 28,
-              borderRadius: "50%",
-              bgcolor: "grey.900",
-              color: "white",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "0.875rem",
-              fontWeight: "bold",
-              mr: 1.5,
-            }}
-          >
-            2
-          </Box>
-          <Typography variant="subtitle1" fontWeight={600}>
-            Paso 2
-          </Typography>
-        </Box>
-
+        {/* 2. Información del cliente */}
+        <StepHeader n={2} label="Paso 2" />
         <PersonalInfoForm />
 
-        <Box sx={{ display: "flex", alignItems: "center", mb: 2, mt: 2 }}>
-          <Box
-            sx={{
-              width: 28,
-              height: 28,
-              borderRadius: "50%",
-              bgcolor: "grey.900",
-              color: "white",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "0.875rem",
-              fontWeight: "bold",
-              mr: 1.5,
-            }}
-          >
-            3
-          </Box>
-          <Typography variant="subtitle1" fontWeight={600}>
-            Paso 3
-          </Typography>
-        </Box>
-
+        {/* 3. Asignar recursos */}
+        <StepHeader n={3} label="Paso 3" />
         <AssignServiceCard
           isDark={isDark}
           services={services}
@@ -356,6 +284,7 @@ export const EventQuotationAddPage = () => {
             type="submit"
             variant="contained"
             sx={{ textTransform: "none", borderRadius: 2 }}
+            disabled={isButtonDisabled}
           >
             Guardar Cotización
           </Button>

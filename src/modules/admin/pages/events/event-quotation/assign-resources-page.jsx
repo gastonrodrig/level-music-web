@@ -158,6 +158,8 @@ export const AssignResourcesPage = () => {
 
   };
 
+  const isButtonDisabled = useMemo(() => loading, [loading]);
+
   return (
     <Box component="form" sx={{ px: 4, pt: 2 }} onSubmit={handleSubmit(onSubmit)}>
       <Typography variant="h4" sx={{ mb: 2 }}>
@@ -443,7 +445,7 @@ export const AssignResourcesPage = () => {
         <Button
           type="submit"
           variant="contained"
-          disabled={loading}
+          disabled={isButtonDisabled}
           sx={{ textTransform: "none", borderRadius: 2, fontWeight: 600 }}
         >
           Guardar Asignación

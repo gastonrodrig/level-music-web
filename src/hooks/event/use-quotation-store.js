@@ -12,6 +12,7 @@ import {
 import{
   createQuotationLandingModel,
   assignResourcesModel,
+  createQuotationAdminModel,
 } from '../../shared/models';
 import { useState } from 'react';
 import { getAuthConfig, getAuthConfigWithParams } from '../../shared/utils';
@@ -59,11 +60,10 @@ export const useQuotationStore = () => {
   };
 
   const startCreateQuotationAdmin = async (quotation) => {
-    if (!validateQuotationsLanding(quotation)) return false;
     dispatch(setLoadingQuotation(true));
     try {
-      const payload = createQuotationLandingModel(quotation);
-      await eventApi.post('/quotation/admin', payload);
+      const payload = createQuotationAdminModel(quotation);
+      await eventApi.post('/quotation/admin', payload, getAuthConfig(token));
       return true;
     } catch (error) {
       const message = error.response?.data?.message;
@@ -200,6 +200,7 @@ export const useQuotationStore = () => {
     // actions
     startLoadingUserEvents,
     startCreateQuotationLanding,
+    startCreateQuotationAdmin,
     startLoadingQuotationPaginated,
     setSelectedQuotation,
     startAssigningResources
