@@ -4,3 +4,4 @@ export * from './format-day';
 export * from './get-current-date';
 export * from './format-date-time';
 export * from './format-times';
+export * from './price-calculator';

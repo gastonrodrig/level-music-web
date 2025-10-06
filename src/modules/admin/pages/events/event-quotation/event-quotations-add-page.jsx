@@ -1,13 +1,12 @@
 import { Box, Typography, Button, useTheme } from "@mui/material";
 import { useForm, FormProvider, useFieldArray } from "react-hook-form";
-
-// Importa tus hijos
 import {
   AssignEquipmentCard,
   AssignServiceCard,
   AssignWorkerCard,
   EventDetailsForm,
   PersonalInfoForm,
+  QuotationSummary
 } from "../../../components";
 import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
@@ -24,6 +23,7 @@ import {
 import dayjs from "dayjs";
 import { useDispatch } from "react-redux";
 import { showSnackbar } from "../../../../../store";
+import { calcEstimatedPrice } from "../../../../../shared/utils";
 
 export const EventQuotationAddPage = () => {
   const theme = useTheme();
@@ -88,11 +88,24 @@ export const EventQuotationAddPage = () => {
 
       name: "",
       description: "",
+      estimated_price: 0,
     },
     mode: "onBlur",
   });
 
   const { handleSubmit, watch, setValue, control } = methods;
+  const servicesWatch = watch("services");
+  const equipmentsWatch = watch("equipments");
+  const workersWatch = watch("workers");
+
+  useEffect(() => {
+    const total = calcEstimatedPrice({
+      services: servicesWatch || [],
+      equipments: equipmentsWatch || [],
+      workers: workersWatch || [],
+    });
+    setValue("estimated_price", total, { shouldValidate: true, shouldDirty: true });
+  }, [servicesWatch, equipmentsWatch, workersWatch, setValue]);
 
   const {
     fields: assignedServices,
@@ -194,6 +207,7 @@ export const EventQuotationAddPage = () => {
         </Typography>
 
         {/* 1. Información del evento */}
+
         <Box sx={{ display: "flex", alignItems: "center", mb: 2, mt: 2 }}>
           <Box
             sx={{
@@ -325,6 +339,15 @@ export const EventQuotationAddPage = () => {
           to={assignmentToISO}
           datesReady={datesReady}
           guardDates={guardDates}
+        />
+
+        {/* Resumen de la cotización */}
+        <QuotationSummary
+          isDark={isDark}
+          assignedServices={assignedServices}
+          assignedEquipments={assignedEquipments}
+          assignedWorkers={assignedWorkers}
+          grandTotal={watch("estimated_price") || 0}
         />
 
         {/* Botón de enviar */}

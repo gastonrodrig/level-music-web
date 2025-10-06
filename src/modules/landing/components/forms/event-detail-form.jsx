@@ -233,6 +233,9 @@ export const EventDetailsForm = () => {
         <Typography variant="body2">
           <strong>Asistentes:</strong> {attendeesCount || "-"}
         </Typography>
+        <Typography variant="body2">
+          <strong>Fecha:</strong> {startDateTime?.format("DD/MM/YYYY") || "-"}
+        </Typography>
        <Typography variant="body2">
         <strong>Horario:</strong>{" "}
         {startDateTime?.format("HH:mm") || ""} - {endDateTime?.format("HH:mm") || ""}

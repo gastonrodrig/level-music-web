@@ -118,11 +118,11 @@ const filteredEventTypes = useMemo(() => {
                     label="Tipo de Evento"
                     value={field.value || ""}
                     onChange={(e) => {
-                      const id = e.target.value;
-                      field.onChange(id);
-                      const selected = filteredEventTypes.find(et => et._id === id);
-                      setValue("event_type_name", selected ? selected.type : "");
-                    }}
+                    const id = e.target.value;
+                    field.onChange(id);
+                    const selected = filteredEventTypes.find(et => et._id === id);
+                    setValue("event_type_name", selected ? selected.type : "");
+                  }}
                     inputProps={{ name: "event_type_id" }}
                     sx={{ height: 60 }}
                     displayEmpty
