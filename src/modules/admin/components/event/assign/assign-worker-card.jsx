@@ -27,6 +27,8 @@ export const AssignWorkerCard = ({
   startAppendWorker,
   from,
   to,
+  datesReady,
+  guardDates,
 }) => {
   const { isSm } = useScreenSizes();
 
@@ -46,6 +48,8 @@ export const AssignWorkerCard = ({
     () => filteredWorkers.find((w) => w._id === workerId),
     [filteredWorkers, workerId]
   );
+
+  const datesMissing = !datesReady || !from || !to;
 
   return (
     <Box sx={{ p: 3, borderRadius: 3, bgcolor: isDark ? "#1f1e1e" : "#f5f5f5", mb: 2 }}>
@@ -85,6 +89,7 @@ export const AssignWorkerCard = ({
                 inputProps={{ name: "worker_type_id" }}
                 sx={{ height: 60 }}
                 displayEmpty
+                disabled={datesMissing}
               >
                 <MenuItem value="">
                   <em>Seleccione un tipo de trabajador</em>
@@ -111,7 +116,7 @@ export const AssignWorkerCard = ({
                 inputProps={{ name: "worker_id" }}
                 sx={{ height: 60 }}
                 displayEmpty
-                disabled={!workerTypeId}
+                disabled={datesMissing || !workerTypeId}
               >
                 <MenuItem value="">
                   <em>Seleccionar trabajador</em>
@@ -141,6 +146,7 @@ export const AssignWorkerCard = ({
                 value={workerHours || 1}
                 onChange={(e) => setValue("worker_hours", e.target.value)}
                 sx={{ height: 60 }}
+                disabled={datesMissing} 
               >
                 {Array.from({ length: 10 }, (_, i) => i + 1).map((h) => (
                   <MenuItem key={h} value={h}>{h} horas</MenuItem>
@@ -162,6 +168,7 @@ export const AssignWorkerCard = ({
               fullWidth
               InputLabelProps={{ shrink: true }}
               sx={{ "& .MuiInputBase-root": { height: 60 } }}
+              disabled={datesMissing}
             />
           </Grid>
 
@@ -172,6 +179,7 @@ export const AssignWorkerCard = ({
               fullWidth
               startIcon={<Add />}
               onClick={async () => {
+                if (!guardDates()) return;
                 if (!selectedWorker) return;
                 await startAppendWorker({
                   selectedWorker,

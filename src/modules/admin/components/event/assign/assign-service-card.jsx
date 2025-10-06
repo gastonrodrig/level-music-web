@@ -27,6 +27,8 @@ export const AssignServiceCard = ({
   startAppendService,
   from,
   to,
+  datesReady,
+  guardDates,
 }) => {
   const { isSm } = useScreenSizes();
 
@@ -51,6 +53,8 @@ export const AssignServiceCard = ({
     () => filteredDetails.find((d) => d._id === serviceDetailId),
     [filteredDetails, serviceDetailId]
   );
+
+  const datesMissing = !datesReady || !from || !to;
 
   return (
     <Box sx={{ p: 3, borderRadius: 3, bgcolor: isDark ? "#1f1e1e" : "#f5f5f5", my: 2 }}>
@@ -88,6 +92,7 @@ export const AssignServiceCard = ({
                 inputProps={{ name: "service_id" }}
                 sx={{ height: 60 }}
                 displayEmpty
+                disabled={datesMissing}
               >
                 <MenuItem value="">
                   <em>Seleccione un servicio</em>
@@ -116,7 +121,7 @@ export const AssignServiceCard = ({
                 onChange={(e) => setValue("service_detail_id", e.target.value, { shouldValidate: true })}
                 inputProps={{ name: "service_detail_id" }}
                 sx={{ height: 60 }}
-                disabled={!serviceId}
+                disabled={datesMissing || !serviceId}
                 displayEmpty
               >
                 <MenuItem value="">
@@ -148,6 +153,7 @@ export const AssignServiceCard = ({
                 value={serviceHours || 1}
                 onChange={(e) => setValue("service_hours", e.target.value)}
                 sx={{ height: 60 }}
+                disabled={datesMissing}
               >
                 {Array.from({ length: 10 }, (_, i) => i + 1).map((h) => (
                   <MenuItem key={h} value={h}>{h} horas</MenuItem>
@@ -181,6 +187,7 @@ export const AssignServiceCard = ({
               fullWidth
               InputLabelProps={{ shrink: true }}
               sx={{ "& .MuiInputBase-root": { height: 60 } }}
+              disabled={datesMissing}
             />
           </Grid>
 
@@ -191,6 +198,7 @@ export const AssignServiceCard = ({
               fullWidth
               startIcon={<Add />}
               onClick={async () => {
+                if (!guardDates()) return;
                 if (!selectedService || !selectedDetail) return;
                 await startAppendService({
                   selectedService,

@@ -28,6 +28,8 @@ export const AssignEquipmentCard = ({
   from,
   to,
   eventDate,
+  datesReady, 
+  guardDates,
 }) => {
   const { isSm } = useScreenSizes();
 
@@ -45,6 +47,8 @@ export const AssignEquipmentCard = ({
     () => filteredEquipments.find((e) => e._id === equipmentId),
     [filteredEquipments, equipmentId]
   );
+
+  const datesMissing = !datesReady || !from || !to;
 
   return (
     <Box sx={{ p: 3, borderRadius: 3, bgcolor: isDark ? "#1f1e1e" : "#f5f5f5", mb: 2 }}>
@@ -85,6 +89,7 @@ export const AssignEquipmentCard = ({
                 inputProps={{ name: "equipment_type" }}
                 sx={{ height: 60 }}
                 displayEmpty
+                disabled={datesMissing}   
               >
                 <MenuItem value="">
                   <em>Seleccione un tipo de equipo</em>
@@ -108,7 +113,7 @@ export const AssignEquipmentCard = ({
                 inputProps={{ name: "equipment_id" }}
                 sx={{ height: 60 }}
                 displayEmpty
-                disabled={!equipmentType}
+                disabled={datesMissing || !equipmentType} 
               >
                 <MenuItem value="">
                   <em>Seleccionar equipo</em>
@@ -136,6 +141,7 @@ export const AssignEquipmentCard = ({
                 value={equipmentHours}
                 onChange={(e) => setValue("equipment_hours", e.target.value)}
                 sx={{ height: 60 }}
+                disabled={datesMissing}   
               >
                 {Array.from({ length: 10 }, (_, i) => i + 1).map((h) => (
                   <MenuItem key={h} value={h}>
@@ -159,6 +165,7 @@ export const AssignEquipmentCard = ({
               fullWidth
               InputLabelProps={{ shrink: true }}
               sx={{ "& .MuiInputBase-root": { height: 60 } }}
+              disabled={datesMissing}   
             />
           </Grid>
 
@@ -169,7 +176,7 @@ export const AssignEquipmentCard = ({
               fullWidth
               startIcon={<Add />}
               onClick={async () => {
-                if (!selectedEquipment) return;
+                if (!guardDates()) return; 
                 await startAppendEquipment({
                   selectedEquipment,
                   equipmentPrice,
@@ -179,7 +186,8 @@ export const AssignEquipmentCard = ({
                   onSuccess: resetForm,
                   from,
                   to,
-                  eventDate: eventDate,
+                  eventDate,
+                  
                 });
               }}
               disabled={!equipmentId || !equipmentHours || !equipmentPrice}

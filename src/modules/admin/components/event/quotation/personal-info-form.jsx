@@ -55,28 +55,6 @@ export const PersonalInfoForm = () => {
 
   return (
     <>
-      <Box sx={{ display: "flex", alignItems: "center", mb: 2, mt: 2 }}>
-        <Box
-          sx={{
-            width: 28,
-            height: 28,
-            borderRadius: "50%",
-            bgcolor: "grey.900",
-            color: "white",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "0.875rem",
-            fontWeight: "bold",
-            mr: 1.5,
-          }}
-        >
-          2
-        </Box>
-        <Typography variant="subtitle1" fontWeight={600}>
-          Paso 2
-        </Typography>
-      </Box>
       <Box
         sx={{
           borderRadius: 2,

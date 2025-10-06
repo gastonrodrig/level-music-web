@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import {
   useEquipmentStore,
+  useEventTypeStore,
   useQuotationStore,
   useServiceDetailStore,
   useServiceStore,
-  useServiceTypeStore,
   useWorkerStore,
   useWorkerTypeStore,
 } from "../../../../../hooks";
@@ -40,6 +40,7 @@ export const EventQuotationsPage = () => {
   const { startLoadingAllServiceDetails } = useServiceDetailStore();
   const { startLoadingAllServices } = useServiceStore();
   const { startLoadingAllWorkerTypes } = useWorkerTypeStore();
+  const { startLoadingAllEventTypes } = useEventTypeStore();
   
   const { isLg } = useScreenSizes();
   const navigate = useNavigate();
@@ -97,6 +98,7 @@ export const EventQuotationsPage = () => {
     startLoadingAllServiceDetails();
     startLoadingAllServices();
     startLoadingAllWorkerTypes(); 
+    startLoadingAllEventTypes();
   }, [currentPage, rowsPerPage, searchTerm, orderBy, order]);
 
   const actions = [

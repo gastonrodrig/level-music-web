@@ -6,12 +6,16 @@ import {
   Grid,
   MenuItem,
   useTheme,
+  FormControl,
+  InputLabel,
+  Select,
 } from "@mui/material";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs";
 import { EventAvailable } from "@mui/icons-material";
+import { useMemo } from "react";
 
-export const EventDetailsForm = () => {
+export const EventDetailsForm = ({ eventTypes = [], setValue }) => {
   const {
     register,
     control,
@@ -22,32 +26,17 @@ export const EventDetailsForm = () => {
   const isDark = theme.palette.mode === "dark";
 
   const startTime = watch("startDateTime");
+  const eventCategory = watch("event_category");
+  const eventTypeId   = watch("event_type_id");
+
+const filteredEventTypes = useMemo(() => {
+    return (eventTypes || []).filter(
+      (et) => et?.category === eventCategory
+    );
+  }, [eventTypes, eventCategory]);
 
   return (
     <>
-    <Box sx={{ display: "flex", alignItems: "center", mb: 2, mt: 2 }}>
-      <Box
-        sx={{
-          width: 28,
-          height: 28,
-          borderRadius: "50%",
-          bgcolor: "grey.900",
-          color: "white",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: "0.875rem",
-          fontWeight: "bold",
-          mr: 1.5,
-        }}
-      >
-        1
-      </Box>
-      <Typography variant="subtitle1" fontWeight={600}>
-        Paso 1
-      </Typography>
-    </Box>
-
     <Box
       sx={{
         borderRadius: 2,
@@ -72,6 +61,104 @@ export const EventDetailsForm = () => {
       {/* Contenido más claro */}
       <Box sx={{ p: 3, bgcolor: isDark ? "#1f1e1e" : "#f5f5f5" }}>
         <Grid container spacing={2}>
+           {/* === SELECTOR DE CATEGORÍA === */}
+          <Grid item xs={12} md={6}>
+            <FormControl fullWidth>
+              <InputLabel id="event-category-label" shrink>
+                Categoría
+              </InputLabel>
+              <Controller
+                name="event_category"
+                control={control}
+                rules={{ required: "La categoría es obligatoria" }}
+                render={({ field }) => (
+                  <Select
+                    labelId="event-category-label"
+                    label="Categoría"
+                    value={field.value || ""}
+                    onChange={(e) => {
+                      field.onChange(e.target.value);
+                      // Limpiar tipo al cambiar categoría
+                      setValue("event_type_id", "");
+                    }}
+                    inputProps={{ name: "event_category" }}
+                    sx={{ height: 60 }}
+                    displayEmpty
+                    error={!!errors.event_category}
+                  >
+                    <MenuItem value="">
+                      <em>Seleccione una categoría</em>
+                    </MenuItem>
+                    <MenuItem value="Social">Social</MenuItem>
+                    <MenuItem value="Corporativo">Corporativo</MenuItem>
+                  </Select>
+                )}
+              />
+              {errors?.event_category?.message && (
+                <Typography variant="caption" color="error">
+                  {errors.event_category.message}
+                </Typography>
+              )}
+            </FormControl>
+          </Grid>
+
+          {/* === SELECTOR DE TIPO (filtrado por categoría) === */}
+          <Grid item xs={12} md={6}>
+            <FormControl fullWidth>
+              <InputLabel id="event-type-label" shrink>
+                Tipo de Evento
+              </InputLabel>
+              <Controller
+                name="event_type_id"
+                control={control}
+                rules={{ required: "El tipo de evento es obligatorio" }}
+                render={({ field }) => (
+                  <Select
+                    labelId="event-type-label"
+                    label="Tipo de Evento"
+                    value={field.value || ""}
+                    onChange={(e) => {
+                      const id = e.target.value;
+                      field.onChange(id);
+                      const selected = filteredEventTypes.find(et => et._id === id);
+                      setValue("event_type_name", selected ? selected.type : "");
+                    }}
+                    inputProps={{ name: "event_type_id" }}
+                    sx={{ height: 60 }}
+                    displayEmpty
+                    disabled={!eventCategory} // Espera categoría
+                    error={!!errors.event_type_id}
+                  >
+                    <MenuItem value="">
+                      <em>
+                        {!eventCategory
+                          ? "Seleccione una categoría primero"
+                          : "Seleccione un tipo"}
+                      </em>
+                    </MenuItem>
+
+                    {filteredEventTypes.map((et) => (
+                      <MenuItem key={et._id} value={et._id}>
+                        <Box sx={{ display: "flex", flexDirection: "column" }}>
+                          <Typography fontWeight={500}>{et.type}</Typography>
+                          {et.description && (
+                            <Typography variant="caption" color="text.secondary">
+                              {et.description}
+                            </Typography>
+                          )}
+                        </Box>
+                      </MenuItem>
+                    ))}
+                  </Select>
+                )}
+              />
+              {errors?.event_type_id?.message && (
+                <Typography variant="caption" color="error">
+                  {errors.event_type_id.message}
+                </Typography>
+              )}
+            </FormControl>
+          </Grid>
           {/* Nombre del Evento */}
           <Grid item xs={12} md={6}>
             <TextField
