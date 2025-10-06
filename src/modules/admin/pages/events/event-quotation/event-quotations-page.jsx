@@ -101,24 +101,33 @@ export const EventQuotationsPage = () => {
     startLoadingAllEventTypes();
   }, [currentPage, rowsPerPage, searchTerm, orderBy, order]);
 
-  const actions = [
-    { 
-      label: 'Asignar Recursos', 
-      icon: <Group />, 
-      onClick: (row) => {
-        setSelectedQuotation(row);
-        navigate(`/admin/quotations/assign`);
-      },
+ const actions = [
+  {
+    label: 'Asignar Recursos',
+    icon: <Group />,
+    onClick: (row) => {
+      setSelectedQuotation(row);
+      navigate(`/admin/quotations/assign`);
     },
-    { 
-      label: 'Editar Cotización', 
-      icon: <Edit />, 
-      onClick: (row) => {
-        setSelectedQuotation(row);
-        navigate(`/admin/quotations/edit`);
-      },
+    show: (row) =>
+      String(row?.creator).toLowerCase() !== 'admin' &&
+      ((row?.assignations?.length ?? 0) === 0),
+  },
+  {
+    label: 'Editar Cotización',
+    icon: <Edit />,
+    onClick: (row) => {
+      setSelectedQuotation(row);
+      navigate(`/admin/quotations/edit`);
     },
-  ];
+    show: (row) => {
+      const isAdmin = String(row?.creator).toLowerCase() === 'admin';
+      const hasAssignations = (row?.assignations?.length ?? 0) > 0;
+      return isAdmin || (!isAdmin && hasAssignations);
+    },
+  },
+];
+
 
   return (
     <>
@@ -151,6 +160,7 @@ export const EventQuotationsPage = () => {
             <Button
               variant="contained"
               startIcon={<AddCircleOutline />}
+              onClick={() => setSelectedQuotation(null)}
               sx={{
                 backgroundColor: "#212121",
                 color: "#fff",

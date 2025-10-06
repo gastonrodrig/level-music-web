@@ -7,7 +7,7 @@ import {
   EventDetailsForm,
   PersonalInfoForm,
   QuotationSummary,
-  StepHeader 
+  StepHeader,
 } from "../../../components";
 import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
@@ -34,7 +34,7 @@ export const EventQuotationAddPage = () => {
 
   const openSnackbar = (message) => dispatch(showSnackbar({ message }));
 
-  const { loading, selected, startCreateQuotationAdmin } = useQuotationStore();
+  const { loading, startCreateQuotationAdmin } = useQuotationStore();
   const { serviceDetail } = useServiceDetailStore();
   const { equipments } = useEquipmentStore();
   const { workers } = useWorkerStore();
@@ -48,7 +48,6 @@ export const EventQuotationAddPage = () => {
       event_category: "",
       event_type_id: "",
       event_type_name: "",
-      
       eventName: "",
       eventDescription: "",
       startDateTime: null,
@@ -76,17 +75,14 @@ export const EventQuotationAddPage = () => {
       service_detail_id: "",
       service_hours: 1,
       service_price: "",
-
       equipment_type: "",
       equipment_id: "",
       equipment_hours: 1,
       equipment_price: "",
-
       worker_type_id: "",
       worker_id: "",
       worker_hours: 1,
       worker_price: "",
-
       name: "",
       description: "",
       estimated_price: 0,
@@ -95,6 +91,8 @@ export const EventQuotationAddPage = () => {
   });
 
   const { handleSubmit, watch, setValue, control } = methods;
+
+  // 🔹 Cálculo dinámico del total estimado
   const servicesWatch = watch("services");
   const equipmentsWatch = watch("equipments");
   const workersWatch = watch("workers");
@@ -105,27 +103,27 @@ export const EventQuotationAddPage = () => {
       equipments: equipmentsWatch || [],
       workers: workersWatch || [],
     });
-    setValue("estimated_price", total, { shouldValidate: true, shouldDirty: true });
+    setValue("estimated_price", total, { shouldValidate: true });
   }, [servicesWatch, equipmentsWatch, workersWatch, setValue]);
 
+  // 🔹 Field Arrays
   const {
     fields: assignedServices,
     append: addService,
     remove: removeService,
   } = useFieldArray({ control, name: "services" });
-
   const {
     fields: assignedEquipments,
     append: addEquipment,
     remove: removeEquipment,
   } = useFieldArray({ control, name: "equipments" });
-
   const {
     fields: assignedWorkers,
     append: addWorker,
     remove: removeWorker,
   } = useFieldArray({ control, name: "workers" });
 
+  // 🔹 Dependencias para filtrado
   const clientType = watch("client_type");
   const serviceId = watch("service_id");
   const equipmentType = watch("equipment_type");
@@ -138,18 +136,17 @@ export const EventQuotationAddPage = () => {
     }
   }, [clientType, setValue]);
 
+  // 🔹 Hooks para validar disponibilidad
   const { startAppendEquipment, startAppendService, startAppendWorker } =
     useAssignationGuards();
-  
+
+  // 🔹 Fechas del evento
   const startDT = watch("startDateTime");
   const endDT = watch("endDateTime");
+  const datesReady = !!(startDT && endDT);
 
-  const datesReady = Boolean(startDT && endDT);
-
-  const assignmentFromISO = startDT
-    ? dayjs(startDT).toDate().toISOString()
-    : null;
-  const assignmentToISO = endDT ? dayjs(endDT).toDate().toISOString() : null;
+  const assignmentFromISO = datesReady ? dayjs(startDT).toISOString() : null;
+  const assignmentToISO = datesReady ? dayjs(endDT).toISOString() : null;
 
   const guardDates = () => {
     if (!datesReady) {
@@ -161,6 +158,7 @@ export const EventQuotationAddPage = () => {
     return true;
   };
 
+  // 🔹 Filtrados por selección
   const filteredDetails = useMemo(
     () => (serviceDetail || []).filter((d) => d.service_id === serviceId),
     [serviceDetail, serviceId]
@@ -176,12 +174,11 @@ export const EventQuotationAddPage = () => {
     [workers, workerTypeId]
   );
 
+  // 🔹 Envío del formulario
   const onSubmit = async (data) => {
     const success = await startCreateQuotationAdmin(data);
     if (success) navigate("/admin/quotations");
   };
-
-  const isButtonDisabled = useMemo(() => loading, [loading]);
 
   return (
     <FormProvider {...methods}>
@@ -198,30 +195,25 @@ export const EventQuotationAddPage = () => {
           cliente y servicios requeridos.
         </Typography>
 
-        {/* 1. Información del evento */}
+        {/* Paso 1: Información del evento */}
         <StepHeader n={1} label="Paso 1" />
-        <EventDetailsForm 
-          eventTypes={eventTypes} 
-          setValue={setValue}
-        />
-        {/* 2. Información del cliente */}
+        <EventDetailsForm eventTypes={eventTypes} setValue={setValue} />
+
+        {/* Paso 2: Información del cliente */}
         <StepHeader n={2} label="Paso 2" />
         <PersonalInfoForm />
 
-        {/* 3. Asignar recursos */}
+        {/* Paso 3: Recursos */}
         <StepHeader n={3} label="Paso 3" />
         <AssignServiceCard
           isDark={isDark}
           services={services}
           filteredDetails={filteredDetails}
-          // useFieldArray
           assignedServices={assignedServices}
           addService={addService}
           removeService={removeService}
-          // form
           watch={watch}
           setValue={setValue}
-          // availability
           startAppendService={startAppendService}
           from={assignmentFromISO}
           to={assignmentToISO}
@@ -233,19 +225,14 @@ export const EventQuotationAddPage = () => {
           isDark={isDark}
           equipmentType={equipmentType}
           filteredEquipments={filteredEquipments}
-          // useFieldArray
           assignedEquipments={assignedEquipments}
           addEquipment={addEquipment}
           removeEquipment={removeEquipment}
-          // form
           watch={watch}
           setValue={setValue}
-          // availability
           startAppendEquipment={startAppendEquipment}
           from={assignmentFromISO}
           to={assignmentToISO}
-          // event date
-          eventDate={selected?.event_date}
           datesReady={datesReady}
           guardDates={guardDates}
         />
@@ -254,14 +241,11 @@ export const EventQuotationAddPage = () => {
           isDark={isDark}
           workerTypes={workerTypes}
           filteredWorkers={filteredWorkers}
-          // useFieldArray
           assignedWorkers={assignedWorkers}
           addWorker={addWorker}
           removeWorker={removeWorker}
-          // form
           watch={watch}
           setValue={setValue}
-          // availability
           startAppendWorker={startAppendWorker}
           from={assignmentFromISO}
           to={assignmentToISO}
@@ -269,7 +253,7 @@ export const EventQuotationAddPage = () => {
           guardDates={guardDates}
         />
 
-        {/* Resumen de la cotización */}
+        {/* Resumen */}
         <QuotationSummary
           isDark={isDark}
           assignedServices={assignedServices}
@@ -278,13 +262,13 @@ export const EventQuotationAddPage = () => {
           grandTotal={watch("estimated_price") || 0}
         />
 
-        {/* Botón de enviar */}
+        {/* Botón final */}
         <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
           <Button
             type="submit"
             variant="contained"
+            disabled={loading}
             sx={{ textTransform: "none", borderRadius: 2 }}
-            disabled={isButtonDisabled}
           >
             Guardar Cotización
           </Button>

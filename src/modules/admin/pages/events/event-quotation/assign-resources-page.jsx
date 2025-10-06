@@ -1,12 +1,12 @@
 import {
   Typography,
   Box,
-  useTheme,
   TextField,
   Grid,
   Button,
   IconButton,
   Collapse,
+  useTheme,
 } from "@mui/material";
 import { ExpandMore, ExpandLess } from "@mui/icons-material";
 import {
@@ -24,17 +24,22 @@ import {
   AssignWorkerCard,
 } from "../../../components";
 import { useForm, useFieldArray } from "react-hook-form";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAssignationGuards } from "../../../../../hooks";
-import { calcEstimatedPrice, calcServicesTotal, calcEquipmentsTotal, calcWorkersTotal } from "../../../../../shared/utils";
+import {
+  calcEstimatedPrice,
+  calcServicesTotal,
+  calcEquipmentsTotal,
+  calcWorkersTotal,
+} from "../../../../../shared/utils";
+import dayjs from "dayjs";
 
 export const AssignResourcesPage = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
 
-  // Estados para controlar expansión del resumen
   const [expandedServices, setExpandedServices] = useState(false);
   const [expandedEquipments, setExpandedEquipments] = useState(false);
   const [expandedWorkers, setExpandedWorkers] = useState(false);
@@ -45,6 +50,11 @@ export const AssignResourcesPage = () => {
   const { workers } = useWorkerStore();
   const { workerTypes } = useWorkerTypeStore();
   const { services } = useServiceStore();
+
+  // si no hay selected, volvemos a lista (esta pantalla es SOLO para asignar)
+  useEffect(() => {
+    if (!selected) navigate("/admin/quotations");
+  }, [selected, navigate]);
 
   const {
     register,
@@ -59,21 +69,17 @@ export const AssignResourcesPage = () => {
       service_detail_id: "",
       service_hours: 1,
       service_price: "",
-
       equipment_type: "",
       equipment_id: "",
       equipment_hours: 1,
       equipment_price: "",
-
       worker_type_id: "",
       worker_id: "",
       worker_hours: 1,
       worker_price: "",
-
       services: [],
       equipments: [],
       workers: [],
-
       name: "",
       description: "",
       estimated_price: 0,
@@ -81,87 +87,93 @@ export const AssignResourcesPage = () => {
     mode: "onBlur",
   });
 
+  // field arrays
   const {
     fields: assignedServices,
     append: addService,
     remove: removeService,
   } = useFieldArray({ control, name: "services" });
-
   const {
     fields: assignedEquipments,
     append: addEquipment,
     remove: removeEquipment,
   } = useFieldArray({ control, name: "equipments" });
-
   const {
     fields: assignedWorkers,
     append: addWorker,
     remove: removeWorker,
   } = useFieldArray({ control, name: "workers" });
 
+  // totales dinámicos
   const servicesWatch = watch("services");
   const equipmentsWatch = watch("equipments");
   const workersWatch = watch("workers");
-
   useEffect(() => {
-    const total = calcEstimatedPrice({
-      services: servicesWatch || [],
-      equipments: equipmentsWatch || [],
-      workers: workersWatch || [],
-    });
-    setValue("estimated_price", total, { shouldValidate: true, shouldDirty: true });
+    setValue(
+      "estimated_price",
+      calcEstimatedPrice({
+        services: servicesWatch || [],
+        equipments: equipmentsWatch || [],
+        workers: workersWatch || [],
+      })
+    );
   }, [servicesWatch, equipmentsWatch, workersWatch, setValue]);
 
-  useEffect(() => {
-    if (!selected) navigate("/admin/quotations");
-  }, [selected, navigate]);
-
-  const { startAppendEquipment, startAppendService, startAppendWorker } = useAssignationGuards();
-
+  // filtros por selección
   const serviceId = watch("service_id");
   const equipmentType = watch("equipment_type");
   const workerTypeId = watch("worker_type_id");
-
-  const assignmentFromISO = selected?.start_time;
-  const assignmentToISO = selected?.end_time;
 
   const filteredDetails = useMemo(
     () => (serviceDetail || []).filter((d) => d.service_id === serviceId),
     [serviceDetail, serviceId]
   );
-
   const filteredEquipments = useMemo(
     () => (equipments || []).filter((e) => e.equipment_type === equipmentType),
     [equipments, equipmentType]
   );
-
   const filteredWorkers = useMemo(
     () => (workers || []).filter((w) => w.worker_type === workerTypeId),
     [workers, workerTypeId]
   );
 
-  // Calcular totales dinámicamente usando las funciones utilitarias
+  // fechas vienen del selected (no del form)
+  const fromISO = selected?.start_time
+    ? dayjs(selected.start_time).toISOString()
+    : null;
+  const toISO = selected?.end_time
+    ? dayjs(selected.end_time).toISOString()
+    : null;
+  const datesReady = !!(fromISO && toISO);
+
+  const { startAppendEquipment, startAppendService, startAppendWorker } =
+    useAssignationGuards();
+  const guardDates = () => datesReady;
+
+  // totales para el resumen
   const servicesTotal = calcServicesTotal(assignedServices);
   const equipmentsTotal = calcEquipmentsTotal(assignedEquipments);
   const workersTotal = calcWorkersTotal(assignedWorkers);
   const grandTotal = watch("estimated_price") || 0;
 
   const onSubmit = async (data) => {
-    const success = await startAssigningResources(selected._id, {
+    if (!selected) return;
+    await startAssigningResources(selected._id, {
       ...data,
       services: data.services,
       equipments: data.equipments,
       workers: data.workers,
-      from: assignmentFromISO,
-      to: assignmentToISO, 
-    })
-
+      from: fromISO,
+      to: toISO,
+    });
   };
 
-  const isButtonDisabled = useMemo(() => loading, [loading]);
-
   return (
-    <Box component="form" sx={{ px: 4, pt: 2 }} onSubmit={handleSubmit(onSubmit)}>
+    <Box
+      component="form"
+      sx={{ px: 4, pt: 2 }}
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <Typography variant="h4" sx={{ mb: 2 }}>
         Asignación de Recursos
       </Typography>
@@ -175,55 +187,52 @@ export const AssignResourcesPage = () => {
         isDark={isDark}
         services={services}
         filteredDetails={filteredDetails}
-        // useFieldArray
         assignedServices={assignedServices}
         addService={addService}
         removeService={removeService}
-        // form
         watch={watch}
         setValue={setValue}
-        // availability
         startAppendService={startAppendService}
-        from={assignmentFromISO}
-        to={assignmentToISO}
+        from={fromISO}
+        to={toISO}
+        datesReady={datesReady}
+        guardDates={guardDates}
       />
 
       <AssignEquipmentCard
         isDark={isDark}
         equipmentType={equipmentType}
         filteredEquipments={filteredEquipments}
-        // useFieldArray
         assignedEquipments={assignedEquipments}
         addEquipment={addEquipment}
         removeEquipment={removeEquipment}
-        // form
         watch={watch}
         setValue={setValue}
-        // availability
         startAppendEquipment={startAppendEquipment}
-        from={assignmentFromISO}
-        to={assignmentToISO}
-        // event date
+        from={fromISO}
+        to={toISO}
         eventDate={selected?.event_date}
+        datesReady={datesReady}
+        guardDates={guardDates}
       />
 
       <AssignWorkerCard
         isDark={isDark}
         workerTypes={workerTypes}
         filteredWorkers={filteredWorkers}
-        // useFieldArray
         assignedWorkers={assignedWorkers}
         addWorker={addWorker}
         removeWorker={removeWorker}
-        // form
         watch={watch}
         setValue={setValue}
-        // availability
         startAppendWorker={startAppendWorker}
-        from={assignmentFromISO}
-        to={assignmentToISO}
+        from={fromISO}
+        to={toISO}
+        datesReady={datesReady}
+        guardDates={guardDates}
       />
 
+      {/* Info nombre/descripcion */}
       <Box
         sx={{
           p: 3,
@@ -235,7 +244,6 @@ export const AssignResourcesPage = () => {
         <Typography fontSize={18} sx={{ mb: 3 }}>
           Información de la Asignación (Nombre del evento y su descripción)
         </Typography>
-
         <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
             <TextField
@@ -261,8 +269,8 @@ export const AssignResourcesPage = () => {
           </Grid>
         </Grid>
       </Box>
-      
-      {/* Resumen de la Asignación */}
+
+      {/* Resumen */}
       <Box
         sx={{
           p: 3,
@@ -275,19 +283,21 @@ export const AssignResourcesPage = () => {
           Resumen de la Asignación
         </Typography>
 
-        {/* Servicios adicionales - Expandible */}
+        {/* Servicios */}
         <Box sx={{ mb: 2 }}>
-          <Box 
-            sx={{ 
-              display: "flex", 
-              justifyContent: "space-between", 
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
               alignItems: "center",
               cursor: "pointer",
-              "&:hover": { bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)" },
+              "&:hover": {
+                bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
+              },
               p: 1,
               borderRadius: 1,
             }}
-            onClick={() => setExpandedServices(!expandedServices)}
+            onClick={() => setExpandedServices((s) => !s)}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Typography fontSize={14} color="text.secondary">
@@ -297,26 +307,38 @@ export const AssignResourcesPage = () => {
                 {expandedServices ? <ExpandLess /> : <ExpandMore />}
               </IconButton>
             </Box>
-            <Typography fontSize={14}>
-              S/ {servicesTotal.toFixed(2)}
-            </Typography>
+            <Typography fontSize={14}>S/ {servicesTotal.toFixed(2)}</Typography>
           </Box>
-          
+
           <Collapse in={expandedServices}>
             <Box sx={{ ml: 2, mt: 1 }}>
-              {assignedServices.length > 0 ? (
-                assignedServices.map((service, index) => (
-                  <Box key={index} sx={{ display: "flex", justifyContent: "space-between", py: 0.5 }}>
+              {assignedServices.length ? (
+                assignedServices.map((service, i) => (
+                  <Box
+                    key={i}
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      py: 0.5,
+                    }}
+                  >
                     <Typography fontSize={13} color="text.secondary">
-                      • {service.name  } ({service.service_hours}h)
+                      • {service.name} ({service.service_hours}h)
                     </Typography>
                     <Typography fontSize={13}>
-                      S/ {((parseFloat(service.service_price) || 0) * service.service_hours).toFixed(2)}
+                      S/{" "}
+                      {(
+                        (+service.service_price || 0) * service.service_hours
+                      ).toFixed(2)}
                     </Typography>
                   </Box>
                 ))
               ) : (
-                <Typography fontSize={13} color="text.secondary" sx={{ fontStyle: "italic" }}>
+                <Typography
+                  fontSize={13}
+                  color="text.secondary"
+                  sx={{ fontStyle: "italic" }}
+                >
                   No hay servicios asignados
                 </Typography>
               )}
@@ -324,19 +346,21 @@ export const AssignResourcesPage = () => {
           </Collapse>
         </Box>
 
-        {/* Equipos - Expandible */}
+        {/* Equipos */}
         <Box sx={{ mb: 2 }}>
-          <Box 
-            sx={{ 
-              display: "flex", 
-              justifyContent: "space-between", 
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
               alignItems: "center",
               cursor: "pointer",
-              "&:hover": { bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)" },
+              "&:hover": {
+                bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
+              },
               p: 1,
               borderRadius: 1,
             }}
-            onClick={() => setExpandedEquipments(!expandedEquipments)}
+            onClick={() => setExpandedEquipments((e) => !e)}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Typography fontSize={14} color="text.secondary">
@@ -350,22 +374,37 @@ export const AssignResourcesPage = () => {
               S/ {equipmentsTotal.toFixed(2)}
             </Typography>
           </Box>
-          
+
           <Collapse in={expandedEquipments}>
             <Box sx={{ ml: 2, mt: 1 }}>
-              {assignedEquipments.length > 0 ? (
-                assignedEquipments.map((equipment, index) => (
-                  <Box key={index} sx={{ display: "flex", justifyContent: "space-between", py: 0.5 }}>
+              {assignedEquipments.length ? (
+                assignedEquipments.map((equipment, i) => (
+                  <Box
+                    key={i}
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      py: 0.5,
+                    }}
+                  >
                     <Typography fontSize={13} color="text.secondary">
-                      • { equipment.name } ({equipment.equipment_hours}h)
+                      • {equipment.name} ({equipment.equipment_hours}h)
                     </Typography>
                     <Typography fontSize={13}>
-                      S/ {((parseFloat(equipment.equipment_price) || 0) * equipment.equipment_hours).toFixed(2)}
+                      S/{" "}
+                      {(
+                        (+equipment.equipment_price || 0) *
+                        equipment.equipment_hours
+                      ).toFixed(2)}
                     </Typography>
                   </Box>
                 ))
               ) : (
-                <Typography fontSize={13} color="text.secondary" sx={{ fontStyle: "italic" }}>
+                <Typography
+                  fontSize={13}
+                  color="text.secondary"
+                  sx={{ fontStyle: "italic" }}
+                >
                   No hay equipos asignados
                 </Typography>
               )}
@@ -373,19 +412,21 @@ export const AssignResourcesPage = () => {
           </Collapse>
         </Box>
 
-        {/* Trabajadores - Expandible */}
+        {/* Trabajadores */}
         <Box sx={{ mb: 3 }}>
-          <Box 
-            sx={{ 
-              display: "flex", 
-              justifyContent: "space-between", 
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
               alignItems: "center",
               cursor: "pointer",
-              "&:hover": { bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)" },
+              "&:hover": {
+                bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
+              },
               p: 1,
               borderRadius: 1,
             }}
-            onClick={() => setExpandedWorkers(!expandedWorkers)}
+            onClick={() => setExpandedWorkers((w) => !w)}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Typography fontSize={14} color="text.secondary">
@@ -395,26 +436,38 @@ export const AssignResourcesPage = () => {
                 {expandedWorkers ? <ExpandLess /> : <ExpandMore />}
               </IconButton>
             </Box>
-            <Typography fontSize={14}>
-              S/ {workersTotal.toFixed(2)}
-            </Typography>
+            <Typography fontSize={14}>S/ {workersTotal.toFixed(2)}</Typography>
           </Box>
-          
+
           <Collapse in={expandedWorkers}>
             <Box sx={{ ml: 2, mt: 1 }}>
-              {assignedWorkers.length > 0 ? (
-                assignedWorkers.map((worker, index) => (
-                  <Box key={index} sx={{ display: "flex", justifyContent: "space-between", py: 0.5 }}>
+              {assignedWorkers.length ? (
+                assignedWorkers.map((worker, i) => (
+                  <Box
+                    key={i}
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      py: 0.5,
+                    }}
+                  >
                     <Typography fontSize={13} color="text.secondary">
-                      • {worker.name } ({worker.worker_hours}h)
+                      • {worker.name} ({worker.worker_hours}h)
                     </Typography>
                     <Typography fontSize={13}>
-                      S/ {((parseFloat(worker.worker_price) || 0) * worker.worker_hours).toFixed(2)}
+                      S/{" "}
+                      {(
+                        (+worker.worker_price || 0) * worker.worker_hours
+                      ).toFixed(2)}
                     </Typography>
                   </Box>
                 ))
               ) : (
-                <Typography fontSize={13} color="text.secondary" sx={{ fontStyle: "italic" }}>
+                <Typography
+                  fontSize={13}
+                  color="text.secondary"
+                  sx={{ fontStyle: "italic" }}
+                >
                   No hay trabajadores asignados
                 </Typography>
               )}
@@ -445,7 +498,7 @@ export const AssignResourcesPage = () => {
         <Button
           type="submit"
           variant="contained"
-          disabled={isButtonDisabled}
+          disabled={loading}
           sx={{ textTransform: "none", borderRadius: 2, fontWeight: 600 }}
         >
           Guardar Asignación
