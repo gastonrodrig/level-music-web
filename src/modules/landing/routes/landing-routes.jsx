@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { HomePage, EventsPage, QuotationPage } from '../pages';
 import { LandingLayout } from '../layout/landing-layout';
+import { ActivationPage } from '../pages';
 
 export const LandingRoutes = () => {
   return (
@@ -15,7 +16,7 @@ export const LandingRoutes = () => {
           </LandingLayout>
         }
       />
-
+      <Route path="activation" element={<ActivationPage />} />
       <Route path="*" element={<Navigate to="/not-found" replace />} />
     </Routes>
   );
