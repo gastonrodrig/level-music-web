@@ -1,4 +1,4 @@
 export * from './home-page';
 export * from './events-page';
 export * from './quotation-page';
-export * from './activation-page';
+export * from './activations';
