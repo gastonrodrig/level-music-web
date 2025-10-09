@@ -74,11 +74,10 @@ export const EventQuotationEditPage = () => {
       provider_name: s.service_provider_name,
       service_hours: s.hours,
       service_price: s.hourly_rate,
-      ref_price: s.service_ref_price ,
+      ref_price: s.service_ref_price,
       details: s.service_detail || {},
-      _id: s._id,
-      
       service_detail_id: s.resource,
+      _id: s._id,
     })) || [],
 
     equipments: selected?.assignations?.filter(a => a.resource_type === "Equipo").map(e => ({
@@ -90,8 +89,7 @@ export const EventQuotationEditPage = () => {
       serial_number: e.equipment_serial_number,
       location: e.equipment_location || "",
       status: e.equipment_status,
-      resource: e.resource || null,
-      id: e._id,
+      equipment_id: e.resource,
       _id: e._id,
     })) || [],
 
@@ -101,8 +99,7 @@ export const EventQuotationEditPage = () => {
       worker_type_name: w.worker_role,
       worker_hours: w.hours,
       worker_price: w.hourly_rate,
-      
-      id: w._id,
+      worker_id: w.resource,
       _id: w._id,
     })) || [],
     estimated_price: selected?.estimated_price || 0,
@@ -110,7 +107,7 @@ export const EventQuotationEditPage = () => {
   mode: "onBlur",
 });
 
-
+console.log(methods.getValues());
 
     const theme = useTheme();  
     const isDark = theme.palette.mode === "dark";

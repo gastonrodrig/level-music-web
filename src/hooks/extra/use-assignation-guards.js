@@ -125,6 +125,14 @@ export const useAssignationGuards = () => {
       return false; 
     }
 
+    console.log("Agregando equipo:", {
+      _id: selectedEquipment._id,
+      name: selectedEquipment.name,
+      equipment_type: selectedEquipment.equipment_type,
+      equipment_hours: Number(equipmentHours),
+      equipment_price: Number(equipmentPrice),
+    });
+
     append({
       _id: selectedEquipment._id,
       name: selectedEquipment.name,
@@ -133,7 +141,7 @@ export const useAssignationGuards = () => {
       location: selectedEquipment.location,
       status: selectedEquipment.status,
       equipment_type: selectedEquipment.equipment_type,
-      equipment_hours: Number(equipmentHours),
+      equipment_hours: isNaN(Number(equipmentHours)) ? 1 : Number(equipmentHours),
       equipment_price: Number(equipmentPrice),
     });
     onSuccess?.();
@@ -176,12 +184,21 @@ export const useAssignationGuards = () => {
       return false; 
     }
 
-    append({
+    console.log("Agregando servicio adicional:", {
       service_id: selectedService._id,
       service_detail_id: selectedDetail._id,
       service_type_name: selectedService.service_type_name,
       provider_name: selectedService.provider_name,
       service_hours: Number(serviceHours),
+      service_price: Number(servicePrice),
+    });
+
+    append({
+      service_id: selectedService._id,
+      service_detail_id: selectedDetail._id,
+      service_type_name: selectedService.service_type_name,
+      provider_name: selectedService.provider_name,
+      service_hours: isNaN(Number(serviceHours)) ? 1 : Number(serviceHours),
       details: selectedDetail.details,
       ref_price: selectedDetail.ref_price,
       service_price: Number(servicePrice),
@@ -219,13 +236,22 @@ export const useAssignationGuards = () => {
       return false; 
     }
 
-    append({
+    console.log("Agregando trabajador:", {
       _id: selectedWorker._id,
       first_name: selectedWorker.first_name,
       last_name: selectedWorker.last_name,
       worker_type_name: selectedWorker.worker_type_name,
       worker_price: Number(workerPrice),
       worker_hours: Number(workerHours),
+    });
+
+    append({
+      _id: selectedWorker._id,
+      first_name: selectedWorker.first_name,
+      last_name: selectedWorker.last_name,
+      worker_type_name: selectedWorker.worker_type_name,
+      worker_price: Number(workerPrice),
+      worker_hours: isNaN(Number(workerHours)) ? 1 : Number(workerHours),
     });
     onSuccess?.();
     return true;
