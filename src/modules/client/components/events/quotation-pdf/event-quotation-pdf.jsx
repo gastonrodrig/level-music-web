@@ -4,8 +4,6 @@ import { imagen_2,imagen_3, imagen_4, imagen_5, imagen_6 } from '../../../../../
 import { imagen_1 } from '../../../../../assets/images/carrousel';
 
 
-
-
 // Define estilos
 const styles = StyleSheet.create({
   page: { padding: 30, position: 'relative' },
