@@ -14,7 +14,6 @@ export const ActivationProcessingPage = () => {
       return;
     }
 
-    // Fail-safe: si nada ocurre en 8s, manda a error
     const failSafe = setTimeout(() => {
       window.location.replace("/activation/error");
     }, 8000);
@@ -23,10 +22,8 @@ export const ActivationProcessingPage = () => {
       .get(`${baseURL}/t/${token}`)
       .then(({ data }) => {
         clearTimeout(failSafe);
-        // Cualquier success (usado o no) → success page
         if (data?.success === true) {
           window.location.replace("/activation/success");
-                  console.log(data);
         } else {
           window.location.replace("/activation/error");
         }
