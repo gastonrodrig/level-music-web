@@ -1,4 +1,4 @@
-export const createQuotationAdminModel = (data) => { 
+export const updateQuotationLandingModel = (data) => { 
   const assignations = [
     // Servicios Adicionales
     ...data.services.map((s) => ({
@@ -28,7 +28,8 @@ export const createQuotationAdminModel = (data) => {
       available_to: data.endDateTime,
     })),
   ].filter((r) => r.resource_id && r.hours > 0 && r.hourly_rate > 0);
-console.log({assignations})
+
+console.log("assignations", assignations);
   return {
     name: data.eventName,
     description: data.eventDescription,

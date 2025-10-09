@@ -260,19 +260,28 @@ const filteredEventTypes = useMemo(() => {
 
           {/* Tipo de lugar */}
           <Grid item xs={12} md={6}>
-            <TextField
-              select
-              fullWidth
-              label="Tipo de Lugar"
-              defaultValue=""
-              {...register("placeType", { required: "Campo obligatorio" })}
-              error={!!errors.placeType}
-              helperText={errors.placeType?.message}
-            >
-              <MenuItem value="Abierto">Abierto</MenuItem>
-              <MenuItem value="Cerrado">Cerrado</MenuItem>
-            </TextField>
-          </Grid>
+          <FormControl fullWidth>
+            <Controller
+              name="placeType"
+              control={control}
+              rules={{ required: "Campo obligatorio" }}
+              render={({ field }) => (
+                <TextField
+                  select
+                  fullWidth
+                  label="Tipo de Lugar"
+                  {...field}
+                  value={field.value ?? ""}     // evita undefined en primer render
+                  error={!!errors.placeType}
+                  helperText={errors.placeType?.message}
+                >
+                  <MenuItem value="Abierto">Abierto</MenuItem>
+                  <MenuItem value="Cerrado">Cerrado</MenuItem>
+                </TextField>
+              )}
+            />
+          </FormControl>
+        </Grid>
 
           {/* Tamaño del Lugar */}
           <Grid item xs={12} md={6}>
