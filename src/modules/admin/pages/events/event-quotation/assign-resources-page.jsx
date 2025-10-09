@@ -158,7 +158,7 @@ export const AssignResourcesPage = () => {
 
   const onSubmit = async (data) => {
     if (!selected) return;
-    await startAssigningResources(selected._id, {
+    const success = await startAssigningResources(selected._id, {
       ...data,
       services: data.services,
       equipments: data.equipments,
@@ -166,6 +166,7 @@ export const AssignResourcesPage = () => {
       from: fromISO,
       to: toISO,
     });
+    if (success) navigate("/admin/quotations");
   };
 
   return (

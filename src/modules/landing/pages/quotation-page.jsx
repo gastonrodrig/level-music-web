@@ -30,6 +30,7 @@ import { useDispatch } from "react-redux";
 import { showSnackbar } from "../../../store";
 import { ArrowBack, ArrowForward, Done } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import { LandingLayout } from "../layout/landing-layout";
 
 export const QuotationPage = () => {
   const dispatch = useDispatch();
@@ -160,92 +161,94 @@ export const QuotationPage = () => {
   const isButtonDisabled = useMemo(() => loading, [loading]);
 
   return (
-    <FormProvider {...formMethods}>
-      <Typography sx={{ mt: { xs: 9, md: 12 }, fontSize: 30 }}>
-        Empieza a organizar tu evento
-      </Typography>
-      <Typography sx={{ mt: 2, fontWeight: 100, fontSize: 16 }}>
-        Completa los datos y recibe una proforma para tu evento.
-      </Typography>
+    <LandingLayout>
+      <FormProvider {...formMethods}>
+        <Typography sx={{ mt: { xs: 9, md: 12 }, fontSize: 30 }}>
+          Empieza a organizar tu evento
+        </Typography>
+        <Typography sx={{ mt: 2, fontWeight: 100, fontSize: 16 }}>
+          Completa los datos y recibe una proforma para tu evento.
+        </Typography>
 
-      <Paper sx={{ mt: 4, p: { xs: 2, sm: 3, md: 4 }, mb: 4, boxShadow: 1 }}>
-        <Stepper
-          activeStep={currentPage}
-          orientation={isMd ? "horizontal" : "vertical"}
-        >
-          {StepSections.map((step) => (
-            <Step key={step.label}>
-              <StepLabel
-                slots={{
-                  stepIcon: (props) => (
-                    <CustomStepIcon {...props} icon={step.icon} />
-                  ),
+        <Paper sx={{ mt: 4, p: { xs: 2, sm: 3, md: 4 }, mb: 4, boxShadow: 1 }}>
+          <Stepper
+            activeStep={currentPage}
+            orientation={isMd ? "horizontal" : "vertical"}
+          >
+            {StepSections.map((step) => (
+              <Step key={step.label}>
+                <StepLabel
+                  slots={{
+                    stepIcon: (props) => (
+                      <CustomStepIcon {...props} icon={step.icon} />
+                    ),
+                  }}
+                >
+                  {step.label}
+                </StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+
+          <Divider sx={{ mt: 3, mx: -3 }} />
+
+          <Box sx={{ mt: 2 }}>
+            {currentPage < StepSections.length ? (
+              renderCurrentComponent()
+            ) : (
+              <Typography sx={{ fontSize: 16 }}>
+                ¡Listo! En breve te enviaremos la proforma de tu evento.
+              </Typography>
+            )}
+
+            <Box sx={{ display: "flex", justifyContent: "space-between", mt: 4 }}>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={goBack}
+                startIcon={<ArrowBack />}
+                sx={{
+                  px: 4,
+                  py: 1,
+                  borderRadius: 3,
+                  textTransform: "none",
+                  fontWeight: 600,
+                  visibility: isFirst ? "hidden" : "visible",
+                  bgcolor: "#4a4a4a",
+                  color: "#fff",
+                  "&:hover": {
+                    bgcolor: "#5c5c5c",
+                  },
                 }}
               >
-                {step.label}
-              </StepLabel>
-            </Step>
-          ))}
-        </Stepper>
+                Atrás
+              </Button>
 
-        <Divider sx={{ mt: 3, mx: -3 }} />
-
-        <Box sx={{ mt: 2 }}>
-          {currentPage < StepSections.length ? (
-            renderCurrentComponent()
-          ) : (
-            <Typography sx={{ fontSize: 16 }}>
-              ¡Listo! En breve te enviaremos la proforma de tu evento.
-            </Typography>
-          )}
-
-          <Box sx={{ display: "flex", justifyContent: "space-between", mt: 4 }}>
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={goBack}
-              startIcon={<ArrowBack />}
-              sx={{
-                px: 4,
-                py: 1,
-                borderRadius: 3,
-                textTransform: "none",
-                fontWeight: 600,
-                visibility: isFirst ? "hidden" : "visible",
-                bgcolor: "#4a4a4a",
-                color: "#fff",
-                "&:hover": {
-                  bgcolor: "#5c5c5c",
-                },
-              }}
-            >
-              Atrás
-            </Button>
-
-            <Button
-              variant="contained"
-              color="primary"
-              disabled={isButtonDisabled}
-              onClick={isLast ? onFinish : onNext}
-              endIcon={isLast ? <Done /> : <ArrowForward />}
-              sx={{
-                color: "white",
-                px: 4,
-                py: 1,
-                borderRadius: 3,
-                textTransform: "none",
-                fontWeight: 600,
-                boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-                "&:hover": {
-                  boxShadow: "0 6px 16px rgba(0,0,0,0.25)",
-                },
-              }}
-            >
-              {isLast ? "Finalizar" : "Siguiente"}
-            </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                disabled={isButtonDisabled}
+                onClick={isLast ? onFinish : onNext}
+                endIcon={isLast ? <Done /> : <ArrowForward />}
+                sx={{
+                  color: "white",
+                  px: 4,
+                  py: 1,
+                  borderRadius: 3,
+                  textTransform: "none",
+                  fontWeight: 600,
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+                  "&:hover": {
+                    boxShadow: "0 6px 16px rgba(0,0,0,0.25)",
+                  },
+                }}
+              >
+                {isLast ? "Finalizar" : "Siguiente"}
+              </Button>
+            </Box>
           </Box>
-        </Box>
-      </Paper>
-    </FormProvider>
+        </Paper>
+      </FormProvider>
+    </LandingLayout>
   );
 };
