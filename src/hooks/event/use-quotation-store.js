@@ -73,7 +73,22 @@ export const useQuotationStore = () => {
       dispatch(setLoadingQuotation(false));
     }
   };
-  
+
+  const editQuotationAdmin = async (quotationId, quotation) => {
+    dispatch(setLoadingQuotation(true));
+    try {
+      const payload = createQuotationAdminModel(quotation);
+      await eventApi.patch(`quotation/admin/${quotationId}`, payload, getAuthConfig(token));
+      return true;
+    } catch (error) {
+      const message = error.response?.data?.message;
+      openSnackbar(message ?? "Ocurrió un error al editar la cotización.");
+      return false;
+    } finally {
+      dispatch(setLoadingQuotation(false));
+    }
+  };
+
   const startLoadingUserEvents = async (userId) => {
     dispatch(setLoadingQuotation(true));
     try {
@@ -203,6 +218,7 @@ export const useQuotationStore = () => {
     startCreateQuotationAdmin,
     startLoadingQuotationPaginated,
     setSelectedQuotation,
-    startAssigningResources
+    startAssigningResources,
+    editQuotationAdmin,
   };
 };
