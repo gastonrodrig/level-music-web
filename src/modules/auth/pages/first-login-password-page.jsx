@@ -45,6 +45,7 @@ export const FirstLoginPassword = () => {
               message: "Debe incluir letras, números y al menos un caracter especial (!$@%)"
             }
           }}
+          isPasswordInput
         />
 
         {/* Confirmar nueva contraseña */}

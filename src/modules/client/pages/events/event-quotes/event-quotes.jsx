@@ -1,13 +1,14 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Typography, TextField, CircularProgress } from '@mui/material';
-import { Edit  } from '@mui/icons-material';
-import DownloadIcon from '@mui/icons-material/Download';
+import { Edit, Download , FactCheck } from '@mui/icons-material';
 import { useQuotationStore, useAuthStore } from '../../../../../hooks';
 import { TableComponent } from '../../../../../shared/ui/components';
 import { handleDownloadPdf } from '../../../../../modules/client/components/events';
 import { useScreenSizes } from '../../../../../shared/constants/screen-width';
 import { useNavigate } from 'react-router-dom';
 import { formatDay } from '../../../../../shared/utils';
+import { EventEvaluateModal } from '../../../components';
+
 
 export const QuotationPage = () => {
   const {
@@ -27,6 +28,9 @@ export const QuotationPage = () => {
     startLoadingUserEvents,
     setSelectedQuotation,
   } = useQuotationStore();
+  
+    const [isModalOpen, setIsModalOpen] = useState(false); 
+
 
   const { _id } = useAuthStore();
   const navigate = useNavigate();
@@ -34,6 +38,11 @@ export const QuotationPage = () => {
   useEffect(() => {
     startLoadingUserEvents(_id);
   }, [_id, currentPage, rowsPerPage, searchTerm, orderBy, order]);
+
+  const openModal = (payload) => {
+    setSelectedQuotation(payload);
+    setIsModalOpen(true); 
+  };
 
   const columns = [
     { 
@@ -69,10 +78,17 @@ export const QuotationPage = () => {
     },
     {
       label: 'Descargar PDF',
-      icon: <DownloadIcon />,
+      icon: <Download />,
       onClick: (row) => {
         setSelectedQuotation(row);
         handleDownloadPdf(row);
+      },
+    },
+     {
+      label: 'Evaluar Cotización',
+      icon: <FactCheck />,
+      onClick: (row) => {
+        openModal(row);
       },
     }
   ];
@@ -165,7 +181,15 @@ export const QuotationPage = () => {
           actions={actions}
           hasActions
         />
-      )}
+    
+    )}
+    <EventEvaluateModal
+      open={isModalOpen}
+      onClose={() => setIsModalOpen(false)}
+    />
+    
     </Box>
+
+    
   );
 };
