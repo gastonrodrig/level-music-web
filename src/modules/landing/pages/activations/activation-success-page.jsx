@@ -1,5 +1,5 @@
 // src/modules/landing/pages/ActivationSuccessPage.jsx
-import { Stack, Button, Typography, useTheme } from "@mui/material";
+import { Stack, Button, Typography, useTheme, Box, Alert, AlertTitle } from "@mui/material";
 import { AuthLayout } from "../../../auth/layout/auth-layout";
 import { Link as RouterLink } from "react-router-dom";
 
@@ -8,26 +8,35 @@ export const ActivationSuccessPage = () => {
 
   return (
     <AuthLayout
-      title="Cuenta activada correctamente 🎉"
-      subtitle="Ya puedes iniciar sesión con tus credenciales."
+      title="Cuenta activada correctamente"
+      subtitle="Ya puedes iniciar sesión con una nueva cuenta."
       isLogin={false}
     >
-      <Stack spacing={2} alignItems="center" sx={{ width: "100%" }}>
-        <Typography variant="body1" sx={{ color: "#252020" }}>
-          Gracias por activar tu cuenta en Level Music.
-        </Typography>
-
+      <Stack spacing={3} sx={{ width: "100%", mt: 1 }}>
+        <Alert 
+          severity="success"
+          variant="filled"
+          sx={{ width: "100%" }}
+          aria-live="polite"
+        >
+          Revisa tu correo electrónico para encontrar tus credenciales de acceso.
+        </Alert>
         <Button
           component={RouterLink}
           to="/auth/login"
-          variant="contained"
           fullWidth
+          variant="text"
+          color="primary"
           sx={{
+            mt: 1,
+            padding: "10px",
             textTransform: "none",
             fontSize: 16,
+            "&:hover": {
+              backgroundColor: theme.palette.primary.hover,
+            },
             backgroundColor: theme.palette.primary.main,
             color: "white",
-            "&:hover": { backgroundColor: theme.palette.primary.hover },
           }}
         >
           Ir al inicio de sesión

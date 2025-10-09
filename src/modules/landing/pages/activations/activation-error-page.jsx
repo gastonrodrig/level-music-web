@@ -1,5 +1,5 @@
 // src/modules/landing/pages/ActivationErrorPage.jsx
-import { Stack, Button, Typography, useTheme } from "@mui/material";
+import { Stack, Button, useTheme, Alert } from "@mui/material";
 import { AuthLayout } from "../../../auth/layout/auth-layout";
 import { Link as RouterLink } from "react-router-dom";
 
@@ -8,26 +8,36 @@ export const ActivationErrorPage = () => {
 
   return (
     <AuthLayout
-      title="El enlace no es válido o ha expirado ❌"
+      title="El enlace no es válido o ha expirado"
       subtitle="Intenta solicitar una nueva activación o comunícate con soporte."
       isLogin={false}
     >
-      <Stack spacing={2} alignItems="center" sx={{ width: "100%" }}>
-        <Typography variant="body1" sx={{ color: "#252020" }}>
-          Si crees que esto es un error, vuelve al inicio e inténtalo de nuevo.
-        </Typography>
+      <Stack spacing={3} alignItems="center" sx={{ width: "100%", mt: 1 }}>
+        <Alert 
+          severity="error" 
+          variant="filled" 
+          sx={{ width: "100%" }} 
+          aria-live="assertive"
+        >
+          El enlace de activación es inválido o ha expirado.
+        </Alert>
 
         <Button
           component={RouterLink}
           to="/"
-          variant="contained"
           fullWidth
+          variant="text"
+          color="primary"
           sx={{
+            mt: 1,
+            padding: "10px",
             textTransform: "none",
             fontSize: 16,
+            "&:hover": {
+              backgroundColor: theme.palette.primary.hover,
+            },
             backgroundColor: theme.palette.primary.main,
             color: "white",
-            "&:hover": { backgroundColor: theme.palette.primary.hover },
           }}
         >
           Volver al inicio
