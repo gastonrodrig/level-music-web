@@ -13,6 +13,7 @@ import{
   createQuotationLandingModel,
   assignResourcesModel,
   createQuotationAdminModel,
+  updateQuotationLandingModel,
 } from '../../shared/models';
 import { useState } from 'react';
 import { getAuthConfig, getAuthConfigWithParams } from '../../shared/utils';
@@ -77,7 +78,7 @@ export const useQuotationStore = () => {
   const editQuotationAdmin = async (quotationId, quotation) => {
     dispatch(setLoadingQuotation(true));
     try {
-      const payload = createQuotationAdminModel(quotation);
+      const payload = updateQuotationLandingModel(quotation);
       await eventApi.patch(`quotation/admin/${quotationId}`, payload, getAuthConfig(token));
       return true;
     } catch (error) {

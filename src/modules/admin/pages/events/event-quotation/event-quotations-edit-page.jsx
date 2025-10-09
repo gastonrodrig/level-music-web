@@ -28,7 +28,7 @@ import { calcEstimatedPrice } from "../../../../../shared/utils";
 
 export const EventQuotationEditPage = () => {
   const { loading, editQuotationAdmin, selected, quotations } = useQuotationStore();
-  console.log(selected)
+  
   const openSnackbar = (message) => dispatch(showSnackbar({ message }));
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -74,10 +74,11 @@ export const EventQuotationEditPage = () => {
       provider_name: s.service_provider_name,
       service_hours: s.hours,
       service_price: s.hourly_rate,
-      ref_price: s.service_ref_price,
+      ref_price: s.service_ref_price ,
       details: s.service_detail || {},
-      id: s._id,
       _id: s._id,
+      
+      service_detail_id: s.resource,
     })) || [],
 
     equipments: selected?.assignations?.filter(a => a.resource_type === "Equipo").map(e => ({
@@ -89,6 +90,7 @@ export const EventQuotationEditPage = () => {
       serial_number: e.equipment_serial_number,
       location: e.equipment_location || "",
       status: e.equipment_status,
+      resource: e.resource || null,
       id: e._id,
       _id: e._id,
     })) || [],
@@ -99,6 +101,7 @@ export const EventQuotationEditPage = () => {
       worker_type_name: w.worker_role,
       worker_hours: w.hours,
       worker_price: w.hourly_rate,
+      
       id: w._id,
       _id: w._id,
     })) || [],
@@ -108,7 +111,7 @@ export const EventQuotationEditPage = () => {
 });
 
 
-console.log("salida",methods.getValues());
+
     const theme = useTheme();  
     const isDark = theme.palette.mode === "dark";
     const { handleSubmit, watch, setValue, control } = methods;
