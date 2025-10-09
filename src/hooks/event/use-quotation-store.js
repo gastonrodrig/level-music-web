@@ -14,6 +14,7 @@ import{
   assignResourcesModel,
   createQuotationAdminModel,
   updateQuotationLandingModel,
+  evaluateQuotationModel,
 } from '../../shared/models';
 import { useState } from 'react';
 import { getAuthConfig, getAuthConfigWithParams } from '../../shared/utils';
@@ -113,7 +114,6 @@ export const useQuotationStore = () => {
       );
       return true;
     } catch (error) {
-      console.log(error);
       const message = error.response?.data?.message;
       openSnackbar(message ?? "No se pudieron cargar las cotizaciones.");
       return false;
@@ -161,6 +161,27 @@ export const useQuotationStore = () => {
     } catch (error) {
       const message = error.response?.data?.message;
       openSnackbar(message ?? "Ocurrió un error al asignar recursos.");
+      return false; 
+    } finally {
+      dispatch(setLoadingQuotation(false));
+    }
+  }
+
+  const startEvaluatingQuotation = async (quotationId, evaluation, userId) => {
+    dispatch(setLoadingQuotation(true));
+    try {
+      const payload = evaluateQuotationModel(evaluation);
+      const { data } = await eventApi.patch(`${quotationId}/status`, payload, getAuthConfig(token));
+      startLoadingUserEvents(userId);
+      if (data.status === 'Aprobado') {
+        openSnackbar("La cotización fue aprobada exitosamente.");
+      } else {
+        openSnackbar("La cotización fue rechazada.");
+      }
+      return true;
+    } catch (error) {
+      const message = error.response?.data?.message;
+      openSnackbar(message ?? "Ocurrió un error al evaluar la cotización.");
       return false; 
     } finally {
       dispatch(setLoadingQuotation(false));
@@ -221,5 +242,6 @@ export const useQuotationStore = () => {
     setSelectedQuotation,
     startAssigningResources,
     editQuotationAdmin,
+    startEvaluatingQuotation
   };
 };

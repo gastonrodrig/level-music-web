@@ -13,6 +13,7 @@ import { EventEvaluateModal } from '../../../components';
 export const QuotationPage = () => {
   const {
     quotations,
+    selected,
     total,
     loading,
     searchTerm,
@@ -29,8 +30,7 @@ export const QuotationPage = () => {
     setSelectedQuotation,
   } = useQuotationStore();
   
-    const [isModalOpen, setIsModalOpen] = useState(false); 
-
+  const [isModalOpen, setIsModalOpen] = useState(false); 
 
   const { _id } = useAuthStore();
   const navigate = useNavigate();
@@ -84,11 +84,16 @@ export const QuotationPage = () => {
         handleDownloadPdf(row);
       },
     },
-     {
+    {
       label: 'Evaluar Cotización',
       icon: <FactCheck />,
       onClick: (row) => {
         openModal(row);
+      },
+        show: (row) => {
+        const restricted = ["APROBADO", "RECHAZADO", "PAGO PARCIAL PAGADO"];
+        const currentStatus = String(row?.status ?? "").toUpperCase();
+        return !restricted.includes(currentStatus);
       },
     }
   ];
@@ -183,13 +188,11 @@ export const QuotationPage = () => {
         />
     
     )}
-    <EventEvaluateModal
-      open={isModalOpen}
-      onClose={() => setIsModalOpen(false)}
-    />
-    
+      <EventEvaluateModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        quotationId={selected?._id} 
+      />
     </Box>
-
-    
   );
 };

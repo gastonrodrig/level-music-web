@@ -57,6 +57,7 @@ export const LoginPage = () => {
           register={register}
           label="Contraseña"
           type="password"
+          
           error={errors.password}
           rules={{ 
             required: "La contraseña es obligatoria",
