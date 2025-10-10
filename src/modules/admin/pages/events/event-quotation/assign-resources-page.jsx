@@ -34,6 +34,8 @@ import {
   calcWorkersTotal,
 } from "../../../../../shared/utils";
 import dayjs from "dayjs";
+import { useScreenSizes } from "../../../../../shared/constants/screen-width";
+
 
 export const AssignResourcesPage = () => {
   const theme = useTheme();
@@ -43,7 +45,7 @@ export const AssignResourcesPage = () => {
   const [expandedServices, setExpandedServices] = useState(false);
   const [expandedEquipments, setExpandedEquipments] = useState(false);
   const [expandedWorkers, setExpandedWorkers] = useState(false);
-
+  const { isSm } = useScreenSizes();
   const { loading, selected, startAssigningResources } = useQuotationStore();
   const { serviceDetail } = useServiceDetailStore();
   const { equipments } = useEquipmentStore();
@@ -172,7 +174,7 @@ export const AssignResourcesPage = () => {
   return (
     <Box
       component="form"
-      sx={{ px: 4, pt: 2 }}
+      sx={{ px: isSm ? 4 : 0, pt: 2 }}
       onSubmit={handleSubmit(onSubmit)}
     >
       <Typography variant="h4" sx={{ mb: 2 }}>

@@ -25,6 +25,8 @@ import dayjs from "dayjs";
 import { useDispatch } from "react-redux";
 import { showSnackbar } from "../../../../../store";
 import { calcEstimatedPrice } from "../../../../../shared/utils";
+import { useScreenSizes } from "../../../../../shared/constants/screen-width";
+
 
 export const EventQuotationEditPage = () => {
   const { loading, editQuotationAdmin, selected, quotations } = useQuotationStore();
@@ -33,7 +35,7 @@ export const EventQuotationEditPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { serviceDetail } = useServiceDetailStore();
-  
+  const { isSm } = useScreenSizes();
   const { equipments } = useEquipmentStore();
   const { workers } = useWorkerStore();
   const { workerTypes } = useWorkerTypeStore();
@@ -42,7 +44,6 @@ export const EventQuotationEditPage = () => {
   const selectedTypeId = selected?.event_type_id || selected?.event_type || "";
   const selectedTypeObj = eventTypes?.find(et => et._id === selectedTypeId);
   
-
   const methods = useForm({
   defaultValues: {
     // Evento
@@ -94,7 +95,7 @@ export const EventQuotationEditPage = () => {
     
       _id: e._id,
     })) || [],
-
+    
     workers: selected?.assignations?.filter(a => a.resource_type === "Trabajador").map(w => ({
       first_name: w.worker_first_name,
       last_name: w.worker_last_name,
@@ -109,7 +110,7 @@ export const EventQuotationEditPage = () => {
   mode: "onBlur",
 });
 
-console.log(methods.getValues());
+
 
     const theme = useTheme();  
     const isDark = theme.palette.mode === "dark";
@@ -213,7 +214,7 @@ console.log(methods.getValues());
     <FormProvider {...methods}>
       <Box
         component="form"
-        sx={{ px: 4, pt: 2 }}
+        sx={{ px: isSm ? 4 : 0, pt: 2 }}
         onSubmit={handleSubmit(onSubmit)}
       >
         <Typography variant="h4" sx={{ mb: 1 }}>

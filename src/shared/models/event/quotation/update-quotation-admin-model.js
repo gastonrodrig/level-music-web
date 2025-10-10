@@ -22,11 +22,12 @@ export const updateQuotationLandingModel = (data) => {
     // Trabajadores
     ...data.workers.map((w) => ({
       resource_type: "Trabajador",
-      resource_id: String(w._id),
+      resource_id: String(w.worker_id),
       hours: Number(w.worker_hours || 1),
       hourly_rate: Number(w.worker_price || 0),
       available_from: data.startDateTime,
       available_to: data.endDateTime,
+      
     })),
   ].filter((r) => r.resource_id && r.hours > 0 && r.hourly_rate > 0);
 

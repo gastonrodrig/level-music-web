@@ -37,6 +37,7 @@ export const AssignServiceCard = ({
     setValue("service_detail_id", "");
     setValue("service_price", "");
     setValue("service_hours", 1);
+    setValue("payment_percentage_required", 0);
   };
 
   const serviceId = watch("service_id");

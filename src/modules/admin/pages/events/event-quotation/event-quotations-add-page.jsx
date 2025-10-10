@@ -25,6 +25,7 @@ import dayjs from "dayjs";
 import { useDispatch } from "react-redux";
 import { showSnackbar } from "../../../../../store";
 import { calcEstimatedPrice } from "../../../../../shared/utils";
+import { useScreenSizes } from "../../../../../shared/constants/screen-width";
 
 export const EventQuotationAddPage = () => {
   const theme = useTheme();
@@ -41,6 +42,7 @@ export const EventQuotationAddPage = () => {
   const { workerTypes } = useWorkerTypeStore();
   const { services } = useServiceStore();
   const { eventTypes } = useEventTypeStore();
+  const { isSm } = useScreenSizes();
 
   const methods = useForm({
     defaultValues: {
@@ -132,6 +134,15 @@ export const EventQuotationAddPage = () => {
   const equipmentType = watch("equipment_type");
   const workerTypeId = watch("worker_type_id");
 
+   useEffect(() => {
+    // Solo ejecuta en recarga (no navegación interna)
+    
+      if (!eventTypes?.length || !workerTypes?.length) {
+        navigate("/admin/quotations");
+      
+    }
+  }, [eventTypes, workerTypes, navigate]);
+
   useEffect(() => {
     if (clientType === "Empresa") {
       setValue("document_type", "Ruc");
@@ -187,7 +198,8 @@ export const EventQuotationAddPage = () => {
     <FormProvider {...methods}>
       <Box
         component="form"
-        sx={{ px: 4, pt: 2 }}
+        sx={{ px: isSm ? 4 : 0, pt: 2 }}
+        
         onSubmit={handleSubmit(onSubmit)}
       >
         <Typography variant="h4" sx={{ mb: 1 }}>

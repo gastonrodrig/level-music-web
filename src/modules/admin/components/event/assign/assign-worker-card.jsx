@@ -42,7 +42,7 @@ export const AssignWorkerCard = ({
   const workerTypeId = watch("worker_type_id");
   const workerId = watch("worker_id");
   const workerPrice = watch("worker_price");
-  const workerHours = watch("worker_hours");
+  const workerHours = watch("worker_hours") || 1;
 
   const selectedWorker = useMemo(
     () => filteredWorkers.find((w) => w._id === workerId),

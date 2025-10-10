@@ -143,6 +143,7 @@ export const useAssignationGuards = () => {
       equipment_type: selectedEquipment.equipment_type,
       equipment_hours: isNaN(Number(equipmentHours)) ? 1 : Number(equipmentHours),
       equipment_price: Number(equipmentPrice),
+      equipment_id: String(selectedEquipment._id),
     });
     onSuccess?.();
     return true;
@@ -247,6 +248,7 @@ export const useAssignationGuards = () => {
       worker_type_name: selectedWorker.worker_type_name,
       worker_price: Number(workerPrice),
       worker_hours: Number(workerHours),
+      worker_id: String(selectedWorker._id),
     });
 
     append({
@@ -256,6 +258,7 @@ export const useAssignationGuards = () => {
       worker_type_name: selectedWorker.worker_type_name,
       worker_price: Number(workerPrice),
       worker_hours: isNaN(Number(workerHours)) ? 1 : Number(workerHours),
+      worker_id: String(selectedWorker._id),
     });
     onSuccess?.();
     return true;
