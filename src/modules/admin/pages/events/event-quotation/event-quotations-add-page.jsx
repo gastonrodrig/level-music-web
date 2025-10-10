@@ -31,7 +31,7 @@ export const EventQuotationAddPage = () => {
   const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+  
   const openSnackbar = (message) => dispatch(showSnackbar({ message }));
 
   const { loading, startCreateQuotationAdmin } = useQuotationStore();

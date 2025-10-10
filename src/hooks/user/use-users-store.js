@@ -62,6 +62,16 @@ export const useUsersStore = () => {
     }
   }
 
+  const startLoadingUserDocument = async (document) => {
+      try {
+        const { data } = await userApi.get(`/get/document?document=${document}`, getAuthConfig(token));
+        return data;
+      } catch (error) {
+        const message = error.response?.data?.message;
+        openSnackbar(message ?? "Ocurrió un error al buscar el usuario.");
+        return null;
+      }
+    };
   const startUpdateExtraData = async (uid, extraData) => {
     dispatch(setLoadingClientProfile());
     try {
@@ -167,6 +177,7 @@ export const useUsersStore = () => {
     startUpdateExtraData,
     startUpdateClientProfileData,
     startUpdateClientProfilePicture,
-    startRemoveClientProfilePicture
+    startRemoveClientProfilePicture,
+    startLoadingUserDocument,
   };
 };

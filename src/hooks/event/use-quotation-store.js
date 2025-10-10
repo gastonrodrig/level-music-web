@@ -150,6 +150,7 @@ export const useQuotationStore = () => {
       dispatch(setLoadingQuotation(false));
     }
   };
+  
 
   const startAssigningResources = async (quotationId, quotation) => {
     dispatch(setLoadingQuotation(true));
@@ -242,6 +243,7 @@ export const useQuotationStore = () => {
     setSelectedQuotation,
     startAssigningResources,
     editQuotationAdmin,
-    startEvaluatingQuotation
+    startEvaluatingQuotation,
+    
   };
 };
