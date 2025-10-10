@@ -91,12 +91,13 @@ export const EventQuotationEditPage = () => {
       location: e.equipment_location || "",
       status: e.equipment_status,
       equipment_id: e.resource,
+    
       _id: e._id,
     })) || [],
 
     workers: selected?.assignations?.filter(a => a.resource_type === "Trabajador").map(w => ({
-      first_name: w.first_name,
-      last_name: w.last_name,
+      first_name: w.worker_first_name,
+      last_name: w.worker_last_name,
       worker_type_name: w.worker_role,
       worker_hours: w.hours,
       worker_price: w.hourly_rate,

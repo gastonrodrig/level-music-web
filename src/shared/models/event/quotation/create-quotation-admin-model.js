@@ -18,6 +18,7 @@ export const createQuotationAdminModel = (data) => {
       hourly_rate: Number(e.equipment_price || 0),
       available_from: data.startDateTime,
       available_to: data.endDateTime,
+      
     })),
     // Trabajadores
     ...data.workers.map((w) => ({
