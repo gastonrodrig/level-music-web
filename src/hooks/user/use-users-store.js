@@ -62,9 +62,9 @@ export const useUsersStore = () => {
     }
   }
 
-  const startLoadingUserDocument = async (document) => {
+  const startLoadingUserDocument = async (document, documentType) => {
       try {
-        const { data } = await userApi.get(`/get/document?document=${document}`, getAuthConfig(token));
+        const { data } = await userApi.get(`/get/document?document_number=${document}&document_type=${documentType}`, getAuthConfig(token));
         return data;
       } catch (error) {
         const message = error.response?.data?.message;

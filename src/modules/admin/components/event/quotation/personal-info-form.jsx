@@ -34,29 +34,43 @@ export const PersonalInfoForm = () => {
   const clientType = watch("client_type", "Persona");
   const documentType = watch("document_type");
   const documentNumber = watch("document_number");
+
+  useEffect(() => {
+    // Limpia los datos del cliente al cambiar tipo de cliente o documento
+    setValue("first_name", "");
+    setValue("last_name", "");
+    setValue("email", "");
+    setValue("phone", "");
+    setValue("company_name", "");
+    setValue("contact_person", "");
+  }, [clientType, documentType, setValue]);
+
   useEffect(() => {
     // Solo buscar si hay número y tipo de documento
-    if (documentNumber && documentType && clientType) {
+    const isValid =
+    (documentType === "Dni" && /^\d{8}$/.test(documentNumber)) ||
+    (documentType === "Ruc" && /^10\d{9}$/.test(documentNumber));
+    if (documentNumber && documentType && clientType && isValid) {
       (async () => {
-        const userData = await startLoadingUserDocument(documentNumber);
-        console.log("userData", userData);
-        if (userData) {
-          // Llena los campos del formulario con los datos recibidos
-          setValue("first_name", userData.first_name || "");
-          setValue("last_name", userData.last_name || "");
-          setValue("email", userData.email || "");
-          setValue("phone", userData.phone || "");
-          setValue("company_name", userData.company_name || "");
-          setValue("contact_person", userData.contact_person || "");
-        }
-      })();
+      const userData = await startLoadingUserDocument(documentNumber, documentType);
+      if (
+        userData &&
+        userData.client_type === clientType &&
+        userData.document_type === documentType
+      ) {
+        setValue("first_name", userData.first_name || "");
+        setValue("last_name", userData.last_name || "");
+        setValue("email", userData.email || "");
+        setValue("phone", userData.phone || "");
+        setValue("company_name", userData.company_name || "");
+        setValue("contact_person", userData.contact_person || "");
+      }
+    })();
     }
   }, [documentNumber, documentType, clientType, setValue, startLoadingUserDocument]);
 
-
   return (
-    
-      <Box
+    <Box
         sx={{
           borderRadius: 2,
           border: "1px solid",
@@ -125,7 +139,7 @@ export const PersonalInfoForm = () => {
                     labelId="document-type-label"
                     label="Tipo de Documento"
                     value={field.value || ""}
-                    disabled={!clientType}
+                     disabled={clientType === "Empresa"}
                   >
                     {clientType === "Empresa"
                       ? [
@@ -152,6 +166,7 @@ export const PersonalInfoForm = () => {
               label="Número de Documento"
               placeholder="Ingresa tu número"
               fullWidth
+              type="number"
               InputLabelProps={{ shrink: true }}
               {...register("document_number", {
                 required:
@@ -189,13 +204,14 @@ export const PersonalInfoForm = () => {
               label="Nombre"
               placeholder="Nombre"
               fullWidth
+              disa
               InputLabelProps={{ shrink: true }}
               {...register("first_name", {
                 required: clientType === "Persona" ? "El nombre es obligatorio" : false,
               })}
               error={!!errors.first_name}
               helperText={errors.first_name?.message}
-              disabled={!clientType || clientType === "Empresa"}
+              disabled
             />
           </Grid>
           <Grid item xs={12} md={6}>
@@ -209,7 +225,7 @@ export const PersonalInfoForm = () => {
               })}
               error={!!errors.last_name}
               helperText={errors.last_name?.message}
-              disabled={!clientType || clientType === "Empresa"}
+              disabled
             />
           </Grid>
           <Grid item xs={12} md={6}>
@@ -224,7 +240,7 @@ export const PersonalInfoForm = () => {
               })}
               error={!!errors.email}
               helperText={errors.email?.message}
-              disabled={!clientType}
+              disabled
             />
           </Grid>
           <Grid item xs={12} md={6}>
@@ -242,7 +258,7 @@ export const PersonalInfoForm = () => {
               })}
               error={!!errors.phone}
               helperText={errors.phone?.message}
-              disabled={!clientType}
+              disabled
             />
           </Grid>
         </Grid>
