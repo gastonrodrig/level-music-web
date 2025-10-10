@@ -75,6 +75,7 @@ export const EventQuotationAddPage = () => {
       service_detail_id: "",
       service_hours: 1,
       service_price: "",
+      payment_percentage_required: 0,
       equipment_type: "",
       equipment_id: "",
       equipment_hours: 1,
@@ -91,6 +92,8 @@ export const EventQuotationAddPage = () => {
   });
 
   const { handleSubmit, watch, setValue, control } = methods;
+
+  
 
   // 🔹 Cálculo dinámico del total estimado
   const servicesWatch = watch("services");

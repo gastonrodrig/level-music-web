@@ -153,6 +153,7 @@ export const useAssignationGuards = () => {
     selectedDetail,
     servicePrice,
     serviceHours,
+    paymentPercentageRequired,
     assignedServices,
     append,
     onSuccess,
@@ -191,6 +192,8 @@ export const useAssignationGuards = () => {
       provider_name: selectedService.provider_name,
       service_hours: Number(serviceHours),
       service_price: Number(servicePrice),
+      payment_percentage_required: Number(paymentPercentageRequired),
+      
     });
 
     append({
@@ -202,6 +205,7 @@ export const useAssignationGuards = () => {
       details: selectedDetail.details,
       ref_price: selectedDetail.ref_price,
       service_price: Number(servicePrice),
+      payment_percentage_required: Number(paymentPercentageRequired),
     });
     onSuccess?.();
     return true;

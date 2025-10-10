@@ -13,7 +13,7 @@ export const updateQuotationLandingModel = (data) => {
     // Equipos
     ...data.equipments.map((e) => ({
       resource_type: "Equipo",
-      resource_id: String(e._id),
+      resource_id: String(e.equipment_id),
       hours: Number(e.equipment_hours || 1),
       hourly_rate: Number(e.equipment_price || 0),
       available_from: data.startDateTime,

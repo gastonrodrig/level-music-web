@@ -76,6 +76,7 @@ export const EventQuotationEditPage = () => {
       service_price: s.hourly_rate,
       ref_price: s.service_ref_price,
       details: s.service_detail || {},
+      payment_percentage_required: s.payment_percentage_required || 0,
       service_detail_id: s.resource,
       _id: s._id,
     })) || [],

@@ -196,17 +196,21 @@ export const AssignServiceCard = ({
           <Grid item xs={12} md={2.5}>
             <TextField
               label="% Pago Requerido"
-              placeholder="Ej: 250"
+              placeholder="Ej: 50"
               value={paymentPercentageRequired || ""}
               onChange={(e) => {
-                const value = e.target.value ? Number(e.target.value) : "";
+                let value = e.target.value ? Number(e.target.value) : "";
+                // Validación: solo entre 0 y 100
+                if (value !== "" && (value < 0 || value > 100)) return;
                 setValue("payment_percentage_required", value);
               }}
               fullWidth
               InputLabelProps={{ shrink: true }}
               sx={{ "& .MuiInputBase-root": { height: 60 } }}
               disabled={datesMissing}
-            />
+              type="number"
+              inputProps={{ min: 0, max: 100 }}
+            />    
           </Grid>
 
           {/* Agregar */}
@@ -218,12 +222,14 @@ export const AssignServiceCard = ({
               onClick={async () => {
                 if (!guardDates()) return;
                 if (!selectedService || !selectedDetail) return;
+                //aca se agrega el servicio osea se anida los objetos para mostrarlo supongo 
                 await startAppendService({
                   selectedService,
                   selectedDetail,
                   servicePrice,
                   serviceHours,
                   assignedServices,
+                  paymentPercentageRequired,
                   append: addService,
                   onSuccess: resetForm,
                   from,
@@ -246,6 +252,7 @@ export const AssignServiceCard = ({
 
       {assignedServices.length > 0 ? (
         assignedServices.map((servicio, index) => (
+          console.log("servicio", servicio) || (
           <Box
             key={servicio.id}
             sx={{
@@ -269,6 +276,8 @@ export const AssignServiceCard = ({
                 >
                   <Chip label={servicio.provider_name} size="small" />
                   <Chip label={`Horas: ${servicio.service_hours}`} size="small" />
+                  <Chip label={`Porcentaje de Pago: ${servicio.payment_percentage_required}%`} size="small" wcolor="info"
+                  />
                 </Box>
               </Grid>
 
@@ -296,7 +305,7 @@ export const AssignServiceCard = ({
               ))}
             </Grid>
           </Box>
-        ))
+        )))
       ) : (
         <Typography fontSize={14} color="text.secondary" align="center" my={5}>
           No hay servicios adicionales asignados aún
