@@ -8,6 +8,7 @@ export const assignResourcesModel = (data) => {
       hourly_rate: Number(s.service_price ?? s.ref_price ?? 0),
       available_from: data.from,
       available_to: data.to,
+      payment_percentage_required: s.payment_percentage_required ?? 0,
     })),
     // Equipos
     ...data.equipments.map((e) => ({

@@ -43,6 +43,7 @@ export const AssignServiceCard = ({
   const serviceDetailId = watch("service_detail_id");
   const servicePrice = watch("service_price");
   const serviceHours = watch("service_hours");
+  const paymentPercentageRequired = watch("payment_percentage_required");
 
   const selectedService = useMemo(
     () => services.find((s) => s._id === serviceId),
@@ -78,7 +79,7 @@ export const AssignServiceCard = ({
       >
         <Grid container spacing={2} alignItems="center">
           {/* Servicio */}
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} md={6}>
             <FormControl fullWidth>
               <InputLabel id="service-label" shrink>Servicio</InputLabel>
               <Select
@@ -112,7 +113,7 @@ export const AssignServiceCard = ({
           </Grid>
 
           {/* Paquete */}
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} md={6}>
             <FormControl fullWidth size="small">
               <InputLabel id="package-label" shrink>Paquete</InputLabel>
               <Select
@@ -145,7 +146,7 @@ export const AssignServiceCard = ({
           </Grid>
 
           {/* Horas */}
-          <Grid item xs={12} md={1.5}>
+          <Grid item xs={12} md={2}>
             <FormControl fullWidth size="small">
               <InputLabel id="hours-label">Horas</InputLabel>
               <Select
@@ -163,7 +164,7 @@ export const AssignServiceCard = ({
           </Grid>
 
           {/* Precio de referencia */}
-          <Grid item xs={12} md={1.5}>
+          <Grid item xs={12} md={2.5}>
             <TextField
               label="Precio Ref."
               value={selectedDetail?.ref_price || 0}
@@ -175,7 +176,7 @@ export const AssignServiceCard = ({
           </Grid>
 
           {/* Precio por Hora (editable) */}
-          <Grid item xs={12} md={1.5}>
+          <Grid item xs={12} md={2.5}>
             <TextField
               label="Precio Hora"
               placeholder="Ej: 250"
@@ -191,8 +192,25 @@ export const AssignServiceCard = ({
             />
           </Grid>
 
+          {/* % Pago Requerido */}
+          <Grid item xs={12} md={2.5}>
+            <TextField
+              label="% Pago Requerido"
+              placeholder="Ej: 250"
+              value={paymentPercentageRequired || ""}
+              onChange={(e) => {
+                const value = e.target.value ? Number(e.target.value) : "";
+                setValue("payment_percentage_required", value);
+              }}
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+              sx={{ "& .MuiInputBase-root": { height: 60 } }}
+              disabled={datesMissing}
+            />
+          </Grid>
+
           {/* Agregar */}
-          <Grid item xs={12} md={1.5}>
+          <Grid item xs={12} md={2.5}>
             <Button
               variant="contained"
               fullWidth

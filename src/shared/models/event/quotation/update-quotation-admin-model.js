@@ -8,6 +8,7 @@ export const updateQuotationLandingModel = (data) => {
       hourly_rate: Number(s.service_price ?? s.ref_price ?? 0),
       available_from: data.startDateTime,
       available_to: data.endDateTime,
+      payment_percentage_required: s.payment_percentage_required ?? 0,
     })),
     // Equipos
     ...data.equipments.map((e) => ({
