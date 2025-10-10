@@ -8,6 +8,7 @@ export const createQuotationAdminModel = (data) => {
       hourly_rate: Number(s.service_price ?? s.ref_price ?? 0),
       available_from: data.startDateTime,
       available_to: data.endDateTime,
+      payment_percentage_required: s.payment_percentage_required ?? 0,
     })),
     // Equipos
     ...data.equipments.map((e) => ({
@@ -28,7 +29,6 @@ export const createQuotationAdminModel = (data) => {
       available_to: data.endDateTime,
     })),
   ].filter((r) => r.resource_id && r.hours > 0 && r.hourly_rate > 0);
-console.log({assignations})
   return {
     name: data.eventName,
     description: data.eventDescription,
