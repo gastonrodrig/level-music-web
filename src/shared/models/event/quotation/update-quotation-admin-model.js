@@ -31,7 +31,6 @@ export const updateQuotationLandingModel = (data) => {
     })),
   ].filter((r) => r.resource_id && r.hours > 0 && r.hourly_rate > 0);
 
-console.log("assignations", assignations);
   return {
     name: data.eventName,
     description: data.eventDescription,

@@ -12,14 +12,8 @@ export const useAssignationGuards = () => {
 
   const checkEquipmentMaintenance = async (equipmentId, date) => {
     try {
-      console.log(equipmentId, date);
       await equipmentApi.get(`/availability/${equipmentId}`,
-        getAuthConfigWithParams(token, 
-          { 
-            date: date
-          }
-          
-        )
+        getAuthConfigWithParams(token, { date })
       );
       return { ok: true };
     } catch (error) {
@@ -125,14 +119,6 @@ export const useAssignationGuards = () => {
       return false; 
     }
 
-    console.log("Agregando equipo:", {
-      _id: selectedEquipment._id,
-      name: selectedEquipment.name,
-      equipment_type: selectedEquipment.equipment_type,
-      equipment_hours: Number(equipmentHours),
-      equipment_price: Number(equipmentPrice),
-    });
-
     append({
       _id: selectedEquipment._id,
       name: selectedEquipment.name,
@@ -186,17 +172,6 @@ export const useAssignationGuards = () => {
       return false; 
     }
 
-    console.log("Agregando servicio adicional:", {
-      service_id: selectedService._id,
-      service_detail_id: selectedDetail._id,
-      service_type_name: selectedService.service_type_name,
-      provider_name: selectedService.provider_name,
-      service_hours: Number(serviceHours),
-      service_price: Number(servicePrice),
-      payment_percentage_required: Number(paymentPercentageRequired),
-      
-    });
-
     append({
       service_id: selectedService._id,
       service_detail_id: selectedDetail._id,
@@ -240,16 +215,6 @@ export const useAssignationGuards = () => {
       openSnackbar(avail.message); 
       return false; 
     }
-
-    console.log("Agregando trabajador:", {
-      _id: selectedWorker._id,
-      first_name: selectedWorker.first_name,
-      last_name: selectedWorker.last_name,
-      worker_type_name: selectedWorker.worker_type_name,
-      worker_price: Number(workerPrice),
-      worker_hours: Number(workerHours),
-      worker_id: String(selectedWorker._id),
-    });
 
     append({
       _id: selectedWorker._id,

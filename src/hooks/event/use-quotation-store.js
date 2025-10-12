@@ -1,7 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { eventApi } from '../../api';
 import {
-  listAllQuotations,
   selectedQuotation,
   setLoadingQuotation,
   setPageQuotation,
@@ -76,7 +75,7 @@ export const useQuotationStore = () => {
     }
   };
 
-  const editQuotationAdmin = async (quotationId, quotation) => {
+  const startUpdateQuotationAdmin = async (quotationId, quotation) => {
     dispatch(setLoadingQuotation(true));
     try {
       const payload = updateQuotationLandingModel(quotation);
@@ -151,7 +150,6 @@ export const useQuotationStore = () => {
     }
   };
   
-
   const startAssigningResources = async (quotationId, quotation) => {
     dispatch(setLoadingQuotation(true));
     try {
@@ -168,7 +166,7 @@ export const useQuotationStore = () => {
     }
   }
 
-  const startEvaluatingQuotation = async (quotationId, evaluation, userId) => {
+  const startEvaluateQuotation = async (quotationId, evaluation, userId) => {
     dispatch(setLoadingQuotation(true));
     try {
       const payload = evaluateQuotationModel(evaluation);
@@ -242,8 +240,7 @@ export const useQuotationStore = () => {
     startLoadingQuotationPaginated,
     setSelectedQuotation,
     startAssigningResources,
-    editQuotationAdmin,
-    startEvaluatingQuotation,
-    
+    startUpdateQuotationAdmin,
+    startEvaluateQuotation,
   };
 };

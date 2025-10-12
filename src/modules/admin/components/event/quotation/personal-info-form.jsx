@@ -3,9 +3,6 @@ import {
   Box,
   TextField,
   Typography,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
   Grid,
   FormControl,
   InputLabel,
@@ -17,9 +14,8 @@ import {
 } from "@mui/material";
 import { Controller, useFormContext } from "react-hook-form";
 import { AccountBox } from "@mui/icons-material";
-import {
-  useUsersStore,
-} from "../../../../../hooks";
+import { useUsersStore } from "../../../../../hooks";
+
 export const PersonalInfoForm = () => {
   const {
     register,
@@ -28,15 +24,17 @@ export const PersonalInfoForm = () => {
     formState: { errors },
     setValue,
   } = useFormContext();
+
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+
   const { startLoadingUserDocument } = useUsersStore();
+
   const clientType = watch("client_type", "Persona");
   const documentType = watch("document_type");
   const documentNumber = watch("document_number");
 
   useEffect(() => {
-    // Limpia los datos del cliente al cambiar tipo de cliente o documento
     setValue("first_name", "");
     setValue("last_name", "");
     setValue("email", "");
@@ -46,59 +44,75 @@ export const PersonalInfoForm = () => {
   }, [clientType, documentType, setValue]);
 
   useEffect(() => {
-    // Solo buscar si hay número y tipo de documento
     const isValid =
-    (documentType === "Dni" && /^\d{8}$/.test(documentNumber)) ||
-    (documentType === "Ruc" && /^10\d{9}$/.test(documentNumber));
+      (documentType === "Dni" && /^\d{8}$/.test(documentNumber)) ||
+      (documentType === "Ruc" && /^10\d{9}$/.test(documentNumber));
     if (documentNumber && documentType && clientType && isValid) {
       (async () => {
-      const userData = await startLoadingUserDocument(documentNumber, documentType);
-      if (
-        userData &&
-        userData.client_type === clientType &&
-        userData.document_type === documentType
-      ) {
-        setValue("first_name", userData.first_name || "");
-        setValue("last_name", userData.last_name || "");
-        setValue("email", userData.email || "");
-        setValue("phone", userData.phone || "");
-        setValue("company_name", userData.company_name || "");
-        setValue("contact_person", userData.contact_person || "");
-      }
-    })();
+        const userData = await startLoadingUserDocument(
+          documentNumber,
+          documentType,
+          clientType
+        );
+        if (
+          userData &&
+          userData.client_type === clientType &&
+          userData.document_type === documentType
+        ) {
+          setValue("first_name", userData.first_name || "");
+          setValue("last_name", userData.last_name || "");
+          setValue("email", userData.email || "");
+          setValue("phone", userData.phone || "");
+          setValue("company_name", userData.company_name || "");
+          setValue("contact_person", userData.contact_person || "");
+        }
+      })();
     }
-  }, [documentNumber, documentType, clientType, setValue, startLoadingUserDocument]);
+  }, [
+    documentNumber,
+    documentType,
+    clientType,
+    setValue,
+    startLoadingUserDocument,
+  ]);
 
   return (
     <Box
+      sx={{
+        borderRadius: 2,
+        border: "1px solid",
+        borderColor: "divider",
+        overflow: "hidden",
+        mb: 3,
+      }}
+    >
+      {/* Cabecera más oscura */}
+      <Box
         sx={{
-          borderRadius: 2,
-          border: "1px solid",
-          borderColor: "divider",
-          overflow: "hidden",
-          mb: 3,
+          bgcolor: isDark ? "#151515" : "#e0e0e0",
+          p: 2,
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
         }}
       >
-        {/* Cabecera más oscura */}
-        <Box
-          sx={{
-            bgcolor: isDark ? "#151515" : "#e0e0e0",
-            p: 2,
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-          }}
-        >
-          <AccountBox />
-          <Typography fontWeight={700}>Información del Cliente</Typography>
-        </Box>
- <Box sx={{ p: 3, bgcolor: isDark ? "#1f1e1e" : "#f5f5f5" }}>
+        <AccountBox />
+        <Typography fontWeight={700}>Información del Cliente</Typography>
+      </Box>
+
+      <Box sx={{ p: 3, bgcolor: isDark ? "#1f1e1e" : "#f5f5f5" }}>
         {/* Tipo de Cliente */}
         <Typography variant="subtitle1" fontWeight={600} gutterBottom>
           Tipo de Cliente
         </Typography>
-        <FormControl fullWidth error={!!errors.client_type} sx={{ mb: 2, mt:2 }}>
-          <InputLabel id="client-type-label">Seleccione el tipo de cliente</InputLabel>
+        <FormControl
+          fullWidth
+          error={!!errors.client_type}
+          sx={{ mb: 2, mt: 2 }}
+        >
+          <InputLabel id="client-type-label">
+            Seleccione el tipo de cliente
+          </InputLabel>
           <Controller
             name="client_type"
             control={control}
@@ -123,8 +137,10 @@ export const PersonalInfoForm = () => {
         <Typography variant="subtitle1" fontWeight={600} mb={1}>
           Documento de Identidad
         </Typography>
+
         <Grid container spacing={3} sx={{ mb: 2 }}>
           <Grid item xs={12} md={6}>
+            {/* Tipo de Documento */}
             <FormControl fullWidth error={!!errors.document_type}>
               <InputLabel id="document-type-label">
                 Tipo de Documento
@@ -139,7 +155,7 @@ export const PersonalInfoForm = () => {
                     labelId="document-type-label"
                     label="Tipo de Documento"
                     value={field.value || ""}
-                     disabled={clientType === "Empresa"}
+                    disabled={clientType === "Empresa"}
                   >
                     {clientType === "Empresa"
                       ? [
@@ -161,6 +177,8 @@ export const PersonalInfoForm = () => {
               <FormHelperText>{errors.document_type?.message}</FormHelperText>
             </FormControl>
           </Grid>
+
+          {/* Número de Documento */}
           <Grid item xs={12} md={6}>
             <TextField
               label="Número de Documento"
@@ -198,36 +216,92 @@ export const PersonalInfoForm = () => {
         <Typography variant="subtitle1" fontWeight={600} mb={2}>
           Datos del Cliente
         </Typography>
+
         <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Nombre"
-              placeholder="Nombre"
-              fullWidth
-              disa
-              InputLabelProps={{ shrink: true }}
-              {...register("first_name", {
-                required: clientType === "Persona" ? "El nombre es obligatorio" : false,
-              })}
-              error={!!errors.first_name}
-              helperText={errors.first_name?.message}
-              disabled
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Apellido"
-              placeholder="Apellido"
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              {...register("last_name", {
-                required: clientType === "Persona" ? "El apellido es obligatorio" : false,
-              })}
-              error={!!errors.last_name}
-              helperText={errors.last_name?.message}
-              disabled
-            />
-          </Grid>
+          {clientType === "Persona" ? (
+            <>
+              {/* Nombre */}
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="Nombre"
+                  placeholder="Nombre"
+                  fullWidth
+                  disa
+                  InputLabelProps={{ shrink: true }}
+                  {...register("first_name", {
+                    required:
+                      clientType === "Persona"
+                        ? "El nombre es obligatorio"
+                        : false,
+                  })}
+                  error={!!errors.first_name}
+                  helperText={errors.first_name?.message}
+                  disabled
+                />
+              </Grid>
+
+              {/* Apellido */}
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="Apellido"
+                  placeholder="Apellido"
+                  fullWidth
+                  InputLabelProps={{ shrink: true }}
+                  {...register("last_name", {
+                    required:
+                      clientType === "Persona"
+                        ? "El apellido es obligatorio"
+                        : false,
+                  })}
+                  error={!!errors.last_name}
+                  helperText={errors.last_name?.message}
+                  disabled
+                />
+              </Grid>
+            </>
+          ) : (
+            <>
+              {/* Empresa */}
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="Empresa"
+                  placeholder="Nombre de la empresa"
+                  fullWidth
+                  InputLabelProps={{ shrink: true }}
+                  {...register("company_name", {
+                    required:
+                      clientType === "Empresa"
+                        ? "El nombre de la empresa es obligatorio"
+                        : false,
+                  })}
+                  error={!!errors.company_name}
+                  helperText={errors.company_name?.message}
+                  disabled
+                />
+              </Grid>
+
+              {/* Persona de Contacto */}
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="Persona de Contacto"
+                  placeholder="Nombre de la persona de contacto"
+                  fullWidth
+                  InputLabelProps={{ shrink: true }}
+                  {...register("contact_person", {
+                    required:
+                      clientType === "Empresa"
+                        ? "El nombre de la persona de contacto es obligatorio"
+                        : false,
+                  })}
+                  error={!!errors.contact_person}
+                  helperText={errors.contact_person?.message}
+                  disabled
+                />
+              </Grid>
+            </>
+          )}
+
+          {/* Correo Electrónico */}
           <Grid item xs={12} md={6}>
             <TextField
               fullWidth
@@ -243,6 +317,8 @@ export const PersonalInfoForm = () => {
               disabled
             />
           </Grid>
+
+          {/* Teléfono de Contacto */}
           <Grid item xs={12} md={6}>
             <TextField
               label="Teléfono de Contacto"

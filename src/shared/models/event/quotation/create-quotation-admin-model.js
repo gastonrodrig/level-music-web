@@ -18,7 +18,6 @@ export const createQuotationAdminModel = (data) => {
       hourly_rate: Number(e.equipment_price || 0),
       available_from: data.startDateTime,
       available_to: data.endDateTime,
-      
     })),
     // Trabajadores
     ...data.workers.map((w) => ({
@@ -30,6 +29,7 @@ export const createQuotationAdminModel = (data) => {
       available_to: data.endDateTime,
     })),
   ].filter((r) => r.resource_id && r.hours > 0 && r.hourly_rate > 0);
+
   return {
     name: data.eventName,
     description: data.eventDescription,

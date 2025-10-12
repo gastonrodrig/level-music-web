@@ -4,11 +4,8 @@ import {
   TextField,
   Grid,
   Button,
-  IconButton,
-  Collapse,
   useTheme,
 } from "@mui/material";
-import { ExpandMore, ExpandLess } from "@mui/icons-material";
 import {
   useEquipmentStore,
   useQuotationStore,
@@ -22,29 +19,22 @@ import {
   AssignServiceCard,
   AssignEquipmentCard,
   AssignWorkerCard,
+  QuotationSummary,
 } from "../../../components";
 import { useForm, useFieldArray } from "react-hook-form";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAssignationGuards } from "../../../../../hooks";
-import {
-  calcEstimatedPrice,
-  calcServicesTotal,
-  calcEquipmentsTotal,
-  calcWorkersTotal,
-} from "../../../../../shared/utils";
-import dayjs from "dayjs";
+import { calcEstimatedPrice } from "../../../../../shared/utils";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
-
+import dayjs from "dayjs";
+import { Save } from "@mui/icons-material";
 
 export const AssignResourcesPage = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
 
-  const [expandedServices, setExpandedServices] = useState(false);
-  const [expandedEquipments, setExpandedEquipments] = useState(false);
-  const [expandedWorkers, setExpandedWorkers] = useState(false);
   const { isSm } = useScreenSizes();
   const { loading, selected, startAssigningResources } = useQuotationStore();
   const { serviceDetail } = useServiceDetailStore();
@@ -53,10 +43,13 @@ export const AssignResourcesPage = () => {
   const { workerTypes } = useWorkerTypeStore();
   const { services } = useServiceStore();
 
-  // si no hay selected, volvemos a lista (esta pantalla es SOLO para asignar)
-  useEffect(() => {
-    if (!selected) navigate("/admin/quotations");
-  }, [selected, navigate]);
+  const { 
+    startAppendEquipment, 
+    startAppendService, 
+    startAppendWorker 
+  } = useAssignationGuards();
+
+  const guardDates = () => datesReady;
 
   const {
     register,
@@ -89,7 +82,6 @@ export const AssignResourcesPage = () => {
     mode: "onBlur",
   });
 
-  // field arrays
   const {
     fields: assignedServices,
     append: addService,
@@ -106,10 +98,17 @@ export const AssignResourcesPage = () => {
     remove: removeWorker,
   } = useFieldArray({ control, name: "workers" });
 
-  // totales dinámicos
+  const serviceId = watch("service_id");
+  const equipmentType = watch("equipment_type");
+  const workerTypeId = watch("worker_type_id");
   const servicesWatch = watch("services");
   const equipmentsWatch = watch("equipments");
   const workersWatch = watch("workers");
+
+  useEffect(() => {
+    if (!selected) navigate("/admin/quotations");
+  }, [selected, navigate]);
+
   useEffect(() => {
     setValue(
       "estimated_price",
@@ -120,11 +119,6 @@ export const AssignResourcesPage = () => {
       })
     );
   }, [servicesWatch, equipmentsWatch, workersWatch, setValue]);
-
-  // filtros por selección
-  const serviceId = watch("service_id");
-  const equipmentType = watch("equipment_type");
-  const workerTypeId = watch("worker_type_id");
 
   const filteredDetails = useMemo(
     () => (serviceDetail || []).filter((d) => d.service_id === serviceId),
@@ -139,7 +133,6 @@ export const AssignResourcesPage = () => {
     [workers, workerTypeId]
   );
 
-  // fechas vienen del selected (no del form)
   const fromISO = selected?.start_time
     ? dayjs(selected.start_time).toISOString()
     : null;
@@ -147,16 +140,6 @@ export const AssignResourcesPage = () => {
     ? dayjs(selected.end_time).toISOString()
     : null;
   const datesReady = !!(fromISO && toISO);
-
-  const { startAppendEquipment, startAppendService, startAppendWorker } =
-    useAssignationGuards();
-  const guardDates = () => datesReady;
-
-  // totales para el resumen
-  const servicesTotal = calcServicesTotal(assignedServices);
-  const equipmentsTotal = calcEquipmentsTotal(assignedEquipments);
-  const workersTotal = calcWorkersTotal(assignedWorkers);
-  const grandTotal = watch("estimated_price") || 0;
 
   const onSubmit = async (data) => {
     if (!selected) return;
@@ -170,6 +153,8 @@ export const AssignResourcesPage = () => {
     });
     if (success) navigate("/admin/quotations");
   };
+
+  const isButtonDisabled = useMemo(() => loading, [loading]);
 
   return (
     <Box
@@ -274,237 +259,31 @@ export const AssignResourcesPage = () => {
       </Box>
 
       {/* Resumen */}
-      <Box
-        sx={{
-          p: 3,
-          borderRadius: 3,
-          bgcolor: isDark ? "#1f1e1e" : "#f5f5f5",
-          my: 2,
-        }}
-      >
-        <Typography sx={{ fontSize: 20, fontWeight: 500, mb: 2 }}>
-          Resumen de la Asignación
-        </Typography>
-
-        {/* Servicios */}
-        <Box sx={{ mb: 2 }}>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              cursor: "pointer",
-              "&:hover": {
-                bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
-              },
-              p: 1,
-              borderRadius: 1,
-            }}
-            onClick={() => setExpandedServices((s) => !s)}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <Typography fontSize={14} color="text.secondary">
-                + Servicios adicionales ({assignedServices.length})
-              </Typography>
-              <IconButton size="small">
-                {expandedServices ? <ExpandLess /> : <ExpandMore />}
-              </IconButton>
-            </Box>
-            <Typography fontSize={14}>S/ {servicesTotal.toFixed(2)}</Typography>
-          </Box>
-
-          <Collapse in={expandedServices}>
-            <Box sx={{ ml: 2, mt: 1 }}>
-              {assignedServices.length ? (
-                assignedServices.map((service, i) => (
-                  <Box
-                    key={i}
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      py: 0.5,
-                    }}
-                  >
-                    <Typography fontSize={13} color="text.secondary">
-                      • {service.name} ({service.service_hours}h)
-                    </Typography>
-                    <Typography fontSize={13}>
-                      S/{" "}
-                      {(
-                        (+service.service_price || 0) * service.service_hours
-                      ).toFixed(2)}
-                    </Typography>
-                  </Box>
-                ))
-              ) : (
-                <Typography
-                  fontSize={13}
-                  color="text.secondary"
-                  sx={{ fontStyle: "italic" }}
-                >
-                  No hay servicios asignados
-                </Typography>
-              )}
-            </Box>
-          </Collapse>
-        </Box>
-
-        {/* Equipos */}
-        <Box sx={{ mb: 2 }}>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              cursor: "pointer",
-              "&:hover": {
-                bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
-              },
-              p: 1,
-              borderRadius: 1,
-            }}
-            onClick={() => setExpandedEquipments((e) => !e)}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <Typography fontSize={14} color="text.secondary">
-                + Equipos ({assignedEquipments.length})
-              </Typography>
-              <IconButton size="small">
-                {expandedEquipments ? <ExpandLess /> : <ExpandMore />}
-              </IconButton>
-            </Box>
-            <Typography fontSize={14}>
-              S/ {equipmentsTotal.toFixed(2)}
-            </Typography>
-          </Box>
-
-          <Collapse in={expandedEquipments}>
-            <Box sx={{ ml: 2, mt: 1 }}>
-              {assignedEquipments.length ? (
-                assignedEquipments.map((equipment, i) => (
-                  <Box
-                    key={i}
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      py: 0.5,
-                    }}
-                  >
-                    <Typography fontSize={13} color="text.secondary">
-                      • {equipment.name} ({equipment.equipment_hours}h)
-                    </Typography>
-                    <Typography fontSize={13}>
-                      S/{" "}
-                      {(
-                        (+equipment.equipment_price || 0) *
-                        equipment.equipment_hours
-                      ).toFixed(2)}
-                    </Typography>
-                  </Box>
-                ))
-              ) : (
-                <Typography
-                  fontSize={13}
-                  color="text.secondary"
-                  sx={{ fontStyle: "italic" }}
-                >
-                  No hay equipos asignados
-                </Typography>
-              )}
-            </Box>
-          </Collapse>
-        </Box>
-
-        {/* Trabajadores */}
-        <Box sx={{ mb: 3 }}>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              cursor: "pointer",
-              "&:hover": {
-                bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
-              },
-              p: 1,
-              borderRadius: 1,
-            }}
-            onClick={() => setExpandedWorkers((w) => !w)}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <Typography fontSize={14} color="text.secondary">
-                + Trabajadores ({assignedWorkers.length})
-              </Typography>
-              <IconButton size="small">
-                {expandedWorkers ? <ExpandLess /> : <ExpandMore />}
-              </IconButton>
-            </Box>
-            <Typography fontSize={14}>S/ {workersTotal.toFixed(2)}</Typography>
-          </Box>
-
-          <Collapse in={expandedWorkers}>
-            <Box sx={{ ml: 2, mt: 1 }}>
-              {assignedWorkers.length ? (
-                assignedWorkers.map((worker, i) => (
-                  <Box
-                    key={i}
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      py: 0.5,
-                    }}
-                  >
-                    <Typography fontSize={13} color="text.secondary">
-                      • {worker.name} ({worker.worker_hours}h)
-                    </Typography>
-                    <Typography fontSize={13}>
-                      S/{" "}
-                      {(
-                        (+worker.worker_price || 0) * worker.worker_hours
-                      ).toFixed(2)}
-                    </Typography>
-                  </Box>
-                ))
-              ) : (
-                <Typography
-                  fontSize={13}
-                  color="text.secondary"
-                  sx={{ fontStyle: "italic" }}
-                >
-                  No hay trabajadores asignados
-                </Typography>
-              )}
-            </Box>
-          </Collapse>
-        </Box>
-
-        <Box
-          sx={{
-            p: 2,
-            borderRadius: 2,
-            bgcolor: isDark ? "#2a2a2a" : "#e0e0e0",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <Typography fontSize={16} fontWeight={600}>
-            Total Estimado
-          </Typography>
-          <Typography fontSize={16} fontWeight={600}>
-            S/ {grandTotal.toFixed(2)}
-          </Typography>
-        </Box>
-      </Box>
+      <QuotationSummary
+        isDark={isDark}
+        assignedServices={assignedServices}
+        assignedEquipments={assignedEquipments}
+        assignedWorkers={assignedWorkers}
+        grandTotal={watch("estimated_price") || 0}
+      />
 
       <Box sx={{ display: "flex", justifyContent: "flex-end", pb: 4 }}>
         <Button
           type="submit"
           variant="contained"
-          disabled={loading}
-          sx={{ textTransform: "none", borderRadius: 2, fontWeight: 600 }}
+          startIcon={<Save />}
+          sx={{
+            fontSize: 16,
+            backgroundColor: '#212121',
+            color: '#fff',
+            borderRadius: 2,
+            textTransform: 'none',
+            px: 3,
+            py: 1.5
+          }}
+          disabled={isButtonDisabled}
         >
-          Guardar Asignación
+          Asignar Recursos
         </Button>
       </Box>
     </Box>

@@ -26,6 +26,7 @@ import { useDispatch } from "react-redux";
 import { showSnackbar } from "../../../../../store";
 import { calcEstimatedPrice } from "../../../../../shared/utils";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
+import { Save } from "@mui/icons-material";
 
 export const EventQuotationAddPage = () => {
   const theme = useTheme();
@@ -95,12 +96,26 @@ export const EventQuotationAddPage = () => {
 
   const { handleSubmit, watch, setValue, control } = methods;
 
-  
-
-  // 🔹 Cálculo dinámico del total estimado
   const servicesWatch = watch("services");
   const equipmentsWatch = watch("equipments");
   const workersWatch = watch("workers");
+  const clientType = watch("client_type");
+  const serviceId = watch("service_id");
+  const equipmentType = watch("equipment_type");
+  const workerTypeId = watch("worker_type_id");
+
+  useEffect(() => {
+    if (!eventTypes?.length || !workerTypes?.length) {
+      navigate("/admin/quotations");
+    }
+  }, [eventTypes, workerTypes, navigate]);
+
+  useEffect(() => {
+    if (clientType === "Empresa") {
+      setValue("document_type", "Ruc");
+      setValue("document_number", "");
+    }
+  }, [clientType, setValue]);
 
   useEffect(() => {
     const total = calcEstimatedPrice({
@@ -111,7 +126,6 @@ export const EventQuotationAddPage = () => {
     setValue("estimated_price", total, { shouldValidate: true });
   }, [servicesWatch, equipmentsWatch, workersWatch, setValue]);
 
-  // 🔹 Field Arrays
   const {
     fields: assignedServices,
     append: addService,
@@ -128,33 +142,9 @@ export const EventQuotationAddPage = () => {
     remove: removeWorker,
   } = useFieldArray({ control, name: "workers" });
 
-  // 🔹 Dependencias para filtrado
-  const clientType = watch("client_type");
-  const serviceId = watch("service_id");
-  const equipmentType = watch("equipment_type");
-  const workerTypeId = watch("worker_type_id");
-
-   useEffect(() => {
-    // Solo ejecuta en recarga (no navegación interna)
-    
-      if (!eventTypes?.length || !workerTypes?.length) {
-        navigate("/admin/quotations");
-      
-    }
-  }, [eventTypes, workerTypes, navigate]);
-
-  useEffect(() => {
-    if (clientType === "Empresa") {
-      setValue("document_type", "Ruc");
-      setValue("document_number", "");
-    }
-  }, [clientType, setValue]);
-
-  // 🔹 Hooks para validar disponibilidad
   const { startAppendEquipment, startAppendService, startAppendWorker } =
     useAssignationGuards();
 
-  // 🔹 Fechas del evento
   const startDT = watch("startDateTime");
   const endDT = watch("endDateTime");
   const datesReady = !!(startDT && endDT);
@@ -172,7 +162,6 @@ export const EventQuotationAddPage = () => {
     return true;
   };
 
-  // 🔹 Filtrados por selección
   const filteredDetails = useMemo(
     () => (serviceDetail || []).filter((d) => d.service_id === serviceId),
     [serviceDetail, serviceId]
@@ -187,12 +176,13 @@ export const EventQuotationAddPage = () => {
     () => (workers || []).filter((w) => w.worker_type === workerTypeId),
     [workers, workerTypeId]
   );
-
-  // 🔹 Envío del formulario
+  
   const onSubmit = async (data) => {
     const success = await startCreateQuotationAdmin(data);
     if (success) navigate("/admin/quotations");
   };
+
+  const isButtonDisabled = useMemo(() => loading, [loading]);
 
   return (
     <FormProvider {...methods}>
@@ -282,10 +272,19 @@ export const EventQuotationAddPage = () => {
           <Button
             type="submit"
             variant="contained"
-            disabled={loading}
-            sx={{ textTransform: "none", borderRadius: 2 }}
+            startIcon={<Save />}
+            sx={{
+              fontSize: 16,
+              backgroundColor: '#212121',
+              color: '#fff',
+              borderRadius: 2,
+              textTransform: 'none',
+              px: 3,
+              py: 1.5
+            }}
+            disabled={isButtonDisabled}
           >
-            Guardar Cotización
+            Crear Cotización
           </Button>
         </Box>
       </Box>
