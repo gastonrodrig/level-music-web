@@ -29,6 +29,7 @@ export const AssignServiceCard = ({
   to,
   datesReady,
   guardDates,
+  eventId
 }) => {
   const { isSm } = useScreenSizes();
 
@@ -235,6 +236,7 @@ export const AssignServiceCard = ({
                   onSuccess: resetForm,
                   from,
                   to,
+                  eventId
                 });
               }}
               disabled={!serviceDetailId}
@@ -253,7 +255,6 @@ export const AssignServiceCard = ({
 
       {assignedServices.length > 0 ? (
         assignedServices.map((servicio, index) => (
-          console.log("servicio", servicio) || (
           <Box
             key={servicio.id}
             sx={{
@@ -306,7 +307,7 @@ export const AssignServiceCard = ({
               ))}
             </Grid>
           </Box>
-        )))
+        ))
       ) : (
         <Typography fontSize={14} color="text.secondary" align="center" my={5}>
           No hay servicios adicionales asignados aún

@@ -11,7 +11,7 @@ import {
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
 import { TableComponent } from "../../../../../shared/ui/components";
 import { formatDay } from "../../../../../shared/utils";
-import { Group, AddCircleOutline, Edit } from "@mui/icons-material";
+import { Group, AddCircleOutline, Edit, Payments } from "@mui/icons-material";
 import { Box, Typography, Button, TextField, CircularProgress } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -124,6 +124,19 @@ export const EventQuotationsPage = () => {
       const isAdmin = String(row?.creator).toLowerCase() === 'admin';
       const hasAssignations = (row?.assignations?.length ?? 0) > 0;
       return isAdmin || (!isAdmin && hasAssignations);
+    },
+  },
+  {
+    label: 'Programar Pagos',
+    icon: <Payments />,
+    onClick: (row) => {
+      setSelectedQuotation(row);
+      navigate(`/admin/quotations/payments-programming`);
+    },
+    show: (row) => {
+      const status = String(row?.status || '').toLowerCase();
+      const isValidStatus = ['aprobado'].includes(status);
+      return isValidStatus;
     },
   },
 ];

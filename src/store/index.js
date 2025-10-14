@@ -8,23 +8,5 @@ export * from './theme';
 export * from './worker';
 export * from './equipment';
 export * from './client';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export * from './paymnent';
 export * from './store';

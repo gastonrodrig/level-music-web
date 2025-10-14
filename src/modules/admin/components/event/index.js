@@ -3,3 +3,4 @@ export * from './event';
 export * from './quotation';
 export * from './event-featured';
 export * from './assign';
+export * from './payment-programming';

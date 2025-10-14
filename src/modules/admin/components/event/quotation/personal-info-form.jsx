@@ -77,13 +77,11 @@ export const PersonalInfoForm = () => {
   ]);
 
   return (
-    <Box
-      sx={{
+    <Box 
+      sx={{ 
+        bgcolor: isDark ? "#1f1e1e" : "#f5f5f5", 
+        mb: 2,
         borderRadius: 2,
-        border: "1px solid",
-        borderColor: "divider",
-        overflow: "hidden",
-        mb: 3,
       }}
     >
       {/* Cabecera más oscura */}
@@ -94,13 +92,20 @@ export const PersonalInfoForm = () => {
           display: "flex",
           alignItems: "center",
           gap: 1,
+          borderTopLeftRadius: 8,
+          borderTopRightRadius: 8,
         }}
       >
         <AccountBox />
         <Typography fontWeight={700}>Información del Cliente</Typography>
       </Box>
 
-      <Box sx={{ p: 3, bgcolor: isDark ? "#1f1e1e" : "#f5f5f5" }}>
+      <Box sx={{ 
+        px: 3, pb: 3, pt: 2,
+        bgcolor: isDark ? "#1f1e1e" : "#f5f5f5",
+        borderBottomLeftRadius: 8,
+        borderBottomRightRadius: 8,
+      }}>
         {/* Tipo de Cliente */}
         <Typography variant="subtitle1" fontWeight={600} gutterBottom>
           Tipo de Cliente

@@ -19,6 +19,7 @@ import {
   quotationSlice,
   serviceDetailSlice,
   reprogramingsSlice,
+  paymentSlice
 } from './';
 
 export const store = configureStore({
@@ -42,5 +43,6 @@ export const store = configureStore({
     clientCompany: clientCompanySlice.reducer,
     quotation: quotationSlice.reducer,
     reprogramings: reprogramingsSlice.reducer,
+    payment: paymentSlice.reducer
   },
 });

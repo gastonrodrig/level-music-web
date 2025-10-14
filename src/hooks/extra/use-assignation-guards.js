@@ -22,15 +22,17 @@ export const useAssignationGuards = () => {
     }
   };
 
-  const checkEquipmentAvailability = async (equipmentId, from, to) => {
+  const checkEquipmentAvailability = async (equipmentId, from, to, eventId) => {
     try {
+      console.log("Checking equipment availability for eventId:", eventId);
       const fromUTC = new Date(from).toISOString();
       const toUTC   = new Date(to).toISOString();
       await assignationsApi.get(`/availability/equipment/${equipmentId}`,
         getAuthConfigWithParams(token, 
           { 
             from: fromUTC, 
-            to: toUTC 
+            to: toUTC,
+            eventId
           }
         )
       );
@@ -41,7 +43,7 @@ export const useAssignationGuards = () => {
     }
   };
 
-  const checkWorkerAvailability = async (workerId, from, to) => {
+  const checkWorkerAvailability = async (workerId, from, to, eventId) => {
     try {
       const fromUTC = new Date(from).toISOString();
       const toUTC   = new Date(to).toISOString();
@@ -49,7 +51,8 @@ export const useAssignationGuards = () => {
         getAuthConfigWithParams(token, 
           { 
             from: fromUTC, 
-            to: toUTC 
+            to: toUTC,
+            eventId
           }
         )
       );
@@ -88,7 +91,8 @@ export const useAssignationGuards = () => {
     onSuccess,
     from,
     to,
-    eventDate
+    eventDate,
+    eventId
   }) => {
     if (!selectedEquipment) {
       openSnackbar("Debe seleccionar un equipo."); 
@@ -107,7 +111,7 @@ export const useAssignationGuards = () => {
       return false; 
     }
 
-    const avail = await checkEquipmentAvailability(selectedEquipment._id, from, to);
+    const avail = await checkEquipmentAvailability(selectedEquipment._id, from, to, eventId);
     if (!avail.ok) { 
       openSnackbar(avail.message); 
       return false; 
@@ -146,6 +150,7 @@ export const useAssignationGuards = () => {
     onSuccess,
     from,
     to,
+    eventId
   }) => {
     if (!selectedDetail) {
       openSnackbar("Debe seleccionar un paquete."); 
@@ -166,7 +171,7 @@ export const useAssignationGuards = () => {
       return false; 
     }
 
-    const avail = await checkServiceDetailAvailability(selectedDetail._id, from, to);
+    const avail = await checkServiceDetailAvailability(selectedDetail._id, from, to, eventId);
     if (!avail.ok) { 
       openSnackbar(avail.message); 
       return false; 
@@ -196,6 +201,7 @@ export const useAssignationGuards = () => {
     onSuccess,
     from,
     to,
+    eventId
   }) => {
     if (!isPriceValid(workerPrice)) {
       openSnackbar("Debe ingresar un precio válido."); 
@@ -210,7 +216,7 @@ export const useAssignationGuards = () => {
       return false; 
     }
 
-    const avail = await checkWorkerAvailability(selectedWorker._id, from, to);
+    const avail = await checkWorkerAvailability(selectedWorker._id, from, to, eventId);
     if (!avail.ok) {
       openSnackbar(avail.message); 
       return false; 

@@ -9,3 +9,4 @@ export * from './worker';
 export * from './routes';
 export * from './equipment';
 export * from './client';
+export * from './payment';

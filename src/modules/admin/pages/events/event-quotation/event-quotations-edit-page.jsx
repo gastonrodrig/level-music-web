@@ -250,6 +250,7 @@ export const EventQuotationEditPage = () => {
           to={assignmentToISO}
           datesReady={datesReady}
           guardDates={guardDates}
+          eventId={selected?._id}
         />
 
         <AssignEquipmentCard
@@ -266,6 +267,7 @@ export const EventQuotationEditPage = () => {
           to={assignmentToISO}
           datesReady={datesReady}
           guardDates={guardDates}
+          eventId={selected?._id}
         />
 
         <AssignWorkerCard
@@ -282,6 +284,7 @@ export const EventQuotationEditPage = () => {
           to={assignmentToISO}
           datesReady={datesReady}
           guardDates={guardDates}
+          eventId={selected?._id}
         />
 
         {/* Resumen */}

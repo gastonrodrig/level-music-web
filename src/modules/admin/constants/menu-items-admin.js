@@ -46,6 +46,11 @@ export const menuItems = [
             text: 'Editar Cotización',
             breadcrumb: 'Editar Cotización',
             href: '/admin/quotations/edit',
+          },
+          {
+            text: 'Programar Pagos',
+            breadcrumb: 'Programar Pagos',
+            href: '/admin/quotations/payments-programming',
           }
         ],
       }, 
@@ -130,7 +135,6 @@ export const menuItems = [
     text: 'Gestionar Servicios', 
     icon: RoomService,
     subItems: [
-      
       { 
         text: 'Tipo de Servicios', 
         breadcrumb: 'Tipo de Servicios',
