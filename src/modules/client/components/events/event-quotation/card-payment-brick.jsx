@@ -1,48 +1,76 @@
 import { useEffect, useState } from "react";
-import { CardPayment } from "@mercadopago/sdk-react";
+import { Payment } from "@mercadopago/sdk-react";
 import { initializeMercadoPago } from "../../../../../shared/helpers";
-import { usePaymentStore } from "../../../../../hooks"; 
+import { usePaymentStore } from "../../../../../hooks";
+import { useNavigate } from "react-router-dom";
+import { Description } from "@mui/icons-material";
 
-export const CardPaymentBrick = ({ amount, email, onPaymentResult }) => {
-  const [showBrick, setShowBrick] = useState(false);
+export const PaymentBrick = ({ amount, onPaymentResult }) => {
+  const [isReady, setIsReady] = useState(false);
   const { startProcessingPayments } = usePaymentStore();
+  const navigate = useNavigate();
 
   useEffect(() => {
     initializeMercadoPago();
-    setShowBrick(true);
+    setIsReady(true);
   }, []);
 
-  if (!showBrick) return null;
+  if (!isReady) return null;
 
+  // Configuración base para el Brick
   const initialization = {
-    amount,
+    amount: Number(amount),
     payer: {
-      email,
+      firstName: "",
+      email: "",
     },
   };
 
+  // Configuración de métodos de pago
   const customization = {
     visual: {
       style: {
-        theme: "default", // 'dark' | 'flat' | 'bootstrap'
+        theme: "default",
       },
     },
     paymentMethods: {
+      creditCard: "all",
+      debitCard: "all",
       maxInstallments: 1,
     },
   };
 
-  const onSubmit = async (cardFormData) => {
-    const success = await startProcessingPayments(cardFormData);
+  // Lógica de envío del formulario
+  const onSubmit = async ({ formData }) => {
+    try {
+      // Asegura tipos correctos y valores por defecto
+      const payload = {
+        ...formData,
+        amount,
+        description : "Pago de evento",
+        
+      };
+
+      console.log("📤 Payload listo:", payload);
+      const result = await startProcessingPayments(payload);
+    //   onPaymentResult?.(result);
+    //   console.log("✅ Resultado del pago:", result);
+    //   // Redirige si el pago fue exitoso
+    //   if (result && !result.error) {
+    //     navigate("/client/pago-exitoso"); // Cambia la ruta según tu app
+    //   }
+    } catch (error) {
+      console.error("❌ Error al procesar el pago:", error);
+    }
   };
 
   return (
-    <CardPayment
+    <Payment
       initialization={initialization}
       customization={customization}
       onSubmit={onSubmit}
-      onReady={() => console.log(" Brick listo")}
-      onError={(error) => console.error("Error en el Brick:", error)}
+      onReady={() => console.log("✅ Payment Brick listo")}
+      onError={(error) => console.error("⚠️ Error en el Payment Brick:", error)}
     />
   );
 };

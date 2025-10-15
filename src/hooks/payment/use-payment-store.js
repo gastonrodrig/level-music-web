@@ -48,12 +48,15 @@ export const usePaymentStore = () => {
 
   const startProcessingPayments = async (payments) => {
     dispatch(setLoadingPayment(true));
+    
     try {
       const payload = processPaymentModel(payments);
-      await paymentApi.post('/test/mercadopago', payload, getAuthConfig(token));
+      const result = await paymentApi.post('/test/mercadopago', payload, getAuthConfig(token));
       openSnackbar("El pago fue procesado exitosamente.");
+      console.log("✅ Resultado del pago:", result.data); 
       return true;
     } catch (error) {
+      console.error("❌ Error al procesar el pago:", error);
       const message = error.response?.data?.message;
       openSnackbar(message ?? "Ocurrió un error al crear el tipo de servicio.");
       return false;

@@ -3,13 +3,12 @@ export const processPaymentModel = (f) => ({
   token: f.token,
   description: f.description,
   installments: f.installments || 1,
-  payment_method_id: f.paymentMethodId,
+  payment_method_id: f.payment_method_id,
   payer: {
-    email: f.email,
-    first_name: f.firstName,
+    email: f.payer.email,
     identification: {
-      type: f.documentType,
-      number: f.documentNumber,
+      type: f.payer.identification.type,
+      number: f.payer.identification.number,
     },
   },
 });
