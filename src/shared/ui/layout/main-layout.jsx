@@ -5,7 +5,7 @@ export const MainLayout = ({ children }) => {
   const location = useLocation(); 
 
   const hideFooter = location.pathname.startsWith('/admin') 
-                  || location.pathname.startsWith('/cliente');
+                  || location.pathname.startsWith('/client');
 
   return (
     <>

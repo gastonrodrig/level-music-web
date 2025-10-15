@@ -9,7 +9,7 @@ export const menuItems = [
     text: 'Dashboard', 
     breadcrumb: 'Inicio',
     icon: Dashboard, 
-    href: '/cliente' 
+    href: '/client' 
   },
   
   { 
@@ -19,41 +19,42 @@ export const menuItems = [
       { 
         text: 'Cotizaciones', 
         breadcrumb: 'Cotizaciones',
-        href: '/cliente/event-quotes',
+        href: '/client/quotations',
         subItems: [
           {
-           text: 'Detalle Cotización', 
-           breadcrumb: 'Detalle Cotización',
-          href: '/cliente/event-quotes/details' 
+            text: 'Detalle Cotización', 
+            breadcrumb: 'Detalle Cotización',
+            href: '/client/quotations/details' 
           },
-        
+          {
+            text: 'Realizar Pagos', 
+            breadcrumb: 'Realizar Pagos',
+            href: '/client/quotations/payments' 
+          },
         ],
       },
-     
       { 
         text: 'En Seguimiento', 
         breadcrumb: 'Eventos En Seguimiento',
-        href: '/cliente/event-to-do' 
+        href: '/client/events-ongoing' 
       },
       { 
         text: 'Realizados', 
         breadcrumb: 'Eventos Realizados',
-        href: '/cliente/event-made' 
+        href: '/client/events-made' 
       },
       { 
         text: 'Solicitudes de Reprogramación', 
         breadcrumb: 'Solicitudes de Reprogramación',
-        href: '/cliente/reprogramings-requests' 
-      } 
-      
-       
+        href: '/client/reprogramming-requests' 
+      }
     ]
   },
   { 
     text: 'Gestionar Perfil', 
     breadcrumb: 'Perfil',
     icon: Person,
-    href: '/cliente/edit-profile' 
+    href: '/client/edit-profile' 
   }
  
 ];

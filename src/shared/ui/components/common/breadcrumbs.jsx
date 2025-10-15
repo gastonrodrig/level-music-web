@@ -9,9 +9,9 @@ export const Breadcrumbs = ({ menuItems, homeLabel = 'Inicio' }) => {
   
   // Detecta base según URL
   const isAdmin = location.pathname.startsWith('/admin');
-  const homeHref = isAdmin ? '/admin' : '/cliente';
+  const homeHref = isAdmin ? '/admin' : '/client';
   // Oculta breadcrumbs en la raíz de admin o cliente
-  if (location.pathname === '/admin' || location.pathname === '/cliente') {
+  if (location.pathname === '/admin' || location.pathname === '/client') {
     return null;
   }
 

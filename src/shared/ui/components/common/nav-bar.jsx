@@ -143,16 +143,16 @@ export const NavBar = () => {
 
       {/* Drawer del protected */}
       <ProtectedDrawer
-  drawerOpen={protectedDrawerOpen}
-  handleDrawerToggle={handleProtectedDrawerToggle}
-  menuItems={
-    role === 'Administrador'
-      ? adminMenuItems
-      : role === 'Cliente'
-        ? clientMenuItems
-        : undefined
-  }
-/>
+        drawerOpen={protectedDrawerOpen}
+        handleDrawerToggle={handleProtectedDrawerToggle}
+        menuItems={
+          role === 'Administrador'
+            ? adminMenuItems
+            : role === 'Cliente'
+              ? clientMenuItems
+              : undefined
+        }
+      />
     </AppBar>
   );
 };

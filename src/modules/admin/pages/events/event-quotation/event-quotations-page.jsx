@@ -136,9 +136,10 @@ export const EventQuotationsPage = () => {
     show: (row) => {
       const status = String(row?.status || '').toLowerCase();
       const isValidStatus = ['aprobado'].includes(status);
-      return isValidStatus;
+      const hasAssignations = (row?.assignations?.length ?? 0) > 0;
+      return isValidStatus && hasAssignations;
     },
-  },
+  }
 ];
 
 

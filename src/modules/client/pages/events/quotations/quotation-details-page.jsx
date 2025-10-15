@@ -11,7 +11,6 @@ import {
 } from "@mui/material";
 import {
   ArrowBack,
-  LocationOn,
   CalendarToday,
   AccessTime,
   People,
@@ -24,7 +23,7 @@ import { useQuotationStore } from "../../../../../hooks";
 import { useEffect } from "react";
 import { formatDateString, formatTimeRange } from "../../../../../shared/utils";
 
-export const EventQuotesDetails = () => {
+export const QuotationDetailsPage = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
@@ -33,7 +32,7 @@ export const EventQuotesDetails = () => {
 
   useEffect(() => {
     if (!selected) {
-      navigate('/cliente/event-quotes', { replace: true });
+      navigate('/client/event-quotes', { replace: true });
       return;
     }
   }, [selected]);

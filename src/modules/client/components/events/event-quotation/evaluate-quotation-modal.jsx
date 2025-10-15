@@ -19,13 +19,13 @@ export const EventEvaluateModal = ({
 }) => {
   const isDark = useTheme().palette.mode === "dark";
   const { _id } = useAuthStore();
-  const { startEvaluatingQuotation, loading } = useQuotationStore();
+  const { startEvaluateQuotation, loading } = useQuotationStore();
   const { handleSubmit, setValue } = useForm();
 
   const isButtonDisabled = useMemo(() => loading, [loading]);
 
   const onSubmit = async (data) => {
-    const success = await startEvaluatingQuotation(quotationId, data, _id);
+    const success = await startEvaluateQuotation(quotationId, data, _id);
     if (success) onClose();
   };
 

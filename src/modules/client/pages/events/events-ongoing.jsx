@@ -3,11 +3,10 @@ import { Box, Typography, TextField, CircularProgress } from '@mui/material';
 import AutorenewIcon from '@mui/icons-material/Autorenew';
 import { useQuotationStore, useAuthStore } from '../../../../hooks';
 import { TableComponent } from '../../../../shared/ui/components';
-import { useNavigate } from 'react-router-dom';
 import { formatDay } from '../../../../shared/utils';
 import { EventReprogrammingModal } from '../../components/events/event-to-do/event-Reprogramming-modal';
 
-export const EventToDoPage = () => {
+export const EventsOngoingPage = () => {
   const {
     quotations,
     total,

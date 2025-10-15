@@ -3,7 +3,7 @@ import { DashboardPage,
    EventMadePage,
    EventToDoPage,
    QuotationPage, 
-   EventQuotesDetails,
+   QuotationDetailsPage,
    ProfilePage,
    ReprogramingsRequestsPage
 } from "../pages";
@@ -17,11 +17,11 @@ export const ClientRoutes = () => {
         <Route path="/" element={<DashboardPage />} />
 
         {/* Eventos */}
-        <Route path="event-made" element={<EventMadePage />} />
-        <Route path="event-to-do" element={<EventToDoPage />} />
-        <Route path="event-quotes" element={<QuotationPage />} />
-        <Route path="event-quotes/details" element={<EventQuotesDetails />} />
-        <Route path="reprogramings-requests" element={<ReprogramingsRequestsPage />} />
+        <Route path="events-made" element={<EventMadePage />} />
+        <Route path="events-ongoing" element={<EventToDoPage />} />
+        <Route path="quotations" element={<QuotationPage />} />
+        <Route path="quotations/details" element={<QuotationDetailsPage />} />
+        <Route path="reprogramming-requests" element={<ReprogramingsRequestsPage />} />
         {/* Clientes */}
         <Route path="edit-profile" element={<ProfilePage />} />
 

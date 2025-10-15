@@ -23,7 +23,7 @@ export const AppRouter = () => {
   }
 
   if (status === 'authenticated') {
-    const dashboardPath = role === 'Administrador' ? '/admin' : '/cliente';
+    const dashboardPath = role === 'Administrador' ? '/admin' : '/client';
 
     // Redirigir desde rutas de autenticación
     if (location.pathname.startsWith('/auth')) {
@@ -67,7 +67,7 @@ export const AppRouter = () => {
 
       {/* Rutas de Cliente protegidas */}
       <Route
-        path="/cliente/*"
+        path="/client/*"
         element={
           <PrivateRoute allowedRoles={['Cliente']}>
             <ClientRoutes />

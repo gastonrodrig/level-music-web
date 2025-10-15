@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Box, Typography, TextField, CircularProgress } from '@mui/material';
-import { Edit, Download , FactCheck } from '@mui/icons-material';
+import { Edit, Download , FactCheck, Payments } from '@mui/icons-material';
 import { useQuotationStore, useAuthStore } from '../../../../../hooks';
 import { TableComponent } from '../../../../../shared/ui/components';
-import { handleDownloadPdf } from '../../../../../modules/client/components/events';
-import { useScreenSizes } from '../../../../../shared/constants/screen-width';
+import { handleDownloadPdf } from '../../../components/events';
 import { useNavigate } from 'react-router-dom';
 import { formatDay } from '../../../../../shared/utils';
 import { EventEvaluateModal } from '../../../components';
-
 
 export const QuotationPage = () => {
   const {
@@ -73,7 +71,7 @@ export const QuotationPage = () => {
       icon: <Edit />,
       onClick: (row) => {
         setSelectedQuotation(row);
-        navigate(`/cliente/event-quotes/details`);
+        navigate(`/client/event-quotes/details`);
       },
     },
     {
@@ -95,7 +93,21 @@ export const QuotationPage = () => {
         const currentStatus = String(row?.status ?? "").toUpperCase();
         return !restricted.includes(currentStatus);
       },
-    }
+    },
+    {
+      label: 'Realizar Pagos',
+      icon: <Payments />,
+      onClick: (row) => {
+        setSelectedQuotation(row);
+        navigate(`/admin/quotations/payments-programming`);
+      },
+      show: (row) => {
+        const status = String(row?.status || '').toLowerCase();
+        const isValidStatus = ['aprobado'].includes(status);
+        const hasAssignations = (row?.assignations?.length ?? 0) > 0;
+        return isValidStatus && hasAssignations;
+      },
+    },
   ];
 
   return (
