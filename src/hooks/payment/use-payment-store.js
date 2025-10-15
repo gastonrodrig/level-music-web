@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { createPaymentsDto } from "../../shared/models";
+import { createPaymentsModel , processPaymentModel } from "../../shared/models";
 import { 
   selectedPayment, 
   setLoadingPayment, 
@@ -33,9 +33,25 @@ export const usePaymentStore = () => {
   const startCreatePayments = async (payments) => {
     dispatch(setLoadingPayment(true));
     try {
-      const payload = createPaymentsDto(payments);
+      const payload = createPaymentsModel(payments);
       await paymentApi.post('/', payload, getAuthConfig(token));
       openSnackbar("Los pagos fueron creados exitosamente.");
+      return true;
+    } catch (error) {
+      const message = error.response?.data?.message;
+      openSnackbar(message ?? "Ocurrió un error al crear el tipo de servicio.");
+      return false;
+    } finally {
+      dispatch(setLoadingPayment(false));
+    }
+  };
+
+  const startProcessingPayments = async (payments) => {
+    dispatch(setLoadingPayment(true));
+    try {
+      const payload = processPaymentModel(payments);
+      await paymentApi.post('/test/mercadopago', payload, getAuthConfig(token));
+      openSnackbar("El pago fue procesado exitosamente.");
       return true;
     } catch (error) {
       const message = error.response?.data?.message;
@@ -80,5 +96,6 @@ export const usePaymentStore = () => {
     // actions
     startCreatePayments,
     setSelectedPayment,
+    startProcessingPayments,
   };
 };

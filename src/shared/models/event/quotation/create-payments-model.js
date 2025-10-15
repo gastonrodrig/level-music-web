@@ -1,4 +1,4 @@
-export const createPaymentsDto = (f) => ({
+export const createPaymentsModel = (f) => ({
   partial_payment_date: f.partialPaymentDate,
   final_payment_date: f.finalPaymentDate,
   partial_amount: f.partialAmount,

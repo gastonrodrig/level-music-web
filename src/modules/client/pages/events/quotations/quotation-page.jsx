@@ -89,7 +89,7 @@ export const QuotationPage = () => {
         openModal(row);
       },
         show: (row) => {
-        const restricted = ["APROBADO", "RECHAZADO", "PAGO PARCIAL PAGADO"];
+        const restricted = ["APROBADO", "RECHAZADO", "PAGOS ASIGNADOS"];
         const currentStatus = String(row?.status ?? "").toUpperCase();
         return !restricted.includes(currentStatus);
       },
@@ -99,11 +99,11 @@ export const QuotationPage = () => {
       icon: <Payments />,
       onClick: (row) => {
         setSelectedQuotation(row);
-        navigate(`/admin/quotations/payments-programming`);
+        navigate(`/client/quotations/payments`);
       },
       show: (row) => {
         const status = String(row?.status || '').toLowerCase();
-        const isValidStatus = ['aprobado'].includes(status);
+        const isValidStatus = ['pagos asignados'].includes(status);
         const hasAssignations = (row?.assignations?.length ?? 0) > 0;
         return isValidStatus && hasAssignations;
       },

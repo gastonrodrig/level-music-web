@@ -5,7 +5,8 @@ import { DashboardPage,
    QuotationPage, 
    QuotationDetailsPage,
    ProfilePage,
-   ReprogramingsRequestsPage
+   ReprogramingsRequestsPage,
+   QuotationPaymentsPage
 } from "../pages";
 import { ClientLayout } from '../layout/client-layout';
 
@@ -22,6 +23,7 @@ export const ClientRoutes = () => {
         <Route path="quotations" element={<QuotationPage />} />
         <Route path="quotations/details" element={<QuotationDetailsPage />} />
         <Route path="reprogramming-requests" element={<ReprogramingsRequestsPage />} />
+        <Route path="quotations/payments" element={<QuotationPaymentsPage />} />
         {/* Clientes */}
         <Route path="edit-profile" element={<ProfilePage />} />
 
