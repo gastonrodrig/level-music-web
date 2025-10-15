@@ -1,7 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { DashboardPage,
    EventMadePage,
-   EventToDoPage,
+   EventsOngoingPage,
    QuotationPage, 
    QuotationDetailsPage,
    ProfilePage,
@@ -18,7 +18,7 @@ export const ClientRoutes = () => {
 
         {/* Eventos */}
         <Route path="events-made" element={<EventMadePage />} />
-        <Route path="events-ongoing" element={<EventToDoPage />} />
+        <Route path="events-ongoing" element={<EventsOngoingPage />} />
         <Route path="quotations" element={<QuotationPage />} />
         <Route path="quotations/details" element={<QuotationDetailsPage />} />
         <Route path="reprogramming-requests" element={<ReprogramingsRequestsPage />} />
