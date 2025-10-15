@@ -169,7 +169,7 @@ export const AssignResourcesPage = () => {
         Asigna trabajadores, servicios adicionales y equipos para el evento.
       </Typography>
 
-      <QuotationInfoCard selected={selected} />
+      <QuotationInfoCard selected={selected} showAdditionalServices={true} />
 
       <AssignServiceCard
         isDark={isDark}
