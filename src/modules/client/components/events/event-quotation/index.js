@@ -1,3 +1,2 @@
-export * from './evaluate-quotation-modal.jsx';
-export * from './quotation-info-card.jsx';
-export * from './resource-Tabs.jsx';
+export * from './evaluate-quotation-modal';
+export * from './resource-tabs';

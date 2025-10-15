@@ -20,7 +20,11 @@ import { useNavigate } from "react-router-dom";
 import { useQuotationStore } from "../../../../../hooks";
 import { useEffect } from "react";
 import { formatDateString, formatTimeRange } from "../../../../../shared/utils";
-import { QuotationInfoCard, ResourceTabs } from "../../../components";
+import { ResourceTabs } from "../../../components";
+import {
+  QuotationInfoCard,
+  QuotationRequestedServices,
+} from "../../../../admin/components";
 
 export const QuotationDetailsPage = () => {
   const theme = useTheme();
@@ -31,26 +35,30 @@ export const QuotationDetailsPage = () => {
 
   useEffect(() => {
     if (!selected) {
-      navigate('/client/event-quotes', { replace: true });
+      navigate("/client/event-quotes", { replace: true });
     }
   }, [selected, navigate]);
 
   const assignations = selected?.assignations || [];
-console.log('=== DEBUG ===');
-console.log('assignations.length:', assignations.length);
-console.log('assignations:', assignations);
-console.log('services_requested:', selected?.services_requested);
+
   return (
     <Box sx={{ px: 4, pt: 2, maxWidth: 1200, margin: "0 auto" }}>
       {/* Header principal */}
       <Box mb={2}>
         <Typography variant="h4" sx={{ fontWeight: 700 }}>
-          Evento {selected?.event_type_name} - {formatDateString(selected?.event_date)}
+          Evento {selected?.event_type_name} -{" "}
+          {formatDateString(selected?.event_date)}
         </Typography>
         <Typography variant="body1" sx={{ color: "text.secondary" }}>
-          La información del evento y los servicios solicitados se muestran a continuación.
+          La información del evento y los servicios solicitados se muestran a
+          continuación.
         </Typography>
-        <Chip label={selected?.status || "-"} color="primary" size="small" sx={{ mt: 1 }} />
+        <Chip
+          label={selected?.status || "-"}
+          color="primary"
+          size="small"
+          sx={{ mt: 1 }}
+        />
         <Typography variant="body2" sx={{ mt: 1, color: "text.secondary" }}>
           Código: {selected?.event_code}
         </Typography>
@@ -68,10 +76,12 @@ console.log('services_requested:', selected?.services_requested);
         <CardContent>
           <Grid container spacing={3}>
             <Grid item xs={12} md={3}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+              >
                 <CalendarToday sx={{ color: "primary.main" }} />
                 <Typography variant="body2" color="text.secondary">
-                  Fecha 
+                  Fecha
                 </Typography>
               </Box>
               <Typography variant="h6">
@@ -80,7 +90,9 @@ console.log('services_requested:', selected?.services_requested);
             </Grid>
 
             <Grid item xs={12} md={3}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+              >
                 <AccessTime sx={{ color: "primary.main" }} />
                 <Typography variant="body2" color="text.secondary">
                   Horario
@@ -94,7 +106,9 @@ console.log('services_requested:', selected?.services_requested);
             </Grid>
 
             <Grid item xs={12} md={3}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+              >
                 <People sx={{ color: "primary.main" }} />
                 <Typography variant="body2" color="text.secondary">
                   Asistentes
@@ -106,7 +120,9 @@ console.log('services_requested:', selected?.services_requested);
             </Grid>
 
             <Grid item xs={12} md={3}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+              >
                 <Category sx={{ color: "primary.main" }} />
                 <Typography variant="body2" color="text.secondary">
                   Tipo Evento
@@ -131,35 +147,11 @@ console.log('services_requested:', selected?.services_requested);
 
       {/* Recursos Asignados o Servicios Solicitados */}
       <Box mt={3}>
-        <Card elevation={0} sx={{ borderRadius: 3, bgcolor: isDark ? "#1f1e1e" : "#f5f5f5" }}>
-          <CardContent sx={{ px: 4 }}>
-            <Typography variant="h6" sx={{ mb: 2, display: "flex", alignItems: "center" }}>
-              <Category sx={{ mr: 1, color: "primary.main" }} />
-              {assignations.length > 0 ? "Recursos Asignados" : "Servicios Solicitados"}
-            </Typography>
-            
-            {assignations.length > 0 ? (
-              <ResourceTabs assignations={assignations} />
-            ) : (
-              selected?.services_requested?.length > 0 ? (
-                selected.services_requested.map((service, idx) => (
-                  <Box key={idx} sx={{ mb: 2 }}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600, color: "primary.main" }}>
-                      {service.service_type_name}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                      {service.details || "Sin detalles"}
-                    </Typography>
-                  </Box>
-                ))
-              ) : (
-                <Typography variant="body2" sx={{ color: "text.secondary", fontStyle: "italic" }}>
-                  No hay servicios solicitados
-                </Typography>
-              )
-            )}
-          </CardContent>
-        </Card>
+        {assignations.length > 0 ? (
+          <ResourceTabs assignations={assignations} />
+        ) : (
+          <QuotationRequestedServices selected={selected} />
+        )}
       </Box>
 
       {/* Footer */}

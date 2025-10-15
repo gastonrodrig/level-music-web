@@ -20,6 +20,7 @@ import {
   AssignEquipmentCard,
   AssignWorkerCard,
   QuotationSummary,
+  QuotationRequestedServices,
 } from "../../../components";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useEffect, useMemo } from "react";
@@ -27,8 +28,8 @@ import { useNavigate } from "react-router-dom";
 import { useAssignationGuards } from "../../../../../hooks";
 import { calcEstimatedPrice } from "../../../../../shared/utils";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
-import dayjs from "dayjs";
 import { Save } from "@mui/icons-material";
+import dayjs from "dayjs";
 
 export const AssignResourcesPage = () => {
   const theme = useTheme();
@@ -169,10 +170,9 @@ export const AssignResourcesPage = () => {
         Asigna trabajadores, servicios adicionales y equipos para el evento.
       </Typography>
 
-      <QuotationInfoCard 
-        selected={selected} 
-        showAdditionalServices={true} 
-      />
+      <QuotationInfoCard selected={selected} />
+
+      <QuotationRequestedServices selected={selected} />
 
       <AssignServiceCard
         isDark={isDark}
