@@ -71,7 +71,7 @@ export const QuotationPage = () => {
       icon: <Edit />,
       onClick: (row) => {
         setSelectedQuotation(row);
-        navigate(`/client/event-quotes/details`);
+        navigate(`/client/quotations/details`);
       },
     },
     {
