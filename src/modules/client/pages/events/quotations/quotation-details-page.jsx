@@ -35,7 +35,7 @@ export const QuotationDetailsPage = () => {
 
   useEffect(() => {
     if (!selected) {
-      navigate("/client/event-quotes", { replace: true });
+      navigate("/client/quotations", { replace: true });
     }
   }, [selected, navigate]);
 
