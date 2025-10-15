@@ -35,8 +35,8 @@ export const AdminRoutes = () => {
         <Route path="/" element={<DashboardPage />} />
 
         {/* Eventos */}
-        <Route path="event-on-going" element={<EventOnGoing />} />
-        <Route path="event-on-going/reprograming" element={<EventQuotationReprograming />} />
+        <Route path="event-ongoing" element={<EventOnGoing />} />
+        <Route path="event-ongoing/reprogramming" element={<EventQuotationReprograming />} />
         <Route path="event-types" element={<EventTypePage />} />
         <Route path="quotations" element={<EventQuotationsPage />} />
         <Route path="quotations/assign" element={<AssignResourcesPage />} />

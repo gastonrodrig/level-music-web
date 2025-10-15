@@ -80,7 +80,7 @@ export const EventPaymentsProgrammingPage = () => {
         {/* Info del evento */}
         <EventInfoCard selected={selected} />
 
-        {/* Resumen de pagos */}
+        {/* Alerta */}
         <PaymentInfoCard selected={selected} />
 
         {/* Tablas de detalle */}

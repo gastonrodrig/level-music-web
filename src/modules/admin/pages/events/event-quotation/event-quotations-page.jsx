@@ -101,47 +101,46 @@ export const EventQuotationsPage = () => {
     startLoadingAllEventTypes();
   }, [currentPage, rowsPerPage, searchTerm, orderBy, order]);
 
- const actions = [
-  {
-    label: 'Asignar Recursos',
-    icon: <Group />,
-    onClick: (row) => {
-      setSelectedQuotation(row);
-      navigate(`/admin/quotations/assign`);
+  const actions = [
+    {
+      label: 'Asignar Recursos',
+      icon: <Group />,
+      onClick: (row) => {
+        setSelectedQuotation(row);
+        navigate(`/admin/quotations/assign`);
+      },
+      show: (row) =>
+        String(row?.creator).toLowerCase() !== 'admin' &&
+        ((row?.assignations?.length ?? 0) === 0),
     },
-    show: (row) =>
-      String(row?.creator).toLowerCase() !== 'admin' &&
-      ((row?.assignations?.length ?? 0) === 0),
-  },
-  {
-    label: 'Editar Cotización',
-    icon: <Edit />,
-    onClick: (row) => {
-      setSelectedQuotation(row);
-      navigate(`/admin/quotations/edit`);
+    {
+      label: 'Editar Cotización',
+      icon: <Edit />,
+      onClick: (row) => {
+        setSelectedQuotation(row);
+        navigate(`/admin/quotations/edit`);
+      },
+      show: (row) => {
+        const isAdmin = String(row?.creator).toLowerCase() === 'admin';
+        const hasAssignations = (row?.assignations?.length ?? 0) > 0;
+        return isAdmin || (!isAdmin && hasAssignations);
+      },
     },
-    show: (row) => {
-      const isAdmin = String(row?.creator).toLowerCase() === 'admin';
-      const hasAssignations = (row?.assignations?.length ?? 0) > 0;
-      return isAdmin || (!isAdmin && hasAssignations);
-    },
-  },
-  {
-    label: 'Programar Pagos',
-    icon: <Payments />,
-    onClick: (row) => {
-      setSelectedQuotation(row);
-      navigate(`/admin/quotations/payments-programming`);
-    },
-    show: (row) => {
-      const status = String(row?.status || '').toLowerCase();
-      const isValidStatus = ['aprobado'].includes(status);
-      const hasAssignations = (row?.assignations?.length ?? 0) > 0;
-      return isValidStatus && hasAssignations;
-    },
-  }
-];
-
+    {
+      label: 'Programar Pagos',
+      icon: <Payments />,
+      onClick: (row) => {
+        setSelectedQuotation(row);
+        navigate(`/admin/quotations/payments-programming`);
+      },
+      show: (row) => {
+        const status = String(row?.status || '').toLowerCase();
+        const isValidStatus = ['aprobado'].includes(status);
+        const hasAssignations = (row?.assignations?.length ?? 0) > 0;
+        return isValidStatus && hasAssignations;
+      },
+    }
+  ];
 
   return (
     <>

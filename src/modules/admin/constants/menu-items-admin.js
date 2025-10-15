@@ -6,7 +6,6 @@ import {
   Store,
   RoomService,
   Person,
-  Person2Outlined,
   Timelapse
 } from '@mui/icons-material';
 
@@ -21,7 +20,6 @@ export const menuItems = [
     text: 'Gestionar Eventos', 
     icon: Event, 
     subItems: [
-     
       { 
         text: 'Tipo de Eventos', 
         breadcrumb: 'Tipo de Eventos',
@@ -54,29 +52,28 @@ export const menuItems = [
           }
         ],
       }, 
-       { 
+      {
         text: 'En Seguimiento', 
         breadcrumb: 'Eventos',
-        href: '/admin/event-on-going',
+        href: '/admin/event-ongoing',
         subItems: [
           {
             text: 'Reprogramar Evento',
             breadcrumb: 'Reprogramar Evento',
-            href: '/admin/event-on-going/reprograming',
+            href: '/admin/event-ongoing/reprograming',
           },
         ],
       },
-      { 
+      {
         text: 'Destacados',
         breadcrumb: 'Eventos Destacados',
         href: '/admin/featured-events' 
       }
-          
     ]
   },
-   { 
-    text: 'Reprogramaciones', 
-    icon:   Timelapse,
+  { 
+    text: 'Reprogramaciones',
+    icon: Timelapse,
     subItems: [
       { 
         text: 'Solicitudes', 
@@ -90,11 +87,11 @@ export const menuItems = [
       }
     ]
   },
-  { 
+  {
     text: 'Gestionar Trabajadores', 
     icon: People,
     subItems: [
-       { 
+      { 
         text: 'Tipo de Trabajadores', 
         breadcrumb: 'Tipo de Trabajadores',
         href: '/admin/worker-types' 
