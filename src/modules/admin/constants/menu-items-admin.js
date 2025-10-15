@@ -57,7 +57,14 @@ export const menuItems = [
        { 
         text: 'En Seguimiento', 
         breadcrumb: 'Eventos',
-        href: '/admin/events'
+        href: '/admin/event-on-going',
+        subItems: [
+          {
+            text: 'Reprogramar Evento',
+            breadcrumb: 'Reprogramar Evento',
+            href: '/admin/event-on-going/reprograming',
+          },
+        ],
       },
       { 
         text: 'Destacados',

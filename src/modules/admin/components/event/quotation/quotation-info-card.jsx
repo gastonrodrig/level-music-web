@@ -2,7 +2,7 @@ import { Box, Typography, Chip, Grid, useTheme } from "@mui/material";
 import { EventAvailable, Person } from "@mui/icons-material";
 import { formatDateString, formatTimeRange } from "../../../../../shared/utils";
 
-export const QuotationInfoCard = ({ selected }) => {
+export const QuotationInfoCard = ({ selected, showAdditionalServices=true }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
@@ -235,6 +235,7 @@ export const QuotationInfoCard = ({ selected }) => {
       </Grid>
 
       {/* Servicios Adicionales */}
+      {showAdditionalServices && (
       <Box
         sx={{
           p: 3,
@@ -279,6 +280,7 @@ export const QuotationInfoCard = ({ selected }) => {
           </Box>
         ))}
       </Box>
+      )}
     </>
   );
 };

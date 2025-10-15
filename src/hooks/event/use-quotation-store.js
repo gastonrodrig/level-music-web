@@ -80,6 +80,7 @@ export const useQuotationStore = () => {
     try {
       const payload = updateQuotationLandingModel(quotation);
       await eventApi.patch(`quotation/admin/${quotationId}`, payload, getAuthConfig(token));
+      openSnackbar("La cotización fue editada exitosamente.");
       return true;
     } catch (error) {
       const message = error.response?.data?.message;
