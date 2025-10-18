@@ -22,13 +22,10 @@ export const EventOnGoing = () => {
     setOrder,
     setPageGlobal,
     setRowsPerPageGlobal,
-    startLoadingQuotationPaginated,
+    startLoadingQuotationsByStatus,
+    startLoadingQuotationsPaymentByStatus,
     setSelectedQuotation,
   } = useQuotationStore();
-
-  const filteredQuotations = quotations.filter(
-    (q) => String(q.status).toLowerCase() === "en seguimiento"
-  );  
 
   const navigate = useNavigate();
 
@@ -80,8 +77,8 @@ export const EventOnGoing = () => {
   ];
 
   useEffect(() => {
-    startLoadingQuotationPaginated();
-  }, [currentPage, rowsPerPage, searchTerm, orderBy, order]);
+    startLoadingQuotationsPaymentByStatus("En Seguimiento");
+  }, []);
 
   const actions = [
     {
@@ -144,7 +141,7 @@ export const EventOnGoing = () => {
             </Box>
           ) : (
             <TableComponent
-              rows={filteredQuotations}
+              rows={quotations}
               columns={columns}
               order={order}
               orderBy={orderBy}

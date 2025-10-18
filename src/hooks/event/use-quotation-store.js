@@ -91,6 +91,22 @@ export const useQuotationStore = () => {
     }
   };
 
+  const startTimeUpdateQuotationAdmin = async (quotationId, partial) => {
+  dispatch(setLoadingQuotation(true));
+  try {
+    // partial: { start_time: ISOstring, end_time: ISOstring } (no enviar assignations)
+    await eventApi.patch(`quotation/admin/${quotationId}`, partial, getAuthConfig(token));
+    openSnackbar("La cotización fue editada exitosamente.");
+    return true;
+  } catch (error) {
+    const message = error.response?.data?.message;
+    openSnackbar(message ?? "Ocurrió un error al editar la cotización.");
+    return false;
+  } finally {
+    dispatch(setLoadingQuotation(false));
+  }
+};
+
   const startLoadingUserEvents = async (userId) => {
     dispatch(setLoadingQuotation(true));
     try {
@@ -188,6 +204,50 @@ export const useQuotationStore = () => {
     }
   }
 
+  const startLoadingQuotationsByStatus = async (status) => {
+  dispatch(setLoadingQuotation(true));
+  try {
+    const { data } = await eventApi.get(`/status`, {
+      params: { status },
+      ...getAuthConfig(token),
+    });
+    dispatch(refreshQuotations({
+      items: data,
+      total: data.length,
+      page: 0,
+    }));
+    return true;
+  } catch (error) {
+    const message = error.response?.data?.message;
+    openSnackbar(message ?? "Ocurrió un error al cargar las cotizaciones por estado.");
+    return false;
+  } finally {
+    dispatch(setLoadingQuotation(false));
+  }
+};
+
+  const startLoadingQuotationsPaymentByStatus = async (status) => {
+  dispatch(setLoadingQuotation(true));
+  try {
+    const { data } = await eventApi.get(`/status-payment`, {
+      params: { status },
+      ...getAuthConfig(token),
+    });
+    dispatch(refreshQuotations({
+      items: data,
+      total: data.length,
+      page: 0,
+    }));
+    return true;
+  } catch (error) {
+    const message = error.response?.data?.message;
+    openSnackbar(message ?? "Ocurrió un error al cargar las cotizaciones por estado.");
+    return false;
+  } finally {
+    dispatch(setLoadingQuotation(false));
+  }
+};
+
   const setSelectedQuotation = (quotation) => {
     dispatch(selectedQuotation({ ...quotation }));
   };
@@ -243,5 +303,8 @@ export const useQuotationStore = () => {
     startAssigningResources,
     startUpdateQuotationAdmin,
     startEvaluateQuotation,
+    startLoadingQuotationsByStatus,
+    startLoadingQuotationsPaymentByStatus,
+    startTimeUpdateQuotationAdmin,
   };
 };
