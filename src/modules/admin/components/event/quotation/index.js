@@ -5,3 +5,4 @@ export * from './quotation-summary';
 export * from './step-header';
 export * from './quotation-requested-services';
 export * from './quotation-datetime-picker';
+export * from './quotation-activity-progress'

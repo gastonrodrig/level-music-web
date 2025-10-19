@@ -112,6 +112,20 @@ export const useEventTypeStore = () => {
       dispatch(setLoadingEventType(false));
     }
   };
+  //todavia nose usa
+  const getEventTypeById = async(id) => {
+    dispatch(setLoadingEventType(true));
+    try {
+      const { data } = await eventTypeApi.get(`/${id}`, getAuthConfig(token));
+      return true;
+    } catch (error) {
+      const message = error.response?.data?.message;
+      openSnackbar(message ?? "Ocurrió un error al cargar el tipo de evento.");
+      return null;
+    } finally {
+      dispatch(setLoadingEventType(false));
+    }
+  };
 
   const validateAttributes = (attributes) => {
     if (attributes.length === 0) {
