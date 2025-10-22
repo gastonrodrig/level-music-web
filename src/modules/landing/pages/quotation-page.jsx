@@ -135,7 +135,7 @@ export const QuotationPage = () => {
     const success = await startCreateQuotationLanding(data);
     if (success) {
       if (status === 'authenticated') {
-        navigate('/client/event-quotes')
+        navigate('/client/quotations')
       } else {
         navigate('/');
       }
