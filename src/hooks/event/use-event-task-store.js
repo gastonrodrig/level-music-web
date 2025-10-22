@@ -15,7 +15,7 @@ import { getAuthConfig, getAuthConfigWithParams } from '../../shared/utils';
 
 export const UseEventTaskStore = () => {
     const dispatch = useDispatch();
-    const slice = useSelector(s => s.eventTask) ?? {};
+    
     const { 
         eventTasks,
         selected,
@@ -23,7 +23,7 @@ export const UseEventTaskStore = () => {
         loading,
         currentPage,
         rowsPerPage,
-    } = slice;
+    } =  useSelector((state) => state.eventTasks);
     const [searchTerm, setSearchTerm] = useState('');
     const [orderBy, setOrderBy] = useState('description');
     const [order, setOrder] = useState('asc');
