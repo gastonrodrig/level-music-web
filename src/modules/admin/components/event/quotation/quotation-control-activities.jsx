@@ -1,6 +1,8 @@
 import { Box, Typography, CircularProgress,Stack,Button, useTheme,Tabs,Tab,Chip,Divider,Grid } from '@mui/material';
 import { useQuotationStore, useEventTypeStore } from '../../../../../hooks';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import PersonIcon from '@mui/icons-material/Person';
+import DescriptionIcon from '@mui/icons-material/Description';
 import { Accordion, AccordionSummary, AccordionDetails, Avatar } from '@mui/material';
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
 import { useNavigate } from "react-router-dom";
@@ -76,6 +78,20 @@ export const QuotationControlActivities = ({
         return (eventTasks || []).filter((t) => mapStatusKey(t.status) === tab);
     }, [eventTasks, tab]);
 
+    const color = (status) => {
+      console.log("Status para color:", status);
+        switch(status){
+            case 'Pendiente':
+                return 'default';
+            case 'En Progreso':
+                return 'info';
+            case 'Completado':
+                return 'success';
+            case 'Bloqueadas':
+                return 'error';
+        }
+    };
+
     return (
        <Box>
         <Typography variant="h6" sx={{ mb: 2 }}>Actividades del Evento</Typography>
@@ -85,12 +101,13 @@ export const QuotationControlActivities = ({
           onChange={(_, v) => setTab(v)}
           variant="scrollable"
           scrollButtons="auto"
+          sx={{borderRadius:4}}
         >
-          <Tab label={`${statusLabel.all} (${counts.all || 0})`} value="all" />
-          <Tab label={`${statusLabel.pending} (${counts.pending || 0})`} value="pending" />
-          <Tab label={`${statusLabel.in_progress} (${counts.in_progress || 0})`} value="in_progress" />
-          <Tab label={`${statusLabel.completed} (${counts.completed || 0})`} value="completed" />
-          <Tab label={`${statusLabel.blocked} (${counts.blocked || 0})`} value="blocked" />
+          <Tab sx={{backgroundColor: isDark ? '#2c2b2b' : '#fff',textTransform: 'none'}} label={`${statusLabel.all} (${counts.all || 0})`} value="all" />
+          <Tab sx={{backgroundColor: isDark ? '#2c2b2b' : '#fff',textTransform: 'none'}} label={`${statusLabel.pending} (${counts.pending || 0})`} value="pending" />
+          <Tab sx={{backgroundColor: isDark ? '#2c2b2b' : '#fff',textTransform: 'none'}} label={`${statusLabel.in_progress} (${counts.in_progress || 0})`} value="in_progress" />
+          <Tab sx={{backgroundColor: isDark ? '#2c2b2b' : '#fff',textTransform: 'none'}} label={`${statusLabel.completed} (${counts.completed || 0})`} value="completed" />
+          <Tab sx={{backgroundColor: isDark ? '#2c2b2b' : '#fff',textTransform: 'none'}} label={`${statusLabel.blocked} (${counts.blocked || 0})`} value="blocked" />
         </Tabs>
 
         <Stack direction="row" spacing={1} alignItems="center">
@@ -114,12 +131,13 @@ export const QuotationControlActivities = ({
         )}
 
         {!loading && (filteredTasks || []).map((task) => (
-          <Accordion key={task._id || task.id} sx={{ mb: 1 }}>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Accordion key={task._id || task.id} sx={{ mb: 1 , borderRadius:4,boxShadow: 'none',overflow: 'hidden', }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{backgroundColor: isDark ? '#2c2b2b' : '#fff', borderRadius:4, border: 'none'}}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', gap: 1 }}>
                 <Typography>{task.title || 'Sin título'}</Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'start', gap: 1}}>
-                    <Chip label={task.status} size="small" />
+                    <Chip label={task.status} size="small" color={color(task.status)} />
+                    <Chip label="Plantilla" size="small" />
                 <Typography>{task.worker_name || 'Sin asignar'}</Typography>
                 </Box>
                 </Box>
@@ -131,7 +149,13 @@ export const QuotationControlActivities = ({
                 <Grid container spacing={1}>
                 <Grid item xs={12} md={12}>
                     <Box sx={{ p: 2, borderRadius: 2, backgroundColor: isDark ? '#2c2b2b' : '#fff' }}>
-                    <Typography variant="subtitle2" sx={{ mb: 1 }}>Asignar Trabajadores</Typography>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}
+                    >
+                      <PersonIcon sx={{ fontSize: 20 }} />
+                      Asignar Trabajadores
+                    </Typography>
                     <Typography variant="body2" color="text.secondary">{task.worker_name || 'Sin asignar'}</Typography>
                     {/* aquí deja el select / UI de asignación si aplica */}
                     </Box>
@@ -141,7 +165,7 @@ export const QuotationControlActivities = ({
                     <Box sx={{ p: 2, borderRadius: 2, backgroundColor: isDark ? '#2c2b2b' : '#fff' }}>
                     <Typography variant="subtitle2" sx={{ mb: 1 }}>Estado de la actividad</Typography>
                     <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
-                        <Chip label={task.status} size="small" />
+                        <Chip label={task.status} size="small" color={color(task.status)} />
                         {task.requires_evidence && <Chip label="Evidencia" size="small" />}
                     </Stack>
                     <Typography variant="body2" color="text.secondary">Actualizado por el personal asignado</Typography>
@@ -150,11 +174,15 @@ export const QuotationControlActivities = ({
 
                 <Grid item xs={12} md={12}>
                     <Box sx={{ p: 2, borderRadius: 2, backgroundColor: isDark ? '#2c2b2b' : '#fff' }}>
-                    <Typography variant="subtitle2" sx={{ mb: 1 }}>Observaciones y notas</Typography>
-                    <Typography variant="body2" sx={{ mb: 1 }}>{task.notes || 'Sin observaciones'}</Typography>
-                    <Typography variant="caption" color="text.secondary">
-                        Fecha de creación: {new Date(task.created_at || Date.now()).toLocaleDateString()}
+                    <Typography  
+                    variant="subtitle2"
+                      sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}
+                    >
+                      <DescriptionIcon sx={{ fontSize: 20 }} />
+                      Observaciones y notas
                     </Typography>
+                    <Typography variant="body2" sx={{ mb: 1 }}>{task.notes || 'Sin observaciones'}</Typography>
+                    
                     </Box>
                 </Grid>
                 </Grid>

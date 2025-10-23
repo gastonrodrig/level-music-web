@@ -1,9 +1,11 @@
 import React from "react";
-import { Box, LinearProgress, Grid, Paper, Typography } from "@mui/material";
+import { Box, LinearProgress, Grid, Paper, Typography,useTheme } from "@mui/material";
 
 export const ActivityProgressHeader = ({ totals = {}, total, percent }) => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
   return (
-    <Paper sx={{ p: 2, mb: 2 }}>
+    <Paper sx={{ p: 2, mb: 2, boxShadow:'none' }}>
       <Grid container alignItems="center" spacing={2}>
         <Grid item xs={12} md={9}>
           <Typography variant="h6" sx={{ mb: 2 }}>Progreso General</Typography>
@@ -47,6 +49,7 @@ export const ActivityProgressHeader = ({ totals = {}, total, percent }) => {
                   alignItems: "center",
                   justifyContent: "center",
                   textAlign: "center",
+                  bgcolor: isDark ? "#1f1e1e" : "#f5f5f5"
                 }}>
                 <Typography variant="h6" >{c.label}</Typography>
                 <Typography variant="h6">{totals[c.key] ?? 0}</Typography>
