@@ -96,7 +96,7 @@ export const PaymentFormFields = () => {
   };
 
   return (
-    <Box sx={{ p: 1 }}>
+    <Box sx={{ p: { xs: 0, md: 1 } }}>
       {/* Número de Operación */}
       <Box sx={{ mb: 3 }}>
         <Typography variant="body2" sx={{ color: colors.textPrimary, mb: 1 }}>

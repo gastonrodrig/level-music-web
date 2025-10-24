@@ -22,8 +22,7 @@ export const EventOnGoing = () => {
     setOrder,
     setPageGlobal,
     setRowsPerPageGlobal,
-    startLoadingQuotationsByStatus,
-    startLoadingQuotationsPaymentByStatus,
+    startLoadingQuotationPaginated,
     setSelectedQuotation,
   } = useQuotationStore();
 
@@ -77,7 +76,7 @@ export const EventOnGoing = () => {
   ];
 
   useEffect(() => {
-    startLoadingQuotationsPaymentByStatus("En Seguimiento");
+    startLoadingQuotationPaginated(null, 2);
   }, []);
 
   const actions = [

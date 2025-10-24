@@ -6,6 +6,7 @@ import {
   Card,
   CardContent,
   CardActionArea,
+  Alert,
 } from "@mui/material";
 import {
   RadioButtonUnchecked,
@@ -40,79 +41,102 @@ const paymentMethods = [
 ];
 
 export const PaymentManualContent = ({ isDark, colors, bankData, onCopy }) => {
-  // Hook de react-hook-form
   const { watch, setValue } = useFormContext();
   const paymentMethod = watch("selectedPaymentMethod");
+  const amount = watch("amount");
+
+  const disableManualPayments = amount > 500;
 
   return (
     <Box>
       {/* Lista de métodos */}
       <Stack spacing={2} sx={{ mb: 3 }}>
-        {paymentMethods.map((method) => (
-          <Card
-            key={method.id}
-            elevation={0}
-            sx={{
-              border:
-                paymentMethod === method.id
-                  ? `2px solid ${colors.borderActive}`
-                  : `1px solid ${colors.border}`,
-              borderRadius: 2,
-              bgcolor: colors.innerCardBg,
-              transition: "all 0.2s",
-            }}
-          >
-            <CardActionArea onClick={() => setValue("selectedPaymentMethod", method.id)}>
-              <CardContent
-                sx={{ p: 2, display: "flex", alignItems: "center", gap: 2 }}
+        {paymentMethods.map((method) => {
+          const isDisabled =
+            disableManualPayments &&
+            (method.id === "yape" || method.id === "plin");
+
+          return (
+            <Card
+              key={method.id}
+              elevation={0}
+              sx={{
+                border:
+                  paymentMethod === method.id
+                    ? `2px solid ${colors.borderActive}`
+                    : `1px solid ${colors.border}`,
+                borderRadius: 2,
+                bgcolor: isDisabled
+                  ? "action.disabledBackground"
+                  : colors.innerCardBg,
+                opacity: isDisabled ? 0.6 : 1,
+                transition: "all 0.2s",
+              }}
+            >
+              <CardActionArea
+                disabled={isDisabled}
+                onClick={() => !isDisabled && setValue("selectedPaymentMethod", method.id)}
               >
-                {paymentMethod === method.id ? (
-                  <RadioButtonChecked sx={{ color: colors.borderActive }} />
-                ) : (
-                  <RadioButtonUnchecked sx={{ color: colors.textSecondary }} />
-                )}
+                <CardContent
+                  sx={{
+                    p: 2,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
+                  }}
+                >
+                  {paymentMethod === method.id ? (
+                    <RadioButtonChecked sx={{ color: colors.borderActive }} />
+                  ) : (
+                    <RadioButtonUnchecked sx={{ color: colors.textSecondary }} />
+                  )}
 
-                {/* Avatar con Logo o Icono */}
-                {method.logo ? (
-                  <Avatar
-                    src={method.logo}
-                    alt={method.name}
-                    sx={{
-                      width: 40,
-                      height: 40,
-                      bgcolor: "#fff",
-                      border: `1px solid ${colors.border}`,
-                    }}
-                  />
-                ) : (
-                  <Avatar
-                    sx={{ bgcolor: method.color, width: 40, height: 40 }}
-                  >
-                    {method.icon}
-                  </Avatar>
-                )}
+                  {/* Logo / ícono */}
+                  {method.logo ? (
+                    <Avatar
+                      src={method.logo}
+                      alt={method.name}
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        bgcolor: "#fff",
+                        border: `1px solid ${colors.border}`,
+                      }}
+                    />
+                  ) : (
+                    <Avatar
+                      sx={{
+                        bgcolor: method.color,
+                        width: 40,
+                        height: 40,
+                      }}
+                    >
+                      {method.icon}
+                    </Avatar>
+                  )}
 
-                <Box>
-                  <Typography
-                    variant="subtitle1"
-                    sx={{
-                      fontWeight: 600,
-                      color: colors.textPrimary,
-                    }}
-                  >
-                    {method.name}
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    sx={{ color: colors.textSecondary }}
-                  >
-                    {method.description}
-                  </Typography>
-                </Box>
-              </CardContent>
-            </CardActionArea>
-          </Card>
-        ))}
+                  <Box>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
+                        fontWeight: 600,
+                        color: colors.textPrimary,
+                      }}
+                    >
+                      {method.name}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{ color: colors.textSecondary }}
+                    >
+                      {method.description}
+                    </Typography>
+                  </Box>
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          );
+        })}
       </Stack>
 
       {/* Detalles según método */}

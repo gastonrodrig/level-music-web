@@ -92,7 +92,7 @@ export const EventQuotationsPage = () => {
   ];
 
   useEffect(() => {
-    startLoadingQuotationPaginated();
+    startLoadingQuotationPaginated(null, 1);
     startLoadingAllEquipments();
     startLoadingAllWorkers();
     startLoadingAllServiceDetails();

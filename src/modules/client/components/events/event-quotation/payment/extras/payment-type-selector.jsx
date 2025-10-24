@@ -8,14 +8,17 @@ import {
   CardContent,
 } from "@mui/material";
 import { RadioButtonUnchecked, RadioButtonChecked } from "@mui/icons-material";
+import { set, useFormContext } from "react-hook-form";
 
 export const PaymentTypeSelector = ({
-  paymentType,
   quotationData,
-  onChange,
 }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const { watch, setValue } = useFormContext();
+
+  const paymentType = watch("selectedPaymentType");
+  const amount = watch("amount");
 
   const colors = {
     innerCardBg: isDark ? "#141414" : "#fcfcfc",
@@ -26,7 +29,7 @@ export const PaymentTypeSelector = ({
   };
 
   return (
-    <Box sx={{ p: 1 }}>
+    <Box sx={{ p: { xs: 0, md: 1 } }}>
       <Typography
         variant="h6"
         sx={{ mb: 3, fontWeight: 500, color: colors.textPrimary }}
@@ -48,7 +51,10 @@ export const PaymentTypeSelector = ({
             transition: "all 0.2s",
           }}
         >
-          <CardActionArea onClick={() => onChange("partial")}>
+          <CardActionArea onClick={() => {
+            setValue("selectedPaymentType", "partial")
+            setValue("amount", quotationData?.payment_schedules?.[0]?.total_amount)
+          }}>
             <CardContent sx={{ p: 1.5 }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                 {paymentType === "partial" ? (
@@ -73,7 +79,7 @@ export const PaymentTypeSelector = ({
                     variant="h5"
                     sx={{ color: "#4caf50", fontWeight: 700, mt: 1 }}
                   >
-                    S/ {quotationData.advancePayment.toFixed(2)}
+                    S/ {quotationData?.payment_schedules?.[0]?.total_amount.toFixed(2)}
                   </Typography>
                 </Box>
               </Box>
@@ -94,7 +100,10 @@ export const PaymentTypeSelector = ({
             transition: "all 0.2s",
           }}
         >
-          <CardActionArea onClick={() => onChange("full")}>
+          <CardActionArea onClick={() => {
+            setValue("selectedPaymentType", "full")
+            setValue("amount", quotationData?.payment_schedules?.reduce((sum, schedule) => sum + schedule.total_amount, 0))
+          }}>
             <CardContent sx={{ p: 1.5 }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                 {paymentType === "full" ? (
@@ -119,7 +128,7 @@ export const PaymentTypeSelector = ({
                     variant="h5"
                     sx={{ color: "#2196f3", fontWeight: 700, mt: 1 }}
                   >
-                    S/ {quotationData.totalAmount.toFixed(2)}
+                    S/ {quotationData?.payment_schedules?.reduce((sum, schedule) => sum + schedule.total_amount, 0).toFixed(2)}
                   </Typography>
                 </Box>
               </Box>

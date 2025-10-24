@@ -112,7 +112,7 @@ export const useQuotationStore = () => {
     try {
       const limit  = rowsPerPage;
       const offset = currentPage * rowsPerPage;
-      const { data } = await eventApi.get('/quotation/paginated',
+      const { data } = await eventApi.get('/paginated',
         getAuthConfigWithParams(token, {
           limit,
           offset,
@@ -175,50 +175,6 @@ export const useQuotationStore = () => {
     }
   }
 
-  const startLoadingQuotationsByStatus = async (status) => {
-  dispatch(setLoadingQuotation(true));
-  try {
-    const { data } = await eventApi.get(`/status`, {
-      params: { status },
-      ...getAuthConfig(token),
-    });
-    dispatch(refreshQuotations({
-      items: data,
-      total: data.length,
-      page: 0,
-    }));
-    return true;
-  } catch (error) {
-    const message = error.response?.data?.message;
-    openSnackbar(message ?? "Ocurrió un error al cargar las cotizaciones por estado.");
-    return false;
-  } finally {
-    dispatch(setLoadingQuotation(false));
-  }
-};
-
-  const startLoadingQuotationsPaymentByStatus = async (status) => {
-  dispatch(setLoadingQuotation(true));
-  try {
-    const { data } = await eventApi.get(`/status-payment`, {
-      params: { status },
-      ...getAuthConfig(token),
-    });
-    dispatch(refreshQuotations({
-      items: data,
-      total: data.length,
-      page: 0,
-    }));
-    return true;
-  } catch (error) {
-    const message = error.response?.data?.message;
-    openSnackbar(message ?? "Ocurrió un error al cargar las cotizaciones por estado.");
-    return false;
-  } finally {
-    dispatch(setLoadingQuotation(false));
-  }
-};
-
   const setSelectedQuotation = (quotation) => {
     dispatch(selectedQuotation({ ...quotation }));
   };
@@ -273,8 +229,6 @@ export const useQuotationStore = () => {
     startAssigningResources,
     startUpdateQuotationAdmin,
     startEvaluateQuotation,
-    startLoadingQuotationsByStatus,
-    startLoadingQuotationsPaymentByStatus,
     startTimeUpdateQuotationAdmin,
   };
 };

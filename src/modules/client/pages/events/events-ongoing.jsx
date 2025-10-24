@@ -28,7 +28,7 @@ export const EventsOngoingPage = () => {
   } = useQuotationStore();
 
   const { _id } = useAuthStore();
-  // Estado para el modal
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {

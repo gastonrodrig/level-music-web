@@ -1,4 +1,4 @@
-import { Box, Typography, Button, useTheme } from "@mui/material";
+import { Box, Typography, Button, useTheme, Alert } from "@mui/material";
 import { CreditCard, PhoneIphone } from "@mui/icons-material";
 import { useFormContext } from "react-hook-form";
 import { PaymentMercadoPagoContent, PaymentManualContent } from "./";
@@ -6,10 +6,10 @@ import { PaymentMercadoPagoContent, PaymentManualContent } from "./";
 export const PaymentMethodSelector = ({ bankData, quotationData, onCopy }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
-
-  // Acceso al contexto del formulario
   const { setValue, watch } = useFormContext();
+
   const paymentTab = watch("selectedPaymentTab");
+  const finalAmount = watch("amount");
 
   const colors = {
     innerCardBg: isDark ? "#141414" : "#fcfcfc",
@@ -19,8 +19,12 @@ export const PaymentMethodSelector = ({ bankData, quotationData, onCopy }) => {
     borderActive: theme.palette.primary.main,
   };
 
+  const disableMercadoPago = finalAmount >= 30000;
+  const showAlert500 = finalAmount > 500 && finalAmount < 30000;
+  const showAlert30000 = finalAmount >= 30000;
+
   return (
-    <Box sx={{ p: 1 }}>
+    <Box sx={{ p: { xs: 0, md: 1 } }}>
       <Typography
         variant="h6"
         sx={{ mb: 3, fontWeight: 500, color: colors.textPrimary }}
@@ -43,8 +47,11 @@ export const PaymentMethodSelector = ({ bankData, quotationData, onCopy }) => {
         <Button
           fullWidth
           variant={paymentTab === "mercadopago" ? "contained" : "text"}
-          onClick={() => setValue("selectedPaymentTab", "mercadopago")}
+          onClick={() =>
+            !disableMercadoPago && setValue("selectedPaymentTab", "mercadopago")
+          }
           startIcon={<CreditCard />}
+          disabled={disableMercadoPago}
           sx={{
             bgcolor:
               paymentTab === "mercadopago"
@@ -58,6 +65,8 @@ export const PaymentMethodSelector = ({ bankData, quotationData, onCopy }) => {
                 : colors.textSecondary,
             textTransform: "none",
             fontWeight: 600,
+            opacity: disableMercadoPago ? 0.5 : 1,
+            cursor: disableMercadoPago ? "not-allowed" : "pointer",
             boxShadow: "none",
             "&:hover": {
               bgcolor:
@@ -106,7 +115,49 @@ export const PaymentMethodSelector = ({ bankData, quotationData, onCopy }) => {
         </Button>
       </Box>
 
-      {/* Contenido dinámico segun el tab */}
+      {/* Alerta si el monto excede el límite */}
+      {showAlert500 && (
+        <Alert
+          severity="warning"
+          sx={{
+            borderRadius: 2,
+            mb: 3,
+            bgcolor: isDark
+              ? "rgba(255, 179, 0, 0.1)"
+              : "rgba(255, 245, 157, 0.3)",
+            color: isDark ? "#ffcc80" : "#795548",
+            "& .MuiAlert-icon": {
+              color: isDark ? "#ffb300" : "#795548",
+            },
+          }}
+        >
+          Los pagos mayores a <strong>S/ 500</strong> deben realizarse mediante{" "}
+          <strong>Transferencia Bancaria</strong> o{" "}
+          <strong>Mercado Pago</strong>.
+        </Alert>
+      )}
+
+      {showAlert30000 && (
+        <Alert
+          severity="warning"
+          sx={{
+            borderRadius: 2,
+            mb: 3,
+            bgcolor: isDark
+              ? "rgba(255, 179, 0, 0.1)"
+              : "rgba(255, 245, 157, 0.3)",
+            color: isDark ? "#ffcc80" : "#795548",
+            "& .MuiAlert-icon": {
+              color: isDark ? "#ffb300" : "#795548",
+            },
+          }}
+        >
+          Los pagos mayores a <strong>S/ 30,000</strong> deben realizarse mediante{" "}
+          <strong>Transferencia Bancaria</strong>.
+        </Alert>
+      )}
+
+      {/* Contenido dinámico según el tab */}
       {paymentTab === "mercadopago" ? (
         <PaymentMercadoPagoContent
           colors={colors}

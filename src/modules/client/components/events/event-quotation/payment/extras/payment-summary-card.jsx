@@ -9,19 +9,19 @@ import {
 } from "@mui/material";
 import { CalendarToday } from "@mui/icons-material";
 import { useFormContext } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 
 export const PaymentSummaryCard = ({
   quotationData,
-  paymentType,
-  onRegister,
-  onCancel,
+  onRegister
 }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const navigate = useNavigate();
 
   const { watch } = useFormContext();
 
-  const selectedPaymentMethod = watch("selectedPaymentMethod");
+  const paymentType = watch("selectedPaymentType");
   const selectedPaymentTab = watch("selectedPaymentTab");
 
   const colors = {
@@ -33,11 +33,19 @@ export const PaymentSummaryCard = ({
 
   const amount =
     paymentType === "partial"
-      ? quotationData.advancePayment
-      : quotationData.totalAmount;
+      ? quotationData?.payment_schedules?.[0]?.total_amount.toFixed(2)
+      : quotationData?.payment_schedules?.reduce((sum, schedule) => sum + schedule.total_amount, 0).toFixed(2);
+
+  const onSubmit = (data) => {
+    console.log(data);
+  }
+
+  const onCancel = () => {
+    navigate('/client/quotations', { replace: true });
+  }
 
   return (
-    <Box sx={{ p: 3, borderRadius: 3, bgcolor: colors.cardBg }}>
+    <Box sx={{ p: { xs: 2, md: 3 }, borderRadius: 3, bgcolor: colors.cardBg }}>
       <Typography
         variant="h6"
         sx={{ mb: 3, fontWeight: 500, color: colors.textPrimary }}
@@ -53,7 +61,7 @@ export const PaymentSummaryCard = ({
           variant="h6"
           sx={{ fontWeight: 700, color: colors.textPrimary }}
         >
-          {quotationData.code}
+          {quotationData?.event_code}
         </Typography>
       </Box>
 
@@ -84,7 +92,7 @@ export const PaymentSummaryCard = ({
             fontSize={14}
             sx={{ color: colors.textPrimary, fontWeight: 500 }}
           >
-            {new Date(quotationData.eventDate).toLocaleDateString("es-PE", {
+            {new Date(quotationData?.event_date).toLocaleDateString("es-PE", {
               day: "numeric",
               month: "long",
               year: "numeric",
@@ -103,7 +111,7 @@ export const PaymentSummaryCard = ({
           variant="h4"
           sx={{ fontWeight: 700, color: colors.textPrimary }}
         >
-          S/ {amount.toFixed(2)}
+          S/ {amount}
         </Typography>
       </Box>
 

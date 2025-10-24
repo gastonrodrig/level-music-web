@@ -1,11 +1,30 @@
-import { Box, Typography, Card, CardContent } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Skeleton,
+  Fade,
+} from "@mui/material";
+import { useState } from "react";
 import { MercadoPagoAlert } from "..";
 import { PaymentBrick } from "../";
+import { useFormContext } from "react-hook-form";
 
 export const PaymentMercadoPagoContent = ({ colors, quotationData }) => {
+  const { watch } = useFormContext();
+  const [brickReady, setBrickReady] = useState(false);
+
+  const amount = watch("amount");
+
+  const handleBrickReady = () => {
+    setTimeout(() => {
+      setBrickReady(true);
+    }, 700); 
+  };
+
   return (
     <Box>
-      {/* Alerta informativa */}
       <MercadoPagoAlert />
 
       {/* Monto a pagar */}
@@ -18,7 +37,7 @@ export const PaymentMercadoPagoContent = ({ colors, quotationData }) => {
           mb: 3,
         }}
       >
-        <CardContent sx={{ p: 3 }}>
+        <CardContent sx={{ p: 2 }}>
           <Typography
             variant="caption"
             sx={{ color: colors.textSecondary, display: "block", mb: 1 }}
@@ -27,37 +46,82 @@ export const PaymentMercadoPagoContent = ({ colors, quotationData }) => {
           </Typography>
           <Typography
             variant="h4"
-            sx={{ fontWeight: 700, color: colors.textPrimary, mb: 2 }}
+            sx={{ fontWeight: 700, color: colors.textPrimary }}
           >
-            S/ {quotationData?.advancePayment?.toFixed(2) || "4580.00"}
+            S/ {amount.toFixed(2)}
           </Typography>
+        </CardContent>
+      </Card>
 
-          {/* Brick de Mercado Pago */}
-          <Box
-            sx={{
-              mt: 2,
-              py: 2,
-              borderRadius: 2,
-              bgcolor: colors.infoBg,
-              border: `1px dashed ${colors.infoBorder}`,
-            }}
-          >
+      {/* Brick + Skeleton Loader */}
+      <Card
+        sx={{
+          boxShadow: "none",
+          border: `1px solid ${colors.border}`,
+          bgcolor: colors.innerCardBg,
+          position: "relative",
+          width: "100%",
+          borderRadius: 5,
+          minHeight: 372,
+          overflow: "hidden",
+        }}
+      >
+        {/* Payment Brick */}
+        <Box
+          sx={{
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            opacity: brickReady ? 1 : 0.3,
+            transition: "opacity 0.6s ease",
+          }}
+        >
+          <Box sx={{ width: "100%", maxWidth: 600 }}>
             <Box
               sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
+                position: "relative",
+                opacity: brickReady ? 1 : 0,
+                transition: "opacity 0.5s ease",
               }}
             >
-              {/* Aquí se monta el componente del Brick */}
-              <Box sx={{ width: "100%" }}>
-                <PaymentBrick
-                  amount={quotationData?.advancePayment || 4580}
-                />
-              </Box>
+              <PaymentBrick amount={quotationData?.payment_schedules?.[0]?.total_amount} onReady={handleBrickReady} />
             </Box>
           </Box>
-        </CardContent>
+        </Box>
+
+        {/* Skeleton loader con shimmer */}
+        {!brickReady && (
+          <Fade in={!brickReady}>
+            <Box
+              sx={{
+                position: "absolute",
+                inset: 0,
+                p: 3,
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
+                justifyContent: "center",
+              }}
+            >
+              <Skeleton
+                variant="rectangular"
+                width="100%"
+                height={40}
+                sx={{ borderRadius: 2 }}
+              />
+              <Skeleton variant="rectangular" width="100%" height={40} sx={{ borderRadius: 2 }} />
+              <Skeleton variant="rectangular" width="80%" height={40} sx={{ borderRadius: 2 }} />
+              <Skeleton variant="rectangular" width="60%" height={40} sx={{ borderRadius: 2 }} />
+              <Skeleton
+                variant="rectangular"
+                width="40%"
+                height={45}
+                sx={{ borderRadius: 2, mt: 1 }}
+              />
+            </Box>
+          </Fade>
+        )}
       </Card>
     </Box>
   );
