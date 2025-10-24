@@ -1,7 +1,20 @@
 import { useState } from "react";
-import { Box, Typography, TextField, Paper, useTheme, IconButton, Button } from "@mui/material";
-import { CloudUpload, CheckCircle, Close, InsertDriveFile } from "@mui/icons-material";
-import { ImagePreviewModal } from "../../../../../shared/ui/components/common/image-preview-modal";
+import {
+  Box,
+  Typography,
+  TextField,
+  Paper,
+  useTheme,
+  IconButton,
+  Button,
+} from "@mui/material";
+import {
+  CloudUpload,
+  CheckCircle,
+  Close,
+  InsertDriveFile,
+} from "@mui/icons-material";
+import { ImagePreviewModal } from "../../../../../../../shared/ui/components/common/image-preview-modal";
 
 export const PaymentFormFields = () => {
   const theme = useTheme();
@@ -29,7 +42,12 @@ export const PaymentFormFields = () => {
       }
 
       // Validar tipo de archivo
-      const validTypes = ["image/png", "image/jpeg", "image/jpg", "application/pdf"];
+      const validTypes = [
+        "image/png",
+        "image/jpeg",
+        "image/jpg",
+        "application/pdf",
+      ];
       if (!validTypes.includes(file.type)) {
         alert("Solo se permiten archivos PNG, JPG o PDF");
         return;
@@ -152,13 +170,22 @@ export const PaymentFormFields = () => {
 
             {/* Texto a la derecha */}
             <Box sx={{ flex: 1, textAlign: "left" }}>
-              <Typography variant="body2" sx={{ color: colors.textPrimary, mb: 0.5, fontWeight: 500 }}>
+              <Typography
+                variant="body2"
+                sx={{ color: colors.textPrimary, mb: 0.5, fontWeight: 500 }}
+              >
                 Sube tu comprobante
               </Typography>
-              <Typography variant="caption" sx={{ color: colors.textSecondary, display: "block" }}>
+              <Typography
+                variant="caption"
+                sx={{ color: colors.textSecondary, display: "block" }}
+              >
                 PNG, JPG, PDF (Máx. 5MB)
               </Typography>
-              <Typography variant="caption" sx={{ color: colors.textSecondary, display: "block", mt: 0.5 }}>
+              <Typography
+                variant="caption"
+                sx={{ color: colors.textSecondary, display: "block", mt: 0.5 }}
+              >
                 Haz clic para seleccionar una imagen
               </Typography>
             </Box>
@@ -213,8 +240,13 @@ export const PaymentFormFields = () => {
                 </Box>
               ) : (
                 <Box>
-                  <InsertDriveFile sx={{ fontSize: 48, color: "#f44336", mb: 1 }} />
-                  <Typography variant="caption" sx={{ color: colors.textSecondary }}>
+                  <InsertDriveFile
+                    sx={{ fontSize: 48, color: "#f44336", mb: 1 }}
+                  />
+                  <Typography
+                    variant="caption"
+                    sx={{ color: colors.textSecondary }}
+                  >
                     Archivo PDF
                   </Typography>
                 </Box>
@@ -224,10 +256,16 @@ export const PaymentFormFields = () => {
             {/* Información del archivo */}
             <Box sx={{ textAlign: "center", mb: 2 }}>
               <CheckCircle sx={{ fontSize: 24, color: "#4caf50", mb: 0.5 }} />
-              <Typography variant="body2" sx={{ color: colors.textPrimary, fontWeight: 600, mb: 0.5 }}>
+              <Typography
+                variant="body2"
+                sx={{ color: colors.textPrimary, fontWeight: 600, mb: 0.5 }}
+              >
                 {selectedFile.name}
               </Typography>
-              <Typography variant="caption" sx={{ color: colors.textSecondary }}>
+              <Typography
+                variant="caption"
+                sx={{ color: colors.textSecondary }}
+              >
                 {formatFileSize(selectedFile.size)}
               </Typography>
             </Box>
@@ -255,7 +293,11 @@ export const PaymentFormFields = () => {
       </Box>
 
       {/* Modal de vista previa */}
-      <ImagePreviewModal open={previewModalOpen} src={previewUrl} onClose={handleClosePreview} />
+      <ImagePreviewModal
+        open={previewModalOpen}
+        src={previewUrl}
+        onClose={handleClosePreview}
+      />
     </Box>
   );
 };

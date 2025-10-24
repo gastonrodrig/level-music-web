@@ -24,7 +24,7 @@ export const QuotationPage = () => {
     setPageGlobal,
     setOrderBy,
     setOrder,
-    startLoadingUserEvents,
+    startLoadingQuotationPaginated,
     setSelectedQuotation,
   } = useQuotationStore();
   
@@ -34,7 +34,7 @@ export const QuotationPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    startLoadingUserEvents(_id);
+    startLoadingQuotationPaginated(_id, 1);
   }, [_id, currentPage, rowsPerPage, searchTerm, orderBy, order]);
 
   const openModal = (payload) => {

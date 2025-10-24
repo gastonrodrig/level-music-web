@@ -21,7 +21,7 @@ export const EventsOngoingPage = () => {
     setPageGlobal,
     setOrderBy,
     setOrder,
-    startLoadingUserEvents,
+    startLoadingQuotationPaginated,
     setSelectedQuotation,
     
     selected,
@@ -32,7 +32,7 @@ export const EventsOngoingPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    startLoadingUserEvents(_id);
+    startLoadingQuotationPaginated(_id, 2);
   }, [_id, currentPage, rowsPerPage, searchTerm, orderBy, order]);
 
   const columns = [

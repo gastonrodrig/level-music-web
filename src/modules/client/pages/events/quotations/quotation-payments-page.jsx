@@ -1,19 +1,41 @@
 import { useState } from "react";
-import { Box, Typography, Card, CardContent, Grid, Divider, useTheme } from "@mui/material";
-import { useQuotationStore } from "../../../../../hooks";
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Grid,
+  Divider,
+  useTheme,
+} from "@mui/material";
 import {
   PaymentTypeSelector,
   PaymentMethodSelector,
   PaymentSummaryCard,
   PaymentFormFields,
 } from "../../../components";
+import { useQuotationStore } from "../../../../../hooks";
+import { FormProvider, useForm } from "react-hook-form";
 
 export const QuotationPaymentsPage = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+
   const [paymentType, setPaymentType] = useState("partial");
-  const [paymentMethod, setPaymentMethod] = useState("yape");
+
   const { selected } = useQuotationStore();
+
+  const formMethods = useForm({
+    defaultValues: {
+      selectedPaymentTab: "manual",
+      selectedPaymentMethod: "yape",
+    }
+  })
+
+  const { watch } = formMethods;
+
+  const paymentTab = watch("selectedPaymentTab");
+  const paymentMethod = watch("selectedPaymentMethod");
 
   const quotationData = {
     code: selected?.event_code || "COT-001",
@@ -27,13 +49,13 @@ export const QuotationPaymentsPage = () => {
 
   const bankData = {
     banco: "Banco BCP",
-    cuenta: "191-2345678-0-90",
-    cci: "00219100234567809012",
+    cuenta: "194-96138910-008",
+    cci: "0021-9419-6138-9100-0894",
     titular: "Level Music Corp S.A.C",
-    ruc: "20123456789",
-    yapeNumber: "+51 987 654 321",
+    ruc: "20603023596",
+    yapeNumber: "+51 989 160 593",
     yapeName: "Level Music Corp",
-    plinNumber: "+51 987 654 321",
+    plinNumber: "+51 989 160 593",
     plinName: "Level Music Corp",
   };
 
@@ -57,66 +79,86 @@ export const QuotationPaymentsPage = () => {
   };
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, margin: "0 auto" }}>
-      {/* Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, color: colors.textPrimary }}>
-          Procesar Pago - {quotationData.code}
-        </Typography>
-        <Typography variant="body2" sx={{ color: colors.textSecondary }}>
-          Cliente: {quotationData.client}
-        </Typography>
-      </Box>
-
-      <Grid container spacing={3}>
-        {/* Columna Izquierda */}
-        <Grid item xs={12} md={7}>
-          {/* Selección de Tipo de Pago */}
-          <Card
-            elevation={0}
-            sx={{ borderRadius: 3, bgcolor: colors.cardBg, mb: 3, border: `1px solid ${colors.border}` }}
+    <FormProvider {...formMethods}>
+      <Box sx={{ px: 4, pt: 2, maxWidth: 1200, margin: "0 auto" }}>
+        {/* Header */}
+        <Box sx={{ mb: 2 }}>
+          <Typography
+            variant="h4"
+            sx={{ fontWeight: 700, mb: 1, color: colors.textPrimary }}
           >
-            <CardContent>
-              <PaymentTypeSelector
-                paymentType={paymentType}
+            Procesar Pago - {quotationData.code}
+          </Typography>
+          <Typography variant="body2" sx={{ color: colors.textSecondary }}>
+            Cliente: {quotationData.client}
+          </Typography>
+        </Box>
+
+        <Grid container spacing={3}>
+          {/* Columna Izquierda */}
+          <Grid item xs={12} md={7}>
+            {/* Selección de Tipo de Pago */}
+            <Card
+              elevation={0}
+              sx={{
+                borderRadius: 3,
+                bgcolor: colors.cardBg,
+                mb: 3,
+                border: `1px solid ${colors.border}`,
+              }}
+            >
+              <CardContent>
+                <PaymentTypeSelector
+                  paymentType={paymentType}
+                  quotationData={quotationData}
+                  onChange={setPaymentType}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Método de Pago */}
+            <Card
+              elevation={0}
+              sx={{
+                borderRadius: 3,
+                bgcolor: colors.cardBg,
+                mb: 3,
+                border: `1px solid ${colors.border}`,
+              }}
+            >
+              <CardContent>
+                <PaymentMethodSelector
+                  paymentMethod={paymentMethod}
+                  bankData={bankData}
+                  onCopy={handleCopy}
+                  paymentTab={paymentTab}
+                  quotationData={quotationData}
+                />
+
+                { paymentTab === "manual" && (
+                  <>
+                    <Divider sx={{ mx: 1, my: 3, borderColor: colors.border }} />
+
+                    <PaymentFormFields />
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+
+          {/* Columna Derecha - Resumen */}
+          <Grid item xs={12} md={5}>
+            <Box sx={{ position: "sticky", top: 20 }}>
+              <PaymentSummaryCard
                 quotationData={quotationData}
-                onChange={setPaymentType}
+                paymentType={paymentType}
+                onRegister={handleRegister}
+                onCancel={handleCancel}
               />
-            </CardContent>
-          </Card>
-
-          {/* Método de Pago */}
-          <Card
-            elevation={0}
-            sx={{ borderRadius: 3, bgcolor: colors.cardBg, mb: 3, border: `1px solid ${colors.border}` }}
-          >
-            <CardContent>
-              <PaymentMethodSelector
-                paymentMethod={paymentMethod}
-                bankData={bankData}
-                onMethodChange={setPaymentMethod}
-                onCopy={handleCopy}
-              />
-
-              <Divider sx={{ mx: 1, my: 3, borderColor: colors.border }} />
-
-              <PaymentFormFields />
-            </CardContent>
-          </Card>
+            </Box>
+          </Grid>
         </Grid>
-
-        {/* Columna Derecha - Resumen */}
-        <Grid item xs={12} md={5}>
-          <Box sx={{ position: "sticky", top: 20 }}>
-            <PaymentSummaryCard
-              quotationData={quotationData}
-              paymentType={paymentType}
-              onRegister={handleRegister}
-              onCancel={handleCancel}
-            />
-          </Box>
-        </Grid>
-      </Grid>
-    </Box>
+      </Box>
+    </FormProvider>
   );
 };
