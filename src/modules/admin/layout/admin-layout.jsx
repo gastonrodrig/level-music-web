@@ -16,6 +16,11 @@ export const AdminLayout = () => {
           sx={{
             width: { md: 400, sm: '100%' },
             flexShrink: 0,
+            position: 'sticky',   
+            top: 0,               
+            alignSelf: 'flex-start', 
+            height: '100vh',      
+            overflow: 'hidden', 
           }}
         >
           <Toolbar />

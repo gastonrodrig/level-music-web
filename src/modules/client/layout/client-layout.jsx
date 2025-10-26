@@ -9,36 +9,41 @@ export const ClientLayout = () => {
   const { isLg } = useScreenSizes();
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
-      {/* Sidebar */}
-      {isLg && (
-        <Box
-          sx={{
-            width: { md: 400, sm: '100%' },
-            flexShrink: 0,
-          }}
-        >
-          <Toolbar />
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
+        {/* Sidebar */}
+        {isLg && ( 
           <Box
             sx={{
-              overflow: 'auto',
-              mt: 2,
-              backgroundColor: theme.palette.mode === 'light' ? '#F5F5F5' : '#1F1F1F',
-              margin: 3,
-              borderRadius: 3,
+              width: { md: 400, sm: '100%' },
+              flexShrink: 0,
+              position: 'sticky',  
+              top: 0,               
+              alignSelf: 'flex-start', 
+              height: '100vh',     
+              overflow: 'hidden', 
             }}
           >
-            <SidebarMenu menuItems={menuItems} />
+            <Toolbar />
+            <Box 
+              sx={{ 
+                overflow: 'auto', 
+                mt: 2,
+                backgroundColor: theme.palette.mode === 'light' ? '#F5F5F5' : '#1F1F1F',
+                margin: 3,
+                borderRadius: 3
+              }}
+            >
+              <SidebarMenu menuItems={menuItems} />
+            </Box>
           </Box>
+        )}
+  
+        {/* Área principal */}
+        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+          <Toolbar />
+          <Breadcrumbs menuItems={menuItems} />
+          <Outlet />
         </Box>
-      )}
-
-      {/* Área principal */}
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <Toolbar />
-        <Breadcrumbs menuItems={menuItems} />
-        <Outlet />
       </Box>
-    </Box>
-  );
+    );
 };
