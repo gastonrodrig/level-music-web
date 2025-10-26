@@ -9,6 +9,7 @@ import {
   Select,
   MenuItem,
   FormHelperText,
+  Menu,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { useUsersStore } from "../../../hooks/user/use-users-store";
@@ -39,6 +40,7 @@ export const ExtraInformationModal = ({
         phone: "",
         document_type: "",
         document_number: "",
+        client_type: "",
       });
     }
   }, [open, reset]);
@@ -84,6 +86,45 @@ export const ExtraInformationModal = ({
         </Typography>
 
         <Box display="flex" gap={2} mb={2} sx={{ flexDirection: "column" }}>
+          {/* Tipo de cliente */}
+          <FormControl fullWidth error={!!errors.client_type}>
+            <InputLabel id="user-type-label">Tipo de cliente</InputLabel>
+            <Select
+              labelId="user-type-label"
+              value={watch("client_type") || ""}
+              {...register("client_type", {
+                required: "Selecciona tipo de cliente",
+                onChange: (e) => {
+                  const v = e.target.value;
+                  setValue("client_type", v);
+                  if (v === "Empresa") {
+                    setValue("document_type", "Ruc");
+                  } else if (v === "Persona") {
+                    setValue("document_type", "Dni");
+                  } else {
+                    setValue("document_type", "");
+                  }
+                  setValue("document_number", "");
+                },
+              })}
+              onChange={(e) => {
+                const v = e.target.value;
+                setValue("client_type", v);
+                if (v === "Empresa") {
+                  setValue("document_type", "Ruc");
+                } else if (v === "Persona") {
+                  setValue("document_type", "Dni");
+                } else {
+                  setValue("document_type", "");
+                }
+                setValue("document_number", "");
+              }}
+            >
+              <MenuItem value="Persona">Persona Natural</MenuItem>
+              <MenuItem value="Empresa">Empresa</MenuItem>
+            </Select>
+            <FormHelperText>{errors.client_type?.message}</FormHelperText>
+          </FormControl>
           
           {/* Nombre */}
           <TextField
@@ -140,8 +181,19 @@ export const ExtraInformationModal = ({
                 setValue("document_number", "");
               }}
             >
-              <MenuItem value="Dni">DNI</MenuItem>
-              <MenuItem value="Ruc">RUC</MenuItem>
+              {watch("client_type") === "Empresa" ? (
+                <MenuItem value="Ruc">RUC</MenuItem>
+              ) : watch("client_type") === "Persona" ? (
+                [
+                  <MenuItem key="dni" value="Dni">DNI</MenuItem>,
+                  <MenuItem key="ruc" value="Ruc">RUC</MenuItem>,
+                ]
+              ) : (
+                [
+                  <MenuItem key="dni" value="Dni">DNI</MenuItem>,
+                  <MenuItem key="ruc" value="Ruc">RUC</MenuItem>,
+                ]
+              )}
             </Select>
             <FormHelperText>{errors.document_type?.message}</FormHelperText>
           </FormControl>
@@ -157,10 +209,16 @@ export const ExtraInformationModal = ({
                 ? "El número de DNI es obligatorio"
                 : "El número de documento es obligatorio",
               pattern: watch("document_type") === "Ruc"
-                ? {
-                    value: /^10\d{9}$/,
-                    message: "El RUC debe iniciar con 10 y tener 11 dígitos",
-                  }
+                ? (watch("client_type") === "Empresa"
+                    ? {
+                        value: /^20\d{9}$/,
+                        message: "El RUC debe iniciar con 20 y tener 11 dígitos",
+                      }
+                    : {
+                        value: /^10\d{9}$/,
+                        message: "El RUC debe iniciar con 10 y tener 11 dígitos",
+                      }
+                  )
                 : watch("document_type") === "Dni"
                 ? {
                     value: /^\d{8}$/,
