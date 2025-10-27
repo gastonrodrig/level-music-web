@@ -1,15 +1,20 @@
-import { Box, Typography, Button, useTheme, Alert } from "@mui/material";
-import { CreditCard, PhoneIphone } from "@mui/icons-material";
+import { Box, Typography, useTheme, Alert, Chip, Button, IconButton } from "@mui/material";
+import { Add, Delete } from "@mui/icons-material";
 import { useFormContext } from "react-hook-form";
-import { PaymentMercadoPagoContent, PaymentManualContent } from "./";
+import { PaymentManualContent } from "./";
+import { useState } from "react";
 
 export const PaymentMethodSelector = ({ bankData, quotationData, onCopy }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
-  const { setValue, watch } = useFormContext();
+  const { watch, setValue } = useFormContext();
 
-  const paymentTab = watch("selectedPaymentTab");
   const finalAmount = watch("amount");
+  const paymentTab = watch("selectedPaymentTab");
+
+  const [payments, setPayments] = useState([
+    { id: 1, method: "yape", amount: 0 }
+  ]);
 
   const colors = {
     innerCardBg: isDark ? "#141414" : "#fcfcfc",
@@ -19,160 +24,96 @@ export const PaymentMethodSelector = ({ bankData, quotationData, onCopy }) => {
     borderActive: theme.palette.primary.main,
   };
 
-  const disableMercadoPago = finalAmount >= 30000;
-  const showAlert500 = finalAmount > 500 && finalAmount < 30000;
-  const showAlert30000 = finalAmount >= 30000;
+  const showAlert500 = finalAmount > 500 && finalAmount < 30000 && paymentTab === "manual";
+  const showAlert30000 = finalAmount >= 30000 && paymentTab === "manual";
+
+  // No mostrar el selector si está en modo Mercado Pago
+  if (paymentTab === "mercadopago") {
+    return null;
+  }
+
+  const handleAddPayment = () => {
+    const newId = Math.max(...payments.map(p => p.id), 0) + 1;
+    setPayments([...payments, { id: newId, method: "yape", amount: 0 }]);
+  };
+
+  const handleRemovePayment = (id) => {
+    if (payments.length > 1) {
+      setPayments(payments.filter(p => p.id !== id));
+    }
+  };
+
+  const handlePaymentChange = (id, field, value) => {
+    setPayments(payments.map(p => 
+      p.id === id ? { ...p, [field]: value } : p
+    ));
+  };
 
   return (
     <Box sx={{ p: { xs: 0, md: 1 } }}>
-      <Typography
-        variant="h6"
-        sx={{ mb: 3, fontWeight: 500, color: colors.textPrimary }}
-      >
-        Método de pago
-      </Typography>
+      {/* Header con badge y botón agregar */}
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <Typography variant="h6" sx={{ fontWeight: 500, color: colors.textPrimary }}>
+            Métodos de pago
+          </Typography>
 
-      {/* Tabs */}
-      <Box
-        sx={{
-          display: "flex",
-          gap: 1,
-          mb: 3,
-          bgcolor: isDark ? "#2d2d2d" : "#e0e0e0",
-          borderRadius: 2,
-          p: 0.5,
-        }}
-      >
-        {/* Tab Mercado Pago */}
-        <Button
-          fullWidth
-          variant={paymentTab === "mercadopago" ? "contained" : "text"}
-          onClick={() =>
-            !disableMercadoPago && setValue("selectedPaymentTab", "mercadopago")
-          }
-          startIcon={<CreditCard />}
-          disabled={disableMercadoPago}
-          sx={{
-            bgcolor:
-              paymentTab === "mercadopago"
-                ? isDark
-                  ? "#1a1a1a"
-                  : "#fff"
-                : "transparent",
-            color:
-              paymentTab === "mercadopago"
-                ? colors.textPrimary
-                : colors.textSecondary,
-            textTransform: "none",
-            fontWeight: 600,
-            opacity: disableMercadoPago ? 0.5 : 1,
-            cursor: disableMercadoPago ? "not-allowed" : "pointer",
-            boxShadow: "none",
-            "&:hover": {
-              bgcolor:
-                paymentTab === "mercadopago"
-                  ? isDark
-                    ? "#2a2a2a"
-                    : "#f9f9f9"
-                  : "transparent",
-            },
-          }}
-        >
-          Mercado Pago
-        </Button>
+          <Chip
+            label="Requieren aprobación del administrador"
+            size="small"
+            icon={<Box component="span" sx={{ fontSize: 16 }}>⏳</Box>}
+            sx={{
+              bgcolor: isDark ? "rgba(255, 179, 0, 0.15)" : "rgba(255, 179, 0, 0.1)",
+              color: isDark ? "#ffb300" : "#f57c00",
+              fontWeight: 600,
+              fontSize: 11,
+              border: `1px solid ${isDark ? "#ffb300" : "#f57c00"}`,
+              "& .MuiChip-icon": {
+                color: isDark ? "#ffb300" : "#f57c00",
+              },
+            }}
+          />
+        </Box>
 
-        {/* Tab Pago Manual */}
         <Button
-          fullWidth
-          variant={paymentTab === "manual" ? "contained" : "text"}
-          onClick={() => setValue("selectedPaymentTab", "manual")}
-          startIcon={<PhoneIphone />}
+          variant="contained"
+          size="small"
+          startIcon={<Add />}
+          onClick={handleAddPayment}
           sx={{
-            bgcolor:
-              paymentTab === "manual"
-                ? isDark
-                  ? "#1a1a1a"
-                  : "#fff"
-                : "transparent",
-            color:
-              paymentTab === "manual"
-                ? colors.textPrimary
-                : colors.textSecondary,
+            bgcolor: "#ff9800",
+            color: "#fff",
             textTransform: "none",
             fontWeight: 600,
             boxShadow: "none",
             "&:hover": {
-              bgcolor:
-                paymentTab === "manual"
-                  ? isDark
-                    ? "#2a2a2a"
-                    : "#f9f9f9"
-                  : "transparent",
+              bgcolor: "#f57c00",
             },
           }}
         >
-          Pago Manual
+          Agregar
         </Button>
       </Box>
 
-      {/* Alerta si el monto excede el límite */}
-      {showAlert500 && (
-        <Alert
-          severity="warning"
-          sx={{
-            borderRadius: 2,
-            mb: 3,
-            bgcolor: isDark
-              ? "rgba(255, 179, 0, 0.1)"
-              : "rgba(255, 245, 157, 0.3)",
-            color: isDark ? "#ffcc80" : "#795548",
-            "& .MuiAlert-icon": {
-              color: isDark ? "#ffb300" : "#795548",
-            },
-          }}
-        >
-          Los pagos mayores a <strong>S/ 500</strong> deben realizarse mediante{" "}
-          <strong>Transferencia Bancaria</strong> o{" "}
-          <strong>Mercado Pago</strong>.
-        </Alert>
-      )}
+      
 
-      {showAlert30000 && (
-        <Alert
-          severity="warning"
-          sx={{
-            borderRadius: 2,
-            mb: 3,
-            bgcolor: isDark
-              ? "rgba(255, 179, 0, 0.1)"
-              : "rgba(255, 245, 157, 0.3)",
-            color: isDark ? "#ffcc80" : "#795548",
-            "& .MuiAlert-icon": {
-              color: isDark ? "#ffb300" : "#795548",
-            },
-          }}
-        >
-          Los pagos mayores a <strong>S/ 30,000</strong> deben realizarse mediante{" "}
-          <strong>Transferencia Bancaria</strong>.
-        </Alert>
-      )}
-
-      {/* Contenido dinámico según el tab */}
-      {paymentTab === "mercadopago" ? (
-        <PaymentMercadoPagoContent
-          colors={colors}
-          bankData={bankData}
-          quotationData={quotationData}
-        />
-      ) : (
+      {/* Lista de pagos */}
+      {payments.map((payment, index) => (
         <PaymentManualContent
+          key={payment.id}
+          paymentNumber={index + 1}
+          paymentId={payment.id}
           isDark={isDark}
           colors={colors}
           bankData={bankData}
           quotationData={quotationData}
           onCopy={onCopy}
+          onRemove={payments.length > 1 ? () => handleRemovePayment(payment.id) : null}
+          payment={payment}
+          onPaymentChange={handlePaymentChange}
+          totalAmount={finalAmount}
         />
-      )}
+      ))}
     </Box>
   );
 };
