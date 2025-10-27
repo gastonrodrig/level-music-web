@@ -7,3 +7,4 @@ export * from './quotation-requested-services';
 export * from './quotation-datetime-picker';
 export * from './quotation-activity-progress';
 export * from './quotation-control-activities';
+export * from './quotation-add-activities-modal';
