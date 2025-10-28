@@ -31,6 +31,20 @@ export const UseEventTaskStore = () => {
      const { token } = useSelector((state) => state.auth);
      const openSnackbar = (message) => dispatch(showSnackbar({ message }));
 
+     const startAddEventTask = async (data) => {
+      try {
+        await EventTaskApi.post("/", data, getAuthConfig(token));
+        openSnackbar("Actividad agregada correctamente.");
+        return true;
+      } catch (error) {
+        const message = error.response?.data?.message;
+        openSnackbar(message ?? "Ocurrió un error al cargar las actividades del evento.");
+        return false;
+      } finally {
+        dispatch(setLoadingEventTask(false));
+      }
+    };
+
      const startLoadingEventTaskByStatus = async (status) => {
          dispatch(setLoadingEventTask(true));
         try{
@@ -61,6 +75,19 @@ export const UseEventTaskStore = () => {
             }
     };
 
+    const startUpdateTaskAssignment = async (taskId, workerId) => {
+      try {
+        // PATCH al endpoint específico (ajusta la URL si es necesario)
+        await EventTaskApi.patch(`/${taskId}/worker`,{ worker_id: workerId },getAuthConfig(token));
+        openSnackbar("Asignación actualizada correctamente.");
+        return true;
+      } catch (error) {
+        const message = error.response?.data?.message;
+        openSnackbar(message ?? "Ocurrió un error al actualizar la asignación.");
+        return false;
+      }
+    };
+
     const setSelectedQuotation = (eventTask) => {
         dispatch(selectedEventTask(...eventTask));
     };
@@ -84,8 +111,8 @@ export const UseEventTaskStore = () => {
     setPageGlobal,
     setRowsPerPageGlobal,
 
-
-
+    startAddEventTask,
+    startUpdateTaskAssignment,  
     startLoadingEventTaskByStatus,
     startLoadingEventsTaskByIdEvent,
     
