@@ -146,13 +146,6 @@ export const QuotationPaymentsPage = () => {
                       paymentTab={paymentTab}
                       quotationData={selected}
                     />
-
-                    {paymentMethod !== "cash" && (
-                      <>
-                        <Divider sx={{ mx: { xs: 0, md: 1 }, my: 3, borderColor: colors.border }} />
-                        <PaymentFormFields />
-                      </>
-                    )}
                   </CardContent>
                 </Card>
 

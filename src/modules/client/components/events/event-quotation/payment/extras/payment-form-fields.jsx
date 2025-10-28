@@ -16,12 +16,13 @@ import {
 } from "@mui/icons-material";
 import { ImagePreviewModal } from "../../../../../../../shared/ui/components/common/image-preview-modal";
 
-export const PaymentFormFields = () => {
+export const PaymentFormFields = ({ paymentId }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [operationNumber, setOperationNumber] = useState("");
 
   const colors = {
     innerCardBg: isDark ? "#141414" : "#fcfcfc",
@@ -74,7 +75,7 @@ export const PaymentFormFields = () => {
   };
 
   const handleChangeFile = () => {
-    document.getElementById("file-upload").click();
+    document.getElementById(`file-upload-${paymentId}`).click();
   };
 
   const handleOpenPreview = () => {
@@ -96,20 +97,22 @@ export const PaymentFormFields = () => {
   };
 
   return (
-    <Box sx={{ p: { xs: 0, md: 1 } }}>
+    <Box>
       {/* Número de Operación */}
       <Box sx={{ mb: 3 }}>
-        <Typography variant="body2" sx={{ color: colors.textPrimary, mb: 1 }}>
-          Número de Operación / Transacción *
+        <Typography variant="body2" sx={{ color: colors.textPrimary, mb: 1, fontWeight: 600 }}>
+          Número de Operación *
         </Typography>
         <TextField
           fullWidth
-          placeholder="Ej: 12345789"
+          placeholder="Ej: 123456789"
+          value={operationNumber}
+          onChange={(e) => setOperationNumber(e.target.value)}
+          size="small"
           sx={{
             "& .MuiOutlinedInput-root": {
               bgcolor: colors.inputBg,
               color: colors.textPrimary,
-              height: 60,
               "& fieldset": { borderColor: colors.border },
               "&:hover fieldset": { borderColor: colors.borderActive },
               "&.Mui-focused fieldset": { borderColor: colors.borderActive },
@@ -124,13 +127,13 @@ export const PaymentFormFields = () => {
 
       {/* Comprobante de Pago */}
       <Box>
-        <Typography variant="body2" sx={{ color: colors.textPrimary, mb: 1 }}>
+        <Typography variant="body2" sx={{ color: colors.textPrimary, mb: 1, fontWeight: 600 }}>
           Comprobante de Pago *
         </Typography>
 
         <input
           type="file"
-          id="file-upload"
+          id={`file-upload-${paymentId}`}
           accept="image/png,image/jpeg,image/jpg,application/pdf"
           style={{ display: "none" }}
           onChange={handleFileChange}
@@ -140,7 +143,7 @@ export const PaymentFormFields = () => {
           <Paper
             elevation={0}
             component="label"
-            htmlFor="file-upload"
+            htmlFor={`file-upload-${paymentId}`}
             sx={{
               p: 3,
               border: `2px dashed ${colors.border}`,
@@ -181,12 +184,6 @@ export const PaymentFormFields = () => {
                 sx={{ color: colors.textSecondary, display: "block" }}
               >
                 PNG, JPG, PDF (Máx. 5MB)
-              </Typography>
-              <Typography
-                variant="caption"
-                sx={{ color: colors.textSecondary, display: "block", mt: 0.5 }}
-              >
-                Haz clic para seleccionar una imagen
               </Typography>
             </Box>
           </Paper>

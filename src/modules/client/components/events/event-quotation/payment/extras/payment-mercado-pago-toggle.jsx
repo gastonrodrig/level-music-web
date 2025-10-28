@@ -50,7 +50,10 @@ export const PaymentMercadoPagoToggle = ({ quotationData }) => {
                   bgcolor: theme.palette.primary.main,
                 }}
               />
-              <Typography variant="subtitle1" sx={{ fontWeight: 600, color: colors.textPrimary }}>
+              <Typography
+                variant="subtitle1"
+                sx={{ fontWeight: 600, color: colors.textPrimary }}
+              >
                 Pago con Mercado Pago
               </Typography>
             </Box>
@@ -73,7 +76,10 @@ export const PaymentMercadoPagoToggle = ({ quotationData }) => {
                 disabled={disableMercadoPago}
                 onChange={(e) =>
                   !disableMercadoPago &&
-                  setValue("selectedPaymentTab", e.target.checked ? "mercadopago" : "manual")
+                  setValue(
+                    "selectedPaymentTab",
+                    e.target.checked ? "mercadopago" : "manual"
+                  )
                 }
                 style={{ opacity: 0, width: 0, height: 0 }}
               />
@@ -84,7 +90,10 @@ export const PaymentMercadoPagoToggle = ({ quotationData }) => {
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  bgcolor: paymentTab === "mercadopago" ? theme.palette.primary.main : "#ccc",
+                  bgcolor:
+                    paymentTab === "mercadopago"
+                      ? theme.palette.primary.main
+                      : "#ccc",
                   borderRadius: 24,
                   transition: "0.3s",
                   "&::before": {
@@ -105,12 +114,15 @@ export const PaymentMercadoPagoToggle = ({ quotationData }) => {
 
           {/* Descripción del toggle */}
           {paymentTab !== "mercadopago" && (
-            <Typography variant="body2" sx={{ color: colors.textSecondary, mt: 2, opacity: 0.7 }}>
+            <Typography
+              variant="body2"
+              sx={{ color: colors.textSecondary, mt: 2, opacity: 0.7 }}
+            >
               Activa esta opción para pagar todo con Mercado Pago
             </Typography>
           )}
 
-          {/* Contenido expandido cuando está activado */}
+          {/* Contenido expandido */}
           {paymentTab === "mercadopago" && (
             <Box sx={{ mt: 2 }}>
               <PaymentMercadoPagoContent colors={colors} quotationData={quotationData} />

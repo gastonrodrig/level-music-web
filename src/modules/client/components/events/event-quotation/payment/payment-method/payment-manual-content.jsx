@@ -10,9 +10,10 @@ import {
   useTheme,
   Alert,
   IconButton,
+  Divider,
 } from "@mui/material";
 import { AccountBalance, Info, Delete } from "@mui/icons-material";
-import { InfoBox } from "..";
+import { InfoBox, PaymentFormFields } from "..";
 import { useFormContext } from "react-hook-form";
 
 const paymentMethods = [
@@ -24,6 +25,7 @@ const paymentMethods = [
     logo: "https://i.postimg.cc/MHYc1qSn/YAPE.jpg",
     availableFor: ["online", "local"],
     maxAmount: 500,
+    requiresProof: true,
   },
   {
     id: "plin",
@@ -33,6 +35,7 @@ const paymentMethods = [
     logo: "https://i.postimg.cc/NG8237Hf/logo-plin.jpg",
     availableFor: ["online", "local"],
     maxAmount: 500,
+    requiresProof: true,
   },
   {
     id: "transfer",
@@ -41,6 +44,7 @@ const paymentMethods = [
     color: "#607d8b",
     icon: <AccountBalance sx={{ fontSize: 20 }} />,
     availableFor: ["online", "local"],
+    requiresProof: true,
   },
   {
     id: "cash",
@@ -49,6 +53,7 @@ const paymentMethods = [
     color: "#4caf50",
     icon: "S/",
     availableFor: ["local"],
+    requiresProof: false,
   },
 ];
 
@@ -303,6 +308,14 @@ export const PaymentManualContent = ({
               </Typography>
             </Alert>
           )}
+
+          {/* Campos de formulario (Número de operación y comprobante) - Para todos excepto efectivo */}
+          {selectedMethod?.requiresProof && (
+            <>
+              <Divider sx={{ my: 3, borderColor: colors.border }} />
+              <PaymentFormFields paymentId={paymentId} />
+            </>
+          )}
         </CardContent>
       </Card>
     </Box>
@@ -317,6 +330,7 @@ const PaymentDetailCard = ({ title, icon, fields, colors, isDark, onCopy }) => (
       borderRadius: 2,
       bgcolor: isDark ? "rgba(99, 102, 241, 0.1)" : "rgba(99, 102, 241, 0.05)",
       border: `1px solid ${isDark ? "#6366f1" : "#a5b4fc"}`,
+      mb: 2,
     }}
   >
     <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
