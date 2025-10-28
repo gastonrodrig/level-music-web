@@ -69,6 +69,11 @@ export const menuItems = [
             breadcrumb: 'Reprogramar Evento',
             href: '/admin/event-ongoing/reprograming',
           },
+          {
+            text: 'Control Actividades',
+            breadcrumb: 'Control de Actividades',
+            href: '/admin/event-ongoing/activities',
+          }
         ],
       },
       {

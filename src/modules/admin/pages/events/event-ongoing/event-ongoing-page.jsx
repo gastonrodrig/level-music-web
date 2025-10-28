@@ -1,8 +1,8 @@
 import { Box, Typography, CircularProgress } from '@mui/material';
 import { AccessTime } from '@mui/icons-material';
 import { TableComponent } from "../../../../../shared/ui/components";
-import { useQuotationStore } from '../../../../../hooks';
-import { useEffect } from 'react';
+import { useQuotationStore, useEventTypeStore } from '../../../../../hooks';
+import { useEffect, useMemo } from 'react';
 import { useNavigate } from "react-router-dom";
 import { formatDay } from "../../../../../shared/utils";
 
@@ -25,6 +25,10 @@ export const EventOnGoing = () => {
     startLoadingQuotationPaginated,
     setSelectedQuotation,
   } = useQuotationStore();
+  const {
+    eventTypes,
+    startLoadingAllEventTypes,
+  } = useEventTypeStore();
 
   const navigate = useNavigate();
 
@@ -73,11 +77,46 @@ export const EventOnGoing = () => {
       label: "Estado", 
       sortable: false 
     },
+    {
+      id: "activities",
+      label: "Actividades",
+      sortable: false,
+      accessor: (row) => {
+        const cnt = getAttributesCountForRow(row);
+        return `${cnt} actividades`;
+      },
+    },
   ];
 
   useEffect(() => {
     startLoadingQuotationPaginated(null, 2);
   }, []);
+
+  const eventTypesMap = useMemo(() => {
+    const map = {};
+    (eventTypes || []).forEach((et) => {
+      map[et._id] = et;
+    });
+    return map;
+  }, [eventTypes]);
+
+  const getAttributesArray = (eventType) => {
+    if (!eventType) return [];
+    const attrs = eventType.attributes;
+    if (!attrs) return [];
+    if (Array.isArray(attrs)) return attrs;
+    try {
+      return JSON.parse(attrs);
+    } catch {
+      return [];
+    }
+  };
+
+  // 3) helper para contar atributos de un row (cotización)
+  const getAttributesCountForRow = (row) => {
+    const et = eventTypesMap[row.event_type] || eventTypesMap[row.event_type_id]; // adapta si usas event_type o event_type_id
+    return getAttributesArray(et).length;
+  };
 
   const actions = [
     {
@@ -88,6 +127,14 @@ export const EventOnGoing = () => {
         navigate(`/admin/event-ongoing/reprogramming`);
       },
     },
+    {
+      label: 'Ver Seguimiento',
+      icon: <AccessTime />,
+      onClick: (row) => {
+        setSelectedQuotation(row);
+         navigate(`/admin/event-ongoing/activities`);
+      },
+    }
   ];
 
   return (
