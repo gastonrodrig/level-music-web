@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { MercadoPagoAlert } from "..";
-import { PaymentBrick } from "../";
+import { PaymentBrick } from "..";
 import { useFormContext } from "react-hook-form";
 
 export const PaymentMercadoPagoContent = ({ colors, quotationData }) => {
@@ -18,9 +18,7 @@ export const PaymentMercadoPagoContent = ({ colors, quotationData }) => {
   const amount = watch("amount");
 
   const handleBrickReady = () => {
-    setTimeout(() => {
-      setBrickReady(true);
-    }, 700); 
+    setBrickReady(true);
   };
 
   return (
@@ -74,7 +72,7 @@ export const PaymentMercadoPagoContent = ({ colors, quotationData }) => {
             justifyContent: "center",
             alignItems: "center",
             opacity: brickReady ? 1 : 0.3,
-            transition: "opacity 0.6s ease",
+            transition: "opacity 0.5s ease",
           }}
         >
           <Box sx={{ width: "100%", maxWidth: 600 }}>
@@ -82,15 +80,18 @@ export const PaymentMercadoPagoContent = ({ colors, quotationData }) => {
               sx={{
                 position: "relative",
                 opacity: brickReady ? 1 : 0,
-                transition: "opacity 0.5s ease",
+                transition: "opacity 0.4s ease",
               }}
             >
-              <PaymentBrick amount={quotationData?.payment_schedules?.[0]?.total_amount} onReady={handleBrickReady} />
+              <PaymentBrick
+                amount={quotationData?.payment_schedules?.[0]?.total_amount}
+                onReady={handleBrickReady}
+              />
             </Box>
           </Box>
         </Box>
 
-        {/* Skeleton loader con shimmer */}
+        {/* Skeleton loader */}
         {!brickReady && (
           <Fade in={!brickReady}>
             <Box
@@ -104,12 +105,7 @@ export const PaymentMercadoPagoContent = ({ colors, quotationData }) => {
                 justifyContent: "center",
               }}
             >
-              <Skeleton
-                variant="rectangular"
-                width="100%"
-                height={40}
-                sx={{ borderRadius: 2 }}
-              />
+              <Skeleton variant="rectangular" width="100%" height={40} sx={{ borderRadius: 2 }} />
               <Skeleton variant="rectangular" width="100%" height={40} sx={{ borderRadius: 2 }} />
               <Skeleton variant="rectangular" width="80%" height={40} sx={{ borderRadius: 2 }} />
               <Skeleton variant="rectangular" width="60%" height={40} sx={{ borderRadius: 2 }} />

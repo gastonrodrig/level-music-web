@@ -8,7 +8,7 @@ import {
   CardContent,
 } from "@mui/material";
 import { RadioButtonUnchecked, RadioButtonChecked } from "@mui/icons-material";
-import { set, useFormContext } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 
 export const PaymentTypeSelector = ({
   quotationData,
@@ -18,7 +18,6 @@ export const PaymentTypeSelector = ({
   const { watch, setValue } = useFormContext();
 
   const paymentType = watch("selectedPaymentType");
-  const amount = watch("amount");
 
   const colors = {
     innerCardBg: isDark ? "#141414" : "#fcfcfc",
