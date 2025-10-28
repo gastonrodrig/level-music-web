@@ -1,0 +1,16 @@
+export const createAppointmentModel = (f) => ({
+  meeting_type: f.meetingType,
+  date: new Date(f.appointmentDate),
+  hour: f.hour,
+  attendees_count: Number(f.attendeesCount),
+  client_type: f.clientType,
+  first_name: f.firstName || null,
+  last_name: f.lastName || null,
+  company_name: f.companyName || null,
+  contact_person: f.contactPerson || null,
+  email: f.email,
+  phone: f.phone,
+  document_type: f.documentType,
+  document_number: f.documentNumber,
+  user_id: f.userId || null,
+});

@@ -12,8 +12,7 @@ import { useFormContext } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
 export const PaymentSummaryCard = ({
-  quotationData,
-  onRegister
+  quotationData
 }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
@@ -119,7 +118,6 @@ export const PaymentSummaryCard = ({
         { selectedPaymentTab === "manual" ? (
           <Button
             variant="contained"
-            onClick={onRegister}
             sx={{
               py: 1,
               boxShadow: "none",

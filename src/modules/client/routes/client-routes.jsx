@@ -6,7 +6,8 @@ import { DashboardPage,
    QuotationDetailsPage,
    ProfilePage,
    ReprogramingsRequestsPage,
-   QuotationPaymentsPage
+   QuotationPaymentsPage,
+   AppointmentPage
 } from "../pages";
 import { ClientLayout } from '../layout/client-layout';
 
@@ -17,6 +18,9 @@ export const ClientRoutes = () => {
         {/* Dashboard */}
         <Route path="/" element={<DashboardPage />} />
 
+        {/* Citas */}
+        <Route path="appointments" element={<AppointmentPage />} />
+
         {/* Eventos */}
         <Route path="events-made" element={<EventMadePage />} />
         <Route path="events-ongoing" element={<EventsOngoingPage />} />
@@ -24,6 +28,7 @@ export const ClientRoutes = () => {
         <Route path="quotations/details" element={<QuotationDetailsPage />} />
         <Route path="reprogramming-requests" element={<ReprogramingsRequestsPage />} />
         <Route path="quotations/payments" element={<QuotationPaymentsPage />} />
+
         {/* Clientes */}
         <Route path="edit-profile" element={<ProfilePage />} />
 

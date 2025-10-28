@@ -1,7 +1,8 @@
 import { 
   Dashboard,
   Event,
-  Person
+  EventNote,
+  Person,
 } from '@mui/icons-material';
 
 export const menuItems = [
@@ -11,7 +12,12 @@ export const menuItems = [
     icon: Dashboard, 
     href: '/client' 
   },
-  
+  { 
+    text: 'Citas', 
+    breadcrumb: 'Citas',
+    icon: EventNote, 
+    href: '/client/appointments' 
+  },
   { 
     text: 'Eventos', 
     icon: Event,
@@ -56,5 +62,4 @@ export const menuItems = [
     icon: Person,
     href: '/client/edit-profile' 
   }
- 
 ];

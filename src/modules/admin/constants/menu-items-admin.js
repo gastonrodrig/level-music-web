@@ -6,7 +6,8 @@ import {
   Store,
   RoomService,
   Person,
-  Timelapse
+  Timelapse,
+  EventNote
 } from '@mui/icons-material';
 
 export const menuItems = [
@@ -15,6 +16,12 @@ export const menuItems = [
     breadcrumb: 'Inicio',
     icon: Dashboard, 
     href: '/admin' 
+  },
+  { 
+    text: 'Gestionar Citas', 
+    breadcrumb: 'Citas',
+    icon: EventNote, 
+    href: '/admin/appointments' 
   },
   { 
     text: 'Gestionar Eventos', 

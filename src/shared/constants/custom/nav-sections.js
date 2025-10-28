@@ -11,7 +11,7 @@ export const sections = [
   },
   {
     id: 3,
-    title: 'COTIZAR',
-    url: '/quotation'
+    title: 'CITAS',
+    url: '/appointment'
   }
 ]

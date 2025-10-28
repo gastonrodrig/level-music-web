@@ -40,7 +40,7 @@ export const QuotationPaymentsPage = () => {
     }
   })
 
-  const { watch } = formMethods;
+  const { watch, handleSubmit } = formMethods;
 
   const paymentTab = watch("selectedPaymentTab");
   const paymentMethod = watch("selectedPaymentMethod");
@@ -57,6 +57,10 @@ export const QuotationPaymentsPage = () => {
     textPrimary: isDark ? "#fff" : "#000",
     border: isDark ? "#444" : "#e0e0e0",
   };
+
+  const onSubmit = (data) => {
+    console.log(data);
+  }
 
   const handleCopy = (text) => {
     navigator.clipboard.writeText(text);
