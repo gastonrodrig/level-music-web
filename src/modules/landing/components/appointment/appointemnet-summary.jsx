@@ -44,6 +44,8 @@ export const AppointmentSummary = () => {
     else navigate('/', { replace: true });
   }
 
+  const clientType = watch("clientType", "Persona");
+
   const onCancel = () => {
     navigate('/', { replace: true });
   }
@@ -99,7 +101,7 @@ export const AppointmentSummary = () => {
             <Box sx={{ mt: 1, display: "flex", alignItems: "center", gap: 1 }}>
               <Chip
                 icon={<Person />}
-                label={watch("clientType", "Persona Natural")}
+                label={clientType}
                 color="success"
                 variant="filled"
                 sx={{ fontWeight: 700, mb: 0.5 }}
