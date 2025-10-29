@@ -10,6 +10,7 @@ import {
   MenuItem,
   FormHelperText,
   Menu,
+  Grid,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { useUsersStore } from "../../../hooks/user/use-users-store";
@@ -37,6 +38,8 @@ export const ExtraInformationModal = ({
       reset({
         first_name: "",
         last_name: "",
+        company_name: "",
+        contact_person: "",
         phone: "",
         document_type: "",
         document_number: "",
@@ -86,6 +89,7 @@ export const ExtraInformationModal = ({
         </Typography>
 
         <Box display="flex" gap={2} mb={2} sx={{ flexDirection: "column" }}>
+
           {/* Tipo de cliente */}
           <FormControl fullWidth error={!!errors.client_type}>
             <InputLabel id="user-type-label">Tipo de cliente</InputLabel>
@@ -99,8 +103,14 @@ export const ExtraInformationModal = ({
                   setValue("client_type", v);
                   if (v === "Empresa") {
                     setValue("document_type", "Ruc");
+                    // Limpiar campos de persona
+                    setValue("first_name", "");
+                    setValue("last_name", "");
                   } else if (v === "Persona") {
                     setValue("document_type", "Dni");
+                    // Limpiar campos de empresa
+                    setValue("company_name", "");
+                    setValue("contact_person", "");
                   } else {
                     setValue("document_type", "");
                   }
@@ -112,8 +122,14 @@ export const ExtraInformationModal = ({
                 setValue("client_type", v);
                 if (v === "Empresa") {
                   setValue("document_type", "Ruc");
+                  // Limpiar campos de persona
+                  setValue("first_name", "");
+                  setValue("last_name", "");
                 } else if (v === "Persona") {
                   setValue("document_type", "Dni");
+                  // Limpiar campos de empresa
+                  setValue("company_name", "");
+                  setValue("contact_person", "");
                 } else {
                   setValue("document_type", "");
                 }
@@ -126,42 +142,82 @@ export const ExtraInformationModal = ({
             <FormHelperText>{errors.client_type?.message}</FormHelperText>
           </FormControl>
           
-          {/* Nombre */}
-          <TextField
-            label="Nombre"
-            fullWidth
-            {...register("first_name", {
-              required: "El nombre es obligatorio"              
-            })}
-            error={!!errors.first_name}
-            helperText={errors.first_name?.message}
-          />
+          {/* Campos dinámicos: Persona vs Empresa */}
+          <Grid container spacing={2}>
+            {watch("client_type") === "Empresa" ? (
+              <>
+                <Grid item xs={12} md={12}>
+                  <TextField
+                    label="Nombre de la Empresa"
+                    fullWidth
+                    InputLabelProps={{ shrink: !!watch("company_name") }}
+                    {...register("company_name", {
+                      required: "El nombre de la empresa es obligatorio",
+                    })}
+                    error={!!errors.company_name}
+                    helperText={errors.company_name?.message}
+                  />
+                </Grid>
+                <Grid item xs={12} md={12}>
+                  <TextField
+                    label="Persona de Contacto"
+                    fullWidth
+                    InputLabelProps={{ shrink: !!watch("contact_person") }}
+                    {...register("contact_person", {
+                      required: "La persona de contacto es obligatoria",
+                    })}
+                    error={!!errors.contact_person}
+                    helperText={errors.contact_person?.message}
+                  />
+                </Grid>
+              </>
+            ) : (
+              <>
+                <Grid item xs={12} md={12}>
+                  <TextField
+                    label="Nombre"
+                    fullWidth
+                    InputLabelProps={{ shrink: !!watch("first_name") }}
+                    {...register("first_name", {
+                      required: "El nombre es obligatorio",
+                    })}
+                    error={!!errors.first_name}
+                    helperText={errors.first_name?.message}
+                  />
+                </Grid>
+                <Grid item xs={12} md={12}>
+                  <TextField
+                    label="Apellido"
+                    fullWidth
+                    InputLabelProps={{ shrink: !!watch("last_name") }}
+                    {...register("last_name", {
+                      required: "El apellido es obligatorio",
+                    })}
+                    error={!!errors.last_name}
+                    helperText={errors.last_name?.message}
+                  />
+                </Grid>
+              </>
+            )}
 
-          {/* Apellido */}
-          <TextField
-            label="Apellido"
-            fullWidth
-            {...register("last_name", {
-              required: "El apellido es obligatorio"
-            })}
-            error={!!errors.last_name}
-            helperText={errors.last_name?.message}
-          />
-
-          {/* Teléfono */}
-          <TextField
-            label="Teléfono"
-            fullWidth
-            {...register("phone", {
-              required: "El número es obligatorio",
-              pattern: {
-                value: /^[0-9]{9}$/,
-                message: "El número debe tener 9 dígitos",
-              },
-            })}
-            error={!!errors.phone}
-            helperText={errors.phone?.message}
-          />
+            {/* Teléfono (común) */}
+            <Grid item xs={12}>
+              <TextField
+                label="Teléfono"
+                fullWidth
+                InputLabelProps={{ shrink: !!watch("phone") }}
+                {...register("phone", {
+                  required: "El número es obligatorio",
+                  pattern: {
+                    value: /^[0-9]{9}$/,
+                    message: "El número debe tener 9 dígitos",
+                  },
+                })}
+                error={!!errors.phone}
+                helperText={errors.phone?.message}
+              />
+            </Grid>
+          </Grid>
 
           {/* Tipo de documento */}
           <FormControl fullWidth error={!!errors.document_type}>
@@ -180,6 +236,7 @@ export const ExtraInformationModal = ({
                 setValue("document_type", e.target.value);
                 setValue("document_number", "");
               }}
+              disabled={watch("client_type") === "Empresa"}
             >
               {watch("client_type") === "Empresa" ? (
                 <MenuItem value="Ruc">RUC</MenuItem>
@@ -202,6 +259,7 @@ export const ExtraInformationModal = ({
           <TextField
             label="Número de documento"
             fullWidth
+            InputLabelProps={{ shrink: !!watch("document_number") }}
             {...register("document_number", {
               required: watch("document_type") === "Ruc"
                 ? "El número de RUC es obligatorio"
