@@ -150,11 +150,9 @@ export const WorkerPage = () => {
       /> 
 
       <WorkerPriceModal
-        open={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        open={isSecondModalOpen}
+        onClose={() => setIsSecondModalOpen(false)}
         worker={selected}
-        setWorker={setSelectedWorker}
-        loading={loading}
       /> 
     </>
   );

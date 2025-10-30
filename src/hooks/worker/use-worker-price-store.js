@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import {
   refreshWorkerPrices,
+  selectedWorkerPrice,
   setLoadingWorkerPrice,
   setPageWorkerPrice,
   setRowsPerPageWorkerPrice,
@@ -17,6 +18,7 @@ export const useWorkerPriceStore = () => {
   const dispatch = useDispatch();
   const {
     workerPrices,
+    selected,
     total,
     loading,
     currentPage,
@@ -57,7 +59,6 @@ export const useWorkerPriceStore = () => {
         getAuthConfigWithParams(token, {
           limit,
           offset,
-          search: searchTerm.trim(),
           sortField: orderBy,
           sortOrder: order,
           worker_id: workerId,
@@ -78,6 +79,10 @@ export const useWorkerPriceStore = () => {
     }
   };
 
+  const setSelectedWorkerPrice = (workerPrice) => {
+    dispatch(selectedWorkerPrice(workerPrice));
+  };
+
   const setPageGlobal = (page) => {
     dispatch(setPageWorkerPrice(page));
   };
@@ -89,6 +94,7 @@ export const useWorkerPriceStore = () => {
   return {
     // state
     workerPrices,
+    selected,
     total,
     loading,
     searchTerm,
@@ -105,6 +111,7 @@ export const useWorkerPriceStore = () => {
     setRowsPerPageGlobal,
 
     //actions
+    setSelectedWorkerPrice,
     startCreateWorkerPrice,
     startLoadingWorkerPricePaginated,
   };
