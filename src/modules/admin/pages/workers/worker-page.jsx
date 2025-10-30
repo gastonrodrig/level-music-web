@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Typography, Button, TextField, CircularProgress } from '@mui/material';
-import { AddCircleOutline, Edit } from '@mui/icons-material';
-// Asegúrate de tener estos hooks y componentes creados
+import { AddCircleOutline, Edit, PriceChange } from '@mui/icons-material';
 import { useWorkerStore, useWorkerTypeStore } from '../../../../hooks';
 import { TableComponent } from '../../../../shared/ui/components';
-import { WorkerModal } from '../../components';
+import { WorkerModal, WorkerPriceModal } from '../../components';
 import { useScreenSizes } from '../../../../shared/constants/screen-width';
 
 export const WorkerPage = () => {
@@ -30,6 +29,7 @@ export const WorkerPage = () => {
   const { isLg } = useScreenSizes();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSecondModalOpen, setIsSecondModalOpen] = useState(false);
 
   useEffect(() => {
     startLoadingWorkerPaginated();
@@ -39,6 +39,11 @@ export const WorkerPage = () => {
   const openModal = (payload) => {
     setSelectedWorker(payload);
     setIsModalOpen(true);
+  };
+
+  const openSecondModal = (payload) => {
+    setSelectedWorker(payload);
+    setIsSecondModalOpen(true);
   };
 
   const columns = [
@@ -55,6 +60,11 @@ export const WorkerPage = () => {
       label: 'Editar',
       icon: <Edit />,
       onClick: (row) => openModal(row),
+    },
+    {
+      label: 'Precios',
+      icon: <PriceChange />,
+      onClick: (row) => openSecondModal(row),
     },
   ];
 
@@ -137,6 +147,12 @@ export const WorkerPage = () => {
         worker={selected}
         setWorker={setSelectedWorker}
         loading={loading}
+      /> 
+
+      <WorkerPriceModal
+        open={isSecondModalOpen}
+        onClose={() => setIsSecondModalOpen(false)}
+        worker={selected}
       /> 
     </>
   );

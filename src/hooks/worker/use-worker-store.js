@@ -10,6 +10,7 @@ import {
   showSnackbar,
 } from '../../store';
 import { 
+  createSeasonPriceWorkerModel,
   createWorkerModel,
   updateWorkerModel
 } from '../../shared/models';
@@ -52,6 +53,7 @@ export const useWorkerStore = () => {
       dispatch(setLoadingWorker(false));
     }
   };
+
   const startLoadingAllWorkers = async () => {
     dispatch(setLoadingWorker(true));
     try {

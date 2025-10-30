@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  workers: [],
+  workerPrices: [],
   selected: null,
   total: 0,
   currentPage: 0,
@@ -9,40 +9,36 @@ const initialState = {
   loading: false,
 };
 
-export const workersSlice = createSlice({
-  name: 'workers',
+export const workerPricesSlice = createSlice({
+  name: 'workerPrices',
   initialState,
   reducers: {
-    refreshWorkers: (state, action) => {
+    refreshWorkerPrices: (state, action) => {
       const { items, total, page } = action.payload;
-      state.workers = items;
+      state.workerPrices = items;
       state.total = total;
       state.currentPage = page;
       state.loading = false;
     },
-    selectedWorker: (state, action) => {
+    selectedWorkerPrice: (state, action) => {
       state.selected = action.payload;
     },
-    setLoadingWorker: (state, action) => {
+    setLoadingWorkerPrice: (state, action) => {
       state.loading = action.payload;
     },
-    setPageWorker: (state, action) => {
+    setPageWorkerPrice: (state, action) => {
       state.currentPage = action.payload;
     },
-    setRowsPerPageWorker: (state, action) => {
+    setRowsPerPageWorkerPrice: (state, action) => {
       state.rowsPerPage = action.payload;
     },
-    listAllWorkers: (state, action) => {
-      state.workers = action.payload;
-    }
   },
 });
 
 export const {
-  refreshWorkers,
-  selectedWorker,
-  setLoadingWorker,
-  setPageWorker,
-  setRowsPerPageWorker,
-  listAllWorkers
-} = workersSlice.actions;
+  refreshWorkerPrices,
+  selectedWorkerPrice,
+  setLoadingWorkerPrice,
+  setPageWorkerPrice,
+  setRowsPerPageWorkerPrice,
+} = workerPricesSlice.actions;

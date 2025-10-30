@@ -21,7 +21,8 @@ import {
   reprogramingsSlice,
   paymentSlice,
   appointmentsSlice,
-  eventTaskSlice
+  eventTaskSlice,
+  workerPricesSlice
 } from './';
 
 export const store = configureStore({
@@ -32,6 +33,7 @@ export const store = configureStore({
     eventFeatured: eventFeaturedSlice.reducer,
     workers: workersSlice.reducer,
     workerTypes: workerTypesSlice.reducer,
+    workerPrices: workerPricesSlice.reducer,
     stepper: stepperSlice.reducer,
     ui: uiSlice.reducer,
     provider: providerSlice.reducer,
