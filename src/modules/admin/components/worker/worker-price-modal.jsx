@@ -1,22 +1,29 @@
-import { Box, IconButton, Modal, TextField, Typography, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, TableFooter, TablePagination, Paper, CircularProgress } from '@mui/material'
-import { useWorkerPriceStore } from '../../../../hooks'
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { Close } from '@mui/icons-material';
+import {
+  Box,
+  IconButton,
+  Modal,
+  Typography,
+  Button,
+  TextField,
+} from "@mui/material";
+import { Close, Add, Remove } from "@mui/icons-material";
+import SaveIcon from "@mui/icons-material/Save";
+import { useWorkerPriceStore } from "../../../../hooks";
+import { useEffect, useState, useMemo } from "react";
+import { useForm } from "react-hook-form";
+import { PaginatedTable } from "../../../../shared/ui/components/common/table-price";
 
 export const WorkerPriceModal = ({
-  open, 
+  open,
   onClose,
   worker = {},
+  currentPage,
+  rowsPerPage,
 }) => {
-  const { 
+  const {
     workerPrices,
     total,
     loading,
-    currentPage,
-    rowsPerPage,
-    orderBy,
-    order,
     setPageGlobal,
     setRowsPerPageGlobal,
     startLoadingWorkerPricePaginated,
@@ -28,29 +35,43 @@ export const WorkerPriceModal = ({
     handleSubmit,
     formState: { errors },
     reset,
-    watch,
-    setValue,
   } = useForm({
     mode: "onBlur",
   });
 
-useEffect(() => {
-  if (open && worker?._id) {
-    startLoadingWorkerPricePaginated(worker._id);
-  }
-}, [open, worker?._id, currentPage, rowsPerPage]);
+  const [showPriceForm, setShowPriceForm] = useState(false);
+  const isButtonDisabled = useMemo(() => loading, [loading]);
 
-  console.log(workerPrices)
+  // Carga los precios cuando el modal se abre o cambia de página
+  useEffect(() => {
+    if (open && worker?._id) {
+      startLoadingWorkerPricePaginated(worker._id);
+    }
+    if (!open) {
+      setShowPriceForm(false);
+      reset();
+    }
+  }, [open, worker?._id, currentPage, rowsPerPage]);
 
-
+  // Enviar nuevo precio
   const onSubmit = async (data) => {
-    // try {
-      const success = startCreateWorkerPrice(data);
-      if (success) onClose();
-    // } catch (error) {
-    //   console.log(error)
-    // }
+    const success = await startCreateWorkerPrice({
+      ...data,
+      worker_id: worker._id,
+    });
+    if (success) {
+      setShowPriceForm(false);
+      startLoadingWorkerPricePaginated(worker._id);
+      reset();
+    }
   };
+
+  const columns = [
+    { label: "Nro. Temporada", field: "season_number" },
+    { label: "Precio", field: "reference_price", format: "currency" },
+    { label: "Desde", field: "start_date", format: "date" },
+    { label: "Hasta", field: "end_date", format: "date" },
+  ];
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -69,8 +90,13 @@ useEffect(() => {
           p: 4,
         }}
       >
-        {/* Modal content goes here */}
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+        {/* Header */}
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={1}
+        >
           <Typography variant="h6" fontWeight={600}>
             Precios por Temporada
           </Typography>
@@ -79,77 +105,135 @@ useEffect(() => {
           </IconButton>
         </Box>
 
-        <Typography fontSize={15}>
-          <Box component="span" sx={{ fontWeight: 700, mr: 0.5 }}>Trabajador:</Box>
-          <Box component="span">{` ${worker?.first_name || ''} ${worker?.last_name || ''}`}</Box>
+        {/* Nombre del trabajador */}
+        <Typography fontSize={15} mb={2}>
+          <Box component="span" sx={{ fontWeight: 700, mr: 0.5 }}>
+            Trabajador:
+          </Box>
+          <Box component="span">
+            {`${worker?.first_name || ""} ${worker?.last_name || ""}`}
+          </Box>
         </Typography>
 
-        {/* Tabla con paginación */}
-        <Box sx={{ mt: 2 }}>
-          <TableContainer component={Paper} sx={{ overflowX: 'auto' }}>
-            <Table sx={{ minWidth: 650 }} size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Nro. Temporada</TableCell>
-                  <TableCell>Precio</TableCell>
-                  <TableCell>Desde</TableCell>
-                  <TableCell>Hasta</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={6} align="center">
-                      <Box sx={{ py: 2 }}><CircularProgress size={24} /></Box>
-                    </TableCell>
-                  </TableRow>
-                ) : (workerPrices && workerPrices.length > 0 ? (
-                  workerPrices.map((wp) => (
-                    <TableRow key={wp._id}>
-                      <TableCell>{wp.season_number}</TableCell>
-                      <TableCell>{wp.reference_price}</TableCell>
-                      <TableCell>{wp.start_date}</TableCell>
-                      <TableCell>{wp.end_date}</TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={6} align="center">No hay precios registrados</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-              <TableFooter>
-                <TableRow>
-                  <TablePagination
-                    rowsPerPageOptions={[5, 10, 25]}
-                    count={total ?? 0}
-                    rowsPerPage={rowsPerPage}
-                    page={currentPage}
-                    onPageChange={(_, newPage) => setPageGlobal(newPage)}
-                    onRowsPerPageChange={(e) => {
-                      const newRows = parseInt(e.target.value, 10);
-                      setRowsPerPageGlobal(newRows);
-                      setPageGlobal(0);
-                    }}
-                  />
-                </TableRow>
-              </TableFooter>
-            </Table>
-          </TableContainer>
+        {/* Tabla paginada */}
+        <PaginatedTable
+          columns={columns}
+          rows={workerPrices}
+          loading={loading}
+          total={total}
+          page={currentPage}
+          rowsPerPage={rowsPerPage}
+          onPageChange={setPageGlobal}
+          onRowsPerPageChange={(newRows) => {
+            setRowsPerPageGlobal(newRows);
+            setPageGlobal(0);
+          }}
+          getRowId={(row) => row._id}
+          emptyMessage="No hay precios registrados"
+        />
+
+        {/* Formulario para agregar nuevo precio */}
+        {showPriceForm && (
+          <Box
+            mt={3}
+            p={2}
+            sx={{
+              borderRadius: 2,
+              border: (theme) =>
+                `1px solid ${
+                  theme.palette.mode === "dark" ? "#444" : "#d3d3d3"
+                }`,
+              backgroundColor: (theme) =>
+                theme.palette.mode === "dark" ? "#2a2a2b4e" : "#f5f5f5",
+            }}
+          >
+            <Typography fontWeight={600} mb={2}>
+              Agregar Nuevo Precio
+            </Typography>
+
+            <Box display="flex" flexDirection="column">
+              <Box sx={{ width: "50%" }}>
+                <TextField
+                  type="number"
+                  label="Precio Ref. (S/)"
+                  placeholder="Ej: 500.00"
+                  variant="outlined"
+                  fullWidth
+                  size="small"
+                  sx={{ mb: 1 }}
+                  {...register("reference_price", {
+                    required: "El precio es obligatorio",
+                    min: {
+                      value: 0,
+                      message: "El precio debe ser mayor a 0",
+                    },
+                  })}
+                  error={!!errors.reference_price}
+                  helperText={errors.reference_price?.message}
+                />
+              </Box>
+
+              <Box display="flex" gap={2} mt={1}>
+                <Button
+                  variant="contained"
+                  type="submit"
+                  startIcon={<SaveIcon />}
+                  sx={{
+                    backgroundColor: (theme) => theme.palette.primary.main,
+                    color: "#fff",
+                    textTransform: "none",
+                    borderRadius: 2,
+                    fontWeight: 600,
+                    "&:hover": {
+                      backgroundColor: (theme) => theme.palette.primary.dark,
+                    },
+                  }}
+                >
+                  Guardar Precio
+                </Button>
+
+                <Button
+                  variant="contained"
+                  onClick={() => setShowPriceForm(false)}
+                  sx={{
+                    backgroundColor: "#363c4e",
+                    color: "#fff",
+                    textTransform: "none",
+                    borderRadius: 2,
+                    "&:hover": {
+                      backgroundColor: "#333",
+                    },
+                  }}
+                >
+                  Cancelar
+                </Button>
+              </Box>
+            </Box>
+          </Box>
+        )}
+
+        {/* Botón principal para agregar nuevo precio (siempre visible y alterna el formulario) */}
+        <Box mt={3} display="flex" justifyContent="flex-end">
+          <Button
+            onClick={() => setShowPriceForm((s) => !s)}
+            variant="contained"
+            disabled={isButtonDisabled}
+            startIcon={showPriceForm ? <Remove /> : <Add />}
+            sx={{
+              mt: 1,
+              backgroundColor: "#212121",
+              color: "#fff",
+              textTransform: "none",
+              py: 1.5,
+              px: 4,
+              borderRadius: 2,
+              fontWeight: 600,
+            }}
+          >
+            {showPriceForm ? "Ocultar Formulario" : "Agregar Precio"}
+          </Button>
         </Box>
-
-        {/* Nombre */}
-        {/* <TextField
-          label="Nombre"
-          fullWidth
-          {...register("name", {
-            required: "El nombre es obligatorio",
-          })}
-          error={!!errors.name}
-          helperText={errors.name?.message}
-        /> */}
-
       </Box>
     </Modal>
-  )
-}
+  );
+};

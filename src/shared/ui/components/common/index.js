@@ -11,3 +11,4 @@ export * from './protected-drawer';
 export * from './session-timeout-modal';
 export * from './side-menu';
 export * from './table';
+export * from './table-price';
