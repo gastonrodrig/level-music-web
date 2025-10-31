@@ -14,10 +14,9 @@ export const workerPricesSlice = createSlice({
   initialState,
   reducers: {
     refreshWorkerPrices: (state, action) => {
-      const { items, total, page } = action.payload;
+      const { items, total } = action.payload;
       state.workerPrices = items;
       state.total = total;
-      state.currentPage = page;
       state.loading = false;
     },
     selectedWorkerPrice: (state, action) => {

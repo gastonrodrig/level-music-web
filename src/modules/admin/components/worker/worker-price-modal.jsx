@@ -15,6 +15,8 @@ export const WorkerPriceModal = ({
     loading,
     currentPage,
     rowsPerPage,
+    orderBy,
+    order,
     setPageGlobal,
     setRowsPerPageGlobal,
     startLoadingWorkerPricePaginated,
@@ -32,11 +34,13 @@ export const WorkerPriceModal = ({
     mode: "onBlur",
   });
 
-  useEffect(() => {
-    if (worker?._id) {
-      startLoadingWorkerPricePaginated(worker._id);
-    }
-  }, [worker?._id]);
+useEffect(() => {
+  if (open && worker?._id) {
+    startLoadingWorkerPricePaginated(worker._id);
+  }
+}, [open, worker?._id, currentPage, rowsPerPage]);
+
+  console.log(workerPrices)
 
 
   const onSubmit = async (data) => {
@@ -117,19 +121,15 @@ export const WorkerPriceModal = ({
               <TableFooter>
                 <TableRow>
                   <TablePagination
-                    rowsPerPageOptions={[5,10,25]}
+                    rowsPerPageOptions={[5, 10, 25]}
                     count={total ?? 0}
                     rowsPerPage={rowsPerPage}
                     page={currentPage}
-                    onPageChange={(_, newPage) => {
-                      setPageGlobal(newPage);
-                      if (worker?._id) startLoadingWorkerPricePaginated(worker._id);
-                    }}
+                    onPageChange={(_, newPage) => setPageGlobal(newPage)}
                     onRowsPerPageChange={(e) => {
                       const newRows = parseInt(e.target.value, 10);
                       setRowsPerPageGlobal(newRows);
                       setPageGlobal(0);
-                      if (worker?._id) startLoadingWorkerPricePaginated(worker._id);
                     }}
                   />
                 </TableRow>

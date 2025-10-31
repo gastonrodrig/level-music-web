@@ -29,7 +29,7 @@ export const useWorkerPriceStore = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [orderBy, setOrderBy] = useState("season_number");
-  const [order, setOrder] = useState("asc");
+  const [order, setOrder] = useState("desc");
 
   const openSnackbar = (message) => dispatch(showSnackbar({ message }));
 
