@@ -22,22 +22,15 @@ export const AppointmentPage = () => {
       documentType: "Dni",
       documentNumber: "",
       meetingType: "Virtual",
-      appointmentDate: null,
-      hour: "09:00 AM",
+      startDate: null,
+      endDate: null,
+      shift: "Tarde",
       attendeesCount: "",
       duration: "",
-      userId: null
     }
   });
 
   const { setValue, watch } = formMethods;
-  const { _id, status } = useAuthStore();
-  
-  useEffect(() => {
-    if (status === 'authenticated') {
-      setValue("userId", _id);
-    }
-  }, [_id, setValue]);
 
   const clientType = watch("clientType");
 

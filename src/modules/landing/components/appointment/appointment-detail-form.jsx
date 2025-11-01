@@ -10,12 +10,12 @@ import {
   TextField,
   Typography,
   Grid,
+  FormHelperText,
 } from "@mui/material";
 import { useTheme } from "@emotion/react";
 import { Event } from "@mui/icons-material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Controller, useFormContext } from "react-hook-form";
-import { availableHours } from "../../constants";
 import dayjs from "dayjs";
 
 export const AppointmentDetailForm = () => {
@@ -27,10 +27,9 @@ export const AppointmentDetailForm = () => {
     watch,
     control,
     formState: { errors },
-    setValue,
   } = useFormContext();
 
-  const hours = watch("hour", "09:00");
+  const startDate = watch("startDate");
 
   return (
     <Box
@@ -81,7 +80,7 @@ export const AppointmentDetailForm = () => {
           <Controller
             name="meetingType"
             control={control}
-            defaultValue="Virtual"
+            defaultValue="Presencial"
             render={({ field }) => (
               <RadioGroup row {...field}>
                 <FormControlLabel
@@ -99,24 +98,24 @@ export const AppointmentDetailForm = () => {
           />
         </Box>
 
-        {/* Fecha de la cita */}
+        {/* Fecha Inicio */}
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
             <Controller
-              name="appointmentDate"
+              name="startDate"
               control={control}
-              rules={{ required: "La fecha de la cita es obligatoria" }}
+              rules={{ required: "La fecha de inicio es obligatoria" }}
               render={({ field }) => (
                 <DatePicker
-                  label="Fecha de la cita"
+                  label="Fecha de Inicio"
                   value={field.value}
                   onChange={field.onChange}
                   minDate={dayjs().add(2, "day").startOf("day")}
                   slotProps={{
                     textField: {
                       fullWidth: true,
-                      error: !!errors.appointmentDate,
-                      helperText: errors.appointmentDate?.message,
+                      error: !!errors.startDate,
+                      helperText: errors.startDate?.message,
                     },
                   }}
                 />
@@ -124,24 +123,56 @@ export const AppointmentDetailForm = () => {
             />
           </Grid>
 
-          {/* Horas */}
+          {/* Fecha Fin */}
           <Grid item xs={12} md={6}>
-            <FormControl fullWidth size="small">
-              <InputLabel id="hour-label">Hora</InputLabel>
-              <Select
-                labelId="hour-label"
-                value={hours || "09:00 AM"}
-                onChange={(e) => setValue("hour", e.target.value)}
-                label="Hora"
-                sx={{ height: 60 }}
-              >
-                {availableHours.map((hour) => (
-                  <MenuItem key={hour} value={hour}>
-                    {hour}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Controller
+              name="endDate"
+              control={control}
+              rules={{ required: "La fecha de fin es obligatoria" }}
+              render={({ field }) => (
+                <DatePicker
+                  label="Fecha de Fin"
+                  value={field.value}
+                  onChange={field.onChange}
+                  minDate={startDate || dayjs().add(2, "day").startOf("day")}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      error: !!errors.endDate,
+                      helperText: errors.endDate?.message,
+                    },
+                  }}
+                />
+              )}
+            />
+          </Grid>
+
+          {/* Turno */}
+          <Grid item xs={12} md={6}>
+            <Controller
+              name="shift"
+              control={control}
+              defaultValue=""
+              rules={{ required: "El turno es obligatorio" }}
+              render={({ field }) => (
+                <FormControl fullWidth error={!!errors.shift}>
+                  <InputLabel id="shift-label">Turno</InputLabel>
+                  <Select
+                    labelId="shift-label"
+                    label="Turno"
+                    {...field}
+                  >
+                    <MenuItem value="" disabled>
+                    </MenuItem>
+                    <MenuItem value="Tarde">Tarde</MenuItem>
+                    <MenuItem value="Noche">Noche</MenuItem>
+                  </Select>
+                  {errors.shift && (
+                    <FormHelperText>{errors.shift.message}</FormHelperText>
+                  )}
+                </FormControl>
+              )}
+            />
           </Grid>
 
           {/* Cantidad de Asistentes */}
@@ -151,6 +182,7 @@ export const AppointmentDetailForm = () => {
               placeholder="Ingresa el número de asistentes"
               fullWidth
               type="number"
+              defaultValue={1}
               InputLabelProps={{ shrink: true }}
               inputProps={{ min: 1, step: 1, inputMode: 'numeric' }}
               onKeyDown={(e) => {
@@ -175,6 +207,5 @@ export const AppointmentDetailForm = () => {
         </Grid>
       </Box>
     </Box>
-
-  )
+  );
 }
