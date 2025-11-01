@@ -8,7 +8,7 @@ import {
   useTheme,
   Switch,
 } from "@mui/material";
-import { Delete, Add, Close } from "@mui/icons-material";
+import { Delete, Add, Close, CalendarMonth } from "@mui/icons-material";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
 
 export const ServiceDetailBox = ({
@@ -21,14 +21,15 @@ export const ServiceDetailBox = ({
   fields = [],
   detailsCount,
   isEditMode,
-  watch,
   setValue,
-  initialData = {}
+  initialData = {},
+  onOpenPrices, // 👈 función que abre el modal
 }) => {
-  
   const theme = useTheme();
-  const { isMd } = useScreenSizes(); 
+  const { isMd } = useScreenSizes();
   const isDark = theme.palette.mode === "dark";
+
+  const serviceDetailId = initialData._id; // 👈 el ID del detalle viene directo del backend
 
   return (
     <Box
@@ -39,64 +40,73 @@ export const ServiceDetailBox = ({
         mb: 2,
       }}
     >
-      {/* Encabezado con botones */}
+      {/* === ENCABEZADO === */}
       <Box
         display="flex"
         justifyContent="space-between"
         alignItems="center"
         mb={5}
       >
+        {/* Izquierda: título y estado */}
         <Box
-          display={'flex'}
-          flexDirection={'column'}
-          alignItems={'flex-start'}
-          justifyContent={"space-between"}
+          display="flex"
+          flexDirection="column"
+          alignItems="flex-start"
           gap={2}
-          
         >
-        <Grid
-          item
-          xs={12}
-          sx={isEditMode ? { display: "flex" } : { display: "block" }}
-        >
-          <Typography variant="h6" fontWeight={600}>
-            Detalle #{index + 1}
-          </Typography>
-          {isEditMode && (
-            <Box sx={{ display: "flex", alignItems: "center", ml: 2 }}>
-              <Switch
-                checked={watch(`serviceDetails.${index}.status`) === "Activo"}
-                onChange={() =>
-                  setValue(
-                    `serviceDetails.${index}.status`,
-                    watch(`serviceDetails.${index}.status`) === "Activo" ? "Inactivo" : "Activo"
-                  )
-                }
-                color="success"
-              />
-              <Typography sx={{ ml: 1 }}>
-                {watch(`serviceDetails.${index}.status`) === "Activo" ? "Activo" : "Inactivo"}
-              </Typography>
-            </Box>
-          )}
-        </Grid>
-
-          <Typography 
-            fontSize={16} 
-            fontWeight={300}
+          <Grid
+            item
+            xs={12}
+            sx={isEditMode ? { display: "flex" } : { display: "block" }}
           >
+            <Typography variant="h6" fontWeight={600}>
+              Detalle #{index + 1}
+            </Typography>
+            {isEditMode && (
+              <Box sx={{ display: "flex", alignItems: "center", ml: 2 }}>
+                <Switch
+                  checked={initialData.status === "Activo"}
+                  onChange={() =>
+                    setValue(
+                      `serviceDetails.${index}.status`,
+                      initialData.status === "Activo" ? "Inactivo" : "Activo"
+                    )
+                  }
+                  color="success"
+                />
+                <Typography sx={{ ml: 1 }}>
+                  {initialData.status === "Activo" ? "Activo" : "Inactivo"}
+                </Typography>
+              </Box>
+            )}
+          </Grid>
+
+          <Typography fontSize={16} fontWeight={300}>
             Campos del servicio:
           </Typography>
         </Box>
 
-        {/* Contenedor de botones, evita anidar <button> */}
+        {/* Derecha: botones */}
         <Box display="flex" gap={1} flexDirection={isMd ? "column" : "row"}>
-          {/* Botón eliminar detalle */}
-          {!isMd ? (
-            <IconButton color="error" onClick={onDelete} disabled={detailsCount === 1 || !!initialData._id} >
-              <Delete />
-            </IconButton>
-          ) : (
+          {/* 🔹 Ver precios */}
+          <Button
+            variant="contained"
+            startIcon={<CalendarMonth />}
+            onClick={() => onOpenPrices(serviceDetailId)}
+            disabled={!serviceDetailId}
+            sx={{
+              textTransform: "none",
+              borderRadius: 2,
+              fontWeight: 600,
+              bgcolor: theme.palette.primary.main,
+              "&:hover": { bgcolor: theme.palette.primary.hover },
+            }}
+          >
+            Ver Precios
+          </Button>
+
+          {/* 🔹 Eliminar detalle */}
+          {isMd ? (
             <Button
               variant="contained"
               onClick={onDelete}
@@ -112,25 +122,18 @@ export const ServiceDetailBox = ({
             >
               Eliminar Detalle
             </Button>
+          ) : (
+            <IconButton
+              color="error"
+              onClick={onDelete}
+              disabled={detailsCount === 1 || !!initialData._id}
+            >
+              <Delete />
+            </IconButton>
           )}
 
-          {/* Botón agregar campo */}
-          {!isMd ? (
-            <IconButton
-              color="primary"
-              onClick={onAddField}
-              sx={{
-                bgcolor: theme.palette.primary.main,
-                color: "#fff",
-                borderRadius: "12px",
-                "&:hover": {
-                  bgcolor: theme.palette.primary.dark,
-                },
-              }}
-            >
-              <Add />
-            </IconButton>
-          ) : (
+          {/* 🔹 Agregar campo */}
+          {isMd ? (
             <Button
               variant="contained"
               onClick={onAddField}
@@ -144,14 +147,26 @@ export const ServiceDetailBox = ({
             >
               Agregar Campo
             </Button>
+          ) : (
+            <IconButton
+              color="primary"
+              onClick={onAddField}
+              sx={{
+                bgcolor: theme.palette.primary.main,
+                color: "#fff",
+                borderRadius: "12px",
+                "&:hover": { bgcolor: theme.palette.primary.dark },
+              }}
+            >
+              <Add />
+            </IconButton>
           )}
         </Box>
       </Box>
 
-      {/* Campos */}
-      <Grid container spacing={2} >
-        
-        {/* Precio de Referencia */}
+      {/* === CAMPOS === */}
+      <Grid container spacing={2}>
+        {/* Precio de referencia */}
         <TextField
           sx={{ ml: 2 }}
           label="Precio por hora de Referencia (S/.)"
@@ -159,6 +174,7 @@ export const ServiceDetailBox = ({
           type="number"
           fullWidth
           InputLabelProps={{ shrink: true }}
+          defaultValue={initialData.ref_price || ""}
           {...register(`serviceDetails.${index}.ref_price`, {
             required: "El precio es obligatorio",
             min: {
@@ -170,59 +186,64 @@ export const ServiceDetailBox = ({
           helperText={errors.serviceDetails?.[index]?.ref_price?.message}
         />
 
-        
-        {/* Mensaje si no hay campos configurados */}
-        {fields.length === 0 && (
+        {/* Si no hay campos personalizados */}
+        {fields.length === 0 ? (
           <Grid item xs={12}>
             <Typography color="text.secondary">
               No hay campos configurados para este detalle.
             </Typography>
           </Grid>
-        )}
-
-        {/* Campos dinámicos */}
-        {fields.map((field, idx) => (
-          <Grid item xs={12} sm={6} key={idx}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <Box sx={{ flexGrow: 1 }}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <Typography fontWeight={500} mb={1}>
-                    {field.name}{" "}
-                    {field.required && (
-                      <Typography component="span" color="error">
-                        *
-                      </Typography>
+        ) : (
+          fields.map((field, idx) => (
+            <Grid item xs={12} sm={6} key={idx}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box sx={{ flexGrow: 1 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Typography fontWeight={500} mb={1}>
+                      {field.name}{" "}
+                      {field.required && (
+                        <Typography component="span" color="error">
+                          *
+                        </Typography>
+                      )}
+                    </Typography>
+                    <IconButton
+                      onClick={() => onRemoveField(idx)}
+                      color="error"
+                      size="small"
+                      sx={{ p: 0.5 }}
+                    >
+                      <Close fontSize="small" />
+                    </IconButton>
+                  </Box>
+                  <TextField
+                    fullWidth
+                    defaultValue={initialData.details?.[field.name] || ""}
+                    {...register(
+                      `serviceDetails.${index}.details.${field.name}`,
+                      {
+                        required: "Campo requerido",
+                      }
                     )}
-                  </Typography>
-                  <IconButton onClick={() => onRemoveField(idx)} color="error" size="small" sx={{ p: 0.5 }}>
-                    <Close fontSize="small" />
-                  </IconButton>
-                </Box>
-                <TextField
-                  fullWidth
-                  {...register(
-                    `serviceDetails.${index}.details.${field.name}`,
-                    {
-                      required: "Campo requerido",
+                    error={
+                      !!errors.serviceDetails?.[index]?.details?.[field.name]
                     }
-                  )}
-                  error={
-                    !!errors.serviceDetails?.[index]?.details?.[field.name]
-                  }
-                  helperText={
-                    errors.serviceDetails?.[index]?.details?.[field.name]?.message
-                  }
-                />
+                    helperText={
+                      errors.serviceDetails?.[index]?.details?.[field.name]
+                        ?.message
+                    }
+                  />
+                </Box>
               </Box>
-            </Box>
-          </Grid>
-        ))}
+            </Grid>
+          ))
+        )}
       </Grid>
     </Box>
   );
