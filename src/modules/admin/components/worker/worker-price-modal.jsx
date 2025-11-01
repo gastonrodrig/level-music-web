@@ -15,13 +15,14 @@ export const WorkerPriceModal = ({
   open,
   onClose,
   worker = {},
-  currentPage,
-  rowsPerPage,
 }) => {
   const {
     workerPrices,
     total,
     loading,
+    order,
+    currentPage,
+    rowsPerPage,
     setPageGlobal,
     setRowsPerPageGlobal,
     startLoadingWorkerPricePaginated,
@@ -41,14 +42,23 @@ export const WorkerPriceModal = ({
   const showPriceForm = watch("showPriceForm");
   const isButtonDisabled = useMemo(() => loading, [loading]);
 
-  // 📦 Cargar precios al abrir o cambiar página
+  // When modal opens or worker changes, reset to first page and set workerId
   useEffect(() => {
     if (open && worker?._id) {
-      startLoadingWorkerPricePaginated(worker._id);
+      setPageGlobal(0);
       setValue("workerId", worker._id);
     }
     if (!open) {
       reset();
+    }
+    // we intentionally do NOT include currentPage/rowsPerPage here so resetting
+    // to page 0 happens only on open/worker change
+  }, [open, worker?._id]);
+
+  // Load data whenever pagination state changes while modal is open
+  useEffect(() => {
+    if (open && worker?._id) {
+      startLoadingWorkerPricePaginated(worker._id);
     }
   }, [open, worker?._id, currentPage, rowsPerPage]);
 
@@ -113,6 +123,8 @@ export const WorkerPriceModal = ({
             total={total}
             page={currentPage}
             rowsPerPage={rowsPerPage}
+            order={order}
+            descendingLabel={true}
             onPageChange={setPageGlobal}
             onRowsPerPageChange={(newRows) => {
               setRowsPerPageGlobal(newRows);

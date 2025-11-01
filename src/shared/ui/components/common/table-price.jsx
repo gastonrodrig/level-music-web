@@ -20,7 +20,9 @@ export const PaginatedTable = ({
   loading = false,
   total = 0,
   page = 0,
-  rowsPerPage = 10,
+  rowsPerPage = 5,
+  order = "asc",
+  descendingLabel = false,
   onPageChange,
   onRowsPerPageChange,
   emptyMessage = "No hay registros disponibles",
@@ -29,6 +31,10 @@ export const PaginatedTable = ({
 }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const safeRowsPerPage = Number.isFinite(rowsPerPage) && rowsPerPage > 0 ? rowsPerPage : 5;
+  const safeTotal = Number.isFinite(total) && total >= 0 ? total : 0;
+  const totalPages = Math.max(1, Math.ceil(safeTotal / safeRowsPerPage));
+  const safePage = Math.min(Number.isFinite(page) ? page : 0, totalPages - 1);
 
   return (
     <Box sx={{ mt: 3 }}>
@@ -145,25 +151,52 @@ export const PaginatedTable = ({
           <TableFooter>
             <TableRow>
               <TablePagination
-                rowsPerPageOptions={[5, 10, 25]}
-                count={total}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={(_, newPage) => onPageChange(newPage)}
-                onRowsPerPageChange={(e) =>
-                  onRowsPerPageChange(parseInt(e.target.value, 10))
-                }
+                /* hide the rows-per-page selector by providing a single option
+                   and clearing the label; also hide the select via sx */
+                rowsPerPageOptions={[safeRowsPerPage]}
+                labelRowsPerPage={""}
+                count={safeTotal}
+                rowsPerPage={safeRowsPerPage}
+                page={safePage}
+                labelDisplayedRows={() => {
+                  // custom label: display ranges in descending order when forced or when order === 'desc'
+                  if (safeTotal <= 0) return `0 of 0`;
+                  const useDesc = descendingLabel || order === "desc";
+                  if (useDesc) {
+                    const start = safeTotal - safePage * safeRowsPerPage;
+                    const end = Math.max(safeTotal - (safePage + 1) * safeRowsPerPage + 1, 1);
+                    return start === end ? `${start} of ${safeTotal}` : `${start}–${end} of ${safeTotal}`;
+                  }
+                  // default ascending behavior
+                  const from = safePage * safeRowsPerPage + 1;
+                  const to = Math.min((safePage + 1) * safeRowsPerPage, safeTotal);
+                  return from === to ? `${from} of ${safeTotal}` : `${from}–${to} of ${safeTotal}`;
+                }}
+                onPageChange={(e, newPage) => {
+                  if (newPage >= 0 && newPage < totalPages) {
+                    // pass only the numeric page index to the parent/store
+                    onPageChange?.(newPage);
+                  }
+                }}
+                onRowsPerPageChange={(e) => {
+                  // pass only the numeric rows value (serializable)
+                  const value = Number(e.target?.value ?? safeRowsPerPage);
+                  onRowsPerPageChange?.(value);
+                }}
                 sx={{
                   borderTop: `1px solid ${isDark ? "#444" : "#D0D0D0"}`,
                   "& .MuiTablePagination-toolbar": {
                     px: 2,
                     justifyContent: "flex-end",
                   },
-                  "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows":
-                    {
-                      fontSize: "0.85rem",
-                      color: isDark ? "#CFCFCF" : "#555",
-                    },
+                  "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": {
+                    fontSize: "0.85rem",
+                    color: isDark ? "#CFCFCF" : "#555",
+                  },
+                  /* hide the select input entirely so the user doesn't see the dropdown */
+                  "& .MuiTablePagination-select": {
+                    display: "none",
+                  },
                 }}
               />
             </TableRow>
