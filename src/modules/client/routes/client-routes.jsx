@@ -18,9 +18,7 @@ export const ClientRoutes = () => {
         {/* Dashboard */}
         <Route path="/" element={<DashboardPage />} />
 
-        {/* Citas */}
-        <Route path="appointments" element={<AppointmentPage />} />
-
+        c
         {/* Eventos */}
         <Route path="events-made" element={<EventMadePage />} />
         <Route path="events-ongoing" element={<EventsOngoingPage />} />

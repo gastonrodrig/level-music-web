@@ -1,9 +1,10 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { AuthRouter } from '../modules/auth/routes/auth-router';
 import { ClientRoutes } from '../modules/client/routes/client-routes';
 import { LandingRoutes } from '../modules/landing/routes/landing-routes'; 
 import { AdminRoutes } from '../modules/admin/routes/admin-router';
-import { useSelector } from 'react-redux';
+import { StorekeeperRoutes } from '../modules/storekeeper/routes/storekeeper-routes'; // 👈 nuevo import
 import { useCheckAuth, usePersistRoute } from '../hooks';
 import { CircProgress } from '../shared/ui/components';
 import { NotFoundView } from '../shared/ui/layout/not-found';
@@ -23,11 +24,24 @@ export const AppRouter = () => {
   }
 
   if (status === 'authenticated') {
-    const dashboardPath = role === 'Administrador' ? '/admin' : '/client';
+    // 👇 Detectar el dashboard según el rol
+    const dashboardPath =
+      role === 'Administrador'
+        ? '/admin'
+        : role === 'Cliente'
+          ? '/client'
+          : role === 'Almacenero'
+            ? '/storekeeper'
+            : '/';
 
     // Redirigir desde rutas de autenticación
     if (location.pathname.startsWith('/auth')) {
-      return <Navigate to={lastRoute.startsWith(dashboardPath) ? lastRoute : dashboardPath} replace />;
+      return (
+        <Navigate
+          to={lastRoute.startsWith(dashboardPath) ? lastRoute : dashboardPath}
+          replace
+        />
+      );
     }
 
     // Redirigir desde la raíz
@@ -37,11 +51,9 @@ export const AppRouter = () => {
   }
 
   if (status === 'first-login-password') {
-    // Si no está en /auth/first-login-password exactamente, redirige siempre a esa ruta
     if (!location.pathname.startsWith('/auth/first-login-password')) {
       return <Navigate to="/auth/first-login-password" replace />;
     }
-    // Si está en /auth o cualquier subruta de /auth que no sea /auth/first-login-password, también redirige
     if (location.pathname === '/auth' || location.pathname === '/auth/') {
       return <Navigate to="/auth/first-login-password" replace />;
     }
@@ -75,9 +87,18 @@ export const AppRouter = () => {
         }
       />
 
-      {/* Redireccion a rutas no existentes */}
-      <Route path="/not-found" element={<NotFoundView />} />
+      {/* Rutas de Almacenero protegidas */}
+      <Route
+        path="/storekeeper/*"
+        element={
+          <PrivateRoute allowedRoles={['Almacenero']}>
+            <StorekeeperRoutes />
+          </PrivateRoute>
+        }
+      />
 
+      {/* Redirección a rutas no existentes */}
+      <Route path="/not-found" element={<NotFoundView />} />
       <Route path="*" element={<Navigate to="/not-found" replace />} />
     </Routes>
   );

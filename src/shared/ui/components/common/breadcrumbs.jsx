@@ -6,73 +6,88 @@ export const Breadcrumbs = ({ menuItems, homeLabel = 'Inicio' }) => {
   const location = useLocation();
   const theme = useTheme();
 
-  
-  // Detecta base según URL
+  // === Detecta base según URL ===
   const isAdmin = location.pathname.startsWith('/admin');
-  const homeHref = isAdmin ? '/admin' : '/client';
-  // Oculta breadcrumbs en la raíz de admin o cliente
-  if (location.pathname === '/admin' || location.pathname === '/client') {
+  const isClient = location.pathname.startsWith('/client');
+  const isStorekeeper = location.pathname.startsWith('/storekeeper');
+
+  // Define la ruta base del home según el rol
+  const homeHref = isAdmin
+    ? '/admin'
+    : isClient
+      ? '/client'
+      : isStorekeeper
+        ? '/storekeeper'
+        : '/';
+
+  // Oculta breadcrumbs en la raíz de cada rol
+  if (
+    location.pathname === '/admin' ||
+    location.pathname === '/client' ||
+    location.pathname === '/storekeeper'
+  ) {
     return null;
   }
 
+  // === Busca coincidencia en el menú ===
   const findMenuItem = (path) => {
     for (const item of menuItems) {
-      if (item.href === path) {
-        return item; 
-      }
+      if (item.href === path) return item;
+
       if (item.subItems) {
         for (const subItem of item.subItems) {
-          if (subItem.href === path) {
-            return subItem;
-          }
+          if (subItem.href === path) return subItem;
+
           if (subItem.subItems) {
-            const nestedSubItem = subItem.subItems.find((nested) => nested.href === path);
-            if (nestedSubItem) {
-              return nestedSubItem;
-            }
+            const nestedSubItem = subItem.subItems.find(
+              (nested) => nested.href === path
+            );
+            if (nestedSubItem) return nestedSubItem;
           }
         }
       }
     }
-    return null; 
+    return null;
   };
 
+  // === Construye las migas ===
   const buildBreadcrumbs = () => {
     const pathnames = location.pathname.split('/').filter((x) => x);
 
-    return pathnames.map((_, index) => {
-      const to = `/${pathnames.slice(0, index + 1).join('/')}`;
-      const menuItem = findMenuItem(to);
+    return pathnames
+      .map((_, index) => {
+        const to = `/${pathnames.slice(0, index + 1).join('/')}`;
+        const menuItem = findMenuItem(to);
 
-      if (menuItem) {
-        if (menuItem.href === homeHref) {
-          return null;
+        if (menuItem) {
+          if (menuItem.href === homeHref) return null;
+
+          return (
+            <Link
+              key={to}
+              underline="hover"
+              color="inherit"
+              to={to}
+              component={RouterLink}
+              sx={{
+                fontWeight: 500,
+                fontSize: '18px',
+                color: theme.palette.text.primary,
+                textDecoration:
+                  index === pathnames.length - 1 ? 'underline' : 'none',
+                '&:hover': {
+                  textDecoration: 'underline',
+                },
+              }}
+            >
+              {menuItem.breadcrumb}
+            </Link>
+          );
         }
 
-        return (
-          <Link
-            key={to}
-            underline="hover" 
-            color="inherit"
-            to={to} 
-            component={RouterLink}
-            sx={{
-              fontWeight: 500,
-              fontSize: '18px',
-              color: theme.palette.text.primary,
-              textDecoration: index === pathnames.length - 1 ? 'underline' : 'none', 
-              '&:hover': {
-                textDecoration: 'underline', 
-              },
-            }}
-          >
-            {menuItem.breadcrumb} 
-          </Link>
-        );
-      }
-
-      return null; 
-    }).filter(Boolean); 
+        return null;
+      })
+      .filter(Boolean);
   };
 
   return (
@@ -86,9 +101,9 @@ export const Breadcrumbs = ({ menuItems, homeLabel = 'Inicio' }) => {
         },
       }}
     >
-      <Link 
-        underline="hover" 
-        color="inherit" 
+      <Link
+        underline="hover"
+        color="inherit"
         to={homeHref}
         component={RouterLink}
         sx={{
