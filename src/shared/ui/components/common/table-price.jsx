@@ -13,6 +13,7 @@ import {
   useTheme,
   Paper,
 } from "@mui/material";
+import { formatDatePrice } from "../../../utils";
 
 export const PaginatedTable = ({
   columns = [],
@@ -106,11 +107,7 @@ export const PaginatedTable = ({
                     if (col.format === "currency" && value != null) {
                       value = `S/ ${Number(value).toFixed(2)}`;
                     } else if (col.format === "date" && value) {
-                      value = new Date(value).toLocaleDateString("es-PE", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                      });
+                      value = formatDatePrice(value);
                     }
 
                     return (
