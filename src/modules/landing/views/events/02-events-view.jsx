@@ -212,7 +212,6 @@ export const EventsView02 = () => {
                       );
                     })()}
                   </Box>
-                  {/* spacer to separate services from the button and push button down */}
                   <Box sx={{ flexGrow: 1 }} />
                   <Button
                     variant="contained"
@@ -244,7 +243,6 @@ export const EventsView02 = () => {
             </SwiperSlide>
           ))}
         </StyledSwiper>
-        {/* Único modal */}
         <FeaturedEventModal
           open={open}
           onClose={() => setOpen(false)}
