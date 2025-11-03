@@ -3,7 +3,6 @@ import {
   Box,
   Container,
   Card,
-  CardMedia,
   CardContent,
   Typography,
   Button,
@@ -125,27 +124,29 @@ export const EventsView02 = () => {
                     theme.palette.mode === "light" ? "#efefef" : "#1F1F1F",
                   borderRadius: 3,
                   p: { xs: 1.5, sm: 2 },
+                  overflow: 'hidden',
                   boxShadow:
                     theme.palette.mode === "light"
                       ? "0px 1px 6px rgba(0,0,0,.12)"
                       : "0px 1px 6px rgba(0,0,0,.4)",
-                  height: 525,
+                  height: 640,
                   display: "flex",
                   flexDirection: "column",
                 }}
               >
-                <CardMedia
-                  component="img"
-                  image={item.cover_image}
-                  alt={item.title}
+                <Box
+                  role="img"
+                  aria-label={item.title}
                   sx={{
                     width: '100%',
-                    minHeight: 260,
-                    borderRadius: 2,
-                    objectFit: 'cover',
+                    height: { xs: 220, sm: 300 },
+                    backgroundImage: `url(${item.cover_image})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    borderRadius: 0,
                   }}
                 />
-                <CardContent sx={{ px: { xs: 1, sm: 1.5 } }}>
+                <CardContent sx={{ px: { xs: 1, sm: 1.5 }, display: 'flex', flexDirection: 'column', flex: 1, pb: { xs: 3, sm: 4 } }}>
                   <Typography
                     sx={{
                       mt: 2,
@@ -156,7 +157,7 @@ export const EventsView02 = () => {
                   >
                     {item.title}
                   </Typography>
-                  <Typography sx={{ mt: 1.5, fontSize: { xs: 13, sm: 14 } }}>
+                  <Typography sx={{ mt: 1.5, fontSize: { xs: 13, sm: 14 }, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                     {item.featured_description}
                   </Typography>
                   <Typography
@@ -170,23 +171,49 @@ export const EventsView02 = () => {
                     Servicios incluidos :
                   </Typography>
                   <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
-                    {item.services?.map((s, idx) => (
-                      <Chip
-                        key={idx}
-                        label={s.title}
-                        sx={{
-                          backgroundColor: "#000000ff",
-                          color: "#fff",
-                          borderRadius: 1,
-                          "& .MuiChip-label": {
-                            px: 1.5,
-                            py: 0.75,
-                            fontSize: 12,
-                          },
-                        }}
-                      />
-                    ))}
+                    {(() => {
+                      const services = item.services || [];
+                      const visible = services.slice(0, 2);
+                      const remaining = Math.max(0, services.length - visible.length);
+                      return (
+                        <>
+                          {visible.map((s, idx) => (
+                            <Chip
+                              key={idx}
+                              label={s.title}
+                              sx={{
+                                backgroundColor: "#000000ff",
+                                color: "#fff",
+                                borderRadius: 1,
+                                "& .MuiChip-label": {
+                                  px: 1.5,
+                                  py: 0.75,
+                                  fontSize: 12,
+                                },
+                              }}
+                            />
+                          ))}
+                          {remaining > 0 && (
+                            <Chip
+                              label={`+${remaining} más`}
+                              sx={{
+                                backgroundColor: "#000000ff",
+                                color: "#fff",
+                                borderRadius: 1,
+                                "& .MuiChip-label": {
+                                  px: 1.5,
+                                  py: 0.75,
+                                  fontSize: 12,
+                                },
+                              }}
+                            />
+                          )}
+                        </>
+                      );
+                    })()}
                   </Box>
+                  {/* spacer to separate services from the button and push button down */}
+                  <Box sx={{ flexGrow: 1 }} />
                   <Button
                     variant="contained"
                     disableElevation

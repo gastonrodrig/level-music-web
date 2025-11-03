@@ -6,15 +6,17 @@ import {
   AccordionSummary,
   AccordionDetails,
   IconButton,
+  useTheme,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CloseIcon from "@mui/icons-material/Close";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination } from "swiper/modules";
+import { Pagination, Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 
 export const FeaturedEventModal = ({ open, onClose, event }) => {
+  const theme = useTheme();
   return (
     <Modal open={open} onClose={onClose}>
       <Box
@@ -23,12 +25,12 @@ export const FeaturedEventModal = ({ open, onClose, event }) => {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          bgcolor: "background.paper",
-          borderRadius: 4,
+          bgcolor: theme.palette.background.paper,
+          borderRadius: 3,
           boxShadow: 24,
-          width: { xs: '96vw', sm: '90vw', md: 900 },
+          width: { xs: '96vw', sm: '90vw', md: 500 },
           maxWidth: '100vw',
-          p: { xs: 3, sm: 2, md: 3 },
+          p: { xs: 3, sm: 3, md: 4 },
           outline: 'none',
           overflowY: 'auto',
         }}
@@ -53,7 +55,7 @@ export const FeaturedEventModal = ({ open, onClose, event }) => {
           .featured-modal-swiper { position: relative; }
           .featured-modal-swiper .swiper-pagination {
             position: absolute !important;
-            left: 0; right: 0; bottom: 10px !important;
+            left: 0; right: 0; bottom: 16px !important;
             display: flex; justify-content: center; align-items: center;
             gap: 10px; margin: 0 !important; z-index: 2;
             pointer-events: auto;
@@ -65,85 +67,90 @@ export const FeaturedEventModal = ({ open, onClose, event }) => {
             transition: transform .25s ease, background-color .25s ease;
           }
           .featured-modal-swiper .swiper-pagination-bullet-active {
-            background-color: #FF9800 !important;
+            background-color: ${theme.palette.primary.main} !important;
             transform: scale(1.15);
           }
+          .featured-modal-swiper .swiper-button-next,
+          .featured-modal-swiper .swiper-button-prev {
+            color: rgba(255,255,255,.9);
+            width: 36px; height: 36px; border-radius: 50%;
+            background: rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center;
+            box-shadow: none; top: 45%;
+          }
+          .featured-modal-swiper .swiper-button-next::after,
+          .featured-modal-swiper .swiper-button-prev::after { font-size: 16px; }
           @media (prefers-color-scheme: light) {
             .featured-modal-swiper .swiper-pagination-bullet-active {
               background-color: #000 !important;
             }
           }
         `}</style>
-        <Box
-          sx={{
-            display: { xs: "block", md: "flex" },
-            flexDirection: { md: "row" },
-            gap: { xs: 0, md: 3 },
-            alignItems: "flex-start",
-          }}
-        >
-          {/* Carrusel de imágenes con paginación de puntos */}
-          <Box sx={{ flex: '1 1 360px', minWidth: 0, position: "relative", mb: { xs: 2, md: 0 } }}>
-            <Swiper
-              className="featured-modal-swiper"
-              modules={[Pagination]}
-              pagination={{ clickable: true }}
-              loop={false}
-              style={{ borderRadius: 12, paddingBottom: 36 }}
-            >
-              {event?.images?.map((src, idx) => (
-                <SwiperSlide key={idx}>
-                  <Box
-                    component="img"
-                    src={src}
-                    sx={{
-                      width: '100%',
-                      height: { xs: 180, sm: 220, md: 260 },
-                      maxHeight: { xs: 180, sm: 220, md: 260 },
-                      objectFit: 'cover',
-                      borderRadius: 3,
-                      display: 'block',
-                    }}
-                  />
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          </Box>
-          {/* Texto + acordeón */}
-          <Box sx={{ flex: '2 1 0', minWidth: 0 }}>
-            <Typography color="text.secondary" sx={{ mb: 2 }}>
-              {event?.featured_description}
-            </Typography>
-            <Typography fontWeight={700} sx={{ mb: 1 }}>
-              Servicios incluidos
-            </Typography>
-            {event?.services?.slice(0, 3).map((srv, idx) => {
-              const title = srv?.title;
-              const desc = srv?.description;
-              return (
-                <Accordion
-                  key={`${title}-${idx}`}
-                  disableGutters
+        {/* Layout: title above, then large image with nav & bullets inside, then description, then services */}
+        
+        {/* Carrusel de imágenes */}
+        <Box sx={{ position: 'relative', mb: 3 }}>
+          <Swiper
+            className="featured-modal-swiper"
+            modules={[Pagination, Navigation]}
+            pagination={{ clickable: true }}
+            navigation={true}
+            loop={true}
+            style={{ borderRadius: 12, paddingBottom: 0 }}
+          >
+            {event?.images?.map((src, idx) => (
+              <SwiperSlide key={idx}>
+                <Box
+                  component="img"
+                  src={src}
                   sx={{
-                    borderRadius: 2,
-                    mb: 1.2,
-                    "&:before": { display: "none" },
-                    boxShadow: 1,
+                    width: '100%',
+                    height: { xs: 220, sm: 300, md: 360 },
+                    maxHeight: { xs: 220, sm: 300, md: 360 },
+                    objectFit: 'cover',
+                    borderRadius: 3,
+                    display: 'block',
                   }}
-                >
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography fontWeight={600}>{title}</Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Typography color="text.secondary">
-                      {desc}
-                    </Typography>
-                  </AccordionDetails>
-                </Accordion>
-              );
-            })}
-          </Box>
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
         </Box>
+
+        {/* Descripción */}
+        <Typography color="text.secondary" sx={{ mb: 2, lineHeight: 1.6 }}>
+          {event?.featured_description}
+        </Typography>
+
+        {/* Servicios incluidos */}
+        <Typography fontWeight={700} sx={{ mb: 1 }}>
+          Servicios incluidos
+        </Typography>
+
+        {event?.services?.map((srv, idx) => {
+            const title = srv?.title;
+            const desc = srv?.description;
+            return (
+              <Accordion
+                key={`${title}-${idx}`}
+                disableGutters
+                sx={{
+                  borderRadius: 2,
+                  mb: 1.2,
+                  "&:before": { display: "none" },
+                  boxShadow: 1,
+                }}
+              >
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Typography fontWeight={600}>{title}</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Typography color="text.secondary">
+                    {desc}
+                  </Typography>
+                </AccordionDetails>
+              </Accordion>
+            );
+          })}
       </Box>
     </Modal>
   );
