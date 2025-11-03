@@ -89,7 +89,7 @@ export const WorkerPriceModal = ({
             p: 4,
           }}
         >
-          {/* 🔹 Encabezado */}
+          {/* Encabezado */}
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
             <Typography variant="h6" fontWeight={600}>
               Precios por Temporada
@@ -99,7 +99,7 @@ export const WorkerPriceModal = ({
             </IconButton>
           </Box>
 
-          {/* 🔹 Nombre del trabajador */}
+          {/* Nombre del trabajador */}
           <Typography fontSize={15} mb={2}>
             <Box component="span" sx={{ fontWeight: 700, mr: 0.5 }}>
               Trabajador:
@@ -109,7 +109,7 @@ export const WorkerPriceModal = ({
             </Box>
           </Typography>
 
-          {/* 🔹 Tabla paginada */}
+          {/* Tabla paginada */}
           <PaginatedTable
             columns={columns}
             rows={workerPrices}
@@ -128,7 +128,7 @@ export const WorkerPriceModal = ({
             emptyMessage="No hay precios registrados"
           />
 
-          {/* 🔹 Formulario reutilizable */}
+          {/* Formulario reutilizable */}
           {showPriceForm && (
             <PriceForm
               label="Precio Ref. (S/)"
@@ -136,7 +136,7 @@ export const WorkerPriceModal = ({
             />
           )}
 
-          {/* 🔹 Botón para alternar formulario */}
+          {/* Botón para alternar formulario */}
           <Box mt={3} display="flex" justifyContent="flex-end">
             <Button
               onClick={() => setValue("showPriceForm", !showPriceForm)}
