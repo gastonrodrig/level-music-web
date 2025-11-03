@@ -13,12 +13,6 @@ export const menuItems = [
     href: '/client' 
   },
   { 
-    text: 'Citas', 
-    breadcrumb: 'Citas',
-    icon: EventNote, 
-    href: '/client/appointments' 
-  },
-  { 
     text: 'Eventos', 
     icon: Event,
     subItems: [
