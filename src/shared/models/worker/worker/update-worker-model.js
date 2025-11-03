@@ -1,4 +1,5 @@
 export const updateWorkerModel = (worker) => ({
+  worker_type_id: worker.worker_type_id,
   email: worker.email,
   phone: worker.phone,
   document_type: worker.document_type,
