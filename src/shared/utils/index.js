@@ -5,3 +5,4 @@ export * from './get-current-date';
 export * from './format-date-time';
 export * from './format-times';
 export * from './price-calculator';
+export * from './format-date-price';

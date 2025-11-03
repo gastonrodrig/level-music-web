@@ -6,8 +6,7 @@ import { DashboardPage,
    QuotationDetailsPage,
    ProfilePage,
    ReprogramingsRequestsPage,
-   QuotationPaymentsPage,
-   AppointmentPage
+   QuotationPaymentsPage
 } from "../pages";
 import { ClientLayout } from '../layout/client-layout';
 
@@ -18,7 +17,6 @@ export const ClientRoutes = () => {
         {/* Dashboard */}
         <Route path="/" element={<DashboardPage />} />
 
-        c
         {/* Eventos */}
         <Route path="events-made" element={<EventMadePage />} />
         <Route path="events-ongoing" element={<EventsOngoingPage />} />
