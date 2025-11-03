@@ -12,6 +12,8 @@ import { useScreenSizes } from '../../../constants/screen-width';
 import { useAuthStore } from '../../../../hooks';
 import { menuItems as adminMenuItems } from '../../../../modules/admin/constants/menu-items-admin';
 import { menuItems as clientMenuItems } from '../../../../modules/client/constants/menu-items-client';
+import { menuItems as storekeeperMenuItems } from '../../../../modules/storekeeper/constants/menu-items-storekeeper';
+
 
 export const NavBar = () => {
   const theme = useTheme();
@@ -150,7 +152,9 @@ export const NavBar = () => {
             ? adminMenuItems
             : role === 'Cliente'
               ? clientMenuItems
-              : undefined
+              : role === 'Almacenero'
+                ? storekeeperMenuItems
+                : undefined
         }
       />
     </AppBar>
