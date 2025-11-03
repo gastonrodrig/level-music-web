@@ -5,7 +5,6 @@ import { Button, Box, Typography, useTheme } from "@mui/material";
 import { AuthLayout } from "../layout/auth-layout";
 import { useAuthStore } from "../../../hooks";
 import { CircProgress, FormInputText } from "../../../shared/ui/components";
-import googleLogo from "../../../assets/images/logo/google.png";
 
 
 export const LoginPage = () => {
@@ -134,7 +133,7 @@ export const LoginPage = () => {
         >
           <Box
             component="img"
-            src={googleLogo}
+            src={"https://i.postimg.cc/4ypFTQ3Y/google.png"}
             alt="Google Logo"
             sx={{
               width: 24,

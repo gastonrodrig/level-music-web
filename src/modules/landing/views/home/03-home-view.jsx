@@ -12,21 +12,14 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
-import {
-  imagen_2,
-  imagen_3,
-  imagen_4,
-  imagen_5,
-  imagen_6,
-} from '../../../../assets/images/home';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 
 const slides = [
-  { src: imagen_2, alt: 'evento 1' },
-  { src: imagen_3, alt: 'evento 2' },
-  { src: imagen_4, alt: 'evento 3' },
-  { src: imagen_5, alt: 'evento 4' },
-  { src: imagen_6, alt: 'evento 5' },
+  { src: "https://i.postimg.cc/sDN3XVfp/imagen-2.jpg", alt: 'evento 1' },
+  { src: "https://i.postimg.cc/0yS1yDBv/imagen-3.jpg", alt: 'evento 2' },
+  { src: "https://i.postimg.cc/yxxw4ZR4/imagen-4.jpg", alt: 'evento 3' },
+  { src: "https://i.postimg.cc/mgf6Vq8p/imagen-5.jpg", alt: 'evento 4' },
+  { src: "https://i.postimg.cc/KvByZtVy/imagen-6.jpg", alt: 'evento 5' },
 ];
 
 const StyledSwiper = styled(Swiper)({

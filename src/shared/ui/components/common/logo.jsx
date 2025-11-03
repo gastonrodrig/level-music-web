@@ -1,6 +1,5 @@
 import { Typography, useTheme, Box } from '@mui/material';
 import { Link } from 'react-router-dom'; // Importa Link para navegación interna
-import { logo } from "../../../../assets/images/logo";
 
 export const Logo = ({ isNav = false }) => {
   const theme = useTheme();
@@ -21,7 +20,7 @@ export const Logo = ({ isNav = false }) => {
       {/* Imagen del logo */}
       <Box
         component="img"
-        src={logo}
+        src={"https://i.postimg.cc/tCyBxPJ9/logo.png"}
         alt="Logo Level Music"
         sx={{
           width: { md: 45, xs: 40 }, 

@@ -1,8 +1,4 @@
 import { Document, Page, Text, View, StyleSheet, pdf, Image } from '@react-pdf/renderer';
-import { foto_3,foto_4, foto_5, foto_6, foto_1 } from '../../../../../assets/images/events';
-import { imagen_2,imagen_3, imagen_4, imagen_5, imagen_6 } from '../../../../../assets/images/home';
-import { imagen_1 } from '../../../../../assets/images/carrousel';
-
 
 // Define estilos
 const styles = StyleSheet.create({
@@ -65,7 +61,7 @@ export const handleDownloadPdf = async (quotation) => {
 };
 const PdfHeader = () => (
   <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-    <Image src={foto_3} style={styles.logo} />
+    <Image src={"https://i.postimg.cc/qMY1qFPH/logo-512x512.png"} style={styles.logo} />
     <Text style={{ fontSize: 14, fontWeight: 'bold', textAlign: 'right', color: '#b66f28ff' }}>
       www.levelmusiceventos.com
     </Text>
@@ -117,24 +113,20 @@ const MyQuotationPdf = ({ quotation }) => {
       <PdfHeader />
       <Text style={styles2.galleryTitle}>LEVEL MUSIC CORP SAC – Evento & Música Profesional</Text>
       <View style={styles2.grid}>
-        <Image src={imagen_2} style={styles2.gridItem} />
-        <Image src={imagen_3} style={styles2.gridItem} />
-        <Image src={imagen_4} style={styles2.gridItem} />
-        <Image src={imagen_5} style={styles2.gridItem} />
-        <Image src={imagen_6} style={styles2.gridItem} />
-        <Image src={imagen_1} style={styles2.gridItem} />
-        <Image src={foto_1} style={styles2.gridItem} />
+        <Image src={"https://i.postimg.cc/sDN3XVfp/imagen-2.jpg"} style={styles2.gridItem} />
+        <Image src={"https://i.postimg.cc/0yS1yDBv/imagen-3.jpg"} style={styles2.gridItem} />
+        <Image src={"https://i.postimg.cc/yxxw4ZR4/imagen-4.jpg"} style={styles2.gridItem} />
+        <Image src={"https://i.postimg.cc/mgf6Vq8p/imagen-5.jpg"} style={styles2.gridItem} />
+        <Image src={"https://i.postimg.cc/KvByZtVy/imagen-6.jpg"} style={styles2.gridItem} />
+        <Image src={"https://i.postimg.cc/VvnF2sNQ/imagen-1.png"} style={styles2.gridItem}/>
+        <Image src={"https://i.postimg.cc/0ybhHDss/foto-1.webp"} style={styles2.gridItem} />
       </View>
-     
-      <PdfFooter />
+      <PdfFooter/>
     </Page>
-
-
-
 
     <Page size="A4" style={styles.page}>
       {/* Imagen de fondo */}
-      <Image src={foto_4} style={styles.bgImage} />
+      <Image src={"https://i.postimg.cc/3xmFRxjm/fondo-disco.png"} style={styles.bgImage} />
 
       {/* Logo */}
       <PdfHeader />
@@ -226,14 +218,14 @@ profesional para el evento a realizarse el {fechaEventoFormateada} del presente 
       <PdfHeader />
       <View style={styles.section}>
         <Text style={styles.title}>Condiciones Generales</Text>
-        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 4 }}><Image src={foto_5} style={styles.checkIcon} /><Text style={styles.check}> Los precios son en Soles y NO incluyen el IGV.</Text></View>
-        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 4 }}><Image src={foto_5} style={styles.checkIcon} /><Text style={styles.check}> El presente equipamiento está contemplado para 130 personas.</Text></View>
-        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 4 }}><Image src={foto_5} style={styles.checkIcon} /><Text style={styles.check}> El servicio cubre la duración del evento: de 8pm hasta las 2am.</Text></View>
-        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 4 }}><Image src={foto_5} style={styles.checkIcon} /><Text style={styles.check}> El concepto del servicio es música continua. Mixes non stop.</Text></View>
-        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 4 }}><Image src={foto_5} style={styles.checkIcon} /><Text style={styles.check}> Incluye transporte de equipamiento y seguro de riesgo SCTR.</Text></View>
-        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 4 }}><Image src={foto_5} style={styles.checkIcon} /><Text style={styles.check}> Incluye visita preliminar para ubicación de equipos y coordinación del play list.</Text></View>
-        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 4 }}><Image src={foto_5} style={styles.checkIcon} /><Text style={styles.check}> No incluye equipo electrógeno.</Text></View>
-        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 4 }}><Image src={foto_5} style={styles.checkIcon} /><Text style={styles.check}> Forma de pago:</Text></View>
+        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 4 }}><Image src={"https://i.postimg.cc/ZnWrhbKw/check.png"} style={styles.checkIcon} /><Text style={styles.check}> Los precios son en Soles y NO incluyen el IGV.</Text></View>
+        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 4 }}><Image src={"https://i.postimg.cc/ZnWrhbKw/check.png"} style={styles.checkIcon} /><Text style={styles.check}> El presente equipamiento está contemplado para 130 personas.</Text></View>
+        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 4 }}><Image src={"https://i.postimg.cc/ZnWrhbKw/check.png"} style={styles.checkIcon} /><Text style={styles.check}> El servicio cubre la duración del evento: de 8pm hasta las 2am.</Text></View>
+        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 4 }}><Image src={"https://i.postimg.cc/ZnWrhbKw/check.png"} style={styles.checkIcon} /><Text style={styles.check}> El concepto del servicio es música continua. Mixes non stop.</Text></View>
+        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 4 }}><Image src={"https://i.postimg.cc/ZnWrhbKw/check.png"} style={styles.checkIcon} /><Text style={styles.check}> Incluye transporte de equipamiento y seguro de riesgo SCTR.</Text></View>
+        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 4 }}><Image src={"https://i.postimg.cc/ZnWrhbKw/check.png"} style={styles.checkIcon} /><Text style={styles.check}> Incluye visita preliminar para ubicación de equipos y coordinación del play list.</Text></View>
+        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 4 }}><Image src={"https://i.postimg.cc/ZnWrhbKw/check.png"} style={styles.checkIcon} /><Text style={styles.check}> No incluye equipo electrógeno.</Text></View>
+        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 4 }}><Image src={"https://i.postimg.cc/ZnWrhbKw/check.png"} style={styles.checkIcon} /><Text style={styles.check}> Forma de pago:</Text></View>
         <View><Text style={styles.textoConditions}> 50% de adelanto para separación de la fecha . Saldo antes de iniciar el evento. </Text></View>
         <View><Text style={styles.textoConditions}> BCP SOLES 191-95491406-0-64</Text></View>
         <View><Text style={styles.textoConditions}> CCI 00219119549140606452 </Text></View>
@@ -241,7 +233,7 @@ profesional para el evento a realizarse el {fechaEventoFormateada} del presente 
       </View>
       <Text style={styles.texoParrafo}>Agradeciendo la atención prestada, estaremos gustosos de poder servirlos</Text>
       <Text style={styles.texti}>Atentamente,</Text>
-      <Image src={foto_6} style={styles.firma} />
+      <Image src={"https://i.postimg.cc/jjqcFrN3/firma.png"} style={styles.firma} />
       <Text style={{ marginTop: 20, fontSize: 12 }}>Renzo Rodríguez</Text>
       <Text style={{ fontSize: 12 }}>Gerente Comercial</Text>
       <Text style={{ fontSize: 12, fontWeight: 'bold' }}>LEVEL MUSIC CORP SAC</Text>

@@ -14,10 +14,6 @@ import {
 import { useState, useMemo, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useUsersStore } from "../../../../hooks";
-import {
-  default_profile_user_light,
-  default_profile_user_dark,
-} from "../../../../assets/images/user";
 import { useTheme } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 
@@ -112,8 +108,8 @@ export const ProfilePage = () => {
             src={
               photoURL ||
               (theme.palette.mode === "dark"
-                ? default_profile_user_dark
-                : default_profile_user_light)
+                ? "https://i.postimg.cc/qMPMwJfT/user-profile-dark.png"
+                : "https://i.postimg.cc/C5Kd3m7W/user-profile-light.png")
             }
             alt="Profile"
             sx={{

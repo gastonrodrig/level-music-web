@@ -7,12 +7,6 @@ import {
   useTheme
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom'; // <--- IMPORTANTE
-import { 
-  imagen_1, 
-  imagen_2, 
-  imagen_3 
-} from '../../../../assets/images/carrousel';
-
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css/pagination';
@@ -138,21 +132,21 @@ const SlideContent = ({
 // ----------------------------------------
 const slides = [
   {
-    image: imagen_1,
+    image: "https://i.postimg.cc/VvnF2sNQ/imagen-1.png",
     title: '¡Haz de tu evento una experiencia inolvidable!',
     subtitle: 'Sonido, luces y ambientación profesional para eventos.',
     buttonText: 'Solicitar Cotización',
     redirectTo: '/quotation', // <-- Ruta al hacer click
   },
   {
-    image: imagen_2,
+    image: "https://i.postimg.cc/2yhxgj5C/imagen-2.png",
     title: 'Producción de Audio y Sonido Profesional',
     subtitle: 'Servicios personalizados: catering, iluminación, decoración y más.',
     buttonText: 'Ver Eventos',
     redirectTo: '/events',
   },
   {
-    image: imagen_3,
+    image: "https://i.postimg.cc/SRCGHQKk/imagen-3.png",
     title: 'Tu Playlist, Nuestra Mezcla',
     subtitle: 'Envíanos tu lista de canciones y creamos la atmósfera perfecta para tu evento.',
     // Este slide no tiene botón

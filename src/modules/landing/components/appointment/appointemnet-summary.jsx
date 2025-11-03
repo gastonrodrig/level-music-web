@@ -40,7 +40,7 @@ export const AppointmentSummary = () => {
 
   const onSubmit = async (data) => {
     const success = await startCreateAppointment(data);
-    if (success && status === 'authenticated') navigate('/client/appointments', { replace: true });
+    if (success && status === 'authenticated') navigate('/client', { replace: true });
     else navigate('/', { replace: true });
   }
 

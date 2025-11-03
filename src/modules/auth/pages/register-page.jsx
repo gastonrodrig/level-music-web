@@ -5,7 +5,6 @@ import { Button, Box, Typography, useTheme } from "@mui/material";
 import { AuthLayout } from "../layout/auth-layout";
 import { useAuthStore } from "../../../hooks";
 import { CircProgress, FormInputText } from '../../../shared/ui/components';
-import googleLogo from "../../../assets/images/logo/google.png";
 
 export const RegisterPage = () => {
   const theme = useTheme();
@@ -108,7 +107,7 @@ export const RegisterPage = () => {
           }}
           disabled={isSubmitting || isAuthenticated}
         >
-          <Box component="img" src={googleLogo} alt="Google Logo" sx={{ width: 24, height: 24, mr: 1 }} />
+          <Box component="img" src={"https://i.postimg.cc/4ypFTQ3Y/google.png"} alt="Google Logo" sx={{ width: 24, height: 24, mr: 1 }} />
           <Typography sx={{ ml: 1 }}>Continuar con Gmail</Typography>
         </Button>
         
