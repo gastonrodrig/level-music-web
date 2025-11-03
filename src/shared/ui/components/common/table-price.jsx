@@ -28,7 +28,7 @@ export const PaginatedTable = ({
   onRowsPerPageChange,
   emptyMessage = "No hay registros disponibles",
   getRowId = (row) => row._id,
-  minWidth = 700,
+  minWidth = 500,
 }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
