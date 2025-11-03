@@ -6,8 +6,7 @@ import { DashboardPage,
    QuotationDetailsPage,
    ProfilePage,
    ReprogramingsRequestsPage,
-   QuotationPaymentsPage,
-   AppointmentPage
+   QuotationPaymentsPage
 } from "../pages";
 import { ClientLayout } from '../layout/client-layout';
 
