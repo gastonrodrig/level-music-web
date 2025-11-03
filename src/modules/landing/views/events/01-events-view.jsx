@@ -2,8 +2,6 @@ import React from "react";
 import { useScreenSizes } from "../../../../shared/constants/screen-width";
 import { Box, Typography, Button, useTheme } from "@mui/material";
 
-import { foto_1 } from "../../../../assets/images/events";
-
 import "../../../../styles.css";
 
 export const EventsView01 = () => {
@@ -11,7 +9,7 @@ export const EventsView01 = () => {
   const { isXs } = useScreenSizes();
 
   const hero = {
-    image: foto_1,
+    image: "https://i.postimg.cc/g20SZn8H/img-events.jpg",
     title: "Nuestros Eventos, Nuestra Pasión",
     subtitle: "Creamos experiencias únicas para cada ocasión.",
   };

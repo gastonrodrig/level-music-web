@@ -15,8 +15,6 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
-import { foto_2 } from "../../../../assets/images/events";
-
 export const EventsView04 = () => {
   const theme = useTheme();
 
@@ -190,7 +188,7 @@ export const EventsView04 = () => {
                 {/* 5 estrellas como imagen */}
                 <Box
                   component="img"
-                  src={foto_2}
+                  src={'https://i.postimg.cc/vZDg9sBZ/4stars.png'}
                   alt="Calificación 5 estrellas"
                   sx={{
                     width: { xs: 140, md: 180 },
