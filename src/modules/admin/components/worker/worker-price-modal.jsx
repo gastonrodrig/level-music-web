@@ -42,20 +42,16 @@ export const WorkerPriceModal = ({
   const showPriceForm = watch("showPriceForm");
   const isButtonDisabled = useMemo(() => loading, [loading]);
 
-  // When modal opens or worker changes, reset to first page and set workerId
   useEffect(() => {
-    if (open && worker?._id) {
+    if (open && worker._id) {
       setPageGlobal(0);
       setValue("workerId", worker._id);
     }
     if (!open) {
       reset();
     }
-    // we intentionally do NOT include currentPage/rowsPerPage here so resetting
-    // to page 0 happens only on open/worker change
   }, [open, worker?._id]);
 
-  // Load data whenever pagination state changes while modal is open
   useEffect(() => {
     if (open && worker?._id) {
       startLoadingWorkerPricePaginated(worker._id);
@@ -64,12 +60,10 @@ export const WorkerPriceModal = ({
 
   // Enviar nuevo precio
   const onSubmit = async (data) => {
-    console.log("Datos enviados:", data);
-    const success = await startCreateWorkerPrice(data);
-    if (success) reset();
+    await startCreateWorkerPrice(data);
   };
 
-  // 🧮 Columnas de la tabla
+  // Columnas de la tabla
   const columns = [
     { label: "Nro. Temporada", field: "season_number" },
     { label: "Precio", field: "reference_price", format: "currency" },

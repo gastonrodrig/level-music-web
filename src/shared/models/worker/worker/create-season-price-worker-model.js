@@ -1,4 +1,4 @@
 export const createSeasonPriceWorkerModel = (seasonPrice) => ({
-  worker_type_id: seasonPrice.workerTypeId,
+  worker_id: seasonPrice.workerId,
   reference_price: seasonPrice.referencePrice,
 });

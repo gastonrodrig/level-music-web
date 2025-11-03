@@ -28,7 +28,6 @@ export const PriceForm = ({ label = "Precio Ref. (S/)", onCancel }) => {
       <Box display="flex" flexDirection="column">
         <Box sx={{ width: "50%" }}>
           <TextField
-            type="number"
             label={label}
             placeholder="Ej: 500.00"
             variant="outlined"
