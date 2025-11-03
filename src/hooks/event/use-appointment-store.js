@@ -9,7 +9,6 @@ import {
 } from '../../store';
 import { 
   createAppointmentModel,
-  updateAppointmentModel,
 } from '../../shared/models';
 import { useState } from 'react';
 import { appointmentsApi } from '../../api';
@@ -42,6 +41,7 @@ export const useAppointmentStore = () => {
       openSnackbar("La cita fue creada exitosamente, pronto nos pondremos en contacto contigo.");
       return true;
     } catch (error) {
+      console.log(error);
       const message = error.response?.data?.message;
       openSnackbar(message ?? "Ocurrió un error al crear la cita.");
       return false;
@@ -80,6 +80,7 @@ export const useAppointmentStore = () => {
     }
   };
 
+  /*
   const startUpdateAppointmentStatus = async (id, appointment) => {
     dispatch(setLoadingAppointment(true));
     try {
@@ -96,7 +97,7 @@ export const useAppointmentStore = () => {
       dispatch(setLoadingAppointment(false));
     }
   };
-
+ */
   const setSelectedAppointment = (appointment) => {
     dispatch(selectedAppointment({ ...appointment }));
   };
@@ -131,7 +132,7 @@ export const useAppointmentStore = () => {
     // actions
     startCreateAppointment,
     startLoadingAppointmentPaginated,
-    startUpdateAppointmentStatus,
+    //startUpdateAppointmentStatus,
     setSelectedAppointment,
   };
 };

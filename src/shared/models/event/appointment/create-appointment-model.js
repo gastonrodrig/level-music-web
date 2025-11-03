@@ -1,7 +1,8 @@
 export const createAppointmentModel = (f) => ({
   meeting_type: f.meetingType,
-  date: new Date(f.appointmentDate),
-  hour: f.hour,
+  start_date: new Date(f.startDate),
+  end_date: new Date(f.endDate),
+  shift: f.shift,
   attendees_count: Number(f.attendeesCount),
   client_type: f.clientType,
   first_name: f.firstName || null,
@@ -12,5 +13,4 @@ export const createAppointmentModel = (f) => ({
   phone: f.phone,
   document_type: f.documentType,
   document_number: f.documentNumber,
-  user_id: f.userId || null,
 });
