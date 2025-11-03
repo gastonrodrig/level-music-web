@@ -1,5 +1,4 @@
 import { Grid, Typography, Box } from "@mui/material";
-import { imagen_1 } from '../../../assets/images/carrousel';
 import { useTheme } from "@mui/material/styles";
 import { Logo } from "../../../shared/ui/components/common/logo";
 
@@ -13,7 +12,7 @@ export const AuthLayout = ({ children, title = '', subtitle = '', isLogin = fals
       alignItems="center"
       sx={{
         minHeight: "calc(100vh - 64px)",
-        backgroundImage: { md: `url(${imagen_1})`, xs: 'none' },
+        backgroundImage: { md: `url(${"https://i.postimg.cc/VvnF2sNQ/imagen-1.png"})`, xs: 'none' },
         padding: 2,
         backgroundSize: "cover",
         backgroundPosition: "center",
