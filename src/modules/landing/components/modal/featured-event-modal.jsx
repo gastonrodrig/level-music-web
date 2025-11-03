@@ -8,6 +8,7 @@ import {
   IconButton,
   useTheme,
 } from "@mui/material";
+import { useEffect, useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CloseIcon from "@mui/icons-material/Close";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -17,9 +18,16 @@ import "swiper/css/navigation";
 
 export const FeaturedEventModal = ({ open, onClose, event }) => {
   const theme = useTheme();
+  const [expandedIndex, setExpandedIndex] = useState(-1);
+
+  // Reset expanded state when the modal opens or the event changes
+  useEffect(() => {
+    setExpandedIndex(-1);
+  }, [open, event]);
   return (
     <Modal open={open} onClose={onClose}>
       <Box
+        className="featured-modal-container"
         sx={{
           position: "absolute",
           top: "50%",
@@ -29,10 +37,18 @@ export const FeaturedEventModal = ({ open, onClose, event }) => {
           borderRadius: 3,
           boxShadow: 24,
           width: { xs: '96vw', sm: '90vw', md: 500 },
+          height: { xs: '80vh', sm: '80vh', md: '90%' },
           maxWidth: '100vw',
           p: { xs: 3, sm: 3, md: 4 },
           outline: 'none',
           overflowY: 'auto',
+          // webkit scrollbar via sx (fallback to CSS below)
+          '&::-webkit-scrollbar': { width: 10 },
+          '&::-webkit-scrollbar-thumb': {
+            backgroundColor: theme.palette.primary.main,
+            borderRadius: 8,
+          },
+          '&::-webkit-scrollbar-track': { background: 'transparent' },
         }}
       >
         {/* Header */}
@@ -52,6 +68,12 @@ export const FeaturedEventModal = ({ open, onClose, event }) => {
           </IconButton>
         </Box>
         <style>{`
+          /* Scrollbar styling for the modal container */
+          .featured-modal-container { scrollbar-color: ${theme.palette.primary.main} transparent; scrollbar-width: thin; }
+          .featured-modal-container::-webkit-scrollbar { width: 10px; }
+          .featured-modal-container::-webkit-scrollbar-thumb { background: ${theme.palette.primary.main}; border-radius: 8px; }
+          .featured-modal-container::-webkit-scrollbar-track { background: transparent; }
+
           .featured-modal-swiper { position: relative; }
           .featured-modal-swiper .swiper-pagination {
             position: absolute !important;
@@ -126,13 +148,17 @@ export const FeaturedEventModal = ({ open, onClose, event }) => {
           Servicios incluidos
         </Typography>
 
-        {event?.services?.map((srv, idx) => {
+          {event?.services?.map((srv, idx) => {
             const title = srv?.title;
             const desc = srv?.description;
             return (
               <Accordion
                 key={`${title}-${idx}`}
                 disableGutters
+                expanded={expandedIndex === idx}
+                onChange={() =>
+                  setExpandedIndex((prev) => (prev === idx ? -1 : idx))
+                }
                 sx={{
                   borderRadius: 2,
                   mb: 1.2,

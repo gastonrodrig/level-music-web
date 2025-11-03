@@ -70,15 +70,16 @@ export const AppointmentPage = () => {
       truncate: true 
     },
     {
-      id: "date",
+      id: "appointment_date",
       label: "Fecha Cita",
       sortable: true,
-      accessor: (row) => (row.date ? formatDay(row.date) : "N/A"),
+      accessor: (row) => (row.appointment_date ? formatDay(row.appointment_date) : "-"),
     },
     {
       id: "hour",
       label: "Hora Cita",
       sortable: true,
+      accessor: (row) => (row.hour ? row.hour : "-"),
     },
     {
       id: "status",
@@ -90,11 +91,6 @@ export const AppointmentPage = () => {
     {
       label: "Confirmar",
       icon: <Check />,
-      onClick: (row) => openModal(row),
-    },
-    {
-      label: "Reagendar",
-      icon: <Update />,
       onClick: (row) => openModal(row),
     }
   ];

@@ -8,6 +8,7 @@ import {
   showSnackbar,
 } from '../../store';
 import { 
+  confirmAppointmentModel,
   createAppointmentModel,
 } from '../../shared/models';
 import { useState } from 'react';
@@ -80,24 +81,23 @@ export const useAppointmentStore = () => {
     }
   };
 
-  /*
-  const startUpdateAppointmentStatus = async (id, appointment) => {
+  const startConfirmAppointment = async (id, appointment) => {
     dispatch(setLoadingAppointment(true));
     try {
-      const payload = updateAppointmentModel(appointment);
-      await appointmentsApi.put(`/${id}`, payload, getAuthConfig(token));
+      const payload = confirmAppointmentModel(appointment);
+      await appointmentsApi.patch(`/${id}`, payload, getAuthConfig(token));
       startLoadingAppointmentPaginated();
-      openSnackbar("El tipo de trabajador fue actualizado exitosamente.");
+      openSnackbar("La cita fue confirmada exitosamente.");
       return true;
     } catch (error) {
       const message = error.response?.data?.message;
-      openSnackbar(message ?? "Ocurrió un error al actualizar el tipo de trabajador.");
+      openSnackbar(message ?? "Ocurrió un error al confirmar la cita.");
       return false;
     } finally {
       dispatch(setLoadingAppointment(false));
     }
   };
- */
+
   const setSelectedAppointment = (appointment) => {
     dispatch(selectedAppointment({ ...appointment }));
   };
@@ -109,6 +109,8 @@ export const useAppointmentStore = () => {
   const setRowsPerPageGlobal = (rows) => {
     dispatch(setRowsPerPageAppointment(rows));
   };
+
+  
 
   return {
     // state
@@ -132,7 +134,7 @@ export const useAppointmentStore = () => {
     // actions
     startCreateAppointment,
     startLoadingAppointmentPaginated,
-    //startUpdateAppointmentStatus,
+    startConfirmAppointment,
     setSelectedAppointment,
   };
 };
