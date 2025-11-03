@@ -6,4 +6,5 @@ export const createWorkerModel = (worker) => ({
   document_number: worker.document_number,
   first_name: worker.first_name,
   last_name: worker.last_name,
+  create_account: worker.create_account || false,
 });
