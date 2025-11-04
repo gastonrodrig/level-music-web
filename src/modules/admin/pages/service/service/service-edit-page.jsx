@@ -26,8 +26,9 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { serviceDetailPriceApi } from "../../../../../api";
-import dayjs from "dayjs";
+import { useDispatch } from "react-redux";
+import { showSnackbar } from "../../../../../store";
+import { serviceDetailApi } from "../../../../../api";
 
 export const ServiceEditPage = () => {
   const theme = useTheme();
@@ -36,6 +37,7 @@ export const ServiceEditPage = () => {
 
   const { serviceTypes } = useServiceTypeStore();
   const { provider } = useProviderStore();
+
 
   const {
     loading,
@@ -55,6 +57,8 @@ export const ServiceEditPage = () => {
     handleRemoveFieldFromDetail,
     startUpdateService,
   } = useServiceStore();
+
+  const dispatch = useDispatch();
 
   const {
     register,
@@ -97,9 +101,12 @@ export const ServiceEditPage = () => {
   // === NUEVO: modal de historial de precios ===
   const [openPricesModal, setOpenPricesModal] = useState(false);
   const [selectedDetailId, setSelectedDetailId] = useState(null);
+  const [selectedDetailNumber, setSelectedDetailNumber] = useState(1);
 
-  const handleOpenPrices = (detailId) => {
+  // Recibe el detailId y el detailNumber (índice + 1)
+  const handleOpenPrices = (detailId, detailNumber) => {
     setSelectedDetailId(detailId);
+    setSelectedDetailNumber(detailNumber);
     setOpenPricesModal(true);
   };
 
@@ -133,49 +140,104 @@ export const ServiceEditPage = () => {
 
   // === SUBMIT ===
  const onSubmit = async (data) => {
-  // Limpia los objetos nuevos sin _id
-  data.serviceDetails = data.serviceDetails.map((detail) => {
+  // Asegura que serviceDetails sea un array
+  if (!Array.isArray(data.serviceDetails)) {
+    data.serviceDetails = Object.values(data.serviceDetails);
+  }
+  // Limpia los objetos nuevos sin _id (para que el update del servicio principal no incluya _id vacíos)
+  data.serviceDetails = data.serviceDetails.map((detail, idx) => {
     if (!detail._id) {
       const { _id, ...rest } = detail;
-      return rest;
+      // Procesa el objeto flexible details
+      const detailsObj = {};
+      Object.entries(rest.details || {}).forEach(([key, value]) => {
+        const num = Number(value);
+        detailsObj[key] = value === "" ? undefined : (isNaN(num) ? value : num);
+      });
+      return {
+        ...rest,
+        details: detailsObj,
+        detail_number: Number(idx + 1),
+      };
     }
-    return detail;
+    // Procesa también los existentes
+    const detailsObj = {};
+    Object.entries(detail.details || {}).forEach(([key, value]) => {
+      const num = Number(value);
+      detailsObj[key] = value === "" ? undefined : (isNaN(num) ? value : num);
+    });
+    return {
+      ...detail,
+      details: detailsObj,
+      detail_number: Number(idx + 1),
+    };
   });
 
   try {
-    // 🔸 Detectar cambios de precios respecto al original
-    for (const detail of data.serviceDetails) {
-      const original = selected.serviceDetails.find(
-        (d) => d._id === detail._id
-      );
+    // Construye array de detalles modificados (solo los existentes con _id)
+    const modifiedDetails = [];
 
+    for (const detail of data.serviceDetails) {
+      if (!detail._id) continue; // nuevos detalles se manejan en la actualización del servicio
+
+      const original = selected.serviceDetails.find((d) => d._id === detail._id);
+      if (!original) continue;
+
+      const changes = { _id: detail._id };
+
+      // Si cambió el precio, lo actualiza
       if (
-        detail._id &&
-        original &&
+        typeof detail.ref_price !== "undefined" &&
         Number(original.ref_price) !== Number(detail.ref_price)
       ) {
-        // 📅 Día actual en Lima
-        const today = dayjs().tz("America/Lima");
+        changes.ref_price = Number(detail.ref_price);
+      }
 
-        // 🕛 Inicio y fin del día (misma fecha)
-        const startOfDay = today.startOf("day").format("YYYY-MM-DDTHH:mm:ssZ");
-        const endOfDay = today.endOf("day").format("YYYY-MM-DDTHH:mm:ssZ");
+      // Si cambió el status, lo actualiza
+      if (typeof detail.status !== "undefined" && detail.status !== original.status) {
+        changes.status = detail.status;
+      }
 
-        // 🚀 Registrar nuevo precio en el historial
-        await serviceDetailPriceApi.post("/", {
-          service_detail_id: detail._id,
-          reference_detail_price: Number(detail.ref_price),
-          start_date: startOfDay,
-          end_date: endOfDay,
-        });
+      // Si cambió algún campo de details, lo actualiza
+      const originalDetails = original.details || {};
+      const newDetails = detail.details || {};
+      const detailsChanged = JSON.stringify(originalDetails) !== JSON.stringify(newDetails);
+      if (detailsChanged) {
+        changes.details = newDetails;
+      }
+
+      // Si hay cambios además de _id, lo agrega al array
+      if (Object.keys(changes).length > 1) {
+        modifiedDetails.push(changes);
       }
     }
 
-    // 🔸 Actualiza el servicio principal
+    // Si no hay cambios, muestra snackbar y termina
+    if (modifiedDetails.length === 0) {
+      dispatch(showSnackbar({ message: "No hay cambios para guardar." }));
+      return;
+    }
+    try {
+      // El backend espera { serviceDetails: [...] }
+      await serviceDetailApi.patch(
+        "/update-details",
+        { serviceDetails: modifiedDetails }
+      );
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Error al actualizar los detalles.';
+      dispatch(showSnackbar({ message: "Error al guardar cambios: " + msg }));
+      return;
+    }
+
+    // Actualiza el servicio principal (incluye nuevos detalles sin _id, etc.)
     const success = await startUpdateService(selected._id, data);
-    if (success) navigate("/admin/service");
+    if (success) {
+      dispatch(showSnackbar({ message: "Cambios guardados correctamente." }));
+      navigate("/admin/service");
+    }
   } catch (error) {
-    console.error("❌ Error al registrar o actualizar servicio:", error);
+    const msg = error.response?.data?.message || 'Ocurrió un error al actualizar.';
+    dispatch(showSnackbar({ message: "Error al guardar cambios: " + msg }));
   }
 };
 
@@ -358,7 +420,8 @@ export const ServiceEditPage = () => {
             detailsCount={details.length}
             isEditMode
             setValue={setValue}
-            onOpenPrices={handleOpenPrices} // ✅ ahora viene del padre
+            // Pasa el detailNumber correcto (idx + 1)
+            onOpenPrices={(detailId) => handleOpenPrices(detailId, idx + 1)}
           />
         ))}
       </Box>
@@ -386,6 +449,7 @@ export const ServiceEditPage = () => {
         open={openPricesModal}
         onClose={handleClosePrices}
         serviceDetailId={selectedDetailId}
+        detailNumber={selectedDetailNumber}
       />
 
       {/* Botón Guardar */}

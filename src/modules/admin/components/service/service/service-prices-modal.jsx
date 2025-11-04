@@ -3,20 +3,17 @@ import {
   Box,
   Typography,
   IconButton,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
   Button,
   useTheme,
   CircularProgress,
 } from "@mui/material";
+import { TableComponent } from "../../../../../shared/ui/components/common/table";
+import { formatDay } from "../../../../../shared/utils/format-day";
 import { Close, CalendarMonth } from "@mui/icons-material";
 import { useEffect, useState } from "react";
 import { serviceDetailPriceApi } from "../../../../../api"; // usa la ruta global api
 
-export const ServicePricesModal = ({ open, onClose, serviceDetailId }) => {
+export const ServicePricesModal = ({ open, onClose, serviceDetailId, detailNumber = 1 }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const [prices, setPrices] = useState([]);
@@ -29,7 +26,7 @@ export const ServicePricesModal = ({ open, onClose, serviceDetailId }) => {
       serviceDetailPriceApi
         .get(`/by-detail/${serviceDetailId}`)
         .then(({ data }) => setPrices(data))
-        .catch((err) => console.error("❌ Error al cargar precios:", err))
+        .catch((err) => setPrices(null)) // null indica error de ID
         .finally(() => setLoading(false));
     } else {
       // Limpia cuando se cierra
@@ -72,68 +69,30 @@ export const ServicePricesModal = ({ open, onClose, serviceDetailId }) => {
           Mostrando precios registrados por temporada.
         </Typography>
 
-        {/* === TABLA === */}
+        {/* === TABLA REUTILIZABLE === */}
         {loading ? (
           <Box display="flex" justifyContent="center" mt={4}>
             <CircularProgress size={28} />
           </Box>
+        ) : prices === null ? (
+          <Typography textAlign="center" mt={4} color="error">
+            Error: El detalle no tiene un ID válido o no existe historial.
+          </Typography>
         ) : prices.length === 0 ? (
           <Typography textAlign="center" mt={4} color="text.secondary">
             No se encontraron precios para este detalle de servicio.
           </Typography>
         ) : (
-          <Table
-            size="small"
-            sx={{
-              "& th": {
-                fontWeight: 600,
-                bgcolor: isDark ? "#2a2a2a" : "#f9f9f9",
-              },
-              "& td": {
-                borderBottom: "1px solid",
-                borderColor: isDark ? "#333" : "#eee",
-              },
-            }}
-          >
-            <TableHead>
-              <TableRow>
-                <TableCell>N° Temporada</TableCell>
-                <TableCell>Precio Ref. (S/)</TableCell>
-                <TableCell>Fecha Inicio</TableCell>
-                <TableCell>Fecha Fin</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {prices.map((p, idx) => (
-                <TableRow key={p._id}>
-                  <TableCell>{`Temporada ${idx + 1}`}</TableCell>
-                  <TableCell>
-                    {p.reference_detail_price
-                      ? `S/ ${Number(p.reference_detail_price).toFixed(2)}`
-                      : "-"}
-                  </TableCell>
-                  <TableCell>
-                    {p.start_date
-                      ? new Date(p.start_date).toLocaleDateString("es-PE", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                        })
-                      : "-"}
-                  </TableCell>
-                  <TableCell>
-                    {p.end_date
-                      ? new Date(p.end_date).toLocaleDateString("es-PE", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                        })
-                      : "Vigente"}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <TableComponent
+            columns={[
+              { label: "N° Temporada", id: "detail_number", accessor: (row, idx) => row.detail_number ?? idx + 1 },
+              { label: "Precio Ref. (S/)", id: "reference_detail_price", accessor: (row) => row.reference_detail_price ? `S/ ${Number(row.reference_detail_price).toFixed(2)}` : "-" },
+              { label: "Fecha Inicio", id: "start_date", accessor: (row) => row.start_date ? formatDay(row.start_date) : "-" },
+              { label: "Fecha Fin", id: "end_date", accessor: (row) => row.end_date == null ? "-" : formatDay(row.end_date) },
+            ]}
+            rows={prices}
+            total={prices.length}
+          />
         )}
 
         {/* === FOOTER === */}

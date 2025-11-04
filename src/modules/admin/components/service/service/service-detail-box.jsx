@@ -29,7 +29,15 @@ export const ServiceDetailBox = ({
   const { isMd } = useScreenSizes();
   const isDark = theme.palette.mode === "dark";
 
-  const serviceDetailId = initialData._id; // 👈 el ID del detalle viene directo del backend
+  const serviceDetailId = initialData._id;
+  // Handler para el botón Ver Precios: si no hay _id, fuerza re-fetch antes de abrir el modal
+  const handleOpenPrices = async () => {
+    if (!serviceDetailId && typeof window.fetchServiceById === 'function') {
+      // Si el detalle es nuevo, fuerza re-fetch del servicio (debe estar implementado en el store global)
+      await window.fetchServiceById(initialData.service_id);
+    }
+    if (serviceDetailId) onOpenPrices(serviceDetailId);
+  };
 
   return (
     <Box
@@ -63,7 +71,7 @@ export const ServiceDetailBox = ({
               Detalle #{index + 1}
             </Typography>
             {isEditMode && (
-              <Box sx={{ display: "flex", alignItems: "center", ml: 2 }}>
+              <Box sx={{ display: "flex", alignItems: "center", ml: 2, gap: 1 }}>
                 <Switch
                   checked={initialData.status === "Activo"}
                   onChange={() =>
@@ -74,9 +82,45 @@ export const ServiceDetailBox = ({
                   }
                   color="success"
                 />
-                <Typography sx={{ ml: 1 }}>
+                <Typography sx={{ ml: 0 }}>
                   {initialData.status === "Activo" ? "Activo" : "Inactivo"}
                 </Typography>
+
+                {/* Botón Ver Precios: solo habilitado si hay _id */}
+                {isMd ? (
+                  <Button
+                    variant="contained"
+                    startIcon={<CalendarMonth />}
+                    onClick={handleOpenPrices}
+                    disabled={!serviceDetailId}
+                    sx={{
+                      textTransform: "none",
+                      borderRadius: 2,
+                      fontWeight: 600,
+                      bgcolor: theme.palette.primary.main,
+                      "&:hover": { bgcolor: theme.palette.primary.hover },
+                      ml: 1,
+                    }}
+                  >
+                    Ver Precios
+                  </Button>
+                ) : (
+                  <IconButton
+                    color="primary"
+                    onClick={handleOpenPrices}
+                    disabled={!serviceDetailId}
+                    sx={{
+                      bgcolor: theme.palette.primary.main,
+                      color: "#fff",
+                      borderRadius: "12px",
+                      p: 0.5,
+                      ml: 1,
+                      "&:hover": { bgcolor: theme.palette.primary.dark },
+                    }}
+                  >
+                    <CalendarMonth />
+                  </IconButton>
+                )}
               </Box>
             )}
           </Grid>
@@ -86,25 +130,8 @@ export const ServiceDetailBox = ({
           </Typography>
         </Box>
 
-        {/* Derecha: botones */}
+        {/* Derecha: botones (Eliminar / Agregar campo). El botón de precios está a la izquierda ahora */}
         <Box display="flex" gap={1} flexDirection={isMd ? "column" : "row"}>
-          {/* 🔹 Ver precios */}
-          <Button
-            variant="contained"
-            startIcon={<CalendarMonth />}
-            onClick={() => onOpenPrices(serviceDetailId)}
-            disabled={!serviceDetailId}
-            sx={{
-              textTransform: "none",
-              borderRadius: 2,
-              fontWeight: 600,
-              bgcolor: theme.palette.primary.main,
-              "&:hover": { bgcolor: theme.palette.primary.hover },
-            }}
-          >
-            Ver Precios
-          </Button>
-
           {/* 🔹 Eliminar detalle */}
           {isMd ? (
             <Button
