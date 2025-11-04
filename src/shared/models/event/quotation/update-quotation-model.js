@@ -1,4 +1,4 @@
-export const updateQuotationLandingModel = (data) => { 
+export const updateQuotationModel = (data) => { 
   const assignations = [
     // Servicios Adicionales
     ...data.services.map((s) => ({

@@ -1,4 +1,4 @@
-export const createQuotationAdminModel = (data) => { 
+export const createQuotationModel = (data) => { 
   const assignations = [
     // Servicios Adicionales
     ...data.services.map((s) => ({

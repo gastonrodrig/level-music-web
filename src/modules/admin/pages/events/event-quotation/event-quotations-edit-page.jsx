@@ -47,7 +47,7 @@ export const EventQuotationEditPage = () => {
   const { 
     loading, 
     selected,
-    startUpdateQuotationAdmin
+    startUpdateQuotation
    } = useQuotationStore();
 
   const { 
@@ -205,7 +205,7 @@ export const EventQuotationEditPage = () => {
   );
 
   const onSubmit = async (data) => {
-    const success = await startUpdateQuotationAdmin(selected._id, data);
+    const success = await startUpdateQuotation(selected._id, data);
     if (success) navigate("/admin/quotations");
   };
 

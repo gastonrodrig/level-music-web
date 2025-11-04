@@ -36,7 +36,7 @@ export const EventQuotationAddPage = () => {
   
   const openSnackbar = (message) => dispatch(showSnackbar({ message }));
 
-  const { loading, startCreateQuotationAdmin } = useQuotationStore();
+  const { loading, startCreateQuotation } = useQuotationStore();
   const { serviceDetail } = useServiceDetailStore();
   const { equipments } = useEquipmentStore();
   const { workers } = useWorkerStore();
@@ -178,7 +178,7 @@ export const EventQuotationAddPage = () => {
   );
   
   const onSubmit = async (data) => {
-    const success = await startCreateQuotationAdmin(data);
+    const success = await startCreateQuotation(data);
     if (success) navigate("/admin/quotations");
   };
 
