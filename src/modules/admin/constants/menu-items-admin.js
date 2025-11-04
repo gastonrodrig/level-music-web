@@ -56,6 +56,11 @@ export const menuItems = [
             text: 'Programar Pagos',
             breadcrumb: 'Programar Pagos',
             href: '/admin/quotations/payments-programming',
+          },
+          {
+            text: 'Historial ',
+            breadcrumb: 'Historial',
+            href: '/admin/quotations/history',
           }
         ],
       }, 
