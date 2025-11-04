@@ -23,6 +23,7 @@ export const PersonalInfoForm = () => {
     control,
     formState: { errors },
     setValue,
+    getValues,
   } = useFormContext();
 
   const theme = useTheme();
@@ -50,22 +51,35 @@ export const PersonalInfoForm = () => {
     if (documentNumber && documentType && clientType && isValid) {
       (async () => {
         const userData = await startLoadingUserDocument(
-          documentNumber,
-          documentType,
-          clientType
-        );
-        if (
-          userData &&
-          userData.client_type === clientType &&
-          userData.document_type === documentType
-        ) {
-          setValue("first_name", userData.first_name || "");
-          setValue("last_name", userData.last_name || "");
-          setValue("email", userData.email || "");
-          setValue("phone", userData.phone || "");
-          setValue("company_name", userData.company_name || "");
-          setValue("contact_person", userData.contact_person || "");
-        }
+            documentNumber,
+            documentType,
+            clientType
+          );
+
+          if (
+            userData &&
+            userData.client_type === clientType &&
+            userData.document_type === documentType
+          ) {
+            if (!getValues("first_name") && userData.first_name) {
+              setValue("first_name", userData.first_name);
+            }
+            if (!getValues("last_name") && userData.last_name) {
+              setValue("last_name", userData.last_name);
+            }
+            if (!getValues("email") && userData.email) {
+              setValue("email", userData.email);
+            }
+            if (!getValues("phone") && userData.phone) {
+              setValue("phone", userData.phone);
+            }
+            if (!getValues("company_name") && userData.company_name) {
+              setValue("company_name", userData.company_name);
+            }
+            if (!getValues("contact_person") && userData.contact_person) {
+              setValue("contact_person", userData.contact_person);
+            }
+          }
       })();
     }
   }, [
@@ -231,7 +245,6 @@ export const PersonalInfoForm = () => {
                   label="Nombre"
                   placeholder="Nombre"
                   fullWidth
-                  disa
                   InputLabelProps={{ shrink: true }}
                   {...register("first_name", {
                     required:

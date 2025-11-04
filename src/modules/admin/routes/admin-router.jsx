@@ -19,7 +19,6 @@ import {
   EventFeaturedPage,
   ClientPersonPage,
   ClientCompanyPage,
-  AssignResourcesPage,
   EventQuotationAddPage,
   EventQuotationEditPage,
   RequestsPage,
@@ -45,7 +44,6 @@ export const AdminRoutes = () => {
         <Route path="event-ongoing/activities" element={<EventActivitiesPage />} />
         <Route path="event-types" element={<EventTypePage />} />
         <Route path="quotations" element={<EventQuotationsPage />} />
-        <Route path="quotations/assign" element={<AssignResourcesPage />} />
         <Route path="quotations/new" element={<EventQuotationAddPage />} />
         <Route path="quotations/edit" element={<EventQuotationEditPage />} />
         <Route path="quotations/payments-programming" element={<EventPaymentsProgrammingPage />} />

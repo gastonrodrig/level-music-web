@@ -11,14 +11,13 @@ import {
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
 import { TableComponent } from "../../../../../shared/ui/components";
 import { formatDay } from "../../../../../shared/utils";
-import { Group, AddCircleOutline, Edit, Payments } from "@mui/icons-material";
+import { AddCircleOutline, Edit, Payments } from "@mui/icons-material";
 import { Box, Typography, Button, TextField, CircularProgress } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 
 export const EventQuotationsPage = () => {
   const {
     quotations,
-    selected,
     total,
     loading,
     searchTerm,
@@ -103,27 +102,11 @@ export const EventQuotationsPage = () => {
 
   const actions = [
     {
-      label: 'Asignar Recursos',
-      icon: <Group />,
-      onClick: (row) => {
-        setSelectedQuotation(row);
-        navigate(`/admin/quotations/assign`);
-      },
-      show: (row) =>
-        String(row?.creator).toLowerCase() !== 'admin' &&
-        ((row?.assignations?.length ?? 0) === 0),
-    },
-    {
       label: 'Editar Cotización',
       icon: <Edit />,
       onClick: (row) => {
         setSelectedQuotation(row);
         navigate(`/admin/quotations/edit`);
-      },
-      show: (row) => {
-        const isAdmin = String(row?.creator).toLowerCase() === 'admin';
-        const hasAssignations = (row?.assignations?.length ?? 0) > 0;
-        return isAdmin || (!isAdmin && hasAssignations);
       },
     },
     {
@@ -132,13 +115,7 @@ export const EventQuotationsPage = () => {
       onClick: (row) => {
         setSelectedQuotation(row);
         navigate(`/admin/quotations/payments-programming`);
-      },
-      show: (row) => {
-        const status = String(row?.status || '').toLowerCase();
-        const isValidStatus = ['aprobado'].includes(status);
-        const hasAssignations = (row?.assignations?.length ?? 0) > 0;
-        return isValidStatus && hasAssignations;
-      },
+      }
     }
   ];
 
