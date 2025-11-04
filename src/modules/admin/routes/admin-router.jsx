@@ -24,7 +24,8 @@ import {
   RequestsPage,
   ReschedulePage,
   EventPaymentsProgrammingPage,
-  AppointmentPage
+  AppointmentPage,    
+  EventHistoryPage
 } from '../pages';
 import { AdminLayout } from '../layout/admin-layout';
 
@@ -48,7 +49,8 @@ export const AdminRoutes = () => {
         <Route path="quotations/edit" element={<EventQuotationEditPage />} />
         <Route path="quotations/payments-programming" element={<EventPaymentsProgrammingPage />} />
         <Route path="featured-events" element={<EventFeaturedPage />} />
-        
+        <Route path="quotations/history" element={<EventHistoryPage />} />
+
         {/* Reprogramaciones */}
         <Route path="requests" element={<RequestsPage />} />
         <Route path="reschedule" element={<ReschedulePage />} />
