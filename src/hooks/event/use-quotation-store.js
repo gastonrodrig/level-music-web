@@ -26,8 +26,6 @@ export const useQuotationStore = () => {
     currentPage, 
     rowsPerPage 
   } = useSelector((state) => state.quotation);
-  
-  const { status } = useSelector((state) => state.auth);
 
   const { token } = useSelector((state) => state.auth);
 

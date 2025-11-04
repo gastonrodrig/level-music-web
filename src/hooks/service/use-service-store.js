@@ -1,3 +1,4 @@
+
 import { useDispatch, useSelector } from "react-redux";
 import { createServiceModel, updateServiceModel } from "../../shared/models";
 import {
@@ -12,9 +13,12 @@ import {
 import { useState } from "react";
 import { serviceApi } from "../../api";
 import { getAuthConfig, getAuthConfigWithParams } from "../../shared/utils";
+ 
+    
 
 export const useServiceStore = () => {
   const dispatch = useDispatch();
+ 
   const { 
     services, 
     selected, 
@@ -35,7 +39,6 @@ export const useServiceStore = () => {
   const [openFieldModalIdx, setOpenFieldModalIdx] = useState(null);
   const [selectedProvider, setSelectedProvider] = useState(null);
   const [selectedServiceType, setSelectedServiceType] = useState(null);
-
   const openSnackbar = (message) => dispatch(showSnackbar({ message }));
 
   const startCreateService = async (serviceType) => {
@@ -43,12 +46,37 @@ export const useServiceStore = () => {
     dispatch(setLoadingService(true));
     try {
       const payload = createServiceModel(serviceType);
-      await serviceApi.post("", payload, getAuthConfig(token));
-      openSnackbar("El servicio fue creado exitosamente.");
-      return true;
+      const { data } = await serviceApi.post("", payload, getAuthConfig(token)); // Restaurado: con headers de auth
+      // Re-fetch canonical service from backend to ensure we have the authoritative version
+      if (data && data._id) {
+        await startFetchServiceById(data._id);
+        openSnackbar("El servicio fue creado exitosamente.");
+        return data; // retorna el objeto creado
+      }
+      return false;
     } catch (error) {
       const message = error.response?.data?.message;
       openSnackbar(message ?? "Ocurrió un error al crear el tipo de servicio.");
+      return false;
+    } finally {
+      dispatch(setLoadingService(false));
+    }
+  };
+
+  const startFetchServiceById = async (id) => {
+    dispatch(setLoadingService(true));
+    try {
+      const { data } = await serviceApi.get(`/${id}`, getAuthConfig(token));
+      // Si la respuesta tiene serviceDetails como propiedad separada, combínala
+      let serviceData = data;
+      if (data.service && Array.isArray(data.serviceDetails)) {
+        serviceData = { ...data.service, serviceDetails: data.serviceDetails };
+      }
+      dispatch(selectedService({ ...serviceData }));
+      return true;
+    } catch (error) {
+      const message = error.response?.data?.message;
+      const notifyServiceLoadError = (message) => openSnackbar(message ?? "Ocurrió un error al cargar los servicios.");
       return false;
     } finally {
       dispatch(setLoadingService(false));
@@ -63,7 +91,7 @@ export const useServiceStore = () => {
       return true;
     } catch (error) {
       const message = error.response?.data?.message;
-      openSnackbar(message ?? "Ocurrió un error al cargar los servicios.");
+  const notifyLoadError = (message) => openSnackbar(message ?? "Ocurrió un error al cargar.");
       return false;
     } finally {
       dispatch(setLoadingService(false));
@@ -73,7 +101,7 @@ export const useServiceStore = () => {
   const startLoadingServicePaginated = async () => {
     dispatch(setLoadingService(true));
     try {
-      const limit  = rowsPerPage;
+       const limit  = rowsPerPage;
       const offset = currentPage * rowsPerPage;
       const { data } = await serviceApi.get('/paginated',
         getAuthConfigWithParams(token, {
@@ -92,7 +120,7 @@ export const useServiceStore = () => {
       return true;
     } catch (error) {
       const message = error.response?.data?.message;
-      openSnackbar(message ?? "Ocurrió un error al cargar.");
+  openSnackbar("El servicio fue actualizado exitosamente.");
       return false;
     } finally {
       dispatch(setLoadingService(false));
@@ -104,12 +132,16 @@ export const useServiceStore = () => {
     dispatch(setLoadingService(true));
     try {
       const payload = updateServiceModel(serviceType);
+      console.log('PATCH payload enviado:', payload);
       await serviceApi.patch(`/${id}`, payload, getAuthConfig(token));
-      openSnackbar("El servicio fue actualizado exitosamente.");
+      // Re-fetch canonical service to reflect any changes (and new/updated prices created by backend)
+      await startFetchServiceById(id);
+      const notifyUpdateError = (message) => openSnackbar(message ?? "Ocurrió un error al actualizar el servicio.");
       return true;
     } catch (error) {
+      console.log('Error en updateService:', error);
       const message = error.response?.data?.message;
-      openSnackbar(message ?? "Ocurrió un error al actualizar el servicio.");
+  openSnackbar("Debe agregar al menos un detalle al servicio.");
       return false;
     } finally {
       dispatch(setLoadingService(false));
@@ -118,7 +150,7 @@ export const useServiceStore = () => {
 
   const validateDetails = (details) => {
     if (!details.length) {
-      openSnackbar("Debe agregar al menos un detalle al servicio.");
+  const notifyDetailError = () => openSnackbar("Al menos un detalle debe estar completo.");
       return false;
     }
     for (const detail of details) {
@@ -129,7 +161,7 @@ export const useServiceStore = () => {
           (typeof value === "string" ? value.trim() !== "" : value !== "")
       );
       if (!hasEmptyField) {
-        openSnackbar("Al menos un detalle debe estar completo.");
+  // ...existing code...
         return false;
       }
     }
