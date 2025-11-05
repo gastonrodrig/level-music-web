@@ -123,7 +123,7 @@ export const PaymentSummaryCard = ({
               </Typography>
 
               <Typography sx={{ fontSize: 14 }}>
-                • Equipos (50%):
+                • Equipos:
                 <span style={{ float: "right" }}>
                   {formatCurrency(
                     equipments.reduce((acc, e) => acc + (e.hourly_rate || 0) * (e.hours || 1) * 0.5, 0)
@@ -132,7 +132,7 @@ export const PaymentSummaryCard = ({
               </Typography>
 
               <Typography sx={{ fontSize: 14 }}>
-                • Trabajadores (50%):
+                • Trabajadores:
                 <span style={{ float: "right" }}>
                   {formatCurrency(
                     workers.reduce((acc, w) => acc + (w.hourly_rate || 0) * (w.hours || 1) * 0.5, 0)
@@ -141,15 +141,7 @@ export const PaymentSummaryCard = ({
               </Typography>
 
               <Typography sx={{ fontSize: 14 }}>
-                • Servicios Adic. (
-                {(() => {
-                  const highest = services.reduce(
-                    (max, s) => Math.max(max, s.payment_percentage_required || 0),
-                    0
-                  );
-                  return highest > 50 ? `${highest}%` : "50%";
-                })()}
-                ):
+                • Servicios Adicionales:
                 <span style={{ float: "right" }}>
                   {formatCurrency(
                     services.reduce((acc, s) => {

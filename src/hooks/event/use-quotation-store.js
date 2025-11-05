@@ -69,7 +69,6 @@ export const useQuotationStore = () => {
   const startTimeUpdateQuotationAdmin = async (quotationId, partial) => {
     dispatch(setLoadingQuotation(true));
     try {
-      // partial: { start_time: ISOstring, end_time: ISOstring } (no enviar assignations)
       await eventApi.patch(`quotation/admin/${quotationId}`, partial, getAuthConfig(token));
       openSnackbar("La cotización fue editada exitosamente.");
       return true;
@@ -107,6 +106,27 @@ export const useQuotationStore = () => {
     } catch (error) {
       const message = error.response?.data?.message;
       openSnackbar(message ?? "Ocurrió un error al cargar las cotizaciones.");
+      return false;
+    } finally {
+      dispatch(setLoadingQuotation(false));
+    }
+  };
+
+  const startLoadingQuotationVersionsByCode = async (eventCode) => {
+    dispatch(setLoadingQuotation(true));
+    try {
+      const { data } = await eventApi.get(`/versions/${eventCode}`, getAuthConfig(token));
+
+      dispatch(refreshQuotations({
+        items: data,
+        total: data.length,
+        page: 0,
+      }));
+      
+      return true;
+    } catch (error) {
+      const message = error.response?.data?.message;
+      openSnackbar(message ?? "Ocurrió un error al cargar las versiones de la cotización.");
       return false;
     } finally {
       dispatch(setLoadingQuotation(false));
@@ -168,6 +188,7 @@ export const useQuotationStore = () => {
     // actions
     startCreateQuotation,
     startLoadingQuotationPaginated,
+    startLoadingQuotationVersionsByCode,
     setSelectedQuotation,
     startUpdateQuotation,
     startEvaluateQuotation,

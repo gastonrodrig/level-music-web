@@ -10,9 +10,9 @@ export const EventInfoCard = ({ selected }) => {
   if (!selected) return null;
 
   const client =
-    selected?.client_info?.client_type === "Persona"
-      ? `${selected?.client_info?.first_name || ""} ${selected?.client_info?.last_name || ""}`.trim()
-      : selected?.client_info?.company_name;
+    selected?.client_type === "Persona"
+      ? `${selected?.first_name || ""} ${selected?.last_name || ""}`.trim()
+      : selected?.company_name;
 
   return (
     <Box

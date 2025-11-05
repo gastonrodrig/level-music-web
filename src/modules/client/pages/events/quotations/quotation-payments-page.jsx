@@ -85,9 +85,9 @@ export const QuotationPaymentsPage = () => {
             <Box component="span" fontWeight="bold">
               Cliente:
             </Box>{" "}
-            {selected?.client_info.client_type === "Persona"
-              ? `${selected?.client_info.first_name} ${selected?.client_info.last_name}`
-              : selected?.client_info.business_name}{" "}
+            {selected?.client_type === "Persona"
+              ? `${selected?.first_name} ${selected?.last_name}`
+              : selected?.business_name}{" "}
             -{" "}
             <Box component="span" fontWeight="bold">
               Evento:
