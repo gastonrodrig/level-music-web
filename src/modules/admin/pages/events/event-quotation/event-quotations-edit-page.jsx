@@ -75,15 +75,15 @@ export const EventQuotationEditPage = () => {
       placeReference: selected?.location_reference || "",
       placeCapacity: selected?.place_size || "",
       // Cliente
-      client_type: selected?.client_info?.client_type || "Persona",
-      email: selected?.client_info?.email || "",
-      phone: selected?.client_info?.phone || "",
-      document_type: selected?.client_info?.document_type || "Dni",
-      document_number: selected?.client_info?.document_number || "",
-      first_name: selected?.client_info?.first_name || "",
-      last_name: selected?.client_info?.last_name || "",
-      company_name: selected?.client_info?.company_name || "",
-      contact_person: selected?.client_info?.contact_person || "",
+      client_type: selected?.client_type || "Persona",
+      email: selected?.email || "",
+      phone: selected?.phone || "",
+      document_type: selected?.document_type || "Dni",
+      document_number: selected?.document_number || "",
+      first_name: selected?.first_name || "",
+      last_name: selected?.last_name || "",
+      company_name: selected?.company_name || "",
+      contact_person: selected?.contact_person || "",
       // Recursos (arrays)
       services: selected?.assignations?.filter(a => a.resource_type === "Servicio Adicional").map(s => ({
         service_type_name: s.service_type_name,
@@ -250,7 +250,7 @@ export const EventQuotationEditPage = () => {
           to={assignmentToISO}
           datesReady={datesReady}
           guardDates={guardDates}
-          eventId={selected?._id}
+          eventCode={selected?.event_code}
         />
 
         <AssignEquipmentCard
@@ -267,7 +267,7 @@ export const EventQuotationEditPage = () => {
           to={assignmentToISO}
           datesReady={datesReady}
           guardDates={guardDates}
-          eventId={selected?._id}
+          eventCode={selected?.event_code}
         />
 
         <AssignWorkerCard
@@ -284,7 +284,7 @@ export const EventQuotationEditPage = () => {
           to={assignmentToISO}
           datesReady={datesReady}
           guardDates={guardDates}
-          eventId={selected?._id}
+          eventCode={selected?.event_code}
         />
 
         {/* Resumen */}

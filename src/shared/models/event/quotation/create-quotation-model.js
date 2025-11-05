@@ -46,7 +46,6 @@ export const createQuotationModel = (data) => {
     event_type_name: data.event_type_name,
     estimated_price: Number(data.estimated_price),
     assignations,
-    // campos desnormalizados (ya no client_info)
     client_type: data.client_type === "Empresa" ? "Empresa" : "Persona",
     first_name: data.client_type === "Persona" ? data.first_name : null,
     last_name: data.client_type === "Persona" ? data.last_name : null,

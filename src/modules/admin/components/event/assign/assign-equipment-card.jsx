@@ -30,7 +30,7 @@ export const AssignEquipmentCard = ({
   eventDate,
   datesReady, 
   guardDates,
-  eventId
+  eventCode
 }) => {
   const { isSm } = useScreenSizes();
 
@@ -188,7 +188,7 @@ export const AssignEquipmentCard = ({
                   from,
                   to,
                   eventDate,
-                  eventId
+                  eventCode
                 });
               }}
               disabled={!equipmentId || !equipmentHours || !equipmentPrice}

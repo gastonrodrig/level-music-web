@@ -29,7 +29,7 @@ export const AssignWorkerCard = ({
   to,
   datesReady,
   guardDates,
-  eventId
+  eventCode
 }) => {
   const { isSm } = useScreenSizes();
 
@@ -191,7 +191,7 @@ export const AssignWorkerCard = ({
                   onSuccess: resetForm,
                   from,
                   to,
-                  eventId
+                  eventCode
                 });
               }}
               disabled={!workerId || !workerHours || !workerPrice}

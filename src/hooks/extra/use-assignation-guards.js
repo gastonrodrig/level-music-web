@@ -22,9 +22,8 @@ export const useAssignationGuards = () => {
     }
   };
 
-  const checkEquipmentAvailability = async (equipmentId, from, to, eventId) => {
+  const checkEquipmentAvailability = async (equipmentId, from, to, eventCode) => {
     try {
-      console.log("Checking equipment availability for eventId:", eventId);
       const fromUTC = new Date(from).toISOString();
       const toUTC   = new Date(to).toISOString();
       await assignationsApi.get(`/availability/equipment/${equipmentId}`,
@@ -32,7 +31,7 @@ export const useAssignationGuards = () => {
           { 
             from: fromUTC, 
             to: toUTC,
-            eventId
+            eventCode
           }
         )
       );
@@ -43,7 +42,7 @@ export const useAssignationGuards = () => {
     }
   };
 
-  const checkWorkerAvailability = async (workerId, from, to, eventId) => {
+  const checkWorkerAvailability = async (workerId, from, to, eventCode) => {
     try {
       const fromUTC = new Date(from).toISOString();
       const toUTC   = new Date(to).toISOString();
@@ -52,7 +51,7 @@ export const useAssignationGuards = () => {
           { 
             from: fromUTC, 
             to: toUTC,
-            eventId
+            eventCode
           }
         )
       );
@@ -63,7 +62,7 @@ export const useAssignationGuards = () => {
     }
   };
 
-  const checkServiceDetailAvailability = async (serviceDetailId, from, to) => {
+  const checkServiceDetailAvailability = async (serviceDetailId, from, to, eventCode) => {
     try {
       const fromUTC = new Date(from).toISOString();
       const toUTC   = new Date(to).toISOString();
@@ -71,7 +70,8 @@ export const useAssignationGuards = () => {
         getAuthConfigWithParams(token, 
           { 
             from: fromUTC, 
-            to: toUTC 
+            to: toUTC,
+            eventCode
           }
         )
       );
@@ -92,7 +92,7 @@ export const useAssignationGuards = () => {
     from,
     to,
     eventDate,
-    eventId
+    eventCode
   }) => {
     if (!selectedEquipment) {
       openSnackbar("Debe seleccionar un equipo."); 
@@ -111,7 +111,7 @@ export const useAssignationGuards = () => {
       return false; 
     }
 
-    const avail = await checkEquipmentAvailability(selectedEquipment._id, from, to, eventId);
+    const avail = await checkEquipmentAvailability(selectedEquipment._id, from, to, eventCode);
     if (!avail.ok) { 
       openSnackbar(avail.message); 
       return false; 
@@ -150,7 +150,7 @@ export const useAssignationGuards = () => {
     onSuccess,
     from,
     to,
-    eventId
+    eventCode
   }) => {
     if (!selectedDetail) {
       openSnackbar("Debe seleccionar un paquete."); 
@@ -171,7 +171,7 @@ export const useAssignationGuards = () => {
       return false; 
     }
 
-    const avail = await checkServiceDetailAvailability(selectedDetail._id, from, to, eventId);
+    const avail = await checkServiceDetailAvailability(selectedDetail._id, from, to, eventCode);
     if (!avail.ok) { 
       openSnackbar(avail.message); 
       return false; 
@@ -201,7 +201,7 @@ export const useAssignationGuards = () => {
     onSuccess,
     from,
     to,
-    eventId
+    eventCode
   }) => {
     if (!isPriceValid(workerPrice)) {
       openSnackbar("Debe ingresar un precio válido."); 
@@ -216,7 +216,7 @@ export const useAssignationGuards = () => {
       return false; 
     }
 
-    const avail = await checkWorkerAvailability(selectedWorker._id, from, to, eventId);
+    const avail = await checkWorkerAvailability(selectedWorker._id, from, to, eventCode);
     if (!avail.ok) {
       openSnackbar(avail.message); 
       return false; 

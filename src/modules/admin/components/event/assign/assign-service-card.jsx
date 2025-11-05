@@ -29,7 +29,7 @@ export const AssignServiceCard = ({
   to,
   datesReady,
   guardDates,
-  eventId
+  eventCode
 }) => {
   const { isSm } = useScreenSizes();
 
@@ -236,7 +236,7 @@ export const AssignServiceCard = ({
                   onSuccess: resetForm,
                   from,
                   to,
-                  eventId
+                  eventCode
                 });
               }}
               disabled={!serviceDetailId}

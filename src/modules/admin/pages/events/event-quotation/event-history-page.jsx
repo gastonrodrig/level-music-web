@@ -17,7 +17,7 @@ import { Visibility, Article, AccessTime } from "@mui/icons-material";
 import { useQuotationStore } from "../../../../../hooks";
 import { formatDay } from "../../../../../shared/utils";
 
-export default function EventHistoryPage() {
+export const EventHistoryPage = () => {
   const theme = useTheme();
   const { selected } = useQuotationStore();
 
