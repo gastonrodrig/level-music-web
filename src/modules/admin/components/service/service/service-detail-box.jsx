@@ -7,9 +7,20 @@ import {
   Grid,
   useTheme,
   Switch,
+  Paper,
 } from "@mui/material";
-import { Delete, Add, Close, CalendarMonth } from "@mui/icons-material";
+import { Delete, Add, Close, CalendarMonth, CloudUpload, CheckCircle, InsertDriveFile } from "@mui/icons-material";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
+import { useState, useEffect } from "react";
+import { ImagePreviewModal } from "../../../../../shared/ui/components/common";
+
+const formatFileSize = (bytes) => {
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+};
 
 export const ServiceDetailBox = ({
   index,
@@ -38,6 +49,67 @@ export const ServiceDetailBox = ({
     }
     if (serviceDetailId) onOpenPrices(serviceDetailId);
   };
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [selectedPreview, setSelectedPreview] = useState(null); // <-- 1. AÑADIDO: Estado para la imagen seleccionada
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [previewUrls, setPreviewUrls] = useState([]);
+  const MAX_FILES = 5;
+
+ 
+
+    const handleOpenPreview = (url) => {
+    if (url) {
+      setSelectedPreview(url);
+      setPreviewModalOpen(true);
+    }
+  };
+
+  const handleClosePreview = () => {
+    setPreviewModalOpen(false);
+    setSelectedPreview(null); // <-- Buena práctica: limpiar al cerrar
+  };
+  useEffect(() => {
+    const newUrls = selectedFiles.map(file => {
+      // Solo creamos URL si es un tipo de imagen
+      if (file.type.startsWith("image/")) {
+        return URL.createObjectURL(file);
+      }
+      return null; // Será null para PDFs u otros
+    });
+    setPreviewUrls(newUrls);
+
+    // Limpieza: revocar URLs al desmontar
+    return () => newUrls.forEach(url => url && URL.revokeObjectURL(url));
+  }, [selectedFiles]);
+
+  const handleFileChange = (event) => {
+    const files = Array.from(event.target.files);
+    // Filtramos los archivos que ya están (por nombre) y aplicamos el límite
+    const newFiles = files.filter(
+      (newFile) => !selectedFiles.some((sf) => sf.name === newFile.name)
+    );
+    const updatedFiles = [...selectedFiles, ...newFiles].slice(0, MAX_FILES);
+    setSelectedFiles(updatedFiles);
+    // ¡CLAVE! Actualizamos react-hook-form
+    // El 'detail_number' se usará en el hook 'useServiceStore' para crear el fieldname
+    setValue(`serviceDetails.${index}.photos`, updatedFiles, { 
+      shouldValidate: true, 
+      shouldDirty: true 
+    });
+  };
+
+  const handleRemoveFile = (fileName) => {
+    const updatedFiles = selectedFiles.filter((file) => file.name !== fileName);
+    setSelectedFiles(updatedFiles);
+    
+    // ¡CLAVE! Actualizamos react-hook-form
+    setValue(`serviceDetails.${index}.photos`, updatedFiles, { 
+      shouldValidate: true, 
+      shouldDirty: true 
+    });
+  };
+
+ 
 
   return (
     <Box
@@ -272,6 +344,137 @@ export const ServiceDetailBox = ({
           ))
         )}
       </Grid>
+        {/* === INICIO DEL UPLOADER DE FOTOS (ADAPTADO) === */}
+      <Grid container spacing={2} sx={{ mt: 2 }}>
+        <Grid item xs={12}>
+          <Typography variant="body2" sx={{ color: theme.palette.text.primary, mb: 1, fontWeight: 600 }}>
+            Fotos del Detalle (Máx. {MAX_FILES})
+          </Typography>
+          
+          <input
+            type="file"
+            id={`file-upload-${index}`} // <-- ID único por detalle
+            accept="image/png,image/jpeg,image/jpg"
+            style={{ display: "none" }}
+            onChange={handleFileChange}
+            multiple // <-- ¡IMPORTANTE! Permite múltiples archivos
+          />
+
+          {/* --- Dropzone (Botón para subir) --- */}
+          {selectedFiles.length < MAX_FILES && (
+             <Paper
+              elevation={0}
+              component="label"
+              htmlFor={`file-upload-${index}`} // <-- Conecta con el input
+              sx={{
+                p: 3,
+                border: `2px dashed ${theme.palette.divider}`,
+                borderRadius: 2,
+                bgcolor: isDark ? "#2d2d2d" : "#e0e0e0",
+                cursor: "pointer",
+                transition: "all 0.2s",
+                "&:hover": { borderColor: theme.palette.primary.main },
+                display: "flex",
+                alignItems: "center",
+                gap: 3,
+              }}
+            >
+              <Box
+                sx={{
+                  bgcolor: isDark ? "#333" : "#f0f0f0",
+                  borderRadius: 2,
+                  p: 2,
+                  display: "flex",
+                }}
+              >
+                <CloudUpload sx={{ fontSize: 40, color: theme.palette.text.secondary }} />
+              </Box>
+              <Box sx={{ flex: 1, textAlign: "left" }}>
+                <Typography
+                  variant="body2"
+                  sx={{ color: theme.palette.text.primary, mb: 0.5, fontWeight: 500 }}
+                >
+                  Sube las fotos
+                </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{ color: theme.palette.text.secondary, display: "block" }}
+                >
+                  PNG, JPG (Máx. 5MB c/u)
+                </Typography>
+              </Box>
+            </Paper>
+          )}
+
+          {/* --- Previsualización de archivos seleccionados --- */}
+          {selectedFiles.length > 0 && (
+            <Grid container spacing={2} sx={{ mt: 1 }}>
+              {selectedFiles.map((file, fileIndex) => (
+                <Grid item xs={6} sm={4} md={3} key={file.name}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      border: `1px solid ${theme.palette.divider}`,
+                      borderRadius: 2,
+                      bgcolor: isDark ? "#2d2d2d" : "#e0e0e0",
+                      position: "relative",
+                      height: 120, // Altura fija
+                      overflow: 'hidden'
+                    }}
+                  >
+                    <IconButton
+                      size="small"
+                      onClick={() => handleRemoveFile(file.name)}
+                      sx={{
+                        position: "absolute",
+                        top: 4,
+                        right: 4,
+                        zIndex: 1,
+                        bgcolor: "rgba(0,0,0,0.5)",
+                        "&:hover": { bgcolor: "rgba(0,0,0,0.7)" },
+                      }}
+                    >
+                      <Close fontSize="small" sx={{ color: "#fff" }} />
+                    </IconButton>
+
+                    {previewUrls[fileIndex] ? (
+                      // Es imagen, mostrar preview
+                      <Box
+                        component="img"
+                        src={previewUrls[fileIndex]}
+                        alt={file.name}
+                        onClick={() => handleOpenPreview(previewUrls[fileIndex])}
+                        sx={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover", // Cubre el espacio
+                          cursor: "pointer",
+                        }}
+                      />
+                    ) : (
+                      // No es imagen (o está cargando)
+                      <Box sx={{ p: 2, textAlign: 'center' }}>
+                        <InsertDriveFile sx={{ fontSize: 48, color: "#f44336" }} />
+                        <Typography variant="caption" display="block" noWrap>
+                          {file.name}
+                        </Typography>
+                      </Box>
+                    )}
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
+          )}
+
+        </Grid>
+      </Grid>
+      {/* === FIN DEL UPLOADER DE FOTOS === */}
+      <ImagePreviewModal
+        open={previewModalOpen}
+        src={selectedPreview}
+        onClose={handleClosePreview}
+      />
+
     </Box>
   );
 };

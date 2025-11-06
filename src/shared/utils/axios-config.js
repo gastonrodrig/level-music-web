@@ -15,3 +15,20 @@ export const getAuthConfigWithParams = (token, params = {}) => ({
   },
   params,
 });
+
+export const getAuthConfig2 = (token, isFormData = false) => {
+  // 1. El header de autorización siempre va
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  // 2. SOLO ponemos 'Content-Type' si es un JSON normal
+  if (!isFormData) {
+    headers['Content-Type'] = 'application/json';
+  }
+
+  // 3. Si isFormData es true, no añadimos NADA. 
+  //    El navegador pondrá 'multipart/form-data; boundary=...'
+  
+  return { headers };
+};

@@ -12,7 +12,7 @@ import {
 } from "../../store";
 import { useState } from "react";
 import { serviceApi } from "../../api";
-import { getAuthConfig, getAuthConfigWithParams } from "../../shared/utils";
+import { getAuthConfig, getAuthConfigWithParams, getAuthConfig2 } from "../../shared/utils";
  
     
 
@@ -41,12 +41,37 @@ export const useServiceStore = () => {
   const [selectedServiceType, setSelectedServiceType] = useState(null);
   const openSnackbar = (message) => dispatch(showSnackbar({ message }));
 
-  const startCreateService = async (serviceType) => {
-    if (!validateDetails(serviceType.serviceDetails)) return false;
+  const startCreateService = async (serviceDataFromForm) => {
+    if (!validateDetails(serviceDataFromForm.serviceDetails)) return false;
     dispatch(setLoadingService(true));
     try {
-      const payload = createServiceModel(serviceType);
-      const { data } = await serviceApi.post("", payload, getAuthConfig(token)); // Restaurado: con headers de auth
+      const formData = new FormData();
+      formData.append('provider_id', serviceDataFromForm.provider_id);
+      formData.append('service_type_id', serviceDataFromForm.service_type_id);
+
+      const detailsForJSON = serviceDataFromForm.serviceDetails.map((detail, idx) => ({
+        details: Object.fromEntries(
+          Object.entries(detail.details).map(([key, value]) => {
+            const num = Number(value);
+            return [key, isNaN(num) || value === "" ? value : num];
+          })
+        ),
+        ref_price: detail.ref_price,
+        detail_number: detail.detail_number || idx + 1,
+      }));
+      formData.append('serviceDetails', JSON.stringify(detailsForJSON));
+
+      serviceDataFromForm.serviceDetails.forEach((detail, idx) => {
+        const detailNum = detail.detail_number || idx + 1;
+        const fieldName = `photos_${detailNum}`;
+        if (detail.photos && detail.photos.length > 0) {
+          detail.photos.forEach(file => {
+            formData.append(fieldName, file); // 'file' debe ser un objeto File
+          });
+        }
+      });
+
+      const { data } = await serviceApi.post("", formData, getAuthConfig2(token,true)); // Restaurado: con headers de auth
       // Re-fetch canonical service from backend to ensure we have the authoritative version
       if (data && data._id) {
         await startFetchServiceById(data._id);
