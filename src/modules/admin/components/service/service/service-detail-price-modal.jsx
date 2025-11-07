@@ -1,3 +1,4 @@
+
 import {
   Modal,
   Box,
@@ -11,25 +12,24 @@ import { TableComponent } from "../../../../../shared/ui/components/common/table
 import { formatDay } from "../../../../../shared/utils/format-day";
 import { Close, CalendarMonth } from "@mui/icons-material";
 import { useEffect, useState } from "react";
-import { serviceDetailPriceApi } from "../../../../../api"; // usa la ruta global api
+import { serviceDetailPriceApi } from "../../../../../api/service/service-detail-price-api";
 
-export const ServicePricesModal = ({ open, onClose, serviceDetailId, detailNumber = 1 }) => {
+// API igual al ejemplo: recibe serviceDetailId y detailNumber
+export const ServiceDetailPriceModal = ({ open, onClose, serviceDetailId, detailNumber = 1 }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const [prices, setPrices] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // 🧩 Si el modal está abierto y hay un ID válido, carga los precios
     if (open && serviceDetailId) {
       setLoading(true);
       serviceDetailPriceApi
         .get(`/by-detail/${serviceDetailId}`)
         .then(({ data }) => setPrices(data))
-        .catch((err) => setPrices(null)) // null indica error de ID
+        .catch(() => setPrices(null))
         .finally(() => setLoading(false));
     } else {
-      // Limpia cuando se cierra
       setPrices([]);
     }
   }, [open, serviceDetailId]);
@@ -65,8 +65,11 @@ export const ServicePricesModal = ({ open, onClose, serviceDetailId, detailNumbe
           </IconButton>
         </Box>
 
-        <Typography variant="body2" mt={2} mb={2} color="text.secondary">
-          Mostrando precios registrados por temporada.
+        <Typography fontSize={15} mt={2} mb={2}>
+          <Box component="span" sx={{ fontWeight: 700, mr: 0.5 }}>
+            Detalle:
+          </Box>
+          <Box component="span">#{detailNumber}</Box>
         </Typography>
 
         {/* === TABLA REUTILIZABLE === */}
@@ -85,7 +88,7 @@ export const ServicePricesModal = ({ open, onClose, serviceDetailId, detailNumbe
         ) : (
           <TableComponent
             columns={[
-              { label: "N° Temporada", id: "detail_number", accessor: (row, idx) => row.detail_number ?? idx + 1 },
+              { label: "Orden de Precio", id: "detail_number", accessor: (row, idx) => row.detail_number ?? idx + 1 },
               { label: "Precio Ref. (S/)", id: "reference_detail_price", accessor: (row) => row.reference_detail_price ? `S/ ${Number(row.reference_detail_price).toFixed(2)}` : "-" },
               { label: "Fecha Inicio", id: "start_date", accessor: (row) => row.start_date ? formatDay(row.start_date) : "-" },
               { label: "Fecha Fin", id: "end_date", accessor: (row) => row.end_date == null ? "-" : formatDay(row.end_date) },

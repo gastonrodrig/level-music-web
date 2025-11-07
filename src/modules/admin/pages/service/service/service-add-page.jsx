@@ -21,7 +21,9 @@ import {
 } from "../../../../../hooks";
 import { useEffect, useMemo } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
+
 import { useNavigate } from "react-router-dom";
+import { createServiceModel } from '../../../../../shared/models/service/service/create-service-model';
 
 export const ServiceAddPage = () => {
   const theme = useTheme();
@@ -79,46 +81,11 @@ export const ServiceAddPage = () => {
   const { isLg } = useScreenSizes();
 
   const onSubmit = async (data) => {
-    // Construye el array de serviceDetails con detail_number y ref_price
-    let details = Array.isArray(data.serviceDetails) ? data.serviceDetails : [];
-    // Diccionario de mapeo español -> inglés
-    const fieldMap = {
-      "Horas de servicio": "duration",
-      "Número de invitados": "guests",
-      "Precio por hora de referencia ($)": "price_per_hour"
-    };
-    details = details.map((detail, idx) => {
-      const det = detail.details || {};
-      const detailsObj = {};
-      Object.entries(det).forEach(([key, value]) => {
-        const engKey = fieldMap[key] || key;
-        const num = Number(value);
-        detailsObj[engKey] = value === "" ? undefined : (isNaN(num) ? value : num);
-      });
-      return {
-        details: detailsObj,
-        ref_price: Number(detail.ref_price || 0),
-        detail_number: Number(idx + 1),
-      };
-    });
-
-    // Construye el payload final
-    const payload = {
-      ...data,
-      serviceDetails: details,
-    };
-
-    // Log para depuración
-    console.log('Payload enviado a startCreateService:', payload);
-    console.log('Detalles:', JSON.stringify(payload.serviceDetails, null, 2));
-
-    // Intenta crear el servicio y navega si todo sale bien
     try {
-      await startCreateService(payload); // El store ya muestra el snackbar negro custom
-      // Si la creación fue exitosa, navega a la lista de servicios
+      await startCreateService(createServiceModel(data));
       navigate('/admin/service');
     } catch (error) {
-      // Si ocurre un error, el store ya muestra el snackbar negro custom
+      // El store ya muestra el snackbar custom
     }
   };
 
