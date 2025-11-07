@@ -34,7 +34,8 @@ export const ServiceDetailBox = ({
   isEditMode,
   setValue,
   initialData = {},
-  onOpenPrices, // 👈 función que abre el modal
+  onOpenPrices, 
+  onDeleteExistingPhoto,
 }) => {
   const theme = useTheme();
   const { isMd } = useScreenSizes();
@@ -53,12 +54,13 @@ export const ServiceDetailBox = ({
   const [selectedPreview, setSelectedPreview] = useState(null); // <-- 1. AÑADIDO: Estado para la imagen seleccionada
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [previewUrls, setPreviewUrls] = useState([]);
+  const [existingPhotos, setExistingPhotos] = useState([]);
   const MAX_FILES = 5;
 
  
 
-    const handleOpenPreview = (url) => {
-    if (url) {
+  const handleOpenPreview = (url) => {
+  if (url) {
       setSelectedPreview(url);
       setPreviewModalOpen(true);
     }
@@ -66,8 +68,17 @@ export const ServiceDetailBox = ({
 
   const handleClosePreview = () => {
     setPreviewModalOpen(false);
-    setSelectedPreview(null); // <-- Buena práctica: limpiar al cerrar
+    setSelectedPreview(null); 
   };
+
+  useEffect(() => {
+    // Cuando el componente carga en modo Edición, llena el estado 'existingPhotos'
+    // Tu backend ya las "popula", así que 'initialData.photos' es un array de objetos
+    if (initialData.photos && Array.isArray(initialData.photos)) {
+      setExistingPhotos(initialData.photos);
+    }
+  }, [initialData.photos]);
+
   useEffect(() => {
     const newUrls = selectedFiles.map(file => {
       // Solo creamos URL si es un tipo de imagen
@@ -109,7 +120,16 @@ export const ServiceDetailBox = ({
     });
   };
 
- 
+ const handleRemoveExistingFile = (photoId) => {
+    // Quita la foto de la UI local
+    setExistingPhotos(prev => prev.filter(p => p._id !== photoId));
+    
+    // Llama a la función del padre ('ServiceEditPage') para marcarla para borrado
+    if (onDeleteExistingPhoto) {
+      onDeleteExistingPhoto(photoId);
+    }
+  };
+  const totalPhotoCount = existingPhotos.length + selectedFiles.length;
 
   return (
     <Box
@@ -361,11 +381,11 @@ export const ServiceDetailBox = ({
           />
 
           {/* --- Dropzone (Botón para subir) --- */}
-          {selectedFiles.length < MAX_FILES && (
+         {totalPhotoCount < MAX_FILES && (
              <Paper
               elevation={0}
               component="label"
-              htmlFor={`file-upload-${index}`} // <-- Conecta con el input
+              htmlFor={`file-upload-${index}`} 
               sx={{
                 p: 3,
                 border: `2px dashed ${theme.palette.divider}`,
@@ -378,7 +398,7 @@ export const ServiceDetailBox = ({
                 alignItems: "center",
                 gap: 3,
               }}
-            >
+             >
               <Box
                 sx={{
                   bgcolor: isDark ? "#333" : "#f0f0f0",
@@ -407,8 +427,58 @@ export const ServiceDetailBox = ({
           )}
 
           {/* --- Previsualización de archivos seleccionados --- */}
-          {selectedFiles.length > 0 && (
+          {/* <-- 4. LÓGICA DE RENDERIZADO ACTUALIZADA */}
+          {(existingPhotos.length > 0 || selectedFiles.length > 0) && (
             <Grid container spacing={2} sx={{ mt: 1 }}>
+
+              {/* 4A. RENDERIZAR FOTOS EXISTENTES (las de la BD) */}
+              {existingPhotos.map((photo) => (
+                <Grid item xs={6} sm={4} md={3} key={photo._id}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      border: `1px solid ${theme.palette.divider}`,
+                      borderRadius: 2,
+                      bgcolor: isDark ? "#2d2d2d" : "#e0e0e0",
+                      position: "relative",
+                      height: 120,
+                      overflow: 'hidden'
+                    }}
+                  >
+                    <IconButton
+                      size="small"
+                      // <-- 4A. Handler para BORRAR EXISTENTE
+                      onClick={() => handleRemoveExistingFile(photo._id)}
+                      sx={{
+                        position: "absolute", top: 4, right: 4, zIndex: 1,
+                        bgcolor: "rgba(0,0,0,0.5)",
+                        "&:hover": { bgcolor: "rgba(0,0,0,0.7)" },
+                      }}
+                    >
+                      <Close fontSize="small" sx={{ color: "#fff" }} />
+                    </IconButton>
+
+                    {photo.url ? (
+                      <Box
+                        component="img"
+                        src={photo.url} // <-- Usa la URL del objeto photo
+                        alt={photo.name || 'foto existente'}
+                        onClick={() => handleOpenPreview(photo.url)}
+                        sx={{
+                          width: "100%", height: "100%",
+                          objectFit: "cover", cursor: "pointer",
+                        }}
+                      />
+                    ) : (
+                      <Box sx={{ p: 2, textAlign: 'center' }}>
+                        <InsertDriveFile sx={{ fontSize: 48, color: "#f44336" }} />
+                      </Box>
+                    )}
+                  </Paper>
+                </Grid>
+              ))}
+
+              {/* 4B. RENDERIZAR FOTOS NUEVAS (las que se acaban de subir) */}
               {selectedFiles.map((file, fileIndex) => (
                 <Grid item xs={6} sm={4} md={3} key={file.name}>
                   <Paper
@@ -418,18 +488,16 @@ export const ServiceDetailBox = ({
                       borderRadius: 2,
                       bgcolor: isDark ? "#2d2d2d" : "#e0e0e0",
                       position: "relative",
-                      height: 120, // Altura fija
+                      height: 120,
                       overflow: 'hidden'
                     }}
                   >
                     <IconButton
                       size="small"
-                      onClick={() => handleRemoveFile(file.name)}
+                      // <-- 4B. Handler para BORRAR NUEVO
+                      onClick={() => handleRemoveNewFile(file.name)}
                       sx={{
-                        position: "absolute",
-                        top: 4,
-                        right: 4,
-                        zIndex: 1,
+                        position: "absolute", top: 4, right: 4, zIndex: 1,
                         bgcolor: "rgba(0,0,0,0.5)",
                         "&:hover": { bgcolor: "rgba(0,0,0,0.7)" },
                       }}
@@ -438,21 +506,17 @@ export const ServiceDetailBox = ({
                     </IconButton>
 
                     {previewUrls[fileIndex] ? (
-                      // Es imagen, mostrar preview
                       <Box
                         component="img"
                         src={previewUrls[fileIndex]}
                         alt={file.name}
                         onClick={() => handleOpenPreview(previewUrls[fileIndex])}
                         sx={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover", // Cubre el espacio
-                          cursor: "pointer",
+                          width: "100%", height: "100%",
+                          objectFit: "cover", cursor: "pointer",
                         }}
                       />
                     ) : (
-                      // No es imagen (o está cargando)
                       <Box sx={{ p: 2, textAlign: 'center' }}>
                         <InsertDriveFile sx={{ fontSize: 48, color: "#f44336" }} />
                         <Typography variant="caption" display="block" noWrap>

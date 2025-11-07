@@ -152,16 +152,62 @@ export const useServiceStore = () => {
     }
   };
 
-  const startUpdateService = async (id, serviceType) => {
-    if (!validateDetails(serviceType.serviceDetails)) return false;
+  const startUpdateService = async (id, serviceDataFromForm) => {
+    if (!validateDetails(serviceDataFromForm.serviceDetails)) return false;
     dispatch(setLoadingService(true));
     try {
-      const payload = updateServiceModel(serviceType);
-      console.log('PATCH payload enviado:', payload);
-      await serviceApi.patch(`/${id}`, payload, getAuthConfig(token));
-      // Re-fetch canonical service to reflect any changes (and new/updated prices created by backend)
-      await startFetchServiceById(id);
-      const notifyUpdateError = (message) => openSnackbar(message ?? "Ocurrió un error al actualizar el servicio.");
+      const formData = new FormData();
+      const detailsForJSON = serviceDataFromForm.serviceDetails.map((detail, idx) => {
+        // Quitamos las 'photos' (que son los Files nuevos)
+        const { photos, ...restOfDetail } = detail; 
+        
+        // Usamos la lógica de 'updateServiceModel' para limpiar los 'details'
+        const cleanDetails = Object.fromEntries(
+          Object.entries(restOfDetail.details || {}).map(([key, value]) => {
+            const num = Number(value);
+            return [key, isNaN(num) || value === "" ? value : num];
+          })
+        );
+
+        return {
+          ...restOfDetail, // Esto incluye _id (si existe), ref_price, status
+          details: cleanDetails, // Los detalles limpios
+          detail_number: restOfDetail.detail_number || idx + 1, // Aseguramos detail_number
+        };
+      });
+      formData.append('serviceDetails', JSON.stringify(detailsForJSON));
+
+      // 2. Añadir los archivos NUEVOS
+      serviceDataFromForm.serviceDetails.forEach((detail, idx) => {
+        const detailNum = detail.detail_number || idx + 1;
+        const fieldName = `photos_${detailNum}`;
+        
+        // 'detail.photos' debe ser el array de *nuevos* objetos File
+        if (detail.photos && detail.photos.length > 0) { 
+          detail.photos.forEach(file => {
+            if (file instanceof File) { // Nos aseguramos que sea un archivo
+              formData.append(fieldName, file);
+            }
+          });
+        }
+      });
+
+      // 3. Añadir los IDs de las fotos a BORRAR (como string JSON)
+      if (serviceDataFromForm.photosToDelete && serviceDataFromForm.photosToDelete.length > 0) {
+        formData.append('photos_to_delete', JSON.stringify(serviceDataFromForm.photosToDelete));
+      }
+
+      // 4. Llamar a la API PATCH con FormData
+      //    (Usamos getAuthConfig2 asumiendo que es la versión corregida)
+      await serviceApi.patch(
+        `/${id}`, 
+        formData, 
+        getAuthConfig2(token, true) // isFormData = true
+      );
+      
+      // 5. Lógica de éxito (sin cambios)
+      await startFetchServiceById(id); // Re-fetch para tener la data actualizada
+      openSnackbar("El servicio fue actualizado exitosamente.");
       return true;
     } catch (error) {
       console.log('Error en updateService:', error);

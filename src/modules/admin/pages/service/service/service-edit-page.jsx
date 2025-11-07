@@ -37,7 +37,7 @@ export const ServiceEditPage = () => {
 
   const { serviceTypes } = useServiceTypeStore();
   const { provider } = useProviderStore();
-
+  
 
   const {
     loading,
@@ -74,13 +74,12 @@ export const ServiceEditPage = () => {
       serviceDetails:
         selected?.serviceDetails?.map((detail) => {
           const obj = {
+            _id: detail._id, // <-- 'id' es importante
             ref_price: detail.ref_price,
             details: detail.details,
             status: detail.status,
+            photos: detail.photos || [], // <-- Pasa las fotos existentes
           };
-          if (typeof detail._id === "string" && detail._id.length === 24) {
-            obj._id = detail._id;
-          }
           return obj;
         }) || [],
     },
@@ -102,7 +101,7 @@ export const ServiceEditPage = () => {
   const [openPricesModal, setOpenPricesModal] = useState(false);
   const [selectedDetailId, setSelectedDetailId] = useState(null);
   const [selectedDetailNumber, setSelectedDetailNumber] = useState(1);
-
+  const [photosToDelete, setPhotosToDelete] = useState([]);
   // Recibe el detailId y el detailNumber (índice + 1)
   const handleOpenPrices = (detailId, detailNumber) => {
     setSelectedDetailId(detailId);
@@ -140,106 +139,29 @@ export const ServiceEditPage = () => {
 
   // === SUBMIT ===
  const onSubmit = async (data) => {
-  // Asegura que serviceDetails sea un array
-  if (!Array.isArray(data.serviceDetails)) {
-    data.serviceDetails = Object.values(data.serviceDetails);
-  }
-  // Limpia los objetos nuevos sin _id (para que el update del servicio principal no incluya _id vacíos)
-  data.serviceDetails = data.serviceDetails.map((detail, idx) => {
-    if (!detail._id) {
-      const { _id, ...rest } = detail;
-      // Procesa el objeto flexible details
-      const detailsObj = {};
-      Object.entries(rest.details || {}).forEach(([key, value]) => {
-        const num = Number(value);
-        detailsObj[key] = value === "" ? undefined : (isNaN(num) ? value : num);
-      });
-      return {
-        ...rest,
-        details: detailsObj,
-        detail_number: Number(idx + 1),
-      };
-    }
-    // Procesa también los existentes
-    const detailsObj = {};
-    Object.entries(detail.details || {}).forEach(([key, value]) => {
-      const num = Number(value);
-      detailsObj[key] = value === "" ? undefined : (isNaN(num) ? value : num);
-    });
-    return {
-      ...detail,
-      details: detailsObj,
-      detail_number: Number(idx + 1),
+    // 'data' es el objeto que viene de react-hook-form.
+    // YA CONTIENE:
+    // {
+    //   serviceDetails: [
+    //     { _id: "...", ref_price: 100, photos: [File, File] }, // Nuevas fotos
+    //     { ref_price: 250, photos: [File] } // Detalle nuevo
+    //   ]
+    // }
+
+    console.log('Datos del formulario para actualizar:', data);
+
+    // 1. Construimos el objeto que espera 'startUpdateService'
+    const payload = {
+      ...data, // Esto incluye 'serviceDetails' con las nuevas fotos
+      photosToDelete: photosToDelete, // El array de IDs a borrar
     };
-  });
 
-  try {
-    // Construye array de detalles modificados (solo los existentes con _id)
-    const modifiedDetails = [];
-
-    for (const detail of data.serviceDetails) {
-      if (!detail._id) continue; // nuevos detalles se manejan en la actualización del servicio
-
-      const original = selected.serviceDetails.find((d) => d._id === detail._id);
-      if (!original) continue;
-
-      const changes = { _id: detail._id };
-
-      // Si cambió el precio, lo actualiza
-      if (
-        typeof detail.ref_price !== "undefined" &&
-        Number(original.ref_price) !== Number(detail.ref_price)
-      ) {
-        changes.ref_price = Number(detail.ref_price);
-      }
-
-      // Si cambió el status, lo actualiza
-      if (typeof detail.status !== "undefined" && detail.status !== original.status) {
-        changes.status = detail.status;
-      }
-
-      // Si cambió algún campo de details, lo actualiza
-      const originalDetails = original.details || {};
-      const newDetails = detail.details || {};
-      const detailsChanged = JSON.stringify(originalDetails) !== JSON.stringify(newDetails);
-      if (detailsChanged) {
-        changes.details = newDetails;
-      }
-
-      // Si hay cambios además de _id, lo agrega al array
-      if (Object.keys(changes).length > 1) {
-        modifiedDetails.push(changes);
-      }
-    }
-
-    // Si no hay cambios, muestra snackbar y termina
-    if (modifiedDetails.length === 0) {
-      dispatch(showSnackbar({ message: "No hay cambios para guardar." }));
-      return;
-    }
-    try {
-      // El backend espera { serviceDetails: [...] }
-      await serviceDetailApi.patch(
-        "/update-details",
-        { serviceDetails: modifiedDetails }
-      );
-    } catch (err) {
-      const msg = err.response?.data?.message || 'Error al actualizar los detalles.';
-      dispatch(showSnackbar({ message: "Error al guardar cambios: " + msg }));
-      return;
-    }
-
-    // Actualiza el servicio principal (incluye nuevos detalles sin _id, etc.)
-    const success = await startUpdateService(selected._id, data);
-    if (success) {
-      dispatch(showSnackbar({ message: "Cambios guardados correctamente." }));
-      navigate("/admin/service");
-    }
-  } catch (error) {
-    const msg = error.response?.data?.message || 'Ocurrió un error al actualizar.';
-    dispatch(showSnackbar({ message: "Error al guardar cambios: " + msg }));
-  }
-};
+    // 2. Simplemente pasamos el 'payload' al hook.
+    //    El hook 'startUpdateService' AHORA SABE cómo
+    //    convertir este objeto en un FormData.
+    const result = await startUpdateService(selected._id, payload);
+    navigate("/admin/service");
+  };
 
   const allAttributes = [
     ...(selectedServiceType?.attributes || []),
@@ -422,6 +344,9 @@ export const ServiceEditPage = () => {
             setValue={setValue}
             // Pasa el detailNumber correcto (idx + 1)
             onOpenPrices={(detailId) => handleOpenPrices(detailId, idx + 1)}
+            onDeleteExistingPhoto={(photoId) => {
+              setPhotosToDelete((prev) => [...prev, photoId]);
+            }}
           />
         ))}
       </Box>
