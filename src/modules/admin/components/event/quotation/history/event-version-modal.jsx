@@ -16,7 +16,7 @@ import {
 } from "@mui/icons-material";
 import { EventHistoryTab0, EventHistoryTab1, EventHistoryTab2 } from "./tabs";
 
-export const EventVersionModal = ({ open, onClose, version = {}, client }) => {
+export const EventVersionModal = ({ open, onClose, version = {} }) => {
   const theme = useTheme();
   const [tab, setTab] = useState(0);
 

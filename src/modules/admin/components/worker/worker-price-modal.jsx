@@ -58,12 +58,10 @@ export const WorkerPriceModal = ({
     }
   }, [open, worker?._id, currentPage, rowsPerPage]);
 
-  // Enviar nuevo precio
   const onSubmit = async (data) => {
     await startCreateWorkerPrice(data);
   };
 
-  // Columnas de la tabla
   const columns = [
     { label: "Nro. Temporada", field: "season_number" },
     { label: "Precio", field: "reference_price", format: "currency" },
@@ -90,7 +88,12 @@ export const WorkerPriceModal = ({
           }}
         >
           {/* Encabezado */}
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+          <Box 
+            display="flex" 
+            justifyContent="space-between" 
+            alignItems="center" 
+            mb={1}
+          >
             <Typography variant="h6" fontWeight={600}>
               Precios por Temporada
             </Typography>
@@ -105,7 +108,7 @@ export const WorkerPriceModal = ({
               Trabajador:
             </Box>
             <Box component="span">
-              {`${worker?.first_name || ""} ${worker?.last_name || ""}`}
+              {`${worker?.first_name} ${worker?.last_name}`}
             </Box>
           </Typography>
 

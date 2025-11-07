@@ -104,7 +104,7 @@ export const useAssignationGuards = () => {
     }
 
     const existsLocal = assignedEquipments.some(
-      (it) => String(it._id) === String(selectedEquipment._id)
+      (it) => String(it.equipment_id) === String(selectedEquipment._id)
     );
     if (existsLocal) { 
       openSnackbar("Este equipo ya ha sido asignado."); 
@@ -162,9 +162,7 @@ export const useAssignationGuards = () => {
     }
 
     const existsLocal = assignedServices.some(
-      (it) =>
-        String(it.service_id) === String(selectedService._id) &&
-        String(it.service_detail_id) === String(selectedDetail._id)
+      (it) => String(it.service_detail_id) === String(selectedDetail._id)
     );
     if (existsLocal) { 
       openSnackbar("Este servicio/paquete ya ha sido asignado."); 
@@ -209,11 +207,11 @@ export const useAssignationGuards = () => {
     }
 
     const existsLocal = assignedWorkers.some(
-      (it) => String(it._id) === String(selectedWorker._id)
+      (it) => String(it.worker_id) === String(selectedWorker._id)
     );
     if (existsLocal) {
-      openSnackbar("Este trabajador ya ha sido asignado."); 
-      return false; 
+      openSnackbar("Este trabajador ya ha sido asignado.");
+      return false;
     }
 
     const avail = await checkWorkerAvailability(selectedWorker._id, from, to, eventCode);

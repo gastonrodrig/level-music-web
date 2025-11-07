@@ -27,6 +27,7 @@ export const ServiceAddPage = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
+  const { isSm } = useScreenSizes();
 
   const { startLoadingAllServiceTypes, serviceTypes } = useServiceTypeStore();
   const { startLoadingAllProviders, provider } = useProviderStore();
@@ -79,9 +80,7 @@ export const ServiceAddPage = () => {
   const { isLg } = useScreenSizes();
 
   const onSubmit = async (data) => {
-    // Construye el array de serviceDetails con detail_number y ref_price
     let details = Array.isArray(data.serviceDetails) ? data.serviceDetails : [];
-    // Diccionario de mapeo español -> inglés
     const fieldMap = {
       "Horas de servicio": "duration",
       "Número de invitados": "guests",
@@ -130,7 +129,11 @@ export const ServiceAddPage = () => {
   const isButtonDisabled = useMemo(() => loading, [loading]);
 
   return (
-    <Box component="form" sx={{ px: 4, pt: 2 }} onSubmit={handleSubmit(onSubmit)}>
+    <Box 
+      component="form" 
+      sx={{ px: isSm ? 4 : 0, pt: 2}} 
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <Typography variant="h4" sx={{ mb: 4 }}>
         Creando Nuevo Servicio
       </Typography>

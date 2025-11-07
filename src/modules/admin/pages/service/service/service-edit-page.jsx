@@ -34,10 +34,10 @@ export const ServiceEditPage = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
+  const { isSm } = useScreenSizes();
 
   const { serviceTypes } = useServiceTypeStore();
   const { provider } = useProviderStore();
-
 
   const {
     loading,
@@ -251,7 +251,7 @@ export const ServiceEditPage = () => {
   return (
     <Box
       component="form"
-      sx={{ px: 4, pt: 2 }}
+      sx={{ px: isSm ? 4 : 0, pt: 2 }}
       onSubmit={handleSubmit(onSubmit)}
     >
       <Typography variant="h4" sx={{ mb: 4 }}>

@@ -84,15 +84,11 @@ export const useWorkerPriceStore = () => {
   };
 
   const setPageGlobal = (page) => {
-    // ensure we dispatch a numeric page index (defensive)
-    const p = Number(page);
-    dispatch(setPageWorkerPrice(Number.isFinite(p) && p >= 0 ? p : 0));
+    dispatch(setPageWorkerPrice(page));
   };
 
   const setRowsPerPageGlobal = (rows) => {
-    // ensure we dispatch a numeric rows value (defensive)
-    const r = Number(rows);
-    dispatch(setRowsPerPageWorkerPrice(Number.isFinite(r) && r > 0 ? r : 5));
+    dispatch(setRowsPerPageWorkerPrice(rows));
   };
 
   return {

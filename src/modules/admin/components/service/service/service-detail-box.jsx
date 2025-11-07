@@ -94,6 +94,7 @@ export const ServiceDetailBox = ({
                     onClick={handleOpenPrices}
                     disabled={!serviceDetailId}
                     sx={{
+                      color: "white",
                       textTransform: "none",
                       borderRadius: 2,
                       fontWeight: 600,

@@ -1,4 +1,4 @@
 export const createSeasonPriceEquipmentModel = (seasonPrice) => ({
-  equipment_type_id: seasonPrice.equipmentTypeId,
+  equipment_id: seasonPrice.equipmentId,
   reference_price: seasonPrice.referencePrice,
 });

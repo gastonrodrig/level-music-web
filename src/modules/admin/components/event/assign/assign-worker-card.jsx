@@ -113,7 +113,16 @@ export const AssignWorkerCard = ({
               <Select
                 labelId="worker-label"
                 value={workerId || ""}
-                onChange={(e) => setValue("worker_id", e.target.value, { shouldValidate: true })}
+                onChange={(e) => {
+                  const newWorkerId = e.target.value;
+                  setValue("worker_id", newWorkerId, { shouldValidate: true });
+                  const selected = filteredWorkers.find((w) => w._id === newWorkerId);
+                  if (selected) {
+                    const refPrice = Number(selected.reference_price || 0);
+                    const calculatedPrice = Math.round(refPrice * 0.15) + refPrice;
+                    setValue("worker_price", calculatedPrice);
+                  }
+                }}
                 inputProps={{ name: "worker_id" }}
                 sx={{ height: 60 }}
                 displayEmpty
@@ -156,12 +165,15 @@ export const AssignWorkerCard = ({
             </FormControl>
           </Grid>
 
-          {/* Precio por hora */}
+          {/* Precio por hora de referencia */}
           <Grid item xs={12} md={2}>
             <TextField
               label="Precio por hora (S/)"
-              placeholder="Ej: 50"
-              value={workerPrice || ""}
+              value={
+                workerPrice && !isNaN(Number(workerPrice))
+                  ? `S/ ${Number(workerPrice).toFixed(2)}`
+                  : "S/ -"
+              }
               onChange={(e) => {
                 const value = e.target.value ? Number(e.target.value) : "";
                 setValue("worker_price", value);
@@ -169,7 +181,7 @@ export const AssignWorkerCard = ({
               fullWidth
               InputLabelProps={{ shrink: true }}
               sx={{ "& .MuiInputBase-root": { height: 60 } }}
-              disabled={datesMissing}
+              disabled
             />
           </Grid>
 
