@@ -23,7 +23,8 @@ import {
   appointmentsSlice,
   eventTaskSlice,
   workerPricesSlice,
-  equipmentPricesSlice
+  equipmentPricesSlice,
+  serviceDetailPriceSlice
 } from './';
 
 export const store = configureStore({
@@ -51,6 +52,7 @@ export const store = configureStore({
     appointment: appointmentsSlice.reducer,
     reprogramings: reprogramingsSlice.reducer,
     payment: paymentSlice.reducer,
-    eventTasks: eventTaskSlice.reducer,
+  eventTasks: eventTaskSlice.reducer,
+  serviceDetailPrice: serviceDetailPriceSlice.reducer,
   },
 });

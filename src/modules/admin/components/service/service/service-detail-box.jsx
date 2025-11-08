@@ -10,6 +10,8 @@ import {
 } from "@mui/material";
 import { Delete, Add, Close, CalendarMonth } from "@mui/icons-material";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
+import { useState } from "react";
+import { useServiceDetailStore } from "../../../../../hooks";
 
 export const ServiceDetailBox = ({
   index,
@@ -23,20 +25,19 @@ export const ServiceDetailBox = ({
   isEditMode,
   setValue,
   initialData = {},
-  onOpenPrices, // 👈 función que abre el modal
+  openModal
 }) => {
   const theme = useTheme();
   const { isMd } = useScreenSizes();
   const isDark = theme.palette.mode === "dark";
 
   const serviceDetailId = initialData._id;
-  // Handler para el botón Ver Precios: si no hay _id, fuerza re-fetch antes de abrir el modal
-  const handleOpenPrices = async () => {
-    if (!serviceDetailId && typeof window.fetchServiceById === 'function') {
-      // Si el detalle es nuevo, fuerza re-fetch del servicio (debe estar implementado en el store global)
-      await window.fetchServiceById(initialData.service_id);
-    }
-    if (serviceDetailId) onOpenPrices(serviceDetailId);
+  const { setSelectedServiceDetail } = useServiceDetailStore();
+
+  const handleOpenPrices = () => {
+    if (!serviceDetailId) return;
+    setSelectedServiceDetail(initialData);
+    openModal(); 
   };
 
   return (
@@ -45,176 +46,145 @@ export const ServiceDetailBox = ({
         p: 3,
         borderRadius: 3,
         bgcolor: isDark ? "#1f1e1e" : "#f5f5f5",
-        mb: 2,
+        mb: 3,
       }}
     >
       {/* === ENCABEZADO === */}
       <Box
         display="flex"
+        flexDirection={{ xs: "column", md: "row" }}
         justifyContent="space-between"
-        alignItems="center"
-        mb={5}
+        alignItems={{ xs: "flex-start", md: "flex-start" }}
+        mb={2}
+        gap={3}
       >
-        {/* Izquierda: título y estado */}
+        {/* Izquierda: título, botón y estado */}
+        <Box display="flex" flexDirection="column" alignItems="flex-start">
+          <Typography variant="h6" fontWeight={600}>
+            Detalle #{index + 1}
+          </Typography>
+
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleOpenPrices}
+            disabled={!serviceDetailId}
+            sx={{
+              mt: 2,
+              mb: 2,
+              fontWeight: 600,
+              textTransform: "none",
+              fontSize: 14,
+              borderRadius: 2,
+              px: 2.5,
+              py: 1,
+              color: "#fff",
+              bgcolor: theme.palette.primary.main,
+              "&:hover": {
+                bgcolor: theme.palette.primary.dark,
+                color: "#fff",
+              },
+            }}
+          >
+            Ver Precios
+          </Button>
+
+          {isEditMode && (
+            <Box
+              sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1.5 }}
+            >
+              <Switch
+                checked={initialData.status === "Activo"}
+                onChange={() =>
+                  setValue(
+                    `serviceDetails.${index}.status`,
+                    initialData.status === "Activo" ? "Inactivo" : "Activo"
+                  )
+                }
+                color="success"
+              />
+              <Typography>
+                {initialData.status === "Activo" ? "Activo" : "Inactivo"}
+              </Typography>
+            </Box>
+          )}
+        </Box>
+
+        {/* Derecha: botones en columna */}
         <Box
           display="flex"
           flexDirection="column"
-          alignItems="flex-start"
-          gap={2}
+          alignItems="flex-end"
+          justifyContent="flex-start"
+          gap={1.2}
+          alignSelf={{ xs: "flex-start", md: "flex-start" }}
+          width={{ xs: "100%", md: "auto" }}
         >
-          <Grid
-            item
-            xs={12}
-            sx={isEditMode ? { display: "flex" } : { display: "block" }}
+          {/* Eliminar Detalle */}
+          <Button
+            variant="contained"
+            color="error"
+            startIcon={<Delete />}
+            onClick={onDelete}
+            disabled={detailsCount === 1 || !!initialData._id}
+            fullWidth={isMd}
+            sx={{
+              textTransform: "none",
+              borderRadius: 2,
+              color: "#fff",
+              fontWeight: 600,
+              width: { xs: "100%", md: "180px" },
+            }}
           >
-            <Typography variant="h6" fontWeight={600}>
-              Detalle #{index + 1}
-            </Typography>
-            {isEditMode && (
-              <Box sx={{ display: "flex", alignItems: "center", ml: 2, gap: 1 }}>
-                <Switch
-                  checked={initialData.status === "Activo"}
-                  onChange={() =>
-                    setValue(
-                      `serviceDetails.${index}.status`,
-                      initialData.status === "Activo" ? "Inactivo" : "Activo"
-                    )
-                  }
-                  color="success"
-                />
-                <Typography sx={{ ml: 0 }}>
-                  {initialData.status === "Activo" ? "Activo" : "Inactivo"}
-                </Typography>
+            Eliminar Detalle
+          </Button>
 
-                {/* Botón Ver Precios: solo habilitado si hay _id */}
-                {isMd ? (
-                  <Button
-                    variant="contained"
-                    startIcon={<CalendarMonth />}
-                    onClick={handleOpenPrices}
-                    disabled={!serviceDetailId}
-                    sx={{
-                      color: "white",
-                      textTransform: "none",
-                      borderRadius: 2,
-                      fontWeight: 600,
-                      bgcolor: theme.palette.primary.main,
-                      "&:hover": { bgcolor: theme.palette.primary.hover },
-                      ml: 1,
-                    }}
-                  >
-                    Ver Precios
-                  </Button>
-                ) : (
-                  <IconButton
-                    color="primary"
-                    onClick={handleOpenPrices}
-                    disabled={!serviceDetailId}
-                    sx={{
-                      bgcolor: theme.palette.primary.main,
-                      color: "#fff",
-                      borderRadius: "12px",
-                      p: 0.5,
-                      ml: 1,
-                      "&:hover": { bgcolor: theme.palette.primary.dark },
-                    }}
-                  >
-                    <CalendarMonth />
-                  </IconButton>
-                )}
-              </Box>
-            )}
-          </Grid>
-
-          <Typography fontSize={16} fontWeight={300}>
-            Campos del servicio:
-          </Typography>
-        </Box>
-
-        {/* Derecha: botones (Eliminar / Agregar campo). El botón de precios está a la izquierda ahora */}
-        <Box display="flex" gap={1} flexDirection={isMd ? "column" : "row"}>
-          {/* 🔹 Eliminar detalle */}
-          {isMd ? (
-            <Button
-              variant="contained"
-              onClick={onDelete}
-              startIcon={<Delete />}
-              color="error"
-              sx={{
-                textTransform: "none",
-                borderRadius: 2,
-                color: "#fff",
-                fontWeight: 600,
-              }}
-              disabled={detailsCount === 1 || !!initialData._id}
-            >
-              Eliminar Detalle
-            </Button>
-          ) : (
-            <IconButton
-              color="error"
-              onClick={onDelete}
-              disabled={detailsCount === 1 || !!initialData._id}
-            >
-              <Delete />
-            </IconButton>
-          )}
-
-          {/* 🔹 Agregar campo */}
-          {isMd ? (
-            <Button
-              variant="contained"
-              onClick={onAddField}
-              startIcon={<Add />}
-              sx={{
-                textTransform: "none",
-                borderRadius: 2,
-                color: "#fff",
-                fontWeight: 600,
-              }}
-            >
-              Agregar Campo
-            </Button>
-          ) : (
-            <IconButton
-              color="primary"
-              onClick={onAddField}
-              sx={{
-                bgcolor: theme.palette.primary.main,
-                color: "#fff",
-                borderRadius: "12px",
-                "&:hover": { bgcolor: theme.palette.primary.dark },
-              }}
-            >
-              <Add />
-            </IconButton>
-          )}
+          {/* Agregar Campo */}
+          <Button
+            variant="contained"
+            startIcon={<Add />}
+            onClick={onAddField}
+            fullWidth={isMd}
+            sx={{
+              bgcolor: theme.palette.primary.main,
+              textTransform: "none",
+              borderRadius: 2,
+              color: "#fff",
+              fontWeight: 600,
+              width: { xs: "100%", md: "180px" },
+              "&:hover": { bgcolor: theme.palette.primary.dark },
+            }}
+          >
+            Agregar Campo
+          </Button>
         </Box>
       </Box>
 
       {/* === CAMPOS === */}
-      <Grid container spacing={2}>
-        {/* Precio de referencia */}
-        <TextField
-          sx={{ ml: 2 }}
-          label="Precio por hora de Referencia (S/.)"
-          placeholder="Ingresa el precio de referencia"
-          type="number"
-          fullWidth
-          InputLabelProps={{ shrink: true }}
-          defaultValue={initialData.ref_price || ""}
-          {...register(`serviceDetails.${index}.ref_price`, {
-            required: "El precio es obligatorio",
-            min: {
-              value: 0,
-              message: "El precio no puede ser negativo",
-            },
-          })}
-          error={!!errors.serviceDetails?.[index]?.ref_price}
-          helperText={errors.serviceDetails?.[index]?.ref_price?.message}
-        />
+      <Typography fontSize={16} fontWeight={400} mb={2}>
+        Campos del servicio:
+      </Typography>
 
-        {/* Si no hay campos personalizados */}
+      <Grid container spacing={2}>
+        {/* Precio de referencia (ocupa todo el ancho) */}
+        <Grid item xs={12}>
+          <TextField
+            label="Precio por hora de Referencia (S/.)"
+            placeholder="Ingresa el precio de referencia"
+            type="number"
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+            defaultValue={initialData.ref_price || ""}
+            {...register(`serviceDetails.${index}.ref_price`, {
+              required: "El precio es obligatorio",
+              min: { value: 0, message: "El precio no puede ser negativo" },
+            })}
+            error={!!errors.serviceDetails?.[index]?.ref_price}
+            helperText={errors.serviceDetails?.[index]?.ref_price?.message}
+          />
+        </Grid>
+
+        {/* Campos personalizados (2 por fila, responsivo) */}
         {fields.length === 0 ? (
           <Grid item xs={12}>
             <Typography color="text.secondary">
@@ -224,16 +194,24 @@ export const ServiceDetailBox = ({
         ) : (
           fields.map((field, idx) => (
             <Grid item xs={12} sm={6} key={idx}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 1,
+                  width: "100%",
+                }}
+              >
                 <Box sx={{ flexGrow: 1 }}>
                   <Box
                     sx={{
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
+                      mb: 1,
                     }}
                   >
-                    <Typography fontWeight={500} mb={1}>
+                    <Typography fontWeight={500}>
                       {field.name}{" "}
                       {field.required && (
                         <Typography component="span" color="error">
@@ -245,19 +223,17 @@ export const ServiceDetailBox = ({
                       onClick={() => onRemoveField(idx)}
                       color="error"
                       size="small"
-                      sx={{ p: 0.5 }}
                     >
                       <Close fontSize="small" />
                     </IconButton>
                   </Box>
+
                   <TextField
                     fullWidth
                     defaultValue={initialData.details?.[field.name] || ""}
                     {...register(
                       `serviceDetails.${index}.details.${field.name}`,
-                      {
-                        required: "Campo requerido",
-                      }
+                      { required: "Campo requerido" }
                     )}
                     error={
                       !!errors.serviceDetails?.[index]?.details?.[field.name]

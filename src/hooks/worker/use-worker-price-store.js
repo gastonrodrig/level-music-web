@@ -1,7 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import {
   refreshWorkerPrices,
-  selectedWorkerPrice,
   setLoadingWorkerPrice,
   setPageWorkerPrice,
   setRowsPerPageWorkerPrice,
@@ -18,7 +17,6 @@ export const useWorkerPriceStore = () => {
   const dispatch = useDispatch();
   const {
     workerPrices,
-    selected,
     total,
     loading,
     currentPage,
@@ -27,7 +25,6 @@ export const useWorkerPriceStore = () => {
 
   const { token } = useSelector((state) => state.auth);
 
-  const [searchTerm, setSearchTerm] = useState("");
   const [orderBy, setOrderBy] = useState("season_number");
   const [order, setOrder] = useState("desc");
 
@@ -79,10 +76,6 @@ export const useWorkerPriceStore = () => {
     }
   };
 
-  const setSelectedWorkerPrice = (workerPrice) => {
-    dispatch(selectedWorkerPrice(workerPrice));
-  };
-
   const setPageGlobal = (page) => {
     dispatch(setPageWorkerPrice(page));
   };
@@ -94,24 +87,20 @@ export const useWorkerPriceStore = () => {
   return {
     // state
     workerPrices,
-    selected,
     total,
     loading,
-    searchTerm,
     rowsPerPage,
     currentPage,
     orderBy,
     order,
 
     // setters
-    setSearchTerm,
     setOrderBy,
     setOrder,
     setPageGlobal,
     setRowsPerPageGlobal,
 
-    //actions
-    setSelectedWorkerPrice,
+    // actions
     startCreateWorkerPrice,
     startLoadingWorkerPricePaginated,
   };

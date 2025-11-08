@@ -13,8 +13,6 @@ import {
 import { useState } from "react";
 import { serviceApi } from "../../api";
 import { getAuthConfig, getAuthConfigWithParams } from "../../shared/utils";
- 
-    
 
 export const useServiceStore = () => {
   const dispatch = useDispatch();
@@ -39,6 +37,7 @@ export const useServiceStore = () => {
   const [openFieldModalIdx, setOpenFieldModalIdx] = useState(null);
   const [selectedProvider, setSelectedProvider] = useState(null);
   const [selectedServiceType, setSelectedServiceType] = useState(null);
+
   const openSnackbar = (message) => dispatch(showSnackbar({ message }));
 
   const startCreateService = async (serviceType) => {
@@ -46,37 +45,12 @@ export const useServiceStore = () => {
     dispatch(setLoadingService(true));
     try {
       const payload = createServiceModel(serviceType);
-      const { data } = await serviceApi.post("", payload, getAuthConfig(token)); // Restaurado: con headers de auth
-      // Re-fetch canonical service from backend to ensure we have the authoritative version
-      if (data && data._id) {
-        await startFetchServiceById(data._id);
-        openSnackbar("El servicio fue creado exitosamente.");
-        return data; // retorna el objeto creado
-      }
+      await serviceApi.post("", payload, getAuthConfig(token)); 
+      openSnackbar("El servicio fue creado exitosamente.");
       return false;
     } catch (error) {
       const message = error.response?.data?.message;
       openSnackbar(message ?? "Ocurrió un error al crear el tipo de servicio.");
-      return false;
-    } finally {
-      dispatch(setLoadingService(false));
-    }
-  };
-
-  const startFetchServiceById = async (id) => {
-    dispatch(setLoadingService(true));
-    try {
-      const { data } = await serviceApi.get(`/${id}`, getAuthConfig(token));
-      // Si la respuesta tiene serviceDetails como propiedad separada, combínala
-      let serviceData = data;
-      if (data.service && Array.isArray(data.serviceDetails)) {
-        serviceData = { ...data.service, serviceDetails: data.serviceDetails };
-      }
-      dispatch(selectedService({ ...serviceData }));
-      return true;
-    } catch (error) {
-      const message = error.response?.data?.message;
-      const notifyServiceLoadError = (message) => openSnackbar(message ?? "Ocurrió un error al cargar los servicios.");
       return false;
     } finally {
       dispatch(setLoadingService(false));
@@ -91,7 +65,7 @@ export const useServiceStore = () => {
       return true;
     } catch (error) {
       const message = error.response?.data?.message;
-  const notifyLoadError = (message) => openSnackbar(message ?? "Ocurrió un error al cargar.");
+      openSnackbar(message ?? "Ocurrió un error al cargar los servicios.");
       return false;
     } finally {
       dispatch(setLoadingService(false));
@@ -120,7 +94,7 @@ export const useServiceStore = () => {
       return true;
     } catch (error) {
       const message = error.response?.data?.message;
-  openSnackbar("El servicio fue actualizado exitosamente.");
+      openSnackbar(message ?? "Ocurrió un error al cargar.");
       return false;
     } finally {
       dispatch(setLoadingService(false));
@@ -132,16 +106,12 @@ export const useServiceStore = () => {
     dispatch(setLoadingService(true));
     try {
       const payload = updateServiceModel(serviceType);
-      console.log('PATCH payload enviado:', payload);
       await serviceApi.patch(`/${id}`, payload, getAuthConfig(token));
-      // Re-fetch canonical service to reflect any changes (and new/updated prices created by backend)
-      await startFetchServiceById(id);
-      const notifyUpdateError = (message) => openSnackbar(message ?? "Ocurrió un error al actualizar el servicio.");
+      openSnackbar("El servicio fue actualizado exitosamente.");
       return true;
     } catch (error) {
-      console.log('Error en updateService:', error);
       const message = error.response?.data?.message;
-  openSnackbar("Debe agregar al menos un detalle al servicio.");
+      openSnackbar(message ?? "Debe agregar al menos un detalle al servicio.");
       return false;
     } finally {
       dispatch(setLoadingService(false));
@@ -150,7 +120,7 @@ export const useServiceStore = () => {
 
   const validateDetails = (details) => {
     if (!details.length) {
-  const notifyDetailError = () => openSnackbar("Al menos un detalle debe estar completo.");
+      openSnackbar("Debe agregar al menos un detalle al servicio.");
       return false;
     }
     for (const detail of details) {
@@ -161,7 +131,7 @@ export const useServiceStore = () => {
           (typeof value === "string" ? value.trim() !== "" : value !== "")
       );
       if (!hasEmptyField) {
-  // ...existing code...
+        openSnackbar("Al menos un detalle debe estar completo.");
         return false;
       }
     }
@@ -198,36 +168,27 @@ export const useServiceStore = () => {
     setOpenFieldModalIdx(null);
   };
 
-const handleRemoveFieldFromDetail = (detailIdx, fieldIdx, getValues, setValue) => {
-  setSelectedFields((prev) => {
-    const updatedFields = { ...prev };
-    const removedField = updatedFields[detailIdx][fieldIdx];
+  const handleRemoveFieldFromDetail = (detailIdx, fieldIdx, getValues, setValue) => {
+    setSelectedFields((prev) => {
+      const updatedFields = { ...prev };
+      const removedField = updatedFields[detailIdx][fieldIdx];
+      updatedFields[detailIdx] = updatedFields[detailIdx].filter((_, idx) => idx !== fieldIdx);
 
-    // Eliminar del array visual de campos
-    updatedFields[detailIdx] = updatedFields[detailIdx].filter((_, idx) => idx !== fieldIdx);
+      if (removedField) {
+        const currentDetails = getValues(`serviceDetails.${detailIdx}.details`);
+        if (currentDetails && currentDetails[removedField.name] !== undefined) {
+          const updatedDetails = { ...currentDetails };
+          delete updatedDetails[removedField.name];
 
-    if (removedField) {
-      const currentDetails = getValues(`serviceDetails.${detailIdx}.details`);
-
-      if (currentDetails && currentDetails[removedField.name] !== undefined) {
-        // Crear un nuevo objeto para RHF
-        const updatedDetails = { ...currentDetails };
-
-        // Eliminar la propiedad del objeto
-        delete updatedDetails[removedField.name];
-
-        // Actualizar RHF forzando validación y estado sucio
-        setValue(`serviceDetails.${detailIdx}.details`, updatedDetails, {
-          shouldValidate: true,
-          shouldDirty: true,
-        });
+          setValue(`serviceDetails.${detailIdx}.details`, updatedDetails, {
+            shouldValidate: true,
+            shouldDirty: true,
+          });
+        }
       }
-    }
-
-    return updatedFields;
-  });
-};
-
+      return updatedFields;
+    });
+  };
 
   return {
     // state global redux
