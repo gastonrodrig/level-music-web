@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useFormContext } from "react-hook-form";
 import {
   Box,
   Typography,
@@ -16,13 +17,23 @@ import {
 } from "@mui/icons-material";
 import { ImagePreviewModal } from "../../../../../../../shared/ui/components/common/image-preview-modal";
 
-export const PaymentFormFields = ({ paymentId }) => {
+export const PaymentFormFields = ({ paymentId, paymentNumber }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
-  const [operationNumber, setOperationNumber] = useState("");
+
+  const { setValue, getValues, register } = useFormContext();
+
+  // register fields so form knows about them (operation number and receipt file)
+  // name: manualPayments.${index}.operation_number and manualPayments.${index}.receiptFile
+  const opFieldName = `manualPayments.${paymentNumber - 1}.operation_number`;
+  const fileFieldName = `manualPayments.${paymentNumber - 1}.receiptFile`;
+
+  // register on mount
+  register(opFieldName);
+  register(fileFieldName);
 
   const colors = {
     innerCardBg: isDark ? "#141414" : "#fcfcfc",
@@ -54,7 +65,9 @@ export const PaymentFormFields = ({ paymentId }) => {
         return;
       }
 
-      setSelectedFile(file);
+  setSelectedFile(file);
+  // store file in react-hook-form value so parent can read it
+  setValue(fileFieldName, file, { shouldDirty: true, shouldValidate: true });
 
       // Crear vista previa solo para imágenes
       if (file.type.startsWith("image/")) {
@@ -72,6 +85,7 @@ export const PaymentFormFields = ({ paymentId }) => {
   const handleRemoveFile = () => {
     setSelectedFile(null);
     setPreviewUrl(null);
+    setValue(fileFieldName, null, { shouldDirty: true });
   };
 
   const handleChangeFile = () => {
@@ -106,9 +120,9 @@ export const PaymentFormFields = ({ paymentId }) => {
         <TextField
           fullWidth
           placeholder="Ej: 123456789"
-          value={operationNumber}
-          onChange={(e) => setOperationNumber(e.target.value)}
           size="small"
+          onChange={(e) => setValue(opFieldName, e.target.value, { shouldDirty: true })}
+          defaultValue={getValues(opFieldName) || ''}
         />
       </Box>
 

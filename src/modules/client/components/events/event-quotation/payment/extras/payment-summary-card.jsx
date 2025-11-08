@@ -16,6 +16,7 @@ import {
   CreditCard 
 } from "@mui/icons-material";
 import { useFormContext } from "react-hook-form";
+import { useManualPayment } from "../../../../../../hooks/payment";
 import { useNavigate } from "react-router-dom";
 
 export const PaymentSummaryCard = ({ quotationData }) => {
@@ -24,6 +25,7 @@ export const PaymentSummaryCard = ({ quotationData }) => {
   const navigate = useNavigate();
 
   const { watch, handleSubmit, setValue } = useFormContext();
+  const { startCreateManualPayment } = useManualPayment();
 
   const useMercadoPago = watch("useMercadoPago");
   const paymentType = watch("selectedPaymentType");
@@ -74,9 +76,31 @@ export const PaymentSummaryCard = ({ quotationData }) => {
   const locationConfig = getLocationConfig();
   const paymentTypeConfig = getPaymentTypeConfig();
 
-  const onSubmit = (data) => {
-    console.log(data);
-  }
+  const onSubmit = async (data) => {
+    try {
+      const values = data; // form values
+      const manualPayments = values.manualPayments || [];
+
+      // send each manual payment separately
+      for (const mp of manualPayments) {
+        const payload = {
+          event_id: quotationData?._id || quotationData?.event_id,
+          quotation_id: quotationData?._id,
+          amount: mp.amount,
+          currency: mp.currency || 'PEN',
+          payment_method: mp.method,
+          payer_name: values.payer_name || '',
+          notes: values.notes || '',
+          records: [{ operation_number: mp.operation_number || '' }],
+          images: mp.receiptFile ? [mp.receiptFile] : [],
+        };
+
+        await startCreateManualPayment(payload);
+      }
+    } catch (err) {
+      console.error('Error registrando pagos:', err);
+    }
+  };
 
   const onCancel = () => {
     navigate("/client/quotations", { replace: true });

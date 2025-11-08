@@ -302,7 +302,7 @@ export const PaymentManualContent = ({
           {selectedMethod?.requiresProof && (
             <>
               <Divider sx={{ my: 3, borderColor: colors.border }} />
-              <PaymentFormFields paymentId={paymentId} />
+              <PaymentFormFields paymentId={paymentId} paymentNumber={paymentNumber} />
             </>
           )}
         </CardContent>
