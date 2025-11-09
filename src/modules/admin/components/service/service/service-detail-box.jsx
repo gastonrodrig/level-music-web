@@ -8,10 +8,10 @@ import {
   useTheme,
   Switch,
 } from "@mui/material";
-import { Delete, Add, Close, CalendarMonth } from "@mui/icons-material";
+import { Delete, Add, Close } from "@mui/icons-material";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
-import { useState } from "react";
 import { useServiceDetailStore } from "../../../../../hooks";
+import { useFormContext } from "react-hook-form";
 
 export const ServiceDetailBox = ({
   index,
@@ -31,6 +31,8 @@ export const ServiceDetailBox = ({
   const { isMd } = useScreenSizes();
   const isDark = theme.palette.mode === "dark";
 
+  const { watch } = useFormContext();
+
   const serviceDetailId = initialData._id;
   const { setSelectedServiceDetail } = useServiceDetailStore();
 
@@ -39,6 +41,8 @@ export const ServiceDetailBox = ({
     setSelectedServiceDetail(initialData);
     openModal(); 
   };
+
+  const status = watch(`serviceDetails.${index}.status`);
 
   return (
     <Box
@@ -52,7 +56,7 @@ export const ServiceDetailBox = ({
       {/* === ENCABEZADO === */}
       <Box
         display="flex"
-        flexDirection={{ xs: "column", md: "row" }}
+        flexDirection="row"
         justifyContent="space-between"
         alignItems={{ xs: "flex-start", md: "flex-start" }}
         mb={2}
@@ -60,9 +64,29 @@ export const ServiceDetailBox = ({
       >
         {/* Izquierda: título, botón y estado */}
         <Box display="flex" flexDirection="column" alignItems="flex-start">
-          <Typography variant="h6" fontWeight={600}>
-            Detalle #{index + 1}
-          </Typography>
+          <Box display="flex" flexDirection="row" alignItems="center" gap={1} alignContent="center">
+            <Typography variant="h6" fontWeight={600}>
+              Detalle #{index + 1}
+            </Typography>
+
+            {isEditMode && (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Switch
+                  checked={status === "Activo"}
+                  onChange={() =>
+                    setValue(
+                      `serviceDetails.${index}.status`,
+                      status === "Activo" ? "Inactivo" : "Activo"
+                    )
+                  }
+                  color="success"
+                />
+                <Typography>
+                  {status === "Activo" ? "Activo" : "Inactivo"}
+                </Typography>
+              </Box>
+            )}
+          </Box>
 
           <Button
             variant="contained"
@@ -88,75 +112,64 @@ export const ServiceDetailBox = ({
           >
             Ver Precios
           </Button>
-
-          {isEditMode && (
-            <Box
-              sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1.5 }}
-            >
-              <Switch
-                checked={initialData.status === "Activo"}
-                onChange={() =>
-                  setValue(
-                    `serviceDetails.${index}.status`,
-                    initialData.status === "Activo" ? "Inactivo" : "Activo"
-                  )
-                }
-                color="success"
-              />
-              <Typography>
-                {initialData.status === "Activo" ? "Activo" : "Inactivo"}
-              </Typography>
-            </Box>
-          )}
         </Box>
 
-        {/* Derecha: botones en columna */}
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="flex-end"
-          justifyContent="flex-start"
-          gap={1.2}
-          alignSelf={{ xs: "flex-start", md: "flex-start" }}
-          width={{ xs: "100%", md: "auto" }}
-        >
-          {/* Eliminar Detalle */}
-          <Button
-            variant="contained"
-            color="error"
-            startIcon={<Delete />}
-            onClick={onDelete}
-            disabled={detailsCount === 1 || !!initialData._id}
-            fullWidth={isMd}
-            sx={{
-              textTransform: "none",
-              borderRadius: 2,
-              color: "#fff",
-              fontWeight: 600,
-              width: { xs: "100%", md: "180px" },
-            }}
-          >
-            Eliminar Detalle
-          </Button>
+        {/* Contenedor de botones, evita anidar <button> */}
+        <Box display="flex" gap={1} flexDirection={isMd ? "column" : "row"}>
+          {/* Botón eliminar detalle */}
+          {!isMd ? (
+            <IconButton color="error" onClick={onDelete} disabled={detailsCount === 1 || !!initialData._id} >
+              <Delete />
+            </IconButton>
+          ) : (
+            <Button
+              variant="contained"
+              onClick={onDelete}
+              startIcon={<Delete />}
+              color="error"
+              sx={{
+                textTransform: "none",
+                borderRadius: 2,
+                color: "#fff",
+                fontWeight: 600,
+              }}
+              disabled={detailsCount === 1 || !!initialData._id}
+            >
+              Eliminar Detalle
+            </Button>
+          )}
 
-          {/* Agregar Campo */}
-          <Button
-            variant="contained"
-            startIcon={<Add />}
-            onClick={onAddField}
-            fullWidth={isMd}
-            sx={{
-              bgcolor: theme.palette.primary.main,
-              textTransform: "none",
-              borderRadius: 2,
-              color: "#fff",
-              fontWeight: 600,
-              width: { xs: "100%", md: "180px" },
-              "&:hover": { bgcolor: theme.palette.primary.dark },
-            }}
-          >
-            Agregar Campo
-          </Button>
+          {/* Botón agregar campo */}
+          {!isMd ? (
+            <IconButton
+              color="primary"
+              onClick={onAddField}
+              sx={{
+                bgcolor: theme.palette.primary.main,
+                color: "#fff",
+                borderRadius: "12px",
+                "&:hover": {
+                  bgcolor: theme.palette.primary.dark,
+                },
+              }}
+            >
+              <Add />
+            </IconButton>
+          ) : (
+            <Button
+              variant="contained"
+              onClick={onAddField}
+              startIcon={<Add />}
+              sx={{
+                textTransform: "none",
+                borderRadius: 2,
+                color: "#fff",
+                fontWeight: 600,
+              }}
+            >
+              Agregar Campo
+            </Button>
+          )}
         </Box>
       </Box>
 

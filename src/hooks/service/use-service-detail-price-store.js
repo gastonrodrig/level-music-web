@@ -41,7 +41,7 @@ export const useServiceDetailPriceStore = () => {
           offset,
           sortField: orderBy,
           sortOrder: order,
-          detailId,
+          serviceDetailId: detailId,
         })
       );
       dispatch(refreshServiceDetailPrices({ 

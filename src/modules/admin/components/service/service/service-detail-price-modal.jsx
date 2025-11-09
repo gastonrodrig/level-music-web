@@ -10,7 +10,7 @@ import { useEffect } from "react";
 import { PaginatedTable } from "../../../../../shared/ui/components/common/table-price";
 import { useServiceDetailPriceStore } from "../../../../../hooks";
 
-export const ServiceDetailPriceModal = ({ open, onClose, serviceDetail = {}, detailNumber }) => {
+export const ServiceDetailPriceModal = ({ open, onClose, serviceDetail = {} }) => {
   const {
     serviceDetailPrices,
     total,
@@ -28,11 +28,17 @@ export const ServiceDetailPriceModal = ({ open, onClose, serviceDetail = {}, det
       setPageGlobal(0);
       startLoadingServiceDetailPricesPaginated(serviceDetail._id);
     }
-  }, [open, serviceDetail?._id, currentPage, rowsPerPage]);
+  }, [open, serviceDetail?._id]);
+
+  useEffect(() => {
+    if (open && serviceDetail?._id) {
+      startLoadingServiceDetailPricesPaginated(serviceDetail._id);
+    }
+  }, [currentPage, rowsPerPage]);
 
   const columns = [
     { label: "Nro. Temporada", field: "season_number" },
-    { label: "Precio Ref. (S/)", field: "ref_price", format: "currency" },
+    { label: "Precio Ref. (S/)", field: "reference_price", format: "currency" },
     { label: "Desde", field: "start_date", format: "date" },
     { label: "Hasta", field: "end_date", format: "date" },
   ];
@@ -61,16 +67,6 @@ export const ServiceDetailPriceModal = ({ open, onClose, serviceDetail = {}, det
             <Close />
           </IconButton>
         </Box>
-
-        {/* === Detalle actual === */}
-        <Typography fontSize={15} mb={2}>
-          <Box component="span" sx={{ fontWeight: 700, mr: 0.5 }}>
-            Detalle:
-          </Box>
-          <Box component="span">
-            #{detailNumber} – {serviceDetail?.service_type_name || "Sin nombre"}
-          </Box>
-        </Typography>
 
         {/* === Tabla de precios === */}
         <PaginatedTable
