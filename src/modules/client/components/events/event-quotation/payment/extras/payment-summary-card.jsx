@@ -23,11 +23,14 @@ export const PaymentSummaryCard = ({ quotationData }) => {
   const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
 
-  const { watch, handleSubmit, setValue } = useFormContext();
+  const { watch, handleSubmit } = useFormContext();
 
   const useMercadoPago = watch("useMercadoPago");
   const paymentType = watch("selectedPaymentType");
-  const selectedPaymentLocation = watch("selectedPaymentLocation");
+  const manualPayments = watch("manualPayments") || [];
+  const totalPaid = manualPayments
+    .reduce((sum, p) => sum + (Number(p?.amount) || 0), 0)
+    .toFixed(2);
 
   const colors = {
     cardBg: isDark ? "#1f1e1e" : "#ffffff",
@@ -44,20 +47,6 @@ export const PaymentSummaryCard = ({ quotationData }) => {
           ?.reduce((sum, schedule) => sum + schedule.total_amount, 0)
           .toFixed(2);
 
-
-  const getLocationConfig = () => {
-    if (selectedPaymentLocation === "online") {
-      return {
-        label: "En Casa (Online)",
-        icon: <Home sx={{ fontSize: 18 }} />,
-      };
-    }
-    return {
-      label: "En Local (Presencial)",
-      icon: <Storefront sx={{ fontSize: 18 }} />,
-    };
-  };
-
   const getPaymentTypeConfig = () => {
     if (paymentType === "partial") {
       return {
@@ -71,12 +60,15 @@ export const PaymentSummaryCard = ({ quotationData }) => {
     };
   };
 
-  const locationConfig = getLocationConfig();
   const paymentTypeConfig = getPaymentTypeConfig();
 
   const onSubmit = (data) => {
-    console.log(data);
-  }
+    console.log("form submit data:", data);
+  };
+
+  const onSubmitError = (errors) => {
+    console.log("form validation errors:", errors);
+  };
 
   const onCancel = () => {
     navigate("/client/quotations", { replace: true });
@@ -113,34 +105,6 @@ export const PaymentSummaryCard = ({ quotationData }) => {
           <Typography variant="body2" sx={{ fontWeight: 600, color: colors.textPrimary }}>
             {quotationData?.event_code}
           </Typography>
-        </Box>
-
-        {/* Ubicación */}
-        <Box
-          sx={{
-            mb: 1.5,
-            p: 1.5,
-            borderRadius: 2,
-            bgcolor: colors.innerCardBg,
-            border: `1px solid ${colors.border}`,
-          }}
-        >
-          <Typography fontSize={12} sx={{ color: colors.textSecondary, mb: 1 }}>
-            Ubicación
-          </Typography>
-          <Chip
-            label={locationConfig.label}
-            icon={locationConfig.icon}
-            color="info"
-            sx={{
-              fontWeight: 600,
-              fontSize: 12,
-              height: 28,
-              "& .MuiChip-label": {
-                px: 1.5,
-              },
-            }}
-          />
         </Box>
 
         {/* Tipo de Pago */}
@@ -203,7 +167,7 @@ export const PaymentSummaryCard = ({ quotationData }) => {
             Total Pagado
           </Typography>
           <Typography variant="h5" sx={{ fontWeight: 700, color: colors.textPrimary }}>
-            S/ 0.00
+            S/ {totalPaid}
           </Typography>
         </Box>
 
@@ -212,7 +176,7 @@ export const PaymentSummaryCard = ({ quotationData }) => {
           {!useMercadoPago ? (
             <Button
               variant="contained"
-              onClick={handleSubmit(onSubmit)}
+              onClick={handleSubmit(onSubmit, onSubmitError)}
               fullWidth
               sx={{
                 py: 1.2,

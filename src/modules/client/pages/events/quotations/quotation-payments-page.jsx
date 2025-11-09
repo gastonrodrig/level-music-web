@@ -11,7 +11,6 @@ import {
   PaymentTypeSelector,
   PaymentManualCard,
   PaymentSummaryCard,
-  PaymentLocationSelector,
   PaymentInfoAlert,
   PaymentMercadoPagoToggle,
 } from "../../../components";
@@ -31,16 +30,15 @@ export const QuotationPaymentsPage = () => {
   const partialAmount = selected?.payment_schedules[0]?.total_amount;
 
   const formMethods = useForm({
+    mode: 'onBlur',
     defaultValues: {
       selectedPaymentType: "partial",
       useMercadoPago: false,
       selectedPaymentMethod: partialAmount > 500 ? "transfer" : "yape",
-      selectedPaymentLocation: "online",
       brickReady: false,
       amount: partialAmount,
       operationNumber: "",
       manualPayments: [],
-      voucher: null
     },
   });
 
@@ -61,7 +59,6 @@ export const QuotationPaymentsPage = () => {
       setValue("useMercadoPago", false);
     }
   }, [finalAmount, useMercadoPago, setValue]);
-
 
   const colors = {
     cardBg: isDark ? "#1f1e1e" : "#ffffff",
@@ -97,22 +94,9 @@ export const QuotationPaymentsPage = () => {
         </Box>
 
         <Grid container spacing={3}>
+
           {/* Columna Izquierda */}
           <Grid item xs={12} md={7}>
-            {/* Ubicación del Pago */}
-            <Card
-              elevation={0}
-              sx={{
-                borderRadius: 3,
-                bgcolor: colors.cardBg,
-                mb: 3,
-                border: `1px solid ${colors.border}`,
-              }}
-            >
-              <CardContent>
-                <PaymentLocationSelector />
-              </CardContent>
-            </Card>
 
             {/* Selección de Tipo de Pago */}
             <Card

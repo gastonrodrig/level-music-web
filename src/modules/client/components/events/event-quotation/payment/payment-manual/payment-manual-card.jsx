@@ -8,7 +8,7 @@ import { useEffect } from "react";
 export const PaymentManualCard = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
-  const { control, getValues, setValue } = useFormContext();
+  const { control, getValues, setValue, watch } = useFormContext();
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -22,6 +22,10 @@ export const PaymentManualCard = () => {
     }
   }, [])
 
+  const manualPayments = watch("manualPayments") || [];
+  const requiredAmount = watch("amount") || 0;
+  const totalPaid = manualPayments.reduce((sum, p) => sum + (Number(p?.amount)), 0);
+
   const colors = {
     innerCardBg: isDark ? "#141414" : "#fcfcfc",
     textPrimary: isDark ? "#fff" : "#000",
@@ -31,6 +35,7 @@ export const PaymentManualCard = () => {
   };
 
   const handleAddPayment = () => {
+    if (totalPaid >= requiredAmount) return;
     append({ method: "yape", amount: 0 });
   };
 
@@ -67,20 +72,26 @@ export const PaymentManualCard = () => {
           />
         </Box>
 
-        <Button
-          variant="contained"
-          size="small"
-          startIcon={<Add />}
-          onClick={handleAddPayment}
-          sx={{
-            color: "#fff",
-            textTransform: "none",
-            fontWeight: 600,
-            boxShadow: "none",
-          }}
-        >
-          Agregar
-        </Button>
+        {totalPaid < requiredAmount && (
+          <Button
+            variant="contained"
+            size="small"
+            startIcon={<Add />}
+            onClick={handleAddPayment}
+            sx={{
+              color: "#fff",
+              textTransform: "none",
+              fontWeight: 600,
+              boxShadow: "none",
+              width: { xs: "100%", md: "auto" },
+              borderRadius: 2,
+              py: { xs: 1.1, md: 0.6 },
+              justifyContent: { xs: 'center', md: 'initial' },
+            }}
+          >
+            Agregar
+          </Button>
+        )}
       </Box>
 
       {/* Lista de pagos */}
