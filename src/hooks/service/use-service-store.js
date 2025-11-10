@@ -40,17 +40,21 @@ export const useServiceStore = () => {
 
   const openSnackbar = (message) => dispatch(showSnackbar({ message }));
 
-  const startCreateService = async (serviceType) => {
-    if (!validateDetails(serviceType.serviceDetails)) return false;
+  const MAX_FILES = 5;
+  const MAX_TOTAL_SIZE = 20 * 1024 * 1024;
+
+  const startCreateService = async (serviceDataFromForm) => {
+    if (!validateDetails(serviceDataFromForm.serviceDetails)) return false;
+    if (!validateFiles(serviceDataFromForm.serviceDetails)) return false;
     dispatch(setLoadingService(true));
     try {
-      const payload = createServiceModel(serviceType);
-      await serviceApi.post("", payload, getAuthConfig(token)); 
+      const formData = createServiceModel(serviceDataFromForm);
+      await serviceApi.post("", formData, getAuthConfig(token, true));
       openSnackbar("El servicio fue creado exitosamente.");
-      return false;
+      return true;
     } catch (error) {
       const message = error.response?.data?.message;
-      openSnackbar(message ?? "Ocurrió un error al crear el tipo de servicio.");
+      openSnackbar(message ?? "Ocurrió un error al crear el servicio.");
       return false;
     } finally {
       dispatch(setLoadingService(false));
@@ -101,12 +105,13 @@ export const useServiceStore = () => {
     }
   };
 
-  const startUpdateService = async (id, serviceType) => {
-    if (!validateDetails(serviceType.serviceDetails)) return false;
+  const startUpdateService = async (id, serviceDataFromForm) => {
+    if (!validateDetails(serviceDataFromForm.serviceDetails)) return false;
+    if (!validateFiles(serviceDataFromForm.serviceDetails)) return false;
     dispatch(setLoadingService(true));
     try {
-      const payload = updateServiceModel(serviceType);
-      await serviceApi.patch(`/${id}`, payload, getAuthConfig(token));
+      const formData = updateServiceModel(serviceDataFromForm);
+      await serviceApi.patch(`/${id}`, formData, getAuthConfig(token, true));
       openSnackbar("El servicio fue actualizado exitosamente.");
       return true;
     } catch (error) {
@@ -135,6 +140,29 @@ export const useServiceStore = () => {
         return false;
       }
     }
+    return true;
+  };
+
+  const validateFiles = (details) => {
+    let totalFiles = 0;
+    let totalSize = 0;
+
+    for (const detail of details) {
+      const files = detail.photos || [];
+      totalFiles += files.length;
+      totalSize += files.reduce((acc, f) => acc + (f?.size || 0), 0);
+
+      if (files.length > MAX_FILES) {
+        openSnackbar(`Máximo ${MAX_FILES} imágenes por detalle.`);
+        return false;
+      }
+    }
+
+    if (totalSize > MAX_TOTAL_SIZE) {
+      openSnackbar("El tamaño total de las imágenes no debe superar los 20 MB.");
+      return false;
+    }
+
     return true;
   };
 

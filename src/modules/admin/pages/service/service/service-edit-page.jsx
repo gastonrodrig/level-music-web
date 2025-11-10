@@ -59,6 +59,7 @@ export const ServiceEditPage = () => {
   const { selected: selectedServiceDetail } = useServiceDetailStore();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [photosToDelete, setPhotosToDelete] = useState([]);
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -69,7 +70,12 @@ export const ServiceEditPage = () => {
   };
 
   const onSubmit = async (data) => {
-    const result = await startUpdateService(selected._id, data);
+      const payload = {
+      ...data,
+      photosToDelete: photosToDelete,
+    };
+
+    const result = await startUpdateService(selected._id, payload);
     if (result) navigate('/admin/service');
   };
 
@@ -80,13 +86,12 @@ export const ServiceEditPage = () => {
       serviceDetails:
         selected?.serviceDetails?.map((detail) => {
           const obj = {
+            _id: detail._id,
+            ref_price: detail.ref_price,
             details: detail.details,
             status: detail.status,
-            ref_price: detail.ref_price,
+            photos: detail.photos || [],
           };
-          if (typeof detail._id === "string" && detail._id.length === 24) {
-            obj._id = detail._id;
-          }
           return obj;
         }) || [],
     },
@@ -246,20 +251,24 @@ export const ServiceEditPage = () => {
         <Box sx={{ maxWidth: 1200, margin: "0 auto", mt: 2 }}>
           {details.map((detail, idx) => (
             <ServiceDetailBox
-              key={idx}
+              key={detail._id || idx}
               index={idx}
               register={register}
               errors={errors}
               fields={selectedFields[idx] || []}
               initialData={detail}
-              refPrice={detail.ref_price}
               onDelete={() => remove(idx)}
               onAddField={() => setOpenFieldModalIdx(idx)}
-              onRemoveField={(fieldIdx) => handleRemoveFieldFromDetail(idx, fieldIdx, getValues, setValue)}
+              onRemoveField={(fieldIdx) =>
+                handleRemoveFieldFromDetail(idx, fieldIdx, getValues, setValue)
+              }
               detailsCount={details.length}
               isEditMode
               setValue={setValue}
               openModal={openModal}
+              onDeleteExistingPhoto={(photoId) => {
+                setPhotosToDelete((prev) => [...prev, photoId]);
+              }}
             />
           ))}
         </Box>
