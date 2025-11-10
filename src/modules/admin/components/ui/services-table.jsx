@@ -33,7 +33,6 @@ export const ServicesTable = ({
   const { isMd } = useScreenSizes();
   const theme = useTheme();
 
-  // if parent provided onRowAction, append an actions column unless caller already provided one
   const effectiveColumns = React.useMemo(() => {
     const cols = Array.isArray(columns) ? [...columns] : [];
     if (onRowAction && !cols.some((c) => c.key === "actions")) {

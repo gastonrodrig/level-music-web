@@ -21,28 +21,22 @@ export const quotationSlice = createSlice({
       state.currentPage = page;
       state.loading = false;
     },
-
     // Selecciona una cotización
     selectedQuotation: (state, action) => {
       state.selected = action.payload;
     },
-
     // Cambia el estado de carga
     setLoadingQuotation: (state, action) => {
       state.loading = action.payload;
     },
-
     // Cambia la página actual
     setPageQuotation: (state, action) => {
       state.currentPage = action.payload;
     },
-
     // Cambia la cantidad de filas por página
     setRowsPerPageQuotation: (state, action) => {
       state.rowsPerPage = action.payload;
     },
-
-   
   },
 });
 

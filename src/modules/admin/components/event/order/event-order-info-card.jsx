@@ -90,7 +90,7 @@ export const EventOrderInfoCard = () => {
 
             <Grid item xs={12} md={6}>
               <Typography variant="body2" color="text.secondary">
-                Total Servicios Adicionales
+                Total Paquetes
               </Typography>
               <Typography variant="h5">{totalServicesAdditional}</Typography>
             </Grid>

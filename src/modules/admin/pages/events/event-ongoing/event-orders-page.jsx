@@ -8,7 +8,6 @@ import {
   EventOrderInfoCard,
   ServicesInfo,
 } from "../../../components";
-import { useForm } from "react-hook-form";
 
 export const EventOrdersPage = () => {
   const navigate = useNavigate();

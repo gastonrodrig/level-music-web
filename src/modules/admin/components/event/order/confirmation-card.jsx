@@ -7,11 +7,16 @@ import {
   Grid,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
-import { useQuotationStore } from "../../../../../hooks";
+import { useEventStore, useQuotationStore } from "../../../../../hooks";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { useMemo } from "react";
 
 export const ConfirmationCard = () => {
   const { selected } = useQuotationStore();
+  const { loading, startSendingPurchaseOrder } = useEventStore();
+  const navigate = useNavigate();
+
   const theme = useTheme();
 
   const { handleSubmit } = useForm();
@@ -23,9 +28,12 @@ export const ConfirmationCard = () => {
   const pluralLabel =
     totalProviders === 1 ? "1 proveedor" : `${totalProviders} proveedores`;
 
-  const onSubmit = () => {
-    console.log("Enviando órdenes de compra...");
+  const onSubmit = async () => {
+    const result = await startSendingPurchaseOrder(selected._id);
+    if (result) navigate("/admin/event-ongoing");
   }
+
+  const isButtonDisabled = useMemo(() => loading, [loading]);
 
   return (
     <Card
@@ -68,6 +76,7 @@ export const ConfirmationCard = () => {
                 color: "#fff",
                 borderRadius: 2,
               }}
+              disabled={isButtonDisabled}
             >
               Enviar Órdenes de Compra
             </Button>
