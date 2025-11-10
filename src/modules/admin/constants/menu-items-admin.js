@@ -56,6 +56,11 @@ export const menuItems = [
             text: 'Programar Pagos',
             breadcrumb: 'Programar Pagos',
             href: '/admin/quotations/payments-programming',
+          },
+          {
+            text: 'Historial ',
+            breadcrumb: 'Historial',
+            href: '/admin/quotations/history',
           }
         ],
       }, 
@@ -73,6 +78,11 @@ export const menuItems = [
             text: 'Control Actividades',
             breadcrumb: 'Control de Actividades',
             href: '/admin/event-ongoing/activities',
+          },
+          {
+            text: 'Ver Ordenes',
+            breadcrumb: 'Ordenes de Compra',
+            href: '/admin/event-ongoing/orders',
           }
         ],
       },

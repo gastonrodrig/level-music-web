@@ -7,9 +7,14 @@ import {
   Grid,
   useTheme,
   Switch,
+  Paper,
 } from "@mui/material";
-import { Delete, Add, Close, CalendarMonth } from "@mui/icons-material";
+import { Delete, Add, Close, CloudUpload, InsertDriveFile } from "@mui/icons-material";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
+import { useServiceDetailStore, useImageManager } from "../../../../../hooks";
+import { useFormContext } from "react-hook-form";
+import { useState, useEffect } from "react";
+import { ImagePreviewModal } from "../../../../../shared/ui/components/common";
 
 export const ServiceDetailBox = ({
   index,
@@ -23,13 +28,46 @@ export const ServiceDetailBox = ({
   isEditMode,
   setValue,
   initialData = {},
-  onOpenPrices, // 👈 función que abre el modal
+  openModal,
+  onDeleteExistingPhoto,
 }) => {
   const theme = useTheme();
   const { isMd } = useScreenSizes();
   const isDark = theme.palette.mode === "dark";
+  const { watch } = useFormContext();
+  const { setSelectedServiceDetail } = useServiceDetailStore();
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [selectedPreview, setSelectedPreview] = useState(null);
 
-  const serviceDetailId = initialData._id; // 👈 el ID del detalle viene directo del backend
+  const {
+    existingImages,
+    files,
+    previews,
+    initExisting,
+    handleImagesChange,
+    handleRemoveImage,
+    handleRemoveExisting,
+  } = useImageManager(watch, setValue, {
+    onDeleteExistingPhoto,
+    fieldPath: `serviceDetails.${index}.photos`, // ✅ para enlazar con el detalle actual
+  });
+
+  useEffect(() => {
+    initExisting(initialData.photos);
+  }, [initialData.photos, initExisting]);
+
+  const handleOpenPreview = (url) => {
+    setSelectedPreview(url);
+    setPreviewModalOpen(true);
+  };
+
+  const handleOpenPrices = () => {
+    if (!initialData._id) return;
+    setSelectedServiceDetail(initialData);
+    openModal();
+  };
+
+  const status = watch(`serviceDetails.${index}.status`);
 
   return (
     <Box
@@ -37,76 +75,78 @@ export const ServiceDetailBox = ({
         p: 3,
         borderRadius: 3,
         bgcolor: isDark ? "#1f1e1e" : "#f5f5f5",
-        mb: 2,
+        mb: 3,
       }}
     >
       {/* === ENCABEZADO === */}
       <Box
         display="flex"
+        flexDirection="row"
         justifyContent="space-between"
-        alignItems="center"
-        mb={5}
+        alignItems={{ xs: "flex-start", md: "flex-start" }}
+        mb={2}
+        gap={3}
       >
-        {/* Izquierda: título y estado */}
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="flex-start"
-          gap={2}
-        >
-          <Grid
-            item
-            xs={12}
-            sx={isEditMode ? { display: "flex" } : { display: "block" }}
-          >
+        {/* Izquierda: título, botón y estado */}
+        <Box display="flex" flexDirection="column" alignItems="flex-start">
+          <Box display="flex" flexDirection="row" alignItems="center" gap={1} alignContent="center">
             <Typography variant="h6" fontWeight={600}>
               Detalle #{index + 1}
             </Typography>
+
             {isEditMode && (
-              <Box sx={{ display: "flex", alignItems: "center", ml: 2 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                 <Switch
-                  checked={initialData.status === "Activo"}
+                  checked={status === "Activo"}
                   onChange={() =>
                     setValue(
                       `serviceDetails.${index}.status`,
-                      initialData.status === "Activo" ? "Inactivo" : "Activo"
+                      status === "Activo" ? "Inactivo" : "Activo"
                     )
                   }
                   color="success"
                 />
-                <Typography sx={{ ml: 1 }}>
-                  {initialData.status === "Activo" ? "Activo" : "Inactivo"}
+                <Typography>
+                  {status === "Activo" ? "Activo" : "Inactivo"}
                 </Typography>
               </Box>
             )}
-          </Grid>
+          </Box>
 
-          <Typography fontSize={16} fontWeight={300}>
-            Campos del servicio:
-          </Typography>
-        </Box>
-
-        {/* Derecha: botones */}
-        <Box display="flex" gap={1} flexDirection={isMd ? "column" : "row"}>
-          {/* 🔹 Ver precios */}
           <Button
             variant="contained"
-            startIcon={<CalendarMonth />}
-            onClick={() => onOpenPrices(serviceDetailId)}
-            disabled={!serviceDetailId}
+            color="primary"
+            onClick={handleOpenPrices}
+            disabled={!initialData._id}
             sx={{
-              textTransform: "none",
-              borderRadius: 2,
+              mt: 2,
+              mb: 2,
               fontWeight: 600,
+              textTransform: "none",
+              fontSize: 14,
+              borderRadius: 2,
+              px: 2.5,
+              py: 1,
+              color: "#fff",
               bgcolor: theme.palette.primary.main,
-              "&:hover": { bgcolor: theme.palette.primary.hover },
+              "&:hover": {
+                bgcolor: theme.palette.primary.dark,
+                color: "#fff",
+              },
             }}
           >
             Ver Precios
           </Button>
+        </Box>
 
-          {/* 🔹 Eliminar detalle */}
-          {isMd ? (
+        {/* Contenedor de botones, evita anidar <button> */}
+        <Box display="flex" gap={1} flexDirection={isMd ? "column" : "row"}>
+          {/* Botón eliminar detalle */}
+          {!isMd ? (
+            <IconButton color="error" onClick={onDelete} disabled={detailsCount === 1 || !!initialData._id} >
+              <Delete />
+            </IconButton>
+          ) : (
             <Button
               variant="contained"
               onClick={onDelete}
@@ -122,18 +162,25 @@ export const ServiceDetailBox = ({
             >
               Eliminar Detalle
             </Button>
-          ) : (
-            <IconButton
-              color="error"
-              onClick={onDelete}
-              disabled={detailsCount === 1 || !!initialData._id}
-            >
-              <Delete />
-            </IconButton>
           )}
 
-          {/* 🔹 Agregar campo */}
-          {isMd ? (
+          {/* Botón agregar campo */}
+          {!isMd ? (
+            <IconButton
+              color="primary"
+              onClick={onAddField}
+              sx={{
+                bgcolor: theme.palette.primary.main,
+                color: "#fff",
+                borderRadius: "12px",
+                "&:hover": {
+                  bgcolor: theme.palette.primary.dark,
+                },
+              }}
+            >
+              <Add />
+            </IconButton>
+          ) : (
             <Button
               variant="contained"
               onClick={onAddField}
@@ -147,46 +194,32 @@ export const ServiceDetailBox = ({
             >
               Agregar Campo
             </Button>
-          ) : (
-            <IconButton
-              color="primary"
-              onClick={onAddField}
-              sx={{
-                bgcolor: theme.palette.primary.main,
-                color: "#fff",
-                borderRadius: "12px",
-                "&:hover": { bgcolor: theme.palette.primary.dark },
-              }}
-            >
-              <Add />
-            </IconButton>
           )}
         </Box>
       </Box>
 
       {/* === CAMPOS === */}
-      <Grid container spacing={2}>
-        {/* Precio de referencia */}
-        <TextField
-          sx={{ ml: 2 }}
-          label="Precio por hora de Referencia (S/.)"
-          placeholder="Ingresa el precio de referencia"
-          type="number"
-          fullWidth
-          InputLabelProps={{ shrink: true }}
-          defaultValue={initialData.ref_price || ""}
-          {...register(`serviceDetails.${index}.ref_price`, {
-            required: "El precio es obligatorio",
-            min: {
-              value: 0,
-              message: "El precio no puede ser negativo",
-            },
-          })}
-          error={!!errors.serviceDetails?.[index]?.ref_price}
-          helperText={errors.serviceDetails?.[index]?.ref_price?.message}
-        />
+      <Typography fontSize={16} fontWeight={400} mb={2}>
+        Campos del servicio:
+      </Typography>
 
-        {/* Si no hay campos personalizados */}
+      {/* === Campos === */}
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <TextField
+            label="Precio por hora de Referencia (S/.)"
+            type="number"
+            fullWidth
+            defaultValue={initialData.ref_price || ""}
+            {...register(`serviceDetails.${index}.ref_price`, {
+              required: "El precio es obligatorio",
+              min: { value: 0, message: "El precio no puede ser negativo" },
+            })}
+            error={!!errors.serviceDetails?.[index]?.ref_price}
+            helperText={errors.serviceDetails?.[index]?.ref_price?.message}
+          />
+        </Grid>
+
         {fields.length === 0 ? (
           <Grid item xs={12}>
             <Typography color="text.secondary">
@@ -196,55 +229,236 @@ export const ServiceDetailBox = ({
         ) : (
           fields.map((field, idx) => (
             <Grid item xs={12} sm={6} key={idx}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Box sx={{ flexGrow: 1 }}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Typography fontWeight={500} mb={1}>
-                      {field.name}{" "}
-                      {field.required && (
-                        <Typography component="span" color="error">
-                          *
-                        </Typography>
-                      )}
+              <Box display="flex" alignItems="center" gap={1}>
+                <Typography fontWeight={500} flex={1}>
+                  {field.name}
+                  {field.required && (
+                    <Typography component="span" color="error">
+                      *
                     </Typography>
-                    <IconButton
-                      onClick={() => onRemoveField(idx)}
-                      color="error"
-                      size="small"
-                      sx={{ p: 0.5 }}
-                    >
-                      <Close fontSize="small" />
-                    </IconButton>
-                  </Box>
-                  <TextField
-                    fullWidth
-                    defaultValue={initialData.details?.[field.name] || ""}
-                    {...register(
-                      `serviceDetails.${index}.details.${field.name}`,
-                      {
-                        required: "Campo requerido",
-                      }
-                    )}
-                    error={
-                      !!errors.serviceDetails?.[index]?.details?.[field.name]
-                    }
-                    helperText={
-                      errors.serviceDetails?.[index]?.details?.[field.name]
-                        ?.message
-                    }
-                  />
-                </Box>
+                  )}
+                </Typography>
+                <IconButton onClick={() => onRemoveField(idx)} color="error" size="small">
+                  <Close fontSize="small" />
+                </IconButton>
               </Box>
+              <TextField
+                fullWidth
+                defaultValue={initialData.details?.[field.name] || ""}
+                {...register(
+                  `serviceDetails.${index}.details.${field.name}`,
+                  { required: "Campo requerido" }
+                )}
+                error={
+                  !!errors.serviceDetails?.[index]?.details?.[field.name]
+                }
+                helperText={
+                  errors.serviceDetails?.[index]?.details?.[field.name]
+                    ?.message
+                }
+              />
             </Grid>
           ))
         )}
       </Grid>
+
+      {/* === GESTIÓN DE IMÁGENES === */}
+      <Grid container spacing={2} sx={{ mt: 2 }}>
+        <Grid item xs={12}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: theme.palette.text.primary,
+              mb: 1,
+              fontWeight: 600,
+            }}
+          >
+            Fotos del Detalle
+          </Typography>
+
+          <input
+            type="file"
+            id={`file-upload-${index}`}
+            accept="image/png,image/jpeg,image/jpg"
+            style={{ display: "none" }}
+            onChange={handleImagesChange} // ✅ de useImageManager
+            multiple
+          />
+
+          {/* --- Dropzone (botón subir) --- */}
+          <Paper
+            elevation={0}
+            component="label"
+            htmlFor={`file-upload-${index}`}
+            sx={{
+              p: 3,
+              border: `2px dashed ${theme.palette.divider}`,
+              borderRadius: 2,
+              bgcolor: isDark ? "#2d2d2d" : "#e0e0e0",
+              cursor: "pointer",
+              transition: "all 0.2s",
+              "&:hover": { borderColor: theme.palette.primary.main },
+              display: "flex",
+              alignItems: "center",
+              gap: 3,
+            }}
+          >
+            <Box
+              sx={{
+                bgcolor: isDark ? "#333" : "#f0f0f0",
+                borderRadius: 2,
+                p: 2,
+                display: "flex",
+              }}
+            >
+              <CloudUpload
+                sx={{ fontSize: 40, color: theme.palette.text.secondary }}
+              />
+            </Box>
+            <Box sx={{ flex: 1, textAlign: "left" }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: theme.palette.text.primary,
+                  mb: 0.5,
+                  fontWeight: 500,
+                }}
+              >
+                Sube las fotos
+              </Typography>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: theme.palette.text.secondary,
+                  display: "block",
+                }}
+              >
+                PNG, JPG (Máx. 5 MB c/u)
+              </Typography>
+            </Box>
+          </Paper>
+
+          {/* --- Vista previa de imágenes --- */}
+          {(existingImages.length > 0 || files.length > 0) && (
+            <Grid container spacing={2} sx={{ mt: 1 }}>
+              {/* 1️⃣ Fotos existentes (BD) */}
+              {existingImages.map((photo) => (
+                <Grid item xs={6} sm={4} md={3} key={photo._id}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      border: `1px solid ${theme.palette.divider}`,
+                      borderRadius: 2,
+                      bgcolor: isDark ? "#2d2d2d" : "#e0e0e0",
+                      position: "relative",
+                      height: 120,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <IconButton
+                      size="small"
+                      onClick={() => handleRemoveExisting(photo._id)} // ✅
+                      sx={{
+                        position: "absolute",
+                        top: 4,
+                        right: 4,
+                        zIndex: 1,
+                        bgcolor: "rgba(0,0,0,0.5)",
+                        "&:hover": { bgcolor: "rgba(0,0,0,0.7)" },
+                      }}
+                    >
+                      <Close fontSize="small" sx={{ color: "#fff" }} />
+                    </IconButton>
+
+                    {photo.url ? (
+                      <Box
+                        component="img"
+                        src={photo.url}
+                        alt={photo.name || "foto existente"}
+                        onClick={() => handleOpenPreview(photo.url)}
+                        sx={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          cursor: "pointer",
+                        }}
+                      />
+                    ) : (
+                      <Box sx={{ p: 2, textAlign: "center" }}>
+                        <InsertDriveFile
+                          sx={{ fontSize: 48, color: "#f44336" }}
+                        />
+                      </Box>
+                    )}
+                  </Paper>
+                </Grid>
+              ))}
+
+              {/* 2️⃣ Fotos nuevas (subidas) */}
+              {files.map((file, fileIndex) => (
+                <Grid item xs={6} sm={4} md={3} key={file.name}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      border: `1px solid ${theme.palette.divider}`,
+                      borderRadius: 2,
+                      bgcolor: isDark ? "#2d2d2d" : "#e0e0e0",
+                      position: "relative",
+                      height: 120,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <IconButton
+                      size="small"
+                      onClick={() => handleRemoveImage(fileIndex)} // ✅
+                      sx={{
+                        position: "absolute",
+                        top: 4,
+                        right: 4,
+                        zIndex: 1,
+                        bgcolor: "rgba(0,0,0,0.5)",
+                        "&:hover": { bgcolor: "rgba(0,0,0,0.7)" },
+                      }}
+                    >
+                      <Close fontSize="small" sx={{ color: "#fff" }} />
+                    </IconButton>
+
+                    {previews[fileIndex] ? (
+                      <Box
+                        component="img"
+                        src={previews[fileIndex]}
+                        alt={file.name}
+                        onClick={() => handleOpenPreview(previews[fileIndex])}
+                        sx={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          cursor: "pointer",
+                        }}
+                      />
+                    ) : (
+                      <Box sx={{ p: 2, textAlign: "center" }}>
+                        <InsertDriveFile
+                          sx={{ fontSize: 48, color: "#f44336" }}
+                        />
+                        <Typography variant="caption" display="block" noWrap>
+                          {file.name}
+                        </Typography>
+                      </Box>
+                    )}
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
+          )}
+        </Grid>
+      </Grid>
+
+      <ImagePreviewModal
+        open={previewModalOpen}
+        src={selectedPreview}
+        onClose={() => setPreviewModalOpen(false)}
+      />
     </Box>
   );
 };

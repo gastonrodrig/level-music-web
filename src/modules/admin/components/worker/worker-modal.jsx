@@ -11,6 +11,8 @@ import {
   MenuItem,
   FormHelperText,
   Grid,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import { useWorkerTypeStore, useWorkerStore } from "../../../../hooks";
@@ -50,6 +52,7 @@ export const WorkerModal = ({
         document_type: worker?.document_type ?? "",
         document_number: worker?.document_number ?? "",
         status: worker?.status,
+        create_account: worker?.create_account ?? false,
       });
     }
   }, [open, reset, worker]);
@@ -126,7 +129,6 @@ export const WorkerModal = ({
                     setValue("role", selectedType ? selectedType.name : "");
                   }}
                   inputProps={{ name: "worker_type_id" }}
-                  disabled={isEditing} // solo deshabilita si está editando
                 >
                   {workerTypes.map((type) => (
                     <MenuItem key={type._id} value={type._id}>
@@ -256,6 +258,27 @@ export const WorkerModal = ({
                     <MenuItem value="Inactivo">Inactivo</MenuItem>
                   </Select>
                   <FormHelperText>{errors.status?.message}</FormHelperText>
+                </FormControl>
+              </Grid>
+            )}
+
+            {/* Checkbox para crear cuenta */}
+            {!isEditing && (
+              <Grid item xs={12}>
+                <FormControl error={!!errors.create_account} fullWidth>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        {...register("create_account")}
+                        checked={watch("create_account") || false}
+                        onChange={(e) => setValue("create_account", e.target.checked)}
+                      />
+                    }
+                    label="¿Crear cuenta de usuario?"
+                  />
+                  <FormHelperText>
+                    {errors.create_account?.message || "Si se marca esta opción, se creará una cuenta de acceso para el trabajador"}
+                  </FormHelperText>
                 </FormControl>
               </Grid>
             )}

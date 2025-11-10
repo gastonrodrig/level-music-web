@@ -19,13 +19,14 @@ import {
   EventFeaturedPage,
   ClientPersonPage,
   ClientCompanyPage,
-  AssignResourcesPage,
   EventQuotationAddPage,
   EventQuotationEditPage,
   RequestsPage,
   ReschedulePage,
   EventPaymentsProgrammingPage,
-  AppointmentPage
+  AppointmentPage,    
+  EventHistoryPage,
+  EventOrdersPage
 } from '../pages';
 import { AdminLayout } from '../layout/admin-layout';
 
@@ -43,14 +44,15 @@ export const AdminRoutes = () => {
         <Route path="event-ongoing" element={<EventOnGoing />} />
         <Route path="event-ongoing/reprogramming" element={<EventQuotationReprograming />} />
         <Route path="event-ongoing/activities" element={<EventActivitiesPage />} />
+        <Route path="event-ongoing/orders" element={<EventOrdersPage />} />
         <Route path="event-types" element={<EventTypePage />} />
         <Route path="quotations" element={<EventQuotationsPage />} />
-        <Route path="quotations/assign" element={<AssignResourcesPage />} />
         <Route path="quotations/new" element={<EventQuotationAddPage />} />
         <Route path="quotations/edit" element={<EventQuotationEditPage />} />
         <Route path="quotations/payments-programming" element={<EventPaymentsProgrammingPage />} />
         <Route path="featured-events" element={<EventFeaturedPage />} />
-        
+        <Route path="quotations/history" element={<EventHistoryPage />} />
+
         {/* Reprogramaciones */}
         <Route path="requests" element={<RequestsPage />} />
         <Route path="reschedule" element={<ReschedulePage />} />

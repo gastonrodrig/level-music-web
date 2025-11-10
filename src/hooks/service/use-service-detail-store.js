@@ -2,6 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   listAllServiceDetails,
   setLoadingServiceDetail,
+  selectedServiceDetail,
   showSnackbar,
 } from "../../store";
 import { serviceDetailApi } from "../../api";
@@ -11,6 +12,7 @@ export const useServiceDetailStore = () => {
   const dispatch = useDispatch();
   const {
     serviceDetail,
+    selected,
     loading,
   } = useSelector((state) => state.serviceDetail);
 
@@ -25,7 +27,6 @@ export const useServiceDetailStore = () => {
       dispatch(listAllServiceDetails(data));
       return true;
     } catch (error) {
-      console.log(error);
       const message = error.response?.data?.message;
       openSnackbar(message ?? "Ocurrió un error al cargar los detalles del servicio.");
       return false;
@@ -34,12 +35,18 @@ export const useServiceDetailStore = () => {
     }
   };
 
+  const setSelectedServiceDetail = (serviceDetail) => {
+    dispatch(selectedServiceDetail(serviceDetail));
+  }
+
   return {
     //state
     serviceDetail,
+    selected,
     loading,
 
     //acciones
+    setSelectedServiceDetail,
     startLoadingAllServiceDetails,
   };
 };

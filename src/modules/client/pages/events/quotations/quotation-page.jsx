@@ -83,18 +83,6 @@ export const QuotationPage = () => {
       },
     },
     {
-      label: 'Evaluar Cotización',
-      icon: <FactCheck />,
-      onClick: (row) => {
-        openModal(row);
-      },
-        show: (row) => {
-        const restricted = ["APROBADO", "RECHAZADO", "PAGOS ASIGNADOS"];
-        const currentStatus = String(row?.status ?? "").toUpperCase();
-        return !restricted.includes(currentStatus);
-      },
-    },
-    {
       label: 'Realizar Pagos',
       icon: <Payments />,
       onClick: (row) => {

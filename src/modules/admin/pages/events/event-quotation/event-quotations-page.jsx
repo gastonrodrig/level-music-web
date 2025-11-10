@@ -11,14 +11,13 @@ import {
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
 import { TableComponent } from "../../../../../shared/ui/components";
 import { formatDay } from "../../../../../shared/utils";
-import { Group, AddCircleOutline, Edit, Payments } from "@mui/icons-material";
+import { AddCircleOutline, Edit, Payments,History } from "@mui/icons-material";
 import { Box, Typography, Button, TextField, CircularProgress } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 
 export const EventQuotationsPage = () => {
   const {
     quotations,
-    selected,
     total,
     loading,
     searchTerm,
@@ -56,13 +55,13 @@ export const EventQuotationsPage = () => {
       label: "Cliente",
       sortable: false,
       accessor: (row) => {
-        if (row.client_info.client_type === "Persona") {
-          return row.client_info.first_name && row.client_info.last_name
-            ? `${row.client_info.first_name} ${row.client_info.last_name}`
+        if (row.client_type === "Persona") {
+          return row.first_name && row.last_name
+            ? `${row.first_name} ${row.last_name}`
             : "N/A";
         }
-        if (row.client_info.client_type === "Empresa") {
-          return row.client_info.company_name || "N/A";
+        if (row.client_type === "Empresa") {
+          return row.company_name || "N/A";
         }
         return "N/A";
       },
@@ -71,7 +70,7 @@ export const EventQuotationsPage = () => {
       id: "phone",
       label: "Teléfono",
       sortable: false,
-      accessor: (row) => row.client_info.phone || "N/A",
+      accessor: (row) => row.phone || "N/A",
     },
     {
       id: "event_date",
@@ -103,27 +102,11 @@ export const EventQuotationsPage = () => {
 
   const actions = [
     {
-      label: 'Asignar Recursos',
-      icon: <Group />,
-      onClick: (row) => {
-        setSelectedQuotation(row);
-        navigate(`/admin/quotations/assign`);
-      },
-      show: (row) =>
-        String(row?.creator).toLowerCase() !== 'admin' &&
-        ((row?.assignations?.length ?? 0) === 0),
-    },
-    {
       label: 'Editar Cotización',
       icon: <Edit />,
       onClick: (row) => {
         setSelectedQuotation(row);
         navigate(`/admin/quotations/edit`);
-      },
-      show: (row) => {
-        const isAdmin = String(row?.creator).toLowerCase() === 'admin';
-        const hasAssignations = (row?.assignations?.length ?? 0) > 0;
-        return isAdmin || (!isAdmin && hasAssignations);
       },
     },
     {
@@ -132,13 +115,15 @@ export const EventQuotationsPage = () => {
       onClick: (row) => {
         setSelectedQuotation(row);
         navigate(`/admin/quotations/payments-programming`);
-      },
-      show: (row) => {
-        const status = String(row?.status || '').toLowerCase();
-        const isValidStatus = ['aprobado'].includes(status);
-        const hasAssignations = (row?.assignations?.length ?? 0) > 0;
-        return isValidStatus && hasAssignations;
-      },
+      }
+    },
+    {
+      label: 'Historial',
+      icon: <History />,
+      onClick: (row) => {
+        setSelectedQuotation(row);
+        navigate(`/admin/quotations/history`);
+      }
     }
   ];
 

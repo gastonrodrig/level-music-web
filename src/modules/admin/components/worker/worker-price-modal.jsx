@@ -58,12 +58,10 @@ export const WorkerPriceModal = ({
     }
   }, [open, worker?._id, currentPage, rowsPerPage]);
 
-  // Enviar nuevo precio
   const onSubmit = async (data) => {
     await startCreateWorkerPrice(data);
   };
 
-  // Columnas de la tabla
   const columns = [
     { label: "Nro. Temporada", field: "season_number" },
     { label: "Precio", field: "reference_price", format: "currency" },
@@ -89,8 +87,13 @@ export const WorkerPriceModal = ({
             p: 4,
           }}
         >
-          {/* 🔹 Encabezado */}
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+          {/* Encabezado */}
+          <Box 
+            display="flex" 
+            justifyContent="space-between" 
+            alignItems="center" 
+            mb={1}
+          >
             <Typography variant="h6" fontWeight={600}>
               Precios por Temporada
             </Typography>
@@ -99,17 +102,17 @@ export const WorkerPriceModal = ({
             </IconButton>
           </Box>
 
-          {/* 🔹 Nombre del trabajador */}
+          {/* Nombre del trabajador */}
           <Typography fontSize={15} mb={2}>
             <Box component="span" sx={{ fontWeight: 700, mr: 0.5 }}>
               Trabajador:
             </Box>
             <Box component="span">
-              {`${worker?.first_name || ""} ${worker?.last_name || ""}`}
+              {`${worker?.first_name} ${worker?.last_name}`}
             </Box>
           </Typography>
 
-          {/* 🔹 Tabla paginada */}
+          {/* Tabla paginada */}
           <PaginatedTable
             columns={columns}
             rows={workerPrices}
@@ -128,7 +131,7 @@ export const WorkerPriceModal = ({
             emptyMessage="No hay precios registrados"
           />
 
-          {/* 🔹 Formulario reutilizable */}
+          {/* Formulario reutilizable */}
           {showPriceForm && (
             <PriceForm
               label="Precio Ref. (S/)"
@@ -136,7 +139,7 @@ export const WorkerPriceModal = ({
             />
           )}
 
-          {/* 🔹 Botón para alternar formulario */}
+          {/* Botón para alternar formulario */}
           <Box mt={3} display="flex" justifyContent="flex-end">
             <Button
               onClick={() => setValue("showPriceForm", !showPriceForm)}

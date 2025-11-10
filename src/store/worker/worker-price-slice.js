@@ -2,7 +2,6 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   workerPrices: [],
-  selected: null,
   total: 0,
   currentPage: 0,
   rowsPerPage: 5,
@@ -19,28 +18,20 @@ export const workerPricesSlice = createSlice({
       state.total = total;
       state.loading = false;
     },
-    selectedWorkerPrice: (state, action) => {
-      state.selected = action.payload;
-    },
     setLoadingWorkerPrice: (state, action) => {
       state.loading = action.payload;
     },
     setPageWorkerPrice: (state, action) => {
-      // coerce to a safe numeric page index (defensive: avoid non-serializable values)
-      const p = Number(action.payload);
-      state.currentPage = Number.isFinite(p) && p >= 0 ? p : state.currentPage;
+      state.currentPage = action.payload;
     },
     setRowsPerPageWorkerPrice: (state, action) => {
-      // coerce to a safe numeric rows-per-page value
-      const r = Number(action.payload);
-      state.rowsPerPage = Number.isFinite(r) && r > 0 ? r : state.rowsPerPage;
+      state.rowsPerPage = action.payload;
     },
   },
 });
 
 export const {
   refreshWorkerPrices,
-  selectedWorkerPrice,
   setLoadingWorkerPrice,
   setPageWorkerPrice,
   setRowsPerPageWorkerPrice,

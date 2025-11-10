@@ -1,12 +1,12 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { DashboardPage,
-   EventMadePage,
-   EventsOngoingPage,
-   QuotationPage, 
-   QuotationDetailsPage,
-   ProfilePage,
-   ReprogramingsRequestsPage,
-   QuotationPaymentsPage
+  EventMadePage,
+  EventsOngoingPage,
+  QuotationPage, 
+  QuotationDetailsPage,
+  ProfilePage,
+  ReprogramingsRequestsPage,
+  QuotationPaymentsPage
 } from "../pages";
 import { ClientLayout } from '../layout/client-layout';
 

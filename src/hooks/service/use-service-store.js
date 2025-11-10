@@ -1,3 +1,4 @@
+
 import { useDispatch, useSelector } from "react-redux";
 import { createServiceModel, updateServiceModel } from "../../shared/models";
 import {
@@ -15,6 +16,7 @@ import { getAuthConfig, getAuthConfigWithParams } from "../../shared/utils";
 
 export const useServiceStore = () => {
   const dispatch = useDispatch();
+ 
   const { 
     services, 
     selected, 
@@ -38,17 +40,21 @@ export const useServiceStore = () => {
 
   const openSnackbar = (message) => dispatch(showSnackbar({ message }));
 
-  const startCreateService = async (serviceType) => {
-    if (!validateDetails(serviceType.serviceDetails)) return false;
+  const MAX_FILES = 5;
+  const MAX_TOTAL_SIZE = 20 * 1024 * 1024;
+
+  const startCreateService = async (serviceDataFromForm) => {
+    if (!validateDetails(serviceDataFromForm.serviceDetails)) return false;
+    if (!validateFiles(serviceDataFromForm.serviceDetails)) return false;
     dispatch(setLoadingService(true));
     try {
-      const payload = createServiceModel(serviceType);
-      await serviceApi.post("", payload, getAuthConfig(token));
+      const formData = createServiceModel(serviceDataFromForm);
+      await serviceApi.post("", formData, getAuthConfig(token, true));
       openSnackbar("El servicio fue creado exitosamente.");
       return true;
     } catch (error) {
       const message = error.response?.data?.message;
-      openSnackbar(message ?? "Ocurrió un error al crear el tipo de servicio.");
+      openSnackbar(message ?? "Ocurrió un error al crear el servicio.");
       return false;
     } finally {
       dispatch(setLoadingService(false));
@@ -73,7 +79,7 @@ export const useServiceStore = () => {
   const startLoadingServicePaginated = async () => {
     dispatch(setLoadingService(true));
     try {
-      const limit  = rowsPerPage;
+       const limit  = rowsPerPage;
       const offset = currentPage * rowsPerPage;
       const { data } = await serviceApi.get('/paginated',
         getAuthConfigWithParams(token, {
@@ -99,17 +105,18 @@ export const useServiceStore = () => {
     }
   };
 
-  const startUpdateService = async (id, serviceType) => {
-    if (!validateDetails(serviceType.serviceDetails)) return false;
+  const startUpdateService = async (id, serviceDataFromForm) => {
+    if (!validateDetails(serviceDataFromForm.serviceDetails)) return false;
+    if (!validateFiles(serviceDataFromForm.serviceDetails)) return false;
     dispatch(setLoadingService(true));
     try {
-      const payload = updateServiceModel(serviceType);
-      await serviceApi.patch(`/${id}`, payload, getAuthConfig(token));
+      const formData = updateServiceModel(serviceDataFromForm);
+      await serviceApi.patch(`/${id}`, formData, getAuthConfig(token, true));
       openSnackbar("El servicio fue actualizado exitosamente.");
       return true;
     } catch (error) {
       const message = error.response?.data?.message;
-      openSnackbar(message ?? "Ocurrió un error al actualizar el servicio.");
+      openSnackbar(message ?? "Debe agregar al menos un detalle al servicio.");
       return false;
     } finally {
       dispatch(setLoadingService(false));
@@ -133,6 +140,29 @@ export const useServiceStore = () => {
         return false;
       }
     }
+    return true;
+  };
+
+  const validateFiles = (details) => {
+    let totalFiles = 0;
+    let totalSize = 0;
+
+    for (const detail of details) {
+      const files = detail.photos || [];
+      totalFiles += files.length;
+      totalSize += files.reduce((acc, f) => acc + (f?.size || 0), 0);
+
+      if (files.length > MAX_FILES) {
+        openSnackbar(`Máximo ${MAX_FILES} imágenes por detalle.`);
+        return false;
+      }
+    }
+
+    if (totalSize > MAX_TOTAL_SIZE) {
+      openSnackbar("El tamaño total de las imágenes no debe superar los 20 MB.");
+      return false;
+    }
+
     return true;
   };
 
@@ -166,36 +196,27 @@ export const useServiceStore = () => {
     setOpenFieldModalIdx(null);
   };
 
-const handleRemoveFieldFromDetail = (detailIdx, fieldIdx, getValues, setValue) => {
-  setSelectedFields((prev) => {
-    const updatedFields = { ...prev };
-    const removedField = updatedFields[detailIdx][fieldIdx];
+  const handleRemoveFieldFromDetail = (detailIdx, fieldIdx, getValues, setValue) => {
+    setSelectedFields((prev) => {
+      const updatedFields = { ...prev };
+      const removedField = updatedFields[detailIdx][fieldIdx];
+      updatedFields[detailIdx] = updatedFields[detailIdx].filter((_, idx) => idx !== fieldIdx);
 
-    // Eliminar del array visual de campos
-    updatedFields[detailIdx] = updatedFields[detailIdx].filter((_, idx) => idx !== fieldIdx);
+      if (removedField) {
+        const currentDetails = getValues(`serviceDetails.${detailIdx}.details`);
+        if (currentDetails && currentDetails[removedField.name] !== undefined) {
+          const updatedDetails = { ...currentDetails };
+          delete updatedDetails[removedField.name];
 
-    if (removedField) {
-      const currentDetails = getValues(`serviceDetails.${detailIdx}.details`);
-
-      if (currentDetails && currentDetails[removedField.name] !== undefined) {
-        // Crear un nuevo objeto para RHF
-        const updatedDetails = { ...currentDetails };
-
-        // Eliminar la propiedad del objeto
-        delete updatedDetails[removedField.name];
-
-        // Actualizar RHF forzando validación y estado sucio
-        setValue(`serviceDetails.${detailIdx}.details`, updatedDetails, {
-          shouldValidate: true,
-          shouldDirty: true,
-        });
+          setValue(`serviceDetails.${detailIdx}.details`, updatedDetails, {
+            shouldValidate: true,
+            shouldDirty: true,
+          });
+        }
       }
-    }
-
-    return updatedFields;
-  });
-};
-
+      return updatedFields;
+    });
+  };
 
   return {
     // state global redux

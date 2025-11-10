@@ -9,10 +9,8 @@ import {
   showSnackbar,
 } from '../../store';
 import{
-  createQuotationLandingModel,
-  assignResourcesModel,
-  createQuotationAdminModel,
-  updateQuotationLandingModel,
+  createQuotationModel,
+  updateQuotationModel,
   evaluateQuotationModel,
 } from '../../shared/models';
 import { useState } from 'react';
@@ -28,8 +26,6 @@ export const useQuotationStore = () => {
     currentPage, 
     rowsPerPage 
   } = useSelector((state) => state.quotation);
-  
-  const { status } = useSelector((state) => state.auth);
 
   const { token } = useSelector((state) => state.auth);
 
@@ -39,32 +35,11 @@ export const useQuotationStore = () => {
 
   const openSnackbar = (message) => dispatch(showSnackbar({ message }));
 
-  const startCreateQuotationLanding = async (quotation) => {
-    if (!validateQuotationsLanding(quotation)) return false;
+  const startCreateQuotation = async (quotation) => {
     dispatch(setLoadingQuotation(true));
     try {
-      const payload = createQuotationLandingModel(quotation);
-      await eventApi.post('/quotation/landing', payload);
-      if (status === 'authenticated') {
-        openSnackbar("La cotización fue solicitada exitosamente.");
-      } else {
-        openSnackbar("La cotización fue solicitada exitosamente. Pronto nos pondremos en contacto contigo.");
-      }
-      return true;
-    } catch (error) {
-      const message = error.response?.data?.message;
-      openSnackbar(message ?? "Ocurrió un error al solicitar la cotización.");
-      return false;
-    } finally {
-      dispatch(setLoadingQuotation(false));
-    }
-  };
-
-  const startCreateQuotationAdmin = async (quotation) => {
-    dispatch(setLoadingQuotation(true));
-    try {
-      const payload = createQuotationAdminModel(quotation);
-      await eventApi.post('/quotation/admin', payload, getAuthConfig(token));
+      const payload = createQuotationModel(quotation);
+      await eventApi.post('/quotation', payload, getAuthConfig(token));
       return true;
     } catch (error) {
       const message = error.response?.data?.message;
@@ -75,11 +50,11 @@ export const useQuotationStore = () => {
     }
   };
 
-  const startUpdateQuotationAdmin = async (quotationId, quotation) => {
+  const startUpdateQuotation = async (quotationId, quotation) => {
     dispatch(setLoadingQuotation(true));
     try {
-      const payload = updateQuotationLandingModel(quotation);
-      await eventApi.patch(`quotation/admin/${quotationId}`, payload, getAuthConfig(token));
+      const payload = updateQuotationModel(quotation);
+      await eventApi.patch(`quotation/${quotationId}`, payload, getAuthConfig(token));
       openSnackbar("La cotización fue editada exitosamente.");
       return true;
     } catch (error) {
@@ -94,7 +69,6 @@ export const useQuotationStore = () => {
   const startTimeUpdateQuotationAdmin = async (quotationId, partial) => {
     dispatch(setLoadingQuotation(true));
     try {
-      // partial: { start_time: ISOstring, end_time: ISOstring } (no enviar assignations)
       await eventApi.patch(`quotation/admin/${quotationId}`, partial, getAuthConfig(token));
       openSnackbar("La cotización fue editada exitosamente.");
       return true;
@@ -137,22 +111,27 @@ export const useQuotationStore = () => {
       dispatch(setLoadingQuotation(false));
     }
   };
-  
-  const startAssigningResources = async (quotationId, quotation) => {
+
+  const startLoadingQuotationVersionsByCode = async (eventCode) => {
     dispatch(setLoadingQuotation(true));
     try {
-      const payload = assignResourcesModel(quotation);
-      await eventApi.patch(`/${quotationId}/with-resources`, payload, getAuthConfig(token));
-      openSnackbar("Los recursos fueron asignados exitosamente a la cotización.");
+      const { data } = await eventApi.get(`/versions/${eventCode}`, getAuthConfig(token));
+
+      dispatch(refreshQuotations({
+        items: data,
+        total: data.length,
+        page: 0,
+      }));
+      
       return true;
     } catch (error) {
       const message = error.response?.data?.message;
-      openSnackbar(message ?? "Ocurrió un error al asignar recursos.");
-      return false; 
+      openSnackbar(message ?? "Ocurrió un error al cargar las versiones de la cotización.");
+      return false;
     } finally {
       dispatch(setLoadingQuotation(false));
     }
-  }
+  };
 
   const startEvaluateQuotation = async (quotationId, evaluation, userId) => {
     dispatch(setLoadingQuotation(true));
@@ -187,21 +166,6 @@ export const useQuotationStore = () => {
     dispatch(setRowsPerPageQuotation(rows));
   };
 
-  const validateQuotationsLanding = (quotation) => {
-    if (!quotation.services_requested || quotation.services_requested.length === 0) {
-      openSnackbar("Debes seleccionar al menos un tipo de servicio.");
-      return false;
-    }
-    // Validar que cada servicio tenga 'details' lleno (no vacío)
-    for (const service of quotation.services_requested) {
-      if (!service.details || service.details.trim() === "") {
-        openSnackbar("Debes completar el detalle de cada servicio solicitado.");
-        return false;
-      }
-    }
-    return true;
-  };
-  
   return {
     // state
     quotations,
@@ -222,12 +186,11 @@ export const useQuotationStore = () => {
     setRowsPerPageGlobal,
     
     // actions
-    startCreateQuotationLanding,
-    startCreateQuotationAdmin,
+    startCreateQuotation,
     startLoadingQuotationPaginated,
+    startLoadingQuotationVersionsByCode,
     setSelectedQuotation,
-    startAssigningResources,
-    startUpdateQuotationAdmin,
+    startUpdateQuotation,
     startEvaluateQuotation,
     startTimeUpdateQuotationAdmin,
   };

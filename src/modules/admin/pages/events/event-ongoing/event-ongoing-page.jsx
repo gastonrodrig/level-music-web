@@ -1,5 +1,5 @@
-import { Box, Typography, CircularProgress } from '@mui/material';
-import { AccessTime } from '@mui/icons-material';
+import { Box, Typography, CircularProgress, TextField } from '@mui/material';
+import { AccessTime, Inventory } from '@mui/icons-material';
 import { TableComponent } from "../../../../../shared/ui/components";
 import { useQuotationStore, useEventTypeStore } from '../../../../../hooks';
 import { useEffect, useMemo } from 'react';
@@ -43,13 +43,13 @@ export const EventOnGoing = () => {
       label: "Cliente",
       sortable: false,
       accessor: (row) => {
-        if (row.client_info.client_type === "Persona") {
-          return row.client_info.first_name && row.client_info.last_name
-            ? `${row.client_info.first_name} ${row.client_info.last_name}`
+        if (row.client_type === "Persona") {
+          return row.first_name && row.last_name
+            ? `${row.first_name} ${row.last_name}`
             : "N/A";
         }
-        if (row.client_info.client_type === "Empresa") {
-          return row.client_info.company_name || "N/A";
+        if (row.client_type === "Empresa") {
+          return row.company_name || "N/A";
         }
         return "N/A";
       },
@@ -64,7 +64,7 @@ export const EventOnGoing = () => {
       id: "phone",
       label: "Teléfono",
       sortable: false,
-      accessor: (row) => row.client_info.phone || "N/A",
+      accessor: (row) => row.phone || "N/A",
     },
     {
       id: "event_date",
@@ -134,6 +134,14 @@ export const EventOnGoing = () => {
         setSelectedQuotation(row);
          navigate(`/admin/event-ongoing/activities`);
       },
+    },
+    {
+      label: 'Ver Ordenes',
+      icon: <Inventory />,
+      onClick: (row) => {
+        setSelectedQuotation(row);
+        navigate(`/admin/event-ongoing/orders`);
+      },
     }
   ];
 
@@ -165,6 +173,26 @@ export const EventOnGoing = () => {
             </Typography>
           </Box>
         </Box>
+
+        <Box
+          display="flex"
+          justifyContent="start"
+          alignItems="center"
+          sx={{
+            px: 3,
+            pb: { xs: 1, lg: 3 },
+            width: { xs: "100%", sm: "300px" },
+          }}
+        >
+          <TextField
+            size="small"
+            placeholder="Buscar..."
+            value={searchTerm}
+            fullWidth
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </Box>
+
           {loading ? (
             <Box
               display="flex"
