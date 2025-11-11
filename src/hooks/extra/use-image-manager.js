@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
+import { useDispatch } from "react-redux";
+import { showSnackbar } from "../../store";
 
 export const useImageManager = (watch, setValue, options = {}) => {
   const { onDeleteExistingPhoto } = options;
@@ -6,6 +8,12 @@ export const useImageManager = (watch, setValue, options = {}) => {
   const [previews, setPreviews] = useState([]);
   const [existingImages, setExistingImages] = useState([]); 
   const [files, setFiles] = useState([]); 
+
+  const dispatch = useDispatch();
+
+  const openSnackbar = (message) => dispatch(showSnackbar({ message }));
+
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; 
 
   // Convertir URLs en Files (modo edición)
   const urlsToFiles = useCallback(async (urls) => {
@@ -34,6 +42,28 @@ export const useImageManager = (watch, setValue, options = {}) => {
   // Manejar nuevas imágenes
   const handleImagesChange = (e) => {
     const newFiles = Array.from(e.target.files || []);
+    if (newFiles.length === 0) return;
+
+    // Validar duplicados
+    const existingNames = files.map((f) => f.name);
+    const duplicated = newFiles.filter((f) => existingNames.includes(f.name));
+
+    if (duplicated.length > 0) {
+      openSnackbar(`La imagen "${duplicated[0].name}" ya fue agregada.`);
+      e.target.value = null; // Limpia el input
+      return;
+    }
+
+    // Validar tamaño máximo por imagen (5MB)
+    const oversized = newFiles.find((f) => f.size > MAX_FILE_SIZE);
+    if (oversized) {
+      const sizeMB = (oversized.size / (1024 * 1024)).toFixed(2);
+      openSnackbar(`"${oversized.name}" pesa ${sizeMB} MB (máximo permitido: 5 MB).`);
+      e.target.value = null;
+      return;
+    }
+
+    // Si pasa las validaciones, continuar
     const localUrls = newFiles.map((f) => URL.createObjectURL(f));
 
     setPreviews((prev) => [...prev, ...localUrls]);
@@ -45,8 +75,14 @@ export const useImageManager = (watch, setValue, options = {}) => {
     setValue("images", updated, { shouldValidate: true, shouldDirty: true });
 
     if (options.fieldPath) {
-      setValue(options.fieldPath, updated, { shouldValidate: true, shouldDirty: true });
+      setValue(options.fieldPath, updated, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
     }
+
+    // ✅ Limpia el input después de procesar (para permitir volver a subir la misma imagen si fue eliminada)
+    e.target.value = null;
   };
 
   // Eliminar imagen nueva
@@ -84,6 +120,17 @@ export const useImageManager = (watch, setValue, options = {}) => {
       });
     };
   }, [previews]);
+
+  useEffect(() => {
+    // Evitar validar antes de haber agregado realmente archivos
+    if (!files || files.length === 0) return;
+
+    const fieldName = options.fieldPath || "images";
+    setValue(fieldName, files, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  }, [files]);
 
   return {
     previews,

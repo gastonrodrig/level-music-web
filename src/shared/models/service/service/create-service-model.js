@@ -4,7 +4,7 @@ export const createServiceModel = (form) => {
   formData.append("provider_id", form.provider_id);
   formData.append("service_type_id", form.service_type_id);
 
-  // Agregamos cada detalle como campos separados (no JSON)
+  // Agregar detalles
   (form.serviceDetails || []).forEach((d, i) => {
     const details = d.details || {};
 
@@ -20,10 +20,11 @@ export const createServiceModel = (form) => {
       );
     });
 
-    // Fotos
-    const key = d._id ? `photos_${d._id}` : "photos_new";
+    // Fotos con nombre secuencial: photo_1, photo_2, ...
     (d.photos || []).forEach((f) => {
-      if (f instanceof File) formData.append(key, f);
+      if (f instanceof File) {
+        formData.append(`photo_${i + 1}`, f);
+      }
     });
   });
 
