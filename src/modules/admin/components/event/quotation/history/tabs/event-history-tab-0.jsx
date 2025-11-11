@@ -46,9 +46,9 @@ export const EventHistoryTab0 = ({ version = {} }) => {
           p: 2,
           borderRadius: 2,
           border: `1px solid ${theme.palette.divider}`,
-          maxHeight: items.length > 3 ? 450 : 'auto',
-          overflowY: items.length > 3 ? 'auto' : 'visible',
-          pr: items.length > 3 ? 1 : 0,
+          maxHeight: items.length > 4 ? 450 : 'auto',
+          overflowY: items.length > 4 ? 'auto' : 'visible',
+          pr: items.length > 4 ? 1 : 0,
         }}
       >
         {Object.keys(groups).length ? (

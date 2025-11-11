@@ -25,7 +25,7 @@ export const EventHistoryTable = ({ versions = [], onView }) => {
         mt: 1,
         border: `1px solid ${theme.palette.divider}`,
         borderRadius: 2,
-        overflowX: "auto",
+        overflowX: "auto", // 👉 scroll horizontal en pantallas pequeñas
         WebkitOverflowScrolling: "touch",
       }}
     >
