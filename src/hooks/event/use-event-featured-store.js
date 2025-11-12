@@ -37,7 +37,6 @@ export const useEventFeaturedStore = () => {
   const openSnackbar = (message) => dispatch(showSnackbar({ message }));
 
   const MAX_FILES = 6;
-  const MAX_TOTAL_SIZE = 20 * 1024 * 1024; // 20 MB
 
   const startCreateEventFeatured = async (eventFeatured) => {
     if (!isValidEventFeatured(eventFeatured)) return false;
@@ -146,11 +145,6 @@ export const useEventFeaturedStore = () => {
     }
     if (eventFeatured.images.length > MAX_FILES) {
       openSnackbar(`Máximo ${MAX_FILES} imágenes permitidas.`);
-      return false;
-    }
-    const totalSize = eventFeatured.images.reduce((acc, file) => acc + file.size, 0);
-    if (totalSize > MAX_TOTAL_SIZE) {
-      openSnackbar("El tamaño total de imágenes no debe superar 20 MB.");
       return false;
     }
     return true;

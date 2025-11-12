@@ -93,7 +93,7 @@ export const AssignEquipmentCard = ({
                 disabled={datesMissing}   
               >
                 <MenuItem value="">
-                  <em>Seleccione un tipo de equipo</em>
+                  <em>Seleccione el tipo</em>
                 </MenuItem>
                 <MenuItem value="Sonido">Sonido</MenuItem>
                 <MenuItem value="Luz">Luz</MenuItem>

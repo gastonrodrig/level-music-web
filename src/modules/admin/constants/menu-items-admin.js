@@ -61,7 +61,12 @@ export const menuItems = [
             text: 'Historial ',
             breadcrumb: 'Historial',
             href: '/admin/quotations/history',
-          }
+          },
+          {
+            text: 'Pagos Aprobados',
+            breadcrumb: 'Pagos Aprobados',
+            href: '/admin/quotations/payments-approved',
+          },
         ],
       }, 
       {

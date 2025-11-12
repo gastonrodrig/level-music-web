@@ -11,9 +11,15 @@ import {
   IconButton,
   Chip,
 } from "@mui/material";
-import { Add, Delete, ViewInArSharp } from "@mui/icons-material";
+import {
+  Add,
+  CameraAlt,
+  Delete,
+  ViewInArSharp,
+} from "@mui/icons-material";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { ImagePreviewModal } from "../../../../../shared/ui/components";
 
 export const AssignServiceCard = ({
   isDark,
@@ -29,8 +35,10 @@ export const AssignServiceCard = ({
   to,
   datesReady,
   guardDates,
-  eventCode
+  eventCode,
 }) => {
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [selectedPreview, setSelectedPreview] = useState(null);
   const { isSm } = useScreenSizes();
 
   const resetForm = () => {
@@ -60,7 +68,14 @@ export const AssignServiceCard = ({
   const datesMissing = !datesReady || !from || !to;
 
   return (
-    <Box sx={{ p: 3, borderRadius: 3, bgcolor: isDark ? "#1f1e1e" : "#f5f5f5", my: 2 }}>
+    <Box
+      sx={{
+        p: 3,
+        borderRadius: 3,
+        bgcolor: isDark ? "#1f1e1e" : "#f5f5f5",
+        my: 2,
+      }}
+    >
       <Box display="flex" alignItems="center" mb={2} gap={1}>
         <ViewInArSharp sx={{ mt: "2px" }} />
         <Typography sx={{ fontSize: 20, fontWeight: 500 }}>
@@ -83,13 +98,17 @@ export const AssignServiceCard = ({
           {/* Servicio */}
           <Grid item xs={12} md={6}>
             <FormControl fullWidth>
-              <InputLabel id="service-label" shrink>Servicio</InputLabel>
+              <InputLabel id="service-label" shrink>
+                Servicio
+              </InputLabel>
               <Select
                 labelId="service-label"
                 label="Servicio"
                 value={serviceId || ""}
                 onChange={(e) => {
-                  setValue("service_id", e.target.value, { shouldValidate: true });
+                  setValue("service_id", e.target.value, {
+                    shouldValidate: true,
+                  });
                   setValue("service_detail_id", "");
                 }}
                 inputProps={{ name: "service_id" }}
@@ -103,7 +122,9 @@ export const AssignServiceCard = ({
                 {services.map((s) => (
                   <MenuItem key={s._id} value={s._id}>
                     <Box>
-                      <Typography fontWeight={500}>{s.service_type_name}</Typography>
+                      <Typography fontWeight={500}>
+                        {s.service_type_name}
+                      </Typography>
                       <Typography variant="body2" color="text.secondary">
                         {s.provider_name}
                       </Typography>
@@ -117,11 +138,17 @@ export const AssignServiceCard = ({
           {/* Paquete */}
           <Grid item xs={12} md={6}>
             <FormControl fullWidth size="small">
-              <InputLabel id="package-label" shrink>Paquete</InputLabel>
+              <InputLabel id="package-label" shrink>
+                Paquete
+              </InputLabel>
               <Select
                 labelId="package-label"
                 value={serviceDetailId || ""}
-                onChange={(e) => setValue("service_detail_id", e.target.value, { shouldValidate: true })}
+                onChange={(e) =>
+                  setValue("service_detail_id", e.target.value, {
+                    shouldValidate: true,
+                  })
+                }
                 inputProps={{ name: "service_detail_id" }}
                 sx={{ height: 60 }}
                 disabled={datesMissing || !serviceId}
@@ -133,7 +160,16 @@ export const AssignServiceCard = ({
                 {filteredDetails.map((d) => {
                   const entries = Object.entries(d.details).slice(0, 2);
                   return (
-                    <MenuItem key={d._id} value={d._id}>
+                    <MenuItem
+                      key={d._id}
+                      value={d._id}
+                      onClick={() => {
+                        const refPrice = Number(d?.ref_price || 0);
+                        const calculatedPrice =
+                          Math.round(refPrice * 0.15) + refPrice;
+                        setValue("service_price", calculatedPrice);
+                      }}
+                    >
                       <Box sx={{ display: "flex", flexDirection: "column" }}>
                         <Typography>Paquete – S/. {d.ref_price} (por hora)</Typography>
                         <Typography variant="caption" color="text.secondary">
@@ -147,6 +183,102 @@ export const AssignServiceCard = ({
             </FormControl>
           </Grid>
 
+          {/* Vista previa del paquete seleccionado */}
+          {selectedDetail && (
+            <Box
+              sx={{
+                mt: 2,
+                mb: 1,
+                p: 3,
+                ml: 2,
+                borderRadius: 1,
+                border: "1px solid",
+                borderColor: isDark ? "#555555ff" : "#d4d4d4ff",
+                width: "100%",
+                transition: "all 0.3s ease",
+              }}
+            >
+              <Grid container spacing={2} alignItems="center">
+                {/* Texto e información */}
+                <Grid item xs={12}>
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    gap={1}
+                    mb={1}
+                    justifyContent={"space-between"}
+                  >
+                    <Typography
+                      fontSize={18}
+                      sx={{ mb: 0.5, color: isDark ? "#fff" : "#000" }}
+                    >
+                      {selectedService?.service_type_name}
+                    </Typography>
+
+                    <Chip
+                      label={`${selectedDetail.photos.length} ${
+                        selectedDetail.photos.length > 1 ? "Imágenes" : "Imagen"
+                      }`}
+                      size="small"
+                      sx={{
+                        bgcolor: isDark ? "#422b17" : "#ffebd8",
+                        color: isDark ? "#ffb97d" : "#7b3f00",
+                        fontWeight: 600,
+                      }}
+                    />
+                  </Box>
+
+                  {/* Imágenes */}
+                  {selectedDetail?.photos?.length > 0 && (
+                    <>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: 1,
+                          mb: 1,
+                        }}
+                      >
+                        {selectedDetail.photos.slice(0, 3).map((photo, idx) => (
+                          <Box
+                            key={photo._id || idx}
+                            component="img"
+                            src={photo.url}
+                            alt={photo.name}
+                            sx={{
+                              width: 140,
+                              height: 120,
+                              borderRadius: 2,
+                              objectFit: "cover",
+                              cursor: "pointer",
+                              transition: "transform 0.2s ease",
+                              "&:hover": { transform: "scale(1.05)" },
+                            }}
+                            onClick={() => {
+                              setSelectedPreview(photo.url);
+                              setPreviewModalOpen(true);
+                            }}
+                          />
+                        ))}
+                      </Box>
+
+                      <Box display="flex" alignItems="center" mt={1} gap={0.5}>
+                        <CameraAlt fontSize="small" />
+                        <Typography
+                          variant="caption"
+                          display="block"
+                          sx={{ mt: 0.5, color: "text.secondary" }}
+                        >
+                          Click en cualquier imagen para ampliar
+                        </Typography>
+                      </Box>
+                    </>
+                  )}
+                </Grid>
+              </Grid>
+            </Box>
+          )}
+
           {/* Horas */}
           <Grid item xs={12} md={2}>
             <FormControl fullWidth size="small">
@@ -159,7 +291,9 @@ export const AssignServiceCard = ({
                 disabled={datesMissing}
               >
                 {Array.from({ length: 10 }, (_, i) => i + 1).map((h) => (
-                  <MenuItem key={h} value={h}>{h} horas</MenuItem>
+                  <MenuItem key={h} value={h}>
+                    {h} horas
+                  </MenuItem>
                 ))}
               </Select>
             </FormControl>
@@ -174,23 +308,6 @@ export const AssignServiceCard = ({
               disabled
               InputLabelProps={{ shrink: true }}
               sx={{ "& .MuiInputBase-root": { height: 60 } }}
-            />
-          </Grid>
-
-          {/* Precio por Hora (editable) */}
-          <Grid item xs={12} md={2.5}>
-            <TextField
-              label="Precio Hora"
-              placeholder="Ej: 250"
-              value={servicePrice || ""}
-              onChange={(e) => {
-                const value = e.target.value ? Number(e.target.value) : "";
-                setValue("service_price", value);
-              }}
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              sx={{ "& .MuiInputBase-root": { height: 60 } }}
-              disabled={datesMissing}
             />
           </Grid>
 
@@ -212,7 +329,7 @@ export const AssignServiceCard = ({
               disabled={datesMissing}
               type="number"
               inputProps={{ min: 0, max: 100 }}
-            />    
+            />
           </Grid>
 
           {/* Agregar */}
@@ -224,7 +341,6 @@ export const AssignServiceCard = ({
               onClick={async () => {
                 if (!guardDates()) return;
                 if (!selectedService || !selectedDetail) return;
-                //aca se agrega el servicio osea se anida los objetos para mostrarlo supongo 
                 await startAppendService({
                   selectedService,
                   selectedDetail,
@@ -236,11 +352,17 @@ export const AssignServiceCard = ({
                   onSuccess: resetForm,
                   from,
                   to,
-                  eventCode
+                  eventCode,
                 });
               }}
               disabled={!serviceDetailId}
-              sx={{ textTransform: "none", borderRadius: 2, color: "#fff", fontWeight: 600, py: 2 }}
+              sx={{
+                textTransform: "none",
+                borderRadius: 2,
+                color: "#fff",
+                fontWeight: 600,
+                py: 2,
+              }}
             >
               Agregar
             </Button>
@@ -268,7 +390,9 @@ export const AssignServiceCard = ({
           >
             <Grid container spacing={2} alignItems="center">
               <Grid item xs={6}>
-                <Typography fontWeight={600}>{servicio.service_type_name}</Typography>
+                <Typography fontWeight={600}>
+                  {servicio.service_type_name}
+                </Typography>
                 <Box
                   display="flex"
                   flexDirection={!isSm ? "column" : "row"}
@@ -277,23 +401,42 @@ export const AssignServiceCard = ({
                   sx={{ alignItems: "flex-start" }}
                 >
                   <Chip label={servicio.provider_name} size="small" />
-                  <Chip label={`Horas: ${servicio.service_hours}`} size="small" />
-                  <Chip label={`Porcentaje de Pago: ${servicio.payment_percentage_required}%`} size="small" wcolor="info"
+                  <Chip
+                    label={`Horas: ${servicio.service_hours}`}
+                    size="small"
+                  />
+                  <Chip
+                    label={`Porcentaje de Pago: ${servicio.payment_percentage_required}%`}
+                    size="small"
+                    wcolor="info"
                   />
                 </Box>
               </Grid>
 
               <Grid item xs={6} textAlign="right">
-                <Typography fontSize={13} sx={{ textDecoration: "line-through", color: "text.secondary" }}>
+                <Typography
+                  fontSize={13}
+                  sx={{
+                    textDecoration: "line-through",
+                    color: "text.secondary",
+                  }}
+                >
                   Ref: S/ {servicio.ref_price}/hora × {servicio.service_hours}h
                 </Typography>
                 <Typography fontSize={14}>
                   S/ {servicio.service_price}/hora × {servicio.service_hours}h
                 </Typography>
                 <Typography fontWeight={600} color="green">
-                  S/. {Number(servicio.service_price) * Number(servicio.service_hours)}
+                  S/.{" "}
+                  {Number(servicio.service_price) *
+                    Number(servicio.service_hours)}
                 </Typography>
-                <IconButton size="small" color="error" sx={{ ml: 1 }} onClick={() => removeService(index)}>
+                <IconButton
+                  size="small"
+                  color="error"
+                  sx={{ ml: 1 }}
+                  onClick={() => removeService(index)}
+                >
                   <Delete fontSize="small" />
                 </IconButton>
               </Grid>
@@ -318,10 +461,20 @@ export const AssignServiceCard = ({
         <Typography textAlign="right" fontWeight={600} color="green">
           Total Servicios Adicionales: S/{" "}
           {assignedServices
-            .reduce((acc, s) => acc + Number(s.service_price) * Number(s.service_hours), 0)
+            .reduce(
+              (acc, s) =>
+                acc + Number(s.service_price) * Number(s.service_hours),
+              0
+            )
             .toFixed(2)}
         </Typography>
       )}
+
+      <ImagePreviewModal
+        open={previewModalOpen}
+        src={selectedPreview}
+        onClose={() => setPreviewModalOpen(false)}
+      />
     </Box>
   );
 };

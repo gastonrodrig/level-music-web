@@ -8,8 +8,11 @@ import {
   useTheme,
   Switch,
   Paper,
+  alpha,
+  FormControlLabel,
+  
 } from "@mui/material";
-import { Delete, Add, Close, CloudUpload, InsertDriveFile } from "@mui/icons-material";
+import { Delete, Add, Close, CloudUpload, WarningAmber } from "@mui/icons-material";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
 import { useServiceDetailStore, useImageManager } from "../../../../../hooks";
 import { useFormContext } from "react-hook-form";
@@ -39,6 +42,9 @@ export const ServiceDetailBox = ({
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [selectedPreview, setSelectedPreview] = useState(null);
 
+  const hasExistingPhotos = initialData.photos.length > 0;
+  const [showPhotos, setShowPhotos] = useState(hasExistingPhotos);
+
   const {
     existingImages,
     files,
@@ -49,7 +55,7 @@ export const ServiceDetailBox = ({
     handleRemoveExisting,
   } = useImageManager(watch, setValue, {
     onDeleteExistingPhoto,
-    fieldPath: `serviceDetails.${index}.photos`, // ✅ para enlazar con el detalle actual
+    fieldPath: `serviceDetails.${index}.photos`,
   });
 
   useEffect(() => {
@@ -68,6 +74,19 @@ export const ServiceDetailBox = ({
   };
 
   const status = watch(`serviceDetails.${index}.status`);
+
+  useEffect(() => {
+    if (hasExistingPhotos) {
+      setShowPhotos(true);
+    }
+  }, [hasExistingPhotos]);
+
+  useEffect(() => {
+    const total = (existingImages?.length || 0) + (files?.length || 0);
+    if (!hasExistingPhotos && total === 0) {
+      setShowPhotos(false);
+    }
+  }, [existingImages, files, hasExistingPhotos]);
 
   return (
     <Box
@@ -262,7 +281,25 @@ export const ServiceDetailBox = ({
         )}
       </Grid>
 
+      <FormControlLabel
+        sx={{ mt: 2 }}
+        control={
+          <Switch
+            checked={showPhotos}
+            onChange={(e) => setShowPhotos(e.target.checked)}
+            color="primary"
+            disabled={hasExistingPhotos && existingImages.length > 0}
+          />
+        }
+        label={
+          hasExistingPhotos && existingImages.length > 0
+            ? `Requiere fotos (${existingImages.length} cargadas)`
+            : "¿Requiere fotos?"
+        }
+      />
+
       {/* === GESTIÓN DE IMÁGENES === */}
+      {showPhotos && (
       <Grid container spacing={2} sx={{ mt: 2 }}>
         <Grid item xs={12}>
           <Typography
@@ -273,16 +310,22 @@ export const ServiceDetailBox = ({
               fontWeight: 600,
             }}
           >
-            Fotos del Detalle
+            Fotos del Detalle *
           </Typography>
 
+          {/* --- Campo invisible para validar con RHF --- */}
           <input
-            type="file"
-            id={`file-upload-${index}`}
-            accept="image/png,image/jpeg,image/jpg"
-            style={{ display: "none" }}
-            onChange={handleImagesChange} // ✅ de useImageManager
-            multiple
+            type="hidden"
+            {...register(`serviceDetails.${index}.photos`, {
+              validate: () => {
+                if (!showPhotos) return true;
+                const hasExisting = (existingImages?.length || 0) > 0;
+                const hasNew = (files?.length || 0) > 0;
+                if (!hasExisting && !hasNew)
+                  return "Debe subir al menos una foto (jpg, jpeg, png)";
+                return true;
+              },
+            })}
           />
 
           {/* --- Dropzone (botón subir) --- */}
@@ -292,15 +335,24 @@ export const ServiceDetailBox = ({
             htmlFor={`file-upload-${index}`}
             sx={{
               p: 3,
-              border: `2px dashed ${theme.palette.divider}`,
+              border: `2px dashed ${
+                errors?.serviceDetails?.[index]?.photos
+                  ? alpha("#AB1D33", 0.9)
+                  : theme.palette.divider
+              }`,
               borderRadius: 2,
-              bgcolor: isDark ? "#2d2d2d" : "#e0e0e0",
+              bgcolor: isDark ? "#141414" : "#fcfcfc",
               cursor: "pointer",
               transition: "all 0.2s",
-              "&:hover": { borderColor: theme.palette.primary.main },
+              "&:hover": {
+                borderColor: errors?.serviceDetails?.[index]?.photos
+                  ? "#e7203dff"
+                  : theme.palette.primary.main,
+              },
               display: "flex",
               alignItems: "center",
               gap: 3,
+              position: "relative",
             }}
           >
             <Box
@@ -309,12 +361,13 @@ export const ServiceDetailBox = ({
                 borderRadius: 2,
                 p: 2,
                 display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              <CloudUpload
-                sx={{ fontSize: 40, color: theme.palette.text.secondary }}
-              />
+              <CloudUpload sx={{ fontSize: 40, color: theme.palette.mode === "dark" ? "#999" : "#666" }} />
             </Box>
+
             <Box sx={{ flex: 1, textAlign: "left" }}>
               <Typography
                 variant="body2"
@@ -336,12 +389,45 @@ export const ServiceDetailBox = ({
                 PNG, JPG (Máx. 5 MB c/u)
               </Typography>
             </Box>
+
+            {/* --- Mensaje de error visual dentro del recuadro --- */}
+            {errors?.serviceDetails?.[index]?.photos && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 8,
+                  right: 8,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.5,
+                  color: theme.palette.error.main,
+                }}
+              >
+                <WarningAmber fontSize="small" />
+                <Typography
+                  variant="caption"
+                  sx={{ fontWeight: 500 }}
+                >
+                  {errors.serviceDetails[index].photos.message}
+                </Typography>
+              </Box>
+            )}
           </Paper>
 
-          {/* --- Vista previa de imágenes --- */}
+          {/* --- Input de archivos --- */}
+          <input
+            type="file"
+            id={`file-upload-${index}`}
+            accept="image/png,image/jpeg,image/jpg"
+            style={{ display: "none" }}
+            onChange={handleImagesChange}
+            multiple
+          />
+
+          {/* --- Vista previa --- */}
           {(existingImages.length > 0 || files.length > 0) && (
             <Grid container spacing={2} sx={{ mt: 1 }}>
-              {/* 1️⃣ Fotos existentes (BD) */}
+              {/* Fotos existentes */}
               {existingImages.map((photo) => (
                 <Grid item xs={6} sm={4} md={3} key={photo._id}>
                   <Paper
@@ -357,7 +443,7 @@ export const ServiceDetailBox = ({
                   >
                     <IconButton
                       size="small"
-                      onClick={() => handleRemoveExisting(photo._id)} // ✅
+                      onClick={() => handleRemoveExisting(photo._id)}
                       sx={{
                         position: "absolute",
                         top: 4,
@@ -369,32 +455,23 @@ export const ServiceDetailBox = ({
                     >
                       <Close fontSize="small" sx={{ color: "#fff" }} />
                     </IconButton>
-
-                    {photo.url ? (
-                      <Box
-                        component="img"
-                        src={photo.url}
-                        alt={photo.name || "foto existente"}
-                        onClick={() => handleOpenPreview(photo.url)}
-                        sx={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
-                          cursor: "pointer",
-                        }}
-                      />
-                    ) : (
-                      <Box sx={{ p: 2, textAlign: "center" }}>
-                        <InsertDriveFile
-                          sx={{ fontSize: 48, color: "#f44336" }}
-                        />
-                      </Box>
-                    )}
+                    <Box
+                      component="img"
+                      src={photo.url}
+                      alt={photo.name || "foto existente"}
+                      onClick={() => handleOpenPreview(photo.url)}
+                      sx={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        cursor: "pointer",
+                      }}
+                    />
                   </Paper>
                 </Grid>
               ))}
 
-              {/* 2️⃣ Fotos nuevas (subidas) */}
+              {/* Fotos nuevas */}
               {files.map((file, fileIndex) => (
                 <Grid item xs={6} sm={4} md={3} key={file.name}>
                   <Paper
@@ -410,7 +487,7 @@ export const ServiceDetailBox = ({
                   >
                     <IconButton
                       size="small"
-                      onClick={() => handleRemoveImage(fileIndex)} // ✅
+                      onClick={() => handleRemoveImage(fileIndex)}
                       sx={{
                         position: "absolute",
                         top: 4,
@@ -422,30 +499,18 @@ export const ServiceDetailBox = ({
                     >
                       <Close fontSize="small" sx={{ color: "#fff" }} />
                     </IconButton>
-
-                    {previews[fileIndex] ? (
-                      <Box
-                        component="img"
-                        src={previews[fileIndex]}
-                        alt={file.name}
-                        onClick={() => handleOpenPreview(previews[fileIndex])}
-                        sx={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
-                          cursor: "pointer",
-                        }}
-                      />
-                    ) : (
-                      <Box sx={{ p: 2, textAlign: "center" }}>
-                        <InsertDriveFile
-                          sx={{ fontSize: 48, color: "#f44336" }}
-                        />
-                        <Typography variant="caption" display="block" noWrap>
-                          {file.name}
-                        </Typography>
-                      </Box>
-                    )}
+                    <Box
+                      component="img"
+                      src={previews[fileIndex]}
+                      alt={file.name}
+                      onClick={() => handleOpenPreview(previews[fileIndex])}
+                      sx={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        cursor: "pointer",
+                      }}
+                    />
                   </Paper>
                 </Grid>
               ))}
@@ -453,6 +518,8 @@ export const ServiceDetailBox = ({
           )}
         </Grid>
       </Grid>
+
+      )}
 
       <ImagePreviewModal
         open={previewModalOpen}

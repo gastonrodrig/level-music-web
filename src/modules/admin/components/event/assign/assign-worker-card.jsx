@@ -93,7 +93,7 @@ export const AssignWorkerCard = ({
                 disabled={datesMissing}
               >
                 <MenuItem value="">
-                  <em>Seleccione un tipo de trabajador</em>
+                  <em>Seleccione el tipo</em>
                 </MenuItem>
                 {workerTypes.map((type) => (
                   <MenuItem key={type._id} value={type._id}>

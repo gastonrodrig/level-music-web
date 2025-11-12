@@ -27,13 +27,14 @@ export const ServiceAddPage = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
-  const { isSm } = useScreenSizes();
+  const { isMd } = useScreenSizes();
 
   const { serviceTypes } = useServiceTypeStore();
   const { provider } = useProviderStore();
 
   const {
     loading,
+    removedFields,
     customAttributes,
     setCustomAttributes,
     selectedFields,
@@ -87,18 +88,13 @@ export const ServiceAddPage = () => {
     navigate('/admin/service');
   };
 
-  const allAttributes = [
-    ...(selectedServiceType?.attributes || []),
-    ...customAttributes,
-  ];
-
   const isButtonDisabled = useMemo(() => loading, [loading]);
   return (
 
     <FormProvider {...formMethods}>
       <Box 
         component="form" 
-        sx={{ px: isSm ? 4 : 0, pt: 2}} 
+        sx={{ px: isMd ? 4 : 0, pt: 2, maxWidth: 1200, margin: "0 auto" }}
         onSubmit={handleSubmit(onSubmit)}
       >
         <Typography variant="h4" sx={{ mb: 4 }}>
@@ -235,84 +231,95 @@ export const ServiceAddPage = () => {
         </Box>
 
         <Divider sx={{ my: 2 }} />
+        
+        <Box sx={{ display: "flex", justifyContent: "end", mt: 4 }}>
+          <Button
+            variant="contained"
+            startIcon={<AddCircleOutline />}
+            sx={{
+              backgroundColor: '#212121',
+              color: '#fff',
+              borderRadius: 2,
+              textTransform: 'none',
+              px: 3,
+              py: 1.5
+            }}
+            onClick={() => handleAddDetail(append, details)}
+            disabled={
+            !watch("provider_id") || !watch("service_type_id")
+          }
+          >
+            {isLg ? "Agregar Detalle" : "Agregar"}
+          </Button>
+        </Box>
 
-            <Box sx={{ display: "flex", justifyContent: "end", mt: 4 }}>
-              <Button
-                variant="contained"
-                startIcon={<AddCircleOutline />}
-                sx={{
-                  backgroundColor: '#212121',
-                  color: '#fff',
-                  borderRadius: 2,
-                  textTransform: 'none',
-                  px: 3,
-                  py: 1.5
-                }}
-                onClick={() => handleAddDetail(append, details)}
-                disabled={
-                !watch("provider_id") || !watch("service_type_id")
+        <Box sx={{ maxWidth: 1200, margin: "0 auto", mt: 2 }}>
+          {details.map((detail, idx) => (
+            <ServiceDetailBox
+              key={detail.id}
+              index={idx}
+              control={control}
+              register={register}
+              errors={errors}
+              fields={selectedFields[idx] || []}
+              onDelete={() => remove(idx)}
+              onAddField={() => setOpenFieldModalIdx(idx)}
+              onRemoveField={(fieldIdx) =>
+                handleRemoveFieldFromDetail(idx, fieldIdx, getValues, setValue)
               }
-              >
-                {isLg ? "Agregar Detalle" : "Agregar"}
-              </Button>
-            </Box>
-
-            <Box sx={{ maxWidth: 1200, margin: "0 auto", mt: 2 }}>
-              {details.map((detail, idx) => (
-                <ServiceDetailBox
-                  key={detail.id}
-                  index={idx}
-                  control={control}
-                  register={register}
-                  errors={errors}
-                  fields={selectedFields[idx] || []}
-                  onDelete={() => remove(idx)}
-                  onAddField={() => setOpenFieldModalIdx(idx)}
-                  onRemoveField={(fieldIdx) =>
-                    handleRemoveFieldFromDetail(idx, fieldIdx, getValues, setValue)
-                  }
-                  setValue={setValue}
-                />
-              ))}
-            </Box>
-
-            <ServiceFieldModal
-              open={openFieldModalIdx !== null}
-              onClose={() => setOpenFieldModalIdx(null)}
-              attributes={
-                allAttributes.filter(attr =>
-                  !(selectedFields[openFieldModalIdx] || []).some(f => f.name === attr.name)
-                )
-              }
-              onAddAttribute={(field) =>
-                handleAddFieldToDetail(openFieldModalIdx, field)
-              }
-              onAddCustom={(name) =>
-                setCustomAttributes((prev) => [...prev, { name, type: "text" }])
-              }
+              setValue={setValue}
             />
+          ))}
+        </Box>
 
-            {details.length > 0 && (
-              <Box sx={{ display: "flex", justifyContent: "end", mt: 4 }}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  startIcon={<Save />}
-                  sx={{
-                    fontSize: 16,
-                    backgroundColor: '#212121',
-                    color: '#fff',
-                    borderRadius: 2,
-                    textTransform: 'none',
-                    px: 3,
-                    py: 1.5
-                  }}
-                  disabled={isButtonDisabled}
-                >
-                  Crear Servicio
-                </Button>
-              </Box>
-            )}
+        <ServiceFieldModal
+          open={openFieldModalIdx !== null}
+          onClose={() => setOpenFieldModalIdx(null)}
+          attributes={
+            [
+              ...(selectedServiceType?.attributes || []),
+              ...(customAttributes?.[openFieldModalIdx] || []),
+            ].filter(attr => {
+              const isUsed = (selectedFields[openFieldModalIdx] || []).some(f => f.name === attr.name);
+              const isRemoved = (removedFields?.[openFieldModalIdx] || []).includes(attr.name);
+              return !isUsed && !isRemoved;
+            })
+          }
+          onAddAttribute={(field) =>
+            handleAddFieldToDetail(openFieldModalIdx, field)
+          }
+          onAddCustom={(name) =>
+            setCustomAttributes((prev) => ({
+              ...prev,
+              [openFieldModalIdx]: [
+                ...(prev?.[openFieldModalIdx] || []),
+                { name, type: "text" },
+              ],
+            }))
+          }
+        />
+
+        {details.length > 0 && (
+          <Box sx={{ display: "flex", justifyContent: "end", mt: 4 }}>
+            <Button
+              type="submit"
+              variant="contained"
+              startIcon={<Save />}
+              sx={{
+                fontSize: 16,
+                backgroundColor: '#212121',
+                color: '#fff',
+                borderRadius: 2,
+                textTransform: 'none',
+                px: 3,
+                py: 1.5
+              }}
+              disabled={isButtonDisabled}
+            >
+              Crear Servicio
+            </Button>
+          </Box>
+        )}
       </Box>
     </FormProvider>
   );

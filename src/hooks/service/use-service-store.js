@@ -32,16 +32,16 @@ export const useServiceStore = () => {
   const [orderBy, setOrderBy] = useState("name");
   const [order, setOrder] = useState("asc");
 
-  const [customAttributes, setCustomAttributes] = useState([]);
+  const [customAttributes, setCustomAttributes] = useState({});
   const [selectedFields, setSelectedFields] = useState({});
   const [openFieldModalIdx, setOpenFieldModalIdx] = useState(null);
   const [selectedProvider, setSelectedProvider] = useState(null);
   const [selectedServiceType, setSelectedServiceType] = useState(null);
+  const [removedFields, setRemovedFields] = useState([]);
 
   const openSnackbar = (message) => dispatch(showSnackbar({ message }));
 
   const MAX_FILES = 5;
-  const MAX_TOTAL_SIZE = 20 * 1024 * 1024;
 
   const startCreateService = async (serviceDataFromForm) => {
     if (!validateDetails(serviceDataFromForm.serviceDetails)) return false;
@@ -79,7 +79,7 @@ export const useServiceStore = () => {
   const startLoadingServicePaginated = async () => {
     dispatch(setLoadingService(true));
     try {
-       const limit  = rowsPerPage;
+      const limit  = rowsPerPage;
       const offset = currentPage * rowsPerPage;
       const { data } = await serviceApi.get('/paginated',
         getAuthConfigWithParams(token, {
@@ -111,6 +111,7 @@ export const useServiceStore = () => {
     dispatch(setLoadingService(true));
     try {
       const formData = updateServiceModel(serviceDataFromForm);
+
       await serviceApi.patch(`/${id}`, formData, getAuthConfig(token, true));
       openSnackbar("El servicio fue actualizado exitosamente.");
       return true;
@@ -158,11 +159,6 @@ export const useServiceStore = () => {
       }
     }
 
-    if (totalSize > MAX_TOTAL_SIZE) {
-      openSnackbar("El tamaño total de las imágenes no debe superar los 20 MB.");
-      return false;
-    }
-
     return true;
   };
 
@@ -180,6 +176,11 @@ export const useServiceStore = () => {
 
   const handleAddDetail = (append, details) => {
     append({ ref_price: Number(""), details: {}, status: "Activo" });
+    setRemovedFields([]);
+    setCustomAttributes((prev) => ({
+      ...prev,
+      [details.length]: [],
+    }));
     setSelectedFields((prev) => ({
       ...prev,
       [details.length]: selectedServiceType?.attributes
@@ -195,28 +196,56 @@ export const useServiceStore = () => {
     }));
     setOpenFieldModalIdx(null);
   };
+const handleRemoveFieldFromDetail = (detailIdx, fieldIdx, getValues, setValue) => {
+  let removedFieldName = null; // 👈 guardaremos aquí el nombre eliminado
 
-  const handleRemoveFieldFromDetail = (detailIdx, fieldIdx, getValues, setValue) => {
-    setSelectedFields((prev) => {
-      const updatedFields = { ...prev };
-      const removedField = updatedFields[detailIdx][fieldIdx];
-      updatedFields[detailIdx] = updatedFields[detailIdx].filter((_, idx) => idx !== fieldIdx);
+  // === 1️⃣ Actualiza los campos seleccionados del detalle ===
+  setSelectedFields((prev) => {
+    const updatedFields = { ...prev };
+    const removedField = updatedFields[detailIdx][fieldIdx];
+    removedFieldName = removedField?.name || null;
 
-      if (removedField) {
-        const currentDetails = getValues(`serviceDetails.${detailIdx}.details`);
-        if (currentDetails && currentDetails[removedField.name] !== undefined) {
-          const updatedDetails = { ...currentDetails };
-          delete updatedDetails[removedField.name];
+    // quita el campo del detalle
+    updatedFields[detailIdx] = updatedFields[detailIdx].filter((_, idx) => idx !== fieldIdx);
 
-          setValue(`serviceDetails.${detailIdx}.details`, updatedDetails, {
-            shouldValidate: true,
-            shouldDirty: true,
-          });
-        }
+    if (removedFieldName) {
+      const currentDetails = getValues(`serviceDetails.${detailIdx}.details`);
+      if (currentDetails && currentDetails[removedFieldName] !== undefined) {
+        const updatedDetails = { ...currentDetails };
+        delete updatedDetails[removedFieldName];
+
+        setValue(`serviceDetails.${detailIdx}.details`, updatedDetails, {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
       }
-      return updatedFields;
+    }
+
+    return updatedFields;
+  });
+
+  // === 2️⃣ Registra el campo eliminado por detalle ===
+  if (removedFieldName) {
+    setRemovedFields((prev) => {
+      const current = prev[detailIdx] || [];
+      return {
+        ...prev,
+        [detailIdx]: current.includes(removedFieldName)
+          ? current
+          : [...current, removedFieldName],
+      };
     });
-  };
+
+    // === 3️⃣ Limpia si era un campo personalizado ===
+    setCustomAttributes((prev) => {
+      const current = prev[detailIdx] || [];
+      return {
+        ...prev,
+        [detailIdx]: current.filter((f) => f.name !== removedFieldName),
+      };
+    });
+  }
+};
 
   return {
     // state global redux
@@ -229,6 +258,7 @@ export const useServiceStore = () => {
     currentPage,
     orderBy,
     order,
+    removedFields,
 
     // state local del hook
     customAttributes,
@@ -259,6 +289,6 @@ export const useServiceStore = () => {
     // gestión de detalles y campos dinámicos
     handleAddDetail,
     handleAddFieldToDetail,
-    handleRemoveFieldFromDetail,
+    handleRemoveFieldFromDetail
   };
 };
