@@ -15,7 +15,7 @@ import {
 import { Delete, Add, Close, CloudUpload, WarningAmber } from "@mui/icons-material";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
 import { useServiceDetailStore, useImageManager } from "../../../../../hooks";
-import { useFormContext,Controller } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import { useState, useEffect } from "react";
 import { ImagePreviewModal } from "../../../../../shared/ui/components/common";
 
@@ -41,7 +41,10 @@ export const ServiceDetailBox = ({
   const { setSelectedServiceDetail } = useServiceDetailStore();
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [selectedPreview, setSelectedPreview] = useState(null);
-  const {control} = useFormContext();
+
+  const hasExistingPhotos = initialData.photos.length > 0;
+  const [showPhotos, setShowPhotos] = useState(hasExistingPhotos);
+
   const {
     existingImages,
     files,
@@ -71,8 +74,19 @@ export const ServiceDetailBox = ({
   };
 
   const status = watch(`serviceDetails.${index}.status`);
-  const [showPhotos, setShowPhotos] = useState(false);
 
+  useEffect(() => {
+    if (hasExistingPhotos) {
+      setShowPhotos(true);
+    }
+  }, [hasExistingPhotos]);
+
+  useEffect(() => {
+    const total = (existingImages?.length || 0) + (files?.length || 0);
+    if (!hasExistingPhotos && total === 0) {
+      setShowPhotos(false);
+    }
+  }, [existingImages, files, hasExistingPhotos]);
 
   return (
     <Box
@@ -267,17 +281,21 @@ export const ServiceDetailBox = ({
         )}
       </Grid>
 
-
-       <FormControlLabel
+      <FormControlLabel
         sx={{ mt: 2 }}
         control={
           <Switch
             checked={showPhotos}
             onChange={(e) => setShowPhotos(e.target.checked)}
             color="primary"
+            disabled={hasExistingPhotos && existingImages.length > 0}
           />
         }
-        label="¿Requiere fotos?"
+        label={
+          hasExistingPhotos && existingImages.length > 0
+            ? `Requiere fotos (${existingImages.length} cargadas)`
+            : "¿Requiere fotos?"
+        }
       />
 
       {/* === GESTIÓN DE IMÁGENES === */}
