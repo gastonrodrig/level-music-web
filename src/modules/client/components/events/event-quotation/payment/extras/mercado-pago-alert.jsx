@@ -3,7 +3,7 @@ import { CreditCard, CheckCircle } from "@mui/icons-material";
 
 export const MercadoPagoAlert = () => {
   const theme = useTheme();
-  const isDark = theme.palette.mode === "dark";
+
   return (
     <Alert
       icon={<CreditCard />}

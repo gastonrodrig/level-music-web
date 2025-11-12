@@ -43,7 +43,7 @@ export const EventQuotationAddPage = () => {
   const { workerTypes } = useWorkerTypeStore();
   const { services } = useServiceStore();
   const { eventTypes } = useEventTypeStore();
-  const { isSm } = useScreenSizes();
+  const { isMd } = useScreenSizes();
 
   const methods = useForm({
     defaultValues: {
@@ -188,8 +188,7 @@ export const EventQuotationAddPage = () => {
     <FormProvider {...methods}>
       <Box
         component="form"
-        sx={{ px: isSm ? 4 : 0, pt: 2 }}
-        
+        sx={{ px: isMd ? 4 : 0, pt: 2, maxWidth: 1200, margin: "0 auto" }}
         onSubmit={handleSubmit(onSubmit)}
       >
         <Typography variant="h4" sx={{ mb: 1 }}>

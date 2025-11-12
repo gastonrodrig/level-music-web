@@ -32,7 +32,7 @@ export const ServiceEditPage = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
-  const { isSm } = useScreenSizes();
+  const { isMd } = useScreenSizes();
 
   const { serviceTypes } = useServiceTypeStore();
   const { provider } = useProviderStore();
@@ -148,7 +148,7 @@ export const ServiceEditPage = () => {
     <FormProvider {...formMethods}>
       <Box
         component="form"
-        sx={{ px: isSm ? 4 : 0, pt: 2 }}
+        sx={{ px: isMd ? 4 : 0, pt: 2, maxWidth: 1200, margin: "0 auto" }}
         onSubmit={handleSubmit(onSubmit)}
       >
         <Typography variant="h4" sx={{ mb: 4 }}>
