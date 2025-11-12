@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useFormContext } from "react-hook-form";
 import {
   Box,
   Typography,
@@ -14,8 +13,11 @@ import {
   CheckCircle,
   Close,
   InsertDriveFile,
+  WarningAmber,
 } from "@mui/icons-material";
 import { ImagePreviewModal } from "../../../../../../../shared/ui/components/common/image-preview-modal";
+import { useFormContext } from "react-hook-form";
+import { alpha } from "@mui/material/styles";
 
 export const PaymentFormFields = ({ paymentId, paymentNumber }) => {
   const theme = useTheme();
@@ -24,16 +26,13 @@ export const PaymentFormFields = ({ paymentId, paymentNumber }) => {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
 
-  const { setValue, getValues, register } = useFormContext();
+  const { register, setValue, watch, formState: { errors }, trigger } = useFormContext();
 
-  // register fields so form knows about them (operation number and receipt file)
-  // name: manualPayments.${index}.operation_number and manualPayments.${index}.receiptFile
-  const opFieldName = `manualPayments.${paymentNumber - 1}.operation_number`;
-  const fileFieldName = `manualPayments.${paymentNumber - 1}.receiptFile`;
-
-  // register on mount
-  register(opFieldName);
-  register(fileFieldName);
+  const opField = `manualPayments.${paymentNumber - 1}.operationNumber`;
+  const voucherField = `manualPayments.${paymentNumber - 1}.voucher`;
+  const operationValue = watch(opField) || "";
+  const voucherError = !!errors?.manualPayments?.[paymentNumber - 1]?.voucher;
+  const voucherErrorMessage = errors?.manualPayments?.[paymentNumber - 1]?.voucher?.message;
 
   const colors = {
     innerCardBg: isDark ? "#141414" : "#fcfcfc",
@@ -65,9 +64,9 @@ export const PaymentFormFields = ({ paymentId, paymentNumber }) => {
         return;
       }
 
-  setSelectedFile(file);
-  // store file in react-hook-form value so parent can read it
-  setValue(fileFieldName, file, { shouldDirty: true, shouldValidate: true });
+      setSelectedFile(file);
+      // set value in RHF form
+      setValue(voucherField, file, { shouldValidate: true, shouldDirty: true });
 
       // Crear vista previa solo para imágenes
       if (file.type.startsWith("image/")) {
@@ -85,7 +84,7 @@ export const PaymentFormFields = ({ paymentId, paymentNumber }) => {
   const handleRemoveFile = () => {
     setSelectedFile(null);
     setPreviewUrl(null);
-    setValue(fileFieldName, null, { shouldDirty: true });
+    setValue(voucherField, null, { shouldValidate: true, shouldDirty: true });
   };
 
   const handleChangeFile = () => {
@@ -114,31 +113,67 @@ export const PaymentFormFields = ({ paymentId, paymentNumber }) => {
     <Box>
       {/* Número de Operación */}
       <Box sx={{ mb: 3 }}>
-        <Typography variant="body2" sx={{ color: colors.textPrimary, mb: 1, fontWeight: 600 }}>
+        <Typography
+          variant="body2"
+          sx={{ color: colors.textPrimary, mb: 1, fontWeight: 600 }}
+        >
           Número de Operación *
         </Typography>
         <TextField
           fullWidth
           placeholder="Ej: 123456789"
           size="small"
-          onChange={(e) => setValue(opFieldName, e.target.value, { shouldDirty: true })}
-          defaultValue={getValues(opFieldName) || ''}
+          {...register(opField, {
+            required: "El número de operación es obligatorio",
+            pattern: { value: /^[0-9]{8}$/, message: "Formato inválido" },
+          })}
+          value={operationValue}
+          onChange={(e) => {
+            setValue(opField, e.target.value, { shouldDirty: true });
+          }}
+          error={!!errors?.manualPayments?.[paymentNumber - 1]?.operationNumber}
+          helperText={
+            errors?.manualPayments?.[paymentNumber - 1]?.operationNumber
+              ?.message || ""
+          }
         />
       </Box>
 
       {/* Comprobante de Pago */}
       <Box>
-        <Typography variant="body2" sx={{ color: colors.textPrimary, mb: 1, fontWeight: 600 }}>
+        <Typography
+          variant="body2"
+          sx={{ color: colors.textPrimary, mb: 1, fontWeight: 600 }}
+        >
           Comprobante de Pago *
         </Typography>
 
-        <input
-          type="file"
-          id={`file-upload-${paymentId}`}
-          accept="image/png,image/jpeg,image/jpg,application/pdf"
-          style={{ display: "none" }}
-          onChange={handleFileChange}
-        />
+        {/* Registra el input y compone onChange para que tanto RHF como la vista previa local se ejecuten */}
+        {(() => {
+          const reg = register(voucherField, {
+            validate: (file) => {
+              const method = watch(`manualPayments.${paymentNumber - 1}.method`);
+              const needsProof = ["yape", "plin", "transfer"].includes(method);
+              if (!needsProof) return true; 
+              if (!file) return "El comprobante es obligatorio";
+              if (!(file && file.type && file.type.startsWith("image/"))) return "Debe ser una imagen (jpg, jpeg, png)";
+              return true;
+            },
+          });
+          return (
+            <input
+              type="file"
+              id={`file-upload-${paymentId}`}
+              accept="image/png,image/jpeg,image/jpg,application/pdf"
+              style={{ display: "none" }}
+              {...reg}
+              onChange={(e) => {
+                if (typeof reg.onChange === "function") reg.onChange(e);
+                handleFileChange(e);
+              }}
+            />
+          );
+        })()}
 
         {!selectedFile ? (
           <Paper
@@ -147,45 +182,68 @@ export const PaymentFormFields = ({ paymentId, paymentNumber }) => {
             htmlFor={`file-upload-${paymentId}`}
             sx={{
               p: 3,
-              border: `2px dashed ${colors.border}`,
+              border: `2px dashed ${voucherError ? alpha("#AB1D33", 0.9) : colors.border}`,
               borderRadius: 2,
               bgcolor: colors.innerCardBg,
               cursor: "pointer",
               transition: "all 0.2s",
-              "&:hover": { borderColor: colors.borderActive },
+              "&:hover": {
+                borderColor: voucherError ? "#e7203dff" : colors.borderActive,
+              },
               display: "flex",
               alignItems: "center",
               gap: 3,
+              position: "relative",
             }}
           >
             {/* Icono a la izquierda */}
-            <Box
-              sx={{
-                bgcolor: isDark ? "#2d2d2d" : "#e0e0e0",
-                borderRadius: 2,
-                p: 2,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <CloudUpload sx={{ fontSize: 40, color: colors.textSecondary }} />
-            </Box>
+            <Box display="flex" alignItems="center" gap={2}>
+              <Box
+                sx={{
+                  bgcolor: isDark ? "#2d2d2d" : "#e0e0e0",
+                  borderRadius: 2,
+                  p: 2,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <CloudUpload sx={{ fontSize: 40, color: colors.textSecondary }} />
+              </Box>
 
-            {/* Texto a la derecha */}
-            <Box sx={{ flex: 1, textAlign: "left" }}>
-              <Typography
-                variant="body2"
-                sx={{ color: colors.textPrimary, mb: 0.5, fontWeight: 500 }}
-              >
-                Sube tu comprobante
-              </Typography>
-              <Typography
-                variant="caption"
-                sx={{ color: colors.textSecondary, display: "block" }}
-              >
-                PNG, JPG, PDF (Máx. 5MB)
-              </Typography>
+              {/* Texto a la derecha */}
+              <Box sx={{ flex: 1, textAlign: "left" }}>
+                <Typography
+                  variant="body2"
+                  sx={{ color: colors.textPrimary, mb: 0.5, fontWeight: 500 }}
+                >
+                  Sube tu comprobante
+                </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{ color: colors.textSecondary, display: "block" }}
+                >
+                  PNG, JPG, PDF (Máx. 5MB)
+                </Typography>
+              </Box>
+            </Box>
+            <Box>
+              {voucherError && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 8,
+                    right: 8,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 0.5,
+                    color: "#AB1D33",
+                  }}
+                >
+                  <WarningAmber fontSize="small" />
+                  <Typography variant="caption">{voucherErrorMessage || 'El comprobante es obligatorio'}</Typography>
+                </Box>
+              )}
             </Box>
           </Paper>
         ) : (
@@ -235,6 +293,7 @@ export const PaymentFormFields = ({ paymentId, paymentNumber }) => {
                   >
                     <Close fontSize="small" sx={{ color: "#fff" }} />
                   </IconButton>
+                  
                 </Box>
               ) : (
                 <Box>
@@ -288,6 +347,7 @@ export const PaymentFormFields = ({ paymentId, paymentNumber }) => {
             </Button>
           </Paper>
         )}
+        {/* Error helper removed — inline mini-alert inside the card handles validation messaging */}
       </Box>
 
       {/* Modal de vista previa */}

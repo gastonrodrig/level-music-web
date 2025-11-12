@@ -23,7 +23,6 @@ const paymentMethods = [
     description: "Pago instantáneo",
     color: "#9c27b0",
     logo: "https://i.postimg.cc/MHYc1qSn/YAPE.jpg",
-    availableFor: ["online", "local"],
     maxAmount: 500,
     requiresProof: true,
   },
@@ -33,7 +32,6 @@ const paymentMethods = [
     description: "Pago instantáneo",
     color: "#2196f3",
     logo: "https://i.postimg.cc/NG8237Hf/logo-plin.jpg",
-    availableFor: ["online", "local"],
     maxAmount: 500,
     requiresProof: true,
   },
@@ -43,17 +41,7 @@ const paymentMethods = [
     description: "Transferencia Bancaria",
     color: "#607d8b",
     icon: <AccountBalance sx={{ fontSize: 20 }} />,
-    availableFor: ["online", "local"],
     requiresProof: true,
-  },
-  {
-    id: "cash",
-    name: "Efectivo",
-    description: "Pago en el local",
-    color: "#4caf50",
-    icon: "S/",
-    availableFor: ["local"],
-    requiresProof: false,
   },
 ];
 
@@ -80,12 +68,6 @@ export const PaymentManualContent = ({
 
   const currentMethod = watch(`manualPayments.${paymentNumber - 1}.method`);
   const selectedMethod = paymentMethods.find((m) => m.id === currentMethod);
-
-  const selectedPaymentLocation = watch("selectedPaymentLocation");
-
-  const availableMethods = paymentMethods.filter((method) =>
-    method.availableFor.includes(selectedPaymentLocation)
-  );
 
   return (
     <Box sx={{ mb: isLast ? 0 : 3 }}>
@@ -124,14 +106,28 @@ export const PaymentManualContent = ({
 
             {/* Botón eliminar */}
             {onRemove && (
-              <IconButton 
-                size="small" 
+              <IconButton
+                size="small"
                 onClick={onRemove}
-                sx={{ 
-                  color: "#f44336",
-                  "&:hover": {
-                    bgcolor: isDark ? "rgba(244, 67, 54, 0.1)" : "rgba(244, 67, 54, 0.05)",
-                  }
+                sx={{
+                  bgcolor: '#f44336',
+                  color: '#ffffff',
+                  width: 36,
+                  height: 36,
+                  borderRadius: '8px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  '&:hover': {
+                    bgcolor: '#d32f2f',
+                  },
+                  '&:active': {
+                    bgcolor: '#c62828',
+                  },
+                  // ensure the svg icon stays white even in dark/light themes
+                  '& .MuiSvgIcon-root': {
+                    color: '#ffffff',
+                  },
                 }}
               >
                 <Delete fontSize="small" />
@@ -165,7 +161,7 @@ export const PaymentManualContent = ({
                     {...field}
                     size="small"
                   >
-                  {availableMethods.map((method) => (
+                  {paymentMethods.map((method) => (
                     <MenuItem key={method.id} value={method.id}>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                         {method.logo ? (
@@ -212,6 +208,28 @@ export const PaymentManualContent = ({
                 placeholder="0.00"
                 {...register(`manualPayments.${paymentNumber - 1}.amount`, {
                   required: "El monto es obligatorio",
+                  validate: (val) => {
+                    const num = Number(val);
+                    // method-specific max (yape/plin)
+                    if ((currentMethod === "yape" || currentMethod === "plin") && !isNaN(num) && num > 500) {
+                      return "El monto máximo para Yape/Plin es S/ 500";
+                    }
+
+                    // prevent exceeding the required total across all manual payments
+                    const requiredTotal = Number(watch("amount")) || 0;
+                    const payments = watch("manualPayments") || [];
+                    const idx = paymentNumber - 1;
+                    const sumOthers = payments.reduce((s, p, i) => {
+                      if (i === idx) return s;
+                      return s + (Number(p?.amount) || 0);
+                    }, 0);
+                    const remaining = requiredTotal - sumOthers;
+                    if (!isNaN(num) && num + 1 > remaining) {
+                      return `El monto excede el total requerido. Restante: S/ ${remaining.toFixed(2)}`;
+                    }
+
+                    return true;
+                  },
                 })}
                 onChange={(e) => {
                   const value = e.target.value;
@@ -227,7 +245,6 @@ export const PaymentManualContent = ({
                 }
               />
             </Box>
-
           </Box>
 
           {/* Detalles según método seleccionado */}
@@ -273,29 +290,6 @@ export const PaymentManualContent = ({
               isDark={isDark}
               onCopy={onCopy}
             />
-          )}
-
-          {currentMethod === "cash" && (
-            <Alert
-              icon={<Info />}
-              severity="warning"
-              sx={{
-                borderRadius: 2,
-                bgcolor: isDark ? "rgba(255, 152, 0, 0.1)" : "rgba(255, 152, 0, 0.05)",
-                color: colors.textPrimary,
-                border: `1px solid ${isDark ? "#ff9800" : "#ffb74d"}`,
-                "& .MuiAlert-icon": {
-                  color: "#ff9800",
-                },
-              }}
-            >
-              <Typography variant="body2" fontWeight={600} mb={0.5}>
-                Pago en Efectivo (Solo Local)
-              </Typography>
-              <Typography variant="caption">
-                Este pago no requiere comprobante pero debe ser confirmado por el administrador en el local.
-              </Typography>
-            </Alert>
           )}
 
           {/* Campos de formulario (Número de operación y comprobante) - Para todos excepto efectivo */}

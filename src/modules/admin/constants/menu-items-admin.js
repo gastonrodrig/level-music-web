@@ -78,6 +78,11 @@ export const menuItems = [
             text: 'Control Actividades',
             breadcrumb: 'Control de Actividades',
             href: '/admin/event-ongoing/activities',
+          },
+          {
+            text: 'Ver Ordenes',
+            breadcrumb: 'Ordenes de Compra',
+            href: '/admin/event-ongoing/orders',
           }
         ],
       },
