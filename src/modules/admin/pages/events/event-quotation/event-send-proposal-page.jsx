@@ -17,6 +17,26 @@ export const EventSendProposalPage = () => {
   const formatCurrency = (v) =>
     `S/ ${Number(v || 0).toLocaleString("es-PE", { minimumFractionDigits: 2 })}`;
 
+  // Calcular precio estimado manualmente
+  const calculateEstimatedPrice = () => {
+    if (!selected) return 0;
+    
+    // Total de tasks
+    const tasksTotal = (selected.tasks || []).reduce(
+      (total, task) =>
+        total + (task.subtasks || []).reduce((sum, sub) => sum + (sub.price || 0), 0),
+      0
+    );
+    
+    // Total de assignations
+    const assignationsTotal = (selected.assignations || []).reduce(
+      (total, assign) => total + ((assign.hours || 0) * (assign.hourly_rate || 0)),
+      0
+    );
+    
+    return tasksTotal + assignationsTotal;
+  };
+
   // Console log para ver toda la estructura de selected
   React.useEffect(() => {
     if (selected) {
@@ -184,7 +204,7 @@ export const EventSendProposalPage = () => {
           <Typography sx={{ mb: 1 }}>
             Total estimado:{" "}
             <strong>
-              S/ {(selected?.estimated_price || 0).toLocaleString("es-PE", { minimumFractionDigits: 2 })}
+              {formatCurrency(calculateEstimatedPrice())}
             </strong>
           </Typography>
 
