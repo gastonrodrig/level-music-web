@@ -10,15 +10,16 @@ export const EventSummaryCard = ({ selected }) => {
 
   return (
     <>
-      <Grid container spacing={2}>
+      <Grid container spacing={3}>
         {/* Información del Evento */}
         <Grid item xs={12} md={6}>
           <Box
             sx={{
-              p: 3,
+              p: { xs: 2.5, md: 3 },
               borderRadius: 3,
               bgcolor: isDark ? "#1f1e1e" : "#f5f5f5",
               height: "100%",
+              border: `1px solid ${theme.palette.divider}`,
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", mb: 2, gap: 1 }}>
@@ -107,10 +108,11 @@ export const EventSummaryCard = ({ selected }) => {
         <Grid item xs={12} md={6}>
           <Box
             sx={{
-              p: 3,
+              p: { xs: 2.5, md: 3 },
               borderRadius: 3,
               bgcolor: isDark ? "#1f1e1e" : "#f5f5f5",
               height: "100%",
+              border: `1px solid ${theme.palette.divider}`,
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", mb: 2, gap: 1 }}>

@@ -67,6 +67,11 @@ export const menuItems = [
             breadcrumb: 'Pagos Aprobados',
             href: '/admin/quotations/payments-approved',
           },
+          {
+            text: 'Enviar Propuesta',
+            breadcrumb: 'Enviar Propuesta',
+            href: '/admin/quotations/send-proposal',
+          }
         ],
       }, 
       {
