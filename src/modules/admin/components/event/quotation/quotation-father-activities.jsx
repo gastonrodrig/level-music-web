@@ -6,6 +6,7 @@ import { useScreenSizes } from "../../../../../shared/constants/screen-width";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { SubActivityItem } from "../../../components";
+import { SubActivityModal } from "../../../components";
 
 export const QuotationsFatherSubActivites = ({actividades = []}) => {
 const theme = useTheme();
@@ -13,6 +14,7 @@ const isDark = theme.palette.mode === "dark";
 const navigate = useNavigate();
 const dispatch = useDispatch();
 const { isMd } = useScreenSizes();
+const [isModalOpen, setIsModalOpen] = useState(false);
 
 const subactividades = actividades.subactividades || [];
 
@@ -32,6 +34,43 @@ const subactividades = actividades.subactividades || [];
   const handleDeleteSub = (sub) => {
     console.log("Eliminando sub-actividad:", sub.nombre);
   };
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+  const handleSaveSubActivity = (data) => {
+    // 'data' es el objeto del formulario del modal
+    console.log("Nueva subactividad para:", actividades.nombre);
+    console.log(data);
+    // Aquí es donde llamarías a tu hook de Redux para guardar los datos
+    // ej: startAddSubActivity(actividades._id, data);
+  };
+
+  const mockTrabajadores = [
+    { id: 1, nombre: "Carlos Lopez" },
+    { id: 2, nombre: "Ana Gomez" },
+    { id: 3, nombre: "Luis Martinez" },
+  ];
+  const fase = [
+    { id: 1, nombre: "Preparación" },
+    { id: 2, nombre: "Ejecución" },
+    { id: 3, nombre: "Cierre" },
+  ]
+  const movementType = [
+    { id: 1, nombre: "Entrada" },
+    { id: 2, nombre: "Salida" },
+    { id: 3, nombre: "Transferencia" },
+  ];
+  const mockEquipamiento = [
+    { id: 1, nombre: "Equipo de Sonido", codigo: "EQ-001", estado: "Asiganado" },
+    { id: 2, nombre: "Iluminación", codigo: "IL-002",estado: "Asiganado" },
+    { id: 3, nombre: "Escenario", codigo: "ES-003",estado: "Asiganado" },
+  ];
+
 return (
 <Box
       sx={{
@@ -73,7 +112,7 @@ return (
           {!isMd ? (
             <IconButton
               color="primary"
-              
+              onClick={handleOpenModal}
               sx={{
                 bgcolor: theme.palette.primary.main,
                 color: "#fff",
@@ -88,7 +127,7 @@ return (
           ) : (
             <Button
               variant="contained"
-              
+              onClick={handleOpenModal}
               startIcon={<Add />}
               sx={{
                 textTransform: "none",
@@ -107,7 +146,7 @@ return (
           ) : (
             <Button
               variant="contained"
-              
+              onClick={handleDeleteActivity}
               startIcon={<Delete />}
               color="error"
               sx={{
@@ -151,6 +190,16 @@ return (
           </Typography>
         )}
       </Box>
+      <SubActivityModal 
+        open={isModalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleSaveSubActivity}
+        trabajadoresList={mockTrabajadores}
+        fases={fase}
+        movementType={movementType}
+        equipamientoList={mockEquipamiento}
+         // <-- Pasa la lista de tipos de movimiento
+      />
 
 
 </Box>)

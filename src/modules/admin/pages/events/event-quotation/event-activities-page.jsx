@@ -1,13 +1,14 @@
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {useQuotationStore,} from "../../../../../hooks";
 import { Box, Typography, Button, TextField,useTheme, Link} from "@mui/material";
 import { useForm, FormProvider, useFieldArray } from "react-hook-form";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+
 import { PostAdd, Edit, Payments,History, Assignment } from "@mui/icons-material";
-import { QuotationActivitiesSummery, QuotationsFatherSubActivites } from "../../../components";
+import { QuotationActivitiesSummery, QuotationsFatherSubActivites, ActivityFatherModal } from "../../../components";
 
 
 export const EventQuotationsActivitiesPage = () => {
@@ -35,6 +36,18 @@ const {
     startLoadingQuotationPaginated,
     setSelectedQuotation,
   } = useQuotationStore();
+  const [isFatherModalOpen, setIsFatherModalOpen] = useState(false);
+  
+  const handleOpenFatherModal = () => setIsFatherModalOpen(true);
+  const handleCloseFatherModal = () => setIsFatherModalOpen(false);
+
+  const handleSaveFatherActivity = (data) => {
+    // 'data' es el objeto del formulario del modal
+    console.log("Datos de la nueva Actividad Padre:", data);
+    // Aquí es donde llamarías a tu hook de Redux para guardar
+    // ej: startCreateFatherActivity(data); 
+  };
+  // ---------------------------------------------
 
 const datos = {
     tipo: " Fiesta Privada",
@@ -96,7 +109,7 @@ return (
             <Button
               variant="contained"
               startIcon={<PostAdd />}
-              onClick={() => setSelectedQuotation(null)}
+              onClick={handleOpenFatherModal}
               sx={{
                 backgroundColor: "#212121",
                 color: "#fff",
@@ -121,13 +134,7 @@ return (
             width: { xs: "100%", sm: "300px" },
           }}
         >
-          <TextField
-            size="small"
-            placeholder="Buscar..."
-            value={searchTerm}
-            fullWidth
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          
         </Box>
         {listaDeActividades.map((actividad, index) => (
           <QuotationsFatherSubActivites 
@@ -136,9 +143,12 @@ return (
           />
         ))}
         <QuotationActivitiesSummery amount={listaDeActividades.map(act => act.precio)}/>
-
-        
       </Box>
+      <ActivityFatherModal
+        open={isFatherModalOpen}
+        onClose={handleCloseFatherModal}
+        onSubmit={handleSaveFatherActivity}
+      />
     </>
   );
 };
