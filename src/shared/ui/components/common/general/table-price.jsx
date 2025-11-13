@@ -13,7 +13,7 @@ import {
   useTheme,
   Paper,
 } from "@mui/material";
-import { formatDatePrice } from "../../../utils";
+import { formatDatePrice } from "../../../../utils";
 
 export const PaginatedTable = ({
   columns = [],

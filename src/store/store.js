@@ -44,7 +44,6 @@ export const store = configureStore({
     serviceType: serviceTypeSlice.reducer,
     serviceDetail: serviceDetailSlice.reducer,
     equipment: equipmentSlice.reducer,
-    equipmentPrices: equipmentPricesSlice.reducer,
     maintenance: maintenanceSlice.reducer,
     clientProfile: clientProfileSlice.reducer,
     clientPerson: clientPersonSlice.reducer,

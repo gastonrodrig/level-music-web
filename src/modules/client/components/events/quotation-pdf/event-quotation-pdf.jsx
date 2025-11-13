@@ -133,7 +133,7 @@ const MyQuotationPdf = ({ quotation }) => {
       <Text style={styles.fecha}>{fechaFormateada}</Text>
 
       <Text style={styles.texti}>Sres.</Text>
-      <Text style={styles.texti}>Atención:                      {quotation.client_info.first_name} {quotation.client_info.last_name}</Text>
+      <Text style={styles.texti}>Atención:                      {quotation.first_name} {quotation.last_name}</Text>
       <Text style={styles.texti}>Cod. Propuesta.           {quotation.event_code}</Text>
       <Text style={styles.texti}>Tipo:                             Evento {quotation.event_type_name} - {quotation.exact_address}  {quotation.fechaEventoFormateada}</Text>
       <Text style={styles.textiSub}>Presente.- </Text>

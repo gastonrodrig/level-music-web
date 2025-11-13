@@ -157,7 +157,7 @@ export const AssignServiceCard = ({
                 <MenuItem value="">
                   <em>Seleccione un paquete</em>
                 </MenuItem>
-                {filteredDetails.map((d, index) => {
+                {filteredDetails.map((d) => {
                   const entries = Object.entries(d.details).slice(0, 2);
                   return (
                     <MenuItem
@@ -171,7 +171,7 @@ export const AssignServiceCard = ({
                       }}
                     >
                       <Box sx={{ display: "flex", flexDirection: "column" }}>
-                        <Typography>Paquete #{index + 1}</Typography>
+                        <Typography>Paquete – S/. {d.ref_price} (por hora)</Typography>
                         <Typography variant="caption" color="text.secondary">
                           {entries.map(([k, v]) => `${k}: ${v}`).join(", ")}
                         </Typography>
@@ -280,7 +280,7 @@ export const AssignServiceCard = ({
           )}
 
           {/* Horas */}
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} md={2}>
             <FormControl fullWidth size="small">
               <InputLabel id="hours-label">Horas</InputLabel>
               <Select
@@ -299,15 +299,11 @@ export const AssignServiceCard = ({
             </FormControl>
           </Grid>
 
-          {/* Precio por hora de referencia */}
-          <Grid item xs={12} md={3.5}>
+          {/* Precio de referencia */}
+          <Grid item xs={12} md={2.5}>
             <TextField
-              label="Precio por hora (S/)"
-              value={
-                servicePrice && !isNaN(Number(servicePrice))
-                  ? `S/ ${Number(servicePrice).toFixed(2)}`
-                  : "S/ -"
-              }
+              label="Precio Ref."
+              value={selectedDetail?.ref_price || 0}
               fullWidth
               disabled
               InputLabelProps={{ shrink: true }}
@@ -316,13 +312,14 @@ export const AssignServiceCard = ({
           </Grid>
 
           {/* % Pago Requerido */}
-          <Grid item xs={12} md={3.5}>
+          <Grid item xs={12} md={2.5}>
             <TextField
               label="% Pago Requerido"
-              placeholder="Ej: 10 - 100 %"
+              placeholder="Ej: 50"
               value={paymentPercentageRequired || ""}
               onChange={(e) => {
                 let value = e.target.value ? Number(e.target.value) : "";
+                // Validación: solo entre 0 y 100
                 if (value !== "" && (value < 0 || value > 100)) return;
                 setValue("payment_percentage_required", value);
               }}
@@ -336,7 +333,7 @@ export const AssignServiceCard = ({
           </Grid>
 
           {/* Agregar */}
-          <Grid item xs={12} md={2}>
+          <Grid item xs={12} md={2.5}>
             <Button
               variant="contained"
               fullWidth

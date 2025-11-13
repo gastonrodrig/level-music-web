@@ -1,5 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import {
+  // These actions/selectors should be created in the store for equipment prices
   refreshEquipmentPrices,
   selectedEquipmentPrice,
   setLoadingEquipmentPrice,
@@ -23,7 +24,7 @@ export const useEquipmentPriceStore = () => {
     loading,
     currentPage,
     rowsPerPage,
-  } = useSelector((state) => state.equipmentPrices);
+  } = useSelector((state) => state.equipmentPrices || {});
 
   const { token } = useSelector((state) => state.auth);
 

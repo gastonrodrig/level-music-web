@@ -22,10 +22,14 @@ export const workerPricesSlice = createSlice({
       state.loading = action.payload;
     },
     setPageWorkerPrice: (state, action) => {
-      state.currentPage = action.payload;
+      // coerce to a safe numeric page index (defensive: avoid non-serializable values)
+      const p = Number(action.payload);
+      state.currentPage = Number.isFinite(p) && p >= 0 ? p : state.currentPage;
     },
     setRowsPerPageWorkerPrice: (state, action) => {
-      state.rowsPerPage = action.payload;
+      // coerce to a safe numeric rows-per-page value
+      const r = Number(action.payload);
+      state.rowsPerPage = Number.isFinite(r) && r > 0 ? r : state.rowsPerPage;
     },
   },
 });

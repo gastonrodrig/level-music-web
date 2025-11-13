@@ -1,5 +1,5 @@
 import { Box, Container, Typography, useTheme } from "@mui/material";
-import { SocialMedia } from "../custom";
+import { SocialMedia } from "../../custom";
 
 export const Footer = () => {
   const theme = useTheme();
