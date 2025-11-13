@@ -61,7 +61,13 @@ export const menuItems = [
             text: 'Historial ',
             breadcrumb: 'Historial',
             href: '/admin/quotations/history',
-          }
+          },
+          {
+            text: 'Actividades ',
+            breadcrumb: 'Actividades',
+            href: '/admin/quotations/activities',
+          },
+
         ],
       }, 
       {

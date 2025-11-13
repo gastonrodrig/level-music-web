@@ -4,6 +4,7 @@ import {
   EventOnGoing,
   EventQuotationReprograming,
   EventActivitiesPage,
+  EventQuotationsActivitiesPage,
   EventTypePage,
   EventQuotationsPage,
   WorkerPage,
@@ -52,6 +53,7 @@ export const AdminRoutes = () => {
         <Route path="quotations/payments-programming" element={<EventPaymentsProgrammingPage />} />
         <Route path="featured-events" element={<EventFeaturedPage />} />
         <Route path="quotations/history" element={<EventHistoryPage />} />
+        <Route path="quotations/activities" element={<EventQuotationsActivitiesPage />} />
 
         {/* Reprogramaciones */}
         <Route path="requests" element={<RequestsPage />} />
