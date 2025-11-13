@@ -7,7 +7,7 @@ import {
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import { useEffect } from "react";
-import { PaginatedTable } from "../../../../../shared/ui/components/common/table-price";
+import { PaginatedTable } from "../../../../../shared/ui/components/common";
 import { useServiceDetailPriceStore } from "../../../../../hooks";
 
 export const ServiceDetailPriceModal = ({ open, onClose, serviceDetail = {} }) => {

@@ -17,7 +17,7 @@ import {
   Chip,
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { useScreenSizes } from '../../../constants/screen-width';
+import { useScreenSizes } from '../../../../constants/screen-width';
 import { useNavigate } from 'react-router-dom';
 
 export const TableComponent = ({

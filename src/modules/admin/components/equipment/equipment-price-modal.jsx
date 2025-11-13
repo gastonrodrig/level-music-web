@@ -10,7 +10,7 @@ import { Close, Add, Remove } from "@mui/icons-material";
 import SaveIcon from "@mui/icons-material/Save";
 import { useEffect, useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
-import { PaginatedTable } from "../../../../shared/ui/components/common/table-price";
+import { PaginatedTable } from "../../../../shared/ui/components/common";
 
 // EquipmentPriceModal is a reusable modal to list and add prices for a given equipment.
 // It receives the data and actions as props so it doesn't depend on a specific store.

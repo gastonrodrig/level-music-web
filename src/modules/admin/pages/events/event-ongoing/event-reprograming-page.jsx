@@ -1,10 +1,9 @@
-import { QuotationInfoCard } from "../../../components";
 import { useQuotationStore } from "../../../../../hooks";
 import { Typography, Box,Stack,Button } from "@mui/material";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
-import { ResourceTabs } from "../../../../client/components";
+import { ResourceTabs, EventSummaryCard } from "../../../../../shared/ui/components/common";
 import { EventRescheduleCard } from "../../../components";
 import { useForm, FormProvider } from "react-hook-form";
 
@@ -83,7 +82,7 @@ export const EventQuotationReprograming = () => {
           Reprograma la fecha y asigna los recursos para el evento seleccionado.
         </Typography>
 
-        <QuotationInfoCard selected={selected} />
+        <EventSummaryCard selected={selected} />
         <ResourceTabs assignations={assignations} />
 
         <Box sx={{ mt: 2 }}>

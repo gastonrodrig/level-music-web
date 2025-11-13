@@ -20,9 +20,9 @@ import { useNavigate } from "react-router-dom";
 import { useQuotationStore } from "../../../../../hooks";
 import { useEffect } from "react";
 import { formatDateString, formatTimeRange } from "../../../../../shared/utils";
-import { ResourceTabs } from "../../../components";
+import { ResourceTabs } from "../../../../../shared/ui/components/common";
 import {
-  QuotationInfoCard,
+  EventInfoCard,
   QuotationRequestedServices,
 } from "../../../../admin/components";
 
@@ -143,7 +143,7 @@ export const QuotationDetailsPage = () => {
       <Divider sx={{ my: 3 }} />
 
       {/* Información del Evento y Cliente */}
-      <QuotationInfoCard selected={selected} />
+      <EventInfoCard selected={selected} />
 
       {/* Recursos Asignados o Servicios Solicitados */}
       <Box mt={3}>

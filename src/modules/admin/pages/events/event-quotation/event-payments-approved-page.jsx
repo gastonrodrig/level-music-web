@@ -16,7 +16,7 @@ import { useQuotationStore, usePaymentStore } from "../../../../../hooks";
 import { useDispatch } from "react-redux";
 import { showSnackbar } from "../../../../../store";
 import dayjs from "dayjs";
-import { ImagePreviewModal } from "../../../../../shared/ui/components/common/image-preview-modal";
+import { ImagePreviewModal } from "../../../../../shared/ui/components/common";
 import { EventInfoCard } from "../../../components";
 
 const formatCurrency = (v) => `S/ ${Number(v || 0).toLocaleString("es-PE", { minimumFractionDigits: 2 })}`;
