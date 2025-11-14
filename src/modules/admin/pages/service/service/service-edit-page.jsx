@@ -40,6 +40,7 @@ export const ServiceEditPage = () => {
   const {
     loading,
     selected,
+    removedFields,
     customAttributes,
     setCustomAttributes,
     selectedFields,
@@ -70,10 +71,12 @@ export const ServiceEditPage = () => {
   };
 
   const onSubmit = async (data) => {
-      const payload = {
+    const payload = {
       ...data,
-      photosToDelete: photosToDelete,
+      photosToDelete,
     };
+
+    console.log(payload)
 
     const result = await startUpdateService(selected._id, payload);
     if (result) navigate('/admin/service');
@@ -140,11 +143,6 @@ export const ServiceEditPage = () => {
       return newFields;
     });
   }, [selected, provider, serviceTypes]);
-
-  const allAttributes = [
-    ...(selectedServiceType?.attributes || []),
-    ...(customAttributes || []),
-  ];
 
   return (
     <FormProvider {...formMethods}>
@@ -277,11 +275,28 @@ export const ServiceEditPage = () => {
         <ServiceFieldModal
           open={openFieldModalIdx !== null}
           onClose={() => setOpenFieldModalIdx(null)}
-          attributes={allAttributes.filter(
-            (attr) => !(selectedFields[openFieldModalIdx] || []).some((f) => f.name === attr.name)
-          )}
-          onAddAttribute={(field) => handleAddFieldToDetail(openFieldModalIdx, field)}
-          onAddCustom={(name) => setCustomAttributes((prev) => [...prev, { name, type: "text" }])}
+          attributes={
+            [
+              ...(selectedServiceType?.attributes || []),
+              ...(customAttributes?.[openFieldModalIdx] || []),
+            ].filter(attr => {
+              const isUsed = (selectedFields[openFieldModalIdx] || []).some(f => f.name === attr.name);
+              const isRemoved = (removedFields?.[openFieldModalIdx] || []).includes(attr.name);
+              return !isUsed && !isRemoved;
+            })
+          }
+          onAddAttribute={(field) =>
+            handleAddFieldToDetail(openFieldModalIdx, field)
+          }
+          onAddCustom={(name) =>
+            setCustomAttributes((prev) => ({
+              ...prev,
+              [openFieldModalIdx]: [
+                ...(prev?.[openFieldModalIdx] || []),
+                { name, type: "text" },
+              ],
+            }))
+          }
         />
 
         {/* Modal de Historial de Precios */}

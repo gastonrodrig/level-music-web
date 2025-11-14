@@ -31,8 +31,6 @@ export const PaymentFormFields = ({ paymentId, paymentNumber }) => {
   const opField = `manualPayments.${paymentNumber - 1}.operationNumber`;
   const voucherField = `manualPayments.${paymentNumber - 1}.voucher`;
   const operationValue = watch(opField) || "";
-  const voucherValue = watch(voucherField);
-  const opError = !!errors?.manualPayments?.[paymentNumber - 1]?.operationNumber;
   const voucherError = !!errors?.manualPayments?.[paymentNumber - 1]?.voucher;
   const voucherErrorMessage = errors?.manualPayments?.[paymentNumber - 1]?.voucher?.message;
 
@@ -150,15 +148,13 @@ export const PaymentFormFields = ({ paymentId, paymentNumber }) => {
           Comprobante de Pago *
         </Typography>
 
-        {/* register the input and compose onChange so both RHF and local preview run */}
+        {/* Registra el input y compone onChange para que tanto RHF como la vista previa local se ejecuten */}
         {(() => {
           const reg = register(voucherField, {
-            // validate depending on the selected method for this payment.
-            // only require a voucher when the selected method needs proof
             validate: (file) => {
               const method = watch(`manualPayments.${paymentNumber - 1}.method`);
               const needsProof = ["yape", "plin", "transfer"].includes(method);
-              if (!needsProof) return true; // no proof needed for this method
+              if (!needsProof) return true; 
               if (!file) return "El comprobante es obligatorio";
               if (!(file && file.type && file.type.startsWith("image/"))) return "Debe ser una imagen (jpg, jpeg, png)";
               return true;
@@ -172,9 +168,7 @@ export const PaymentFormFields = ({ paymentId, paymentNumber }) => {
               style={{ display: "none" }}
               {...reg}
               onChange={(e) => {
-                // first let RHF process the change
                 if (typeof reg.onChange === "function") reg.onChange(e);
-                // then run local preview/selectedFile logic
                 handleFileChange(e);
               }}
             />
