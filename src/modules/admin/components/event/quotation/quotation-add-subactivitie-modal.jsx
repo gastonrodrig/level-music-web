@@ -25,13 +25,13 @@ export const SubActivityModal = ({ open, onClose, onSubmit}) => {
 
   const { register, handleSubmit, control, setValue, formState: { errors }, reset } = useForm({
     defaultValues: {
-      name: "",
-      description: "",
+      subtask_name: "",
       price: 0,
       worker_name: "",
       worker_id: null,
-      equipment: "", // <-- Nuevo campo,
+       
       phase: "",
+      storehouse_code: "",
       requires_evidence: false,
       storehouse_movement_type: "",
       is_for_storehouse: false,
@@ -81,15 +81,17 @@ export const SubActivityModal = ({ open, onClose, onSubmit}) => {
     // Sobrescribimos los campos de los switches con el 'useState'
     const finalData = {
       ...data,
+
+      subtask_name: data.subtask_name,
       is_for_storehouse: showMovimiento,
       requires_evidence: showEvidencia,
-
+      phase: data.phase,
       // Lógica de limpieza:
       // Si es de almacén, no tiene precio ni trabajador.
       // Si NO es de almacén, no tiene tipo de movimiento.
       price: showMovimiento ? 0 : (showPrice ? data.price : 0),
-      worker_name: showMovimiento ? "" : data.worker_name,
       worker_id: showMovimiento ? null : data.worker_id,
+
       storehouse_movement_type: showMovimiento ? data.storehouse_movement_type : "",
     };
 
@@ -118,7 +120,7 @@ export const SubActivityModal = ({ open, onClose, onSubmit}) => {
   bgcolor: 'background.paper',
   borderRadius: 2,
   boxShadow: 24,
-  p: 4,}} component="form" onSubmit={handleSubmit(onFormSubmit)}>
+  p: 4,}} >
         
         <Typography variant="h6" component="h2" sx={{ mb: 1 }}>
           Crear Subactividad
@@ -135,9 +137,9 @@ export const SubActivityModal = ({ open, onClose, onSubmit}) => {
             <TextField
               placeholder="Ej. Salida de Equipos"
               fullWidth
-              {...register("name", { required: "El nombre es requerido" })}
-              error={!!errors.name}
-              helperText={errors.name?.message}
+              {...register("subtask_name", { required: "El nombre es requerido" })}
+              error={!!errors.subtask_name}
+              helperText={errors.subtask_name?.message}
             />
           </Grid>
           
@@ -430,8 +432,9 @@ export const SubActivityModal = ({ open, onClose, onSubmit}) => {
               Cancelar
             </Button>
             <Button 
-              type="submit" 
+              type="button" 
               variant="contained" 
+              onClick={handleSubmit(onFormSubmit)}
               sx={{
             mt: 1,
             backgroundColor: "#212121",

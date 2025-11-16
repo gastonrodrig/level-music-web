@@ -11,6 +11,7 @@ export const SubActivityItem = ({ subActivity, onEdit, onDelete }) => {
     Ejecución: "success",
     Seguimiento: "warning",
   }
+  console.log("SubActivityItem render:", subActivity);
 
   return (
     <Paper 
@@ -41,7 +42,7 @@ export const SubActivityItem = ({ subActivity, onEdit, onDelete }) => {
             }}
           >
             <Typography variant="h6" fontSize={16} fontWeight={600} sx={{ m: 0 }}>
-              {subActivity.name}
+              {subActivity.subtask_name||subActivity.name}
             </Typography>
             
 

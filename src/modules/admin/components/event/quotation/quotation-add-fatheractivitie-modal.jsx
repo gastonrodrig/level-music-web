@@ -10,7 +10,7 @@ import { Save,Close } from "@mui/icons-material";
 export const ActivityFatherModal = ({ open, onClose, onSubmit }) => {
   const { register, handleSubmit, formState: { errors },reset } = useForm({
     defaultValues: {
-      name: "",
+      task_name: "",
       description: "",
     }
   });
@@ -61,9 +61,9 @@ export const ActivityFatherModal = ({ open, onClose, onSubmit }) => {
             <TextField
               label="Nombre de la Actividad"
               fullWidth
-              {...register("name", { required: "El nombre es requerido" })}
-              error={!!errors.name}
-              helperText={errors.name?.message}
+              {...register("task_name", { required: "El nombre es requerido" })}
+              error={!!errors.task_name}
+              helperText={errors.task_name?.message}
             />
           </Grid>
           

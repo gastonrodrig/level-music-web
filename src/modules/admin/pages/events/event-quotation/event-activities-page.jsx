@@ -38,7 +38,10 @@ const { isLg } = useScreenSizes();
   const handleCloseFatherModal = () => setIsFatherModalOpen(false);
   const methods = useForm({
       defaultValues: {
-        tasks: [], // Aquí vivirán nuestras Actividades Padre
+        tasks: [
+
+
+        ], // Aquí vivirán nuestras Actividades Padre
       },
     });
    const { fields, append, remove } = useFieldArray({
@@ -69,16 +72,19 @@ const { isLg } = useScreenSizes();
       const tasksParaFormulario = selected.tasks.map(task => ({
         // Campos del padre
         id_original: task._id, // Guardamos el ID por si lo necesitas para 'update'
-        name: task.name,
+        task_name: task.name,
         description: task.description,
         
         // Mapeamos las sub-tareas
         subtasks: task.subtasks.map(sub => ({
           id_original: sub._id,
-          name: sub.name,
+          subtask_name: sub.name,
           phase: sub.phase,
           price: sub.price,
           worker_name: sub.worker_name,
+          worker_id: sub.worker,
+          storehouse_code: sub.storehouse_code,
+          storehouse_movement_type: sub.storehouse_movement_type,
           requires_evidence: sub.requires_evidence,
           is_for_storehouse: sub.is_for_storehouse, // El switch del modal
           // ...mapea cualquier otro campo que tus modales usen
@@ -109,31 +115,36 @@ const { isLg } = useScreenSizes();
     // para añadir el eventId y limpiar los campos.
     const tasksArray = data.tasks.map(act => {
       
+      
       const formattedSubtasks = act.subtasks.map(sub => ({
-        name: sub.name,
+        is_for_storehouse: sub.is_for_storehouse || false,
+        subtask_name: sub.subtask_name,
         phase: sub.phase,
         price: sub.price || 0,
-        worker_name: sub.worker_name,
-        status: sub.status,
+        worker_id: sub.worker_id || null,
         requires_evidence: sub.requires_evidence || false,
-        is_for_storehouse: sub.is_for_storehouse || false,
-        // ...otros campos
+        storehouse_movement_type: sub.storehouse_movement_type || "",
+        storehouse_code: sub.storehouse_code || "pruebita",
       }));
       console.log("Formatted Subtasks:", formattedSubtasks);
 
       return {
-        name: act.name,
+        task_name: act.task_name,
         description: act.description,
-        event: eventId,
+        event_id: eventId,
         subtasks: formattedSubtasks,
       };
     });
 
-     const success = await startAddEventTasks(tasksArray);
-     if (success) {
-       methods.reset(); // Limpia el formulario
-     }
-  };
+
+    console.log("Payload FINAL que se envía al API:", tasksArray);
+    
+    // Llama al store con el payload final
+    if(tasksArray.length > 0){
+    const success = await startAddEventTasks(tasksArray); // Envía el objeto { tasks: [...] }
+    if (success) {
+      navigate('/admin/quotations');}
+  };}
 
   const eventData = {
       tipo: selected?.event_type_name || "N/A",
@@ -210,7 +221,7 @@ return (
               variant="contained"
               color="primary"
               startIcon={<Save />}
-              disabled={loading || methods.formState.isSubmitting}
+              disabled={loading || methods.formState.isSubmitting ||  fields.some((field, idx) => !taskData[idx]?.subtasks || taskData[idx].subtasks.length === 0)}
               sx={{
                 textTransform: "none", borderRadius: 2, color: "#fff",
                 fontWeight: 600, px: 4, py: 1.5,

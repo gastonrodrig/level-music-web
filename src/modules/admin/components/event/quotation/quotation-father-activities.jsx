@@ -37,24 +37,6 @@ const { fields, append, remove } = useFieldArray({
       remove(subIndex);
     };
 
-
-
-  // --- Funciones de ejemplo para los botones ---
-  const handleAddSubActivity = () => {
-    console.log("Agregando sub-actividad a:", actividades.nombre);
-  };
-
-  const handleDeleteActivity = () => {
-    console.log("Eliminando actividad padre:", actividades.nombre);
-  };
-
-  const handleEditSub = (sub) => {
-    console.log("Editando sub-actividad:", sub.nombre);
-  };
-
- 
-
-
 return (
 <Box
       sx={{
@@ -77,7 +59,7 @@ return (
         <Box display="flex" flexDirection="column" alignItems="flex-start">
           <Box display="flex" flexDirection="column" alignItems="start" gap={1} alignContent="center">
             <Typography variant="h6" fontWeight={300}>
-            {taskData.name}
+            {taskData.task_name}
             </Typography>
             <Typography>
             {taskData.description}
