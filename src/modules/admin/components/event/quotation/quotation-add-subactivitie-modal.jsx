@@ -7,10 +7,12 @@ import {
 } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
 import { Save, Inventory } from "@mui/icons-material";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { useQuotationStore, useWorkerStore } from "../../../../../hooks";
 
 
-export const SubActivityModal = ({ open, onClose, onSubmit, trabajadoresList = [], equipamientoList = [], fases = [] , movementType = []}) => {
+
+export const SubActivityModal = ({ open, onClose, onSubmit}) => {
   const theme = useTheme();
   
   const isDark = theme.palette.mode === "dark";
@@ -18,39 +20,91 @@ export const SubActivityModal = ({ open, onClose, onSubmit, trabajadoresList = [
   const [showMovimiento, setShowMovimiento] = useState(false);
   const [showEquipamiento, setShowEquipamiento] = useState(false);
   const [showEvidencia, setShowEvidencia] = useState(false);
+  const [showPrice, setShowPrice] = useState(false);
   // ---------------------------------
 
-  const { register, handleSubmit, control, formState: { errors }, reset } = useForm({
+  const { register, handleSubmit, control, setValue, formState: { errors }, reset } = useForm({
     defaultValues: {
-      nombre: "",
-      descripcion: "",
-      precio: 0,
-      cantidad: 1,
-      trabajador: "",
-      equipamiento: "" // <-- Nuevo campo
+      name: "",
+      description: "",
+      price: 0,
+      worker_name: "",
+      worker_id: null,
+      equipment: "", // <-- Nuevo campo,
+      phase: "",
+      requires_evidence: false,
+      storehouse_movement_type: "",
+      is_for_storehouse: false,
     }
   });
 
+  const {
+    selected,
+  } = useQuotationStore();
+
+  const {
+    workers,
+  } = useWorkerStore();
+
+  const phase = [
+   {id:1, nombre: "Planificación"},
+   {id:2, nombre: "Ejecución"},
+   {id:3, nombre: "Seguimiento"},
+  ]
+
+  const storehouse_movement_type = [
+    { id: 1, nombre: "Salida de almacén" },
+    { id: 2, nombre: "Recepción en evento" },
+    { id: 3, nombre: "Salida de evento" },
+    { id: 4, nombre: "Recepción en almacén" },
+  ];
+
+  const equipmentList = useMemo(() => {
+    // Si no hay 'selected' o 'assignations', devuelve un array vacío
+    console.log("Selected en equipo:", selected);
+    if (!selected || !selected.assignations) return [];
+  
+    // Filtramos el array
+    return selected.assignations.filter(
+      (item) => item.resource_type === "Equipo"
+    );
+  }, [selected]);
+
+  useEffect(() => {
+    console.log("Lista de equipamientos filtrada:", equipmentList);
+    console .log("Selected completo:", selected);
+  }, [equipmentList]);
+
   // 'data' es el objeto del formulario ({nombre, precio, ...})
   const onFormSubmit = (data) => {
-    // Solo enviamos los datos si el switch está activado
+    // 'data' tiene todos los campos del formulario
+    // Sobrescribimos los campos de los switches con el 'useState'
     const finalData = {
       ...data,
-      trabajador: showMovimiento ? data.trabajador : null,
-      equipamiento: showEquipamiento ? data.equipamiento : null,
+      is_for_storehouse: showMovimiento,
+      requires_evidence: showEvidencia,
+
+      // Lógica de limpieza:
+      // Si es de almacén, no tiene precio ni trabajador.
+      // Si NO es de almacén, no tiene tipo de movimiento.
+      price: showMovimiento ? 0 : (showPrice ? data.price : 0),
+      worker_name: showMovimiento ? "" : data.worker_name,
+      worker_id: showMovimiento ? null : data.worker_id,
+      storehouse_movement_type: showMovimiento ? data.storehouse_movement_type : "",
     };
 
+    console.log("Datos del formulario antes de enviar:", finalData);
     onSubmit(finalData); // Llama a la función del padre
     handleClose(); // Llama a la función local de cierre
   };
-  useEffect(() => { console.log("Equipamiento seleccionado:", equipamientoList); }, [equipamientoList]);
+  
 
   const handleClose = () => {
     reset(); // Resetea el formulario
     setShowMovimiento(false); // Resetea los switches
     setShowEquipamiento(false);
     setShowEvidencia(false);
-
+    setShowPrice(false);
     onClose(); // Llama a la función del padre
   };
 
@@ -81,9 +135,9 @@ export const SubActivityModal = ({ open, onClose, onSubmit, trabajadoresList = [
             <TextField
               placeholder="Ej. Salida de Equipos"
               fullWidth
-              {...register("nombre", { required: "El nombre es requerido" })}
-              error={!!errors.nombre}
-              helperText={errors.nombre?.message}
+              {...register("name", { required: "El nombre es requerido" })}
+              error={!!errors.name}
+              helperText={errors.name?.message}
             />
           </Grid>
           
@@ -92,28 +146,25 @@ export const SubActivityModal = ({ open, onClose, onSubmit, trabajadoresList = [
             <Typography component="h1" sx={{ mb:1 }}>
           Fase
             </Typography>
-            <FormControl fullWidth error={!!errors.trabajador}>
-                <InputLabel id="trabajador-select-label"></InputLabel>
+            <FormControl fullWidth error={!!errors.phase}>
+                <InputLabel id="fase-select-label"></InputLabel>
                 <Controller
-                  name="fase"
+                  name="phase"
                   control={control}
-                  
-                
                   render={({ field }) => (
                     <Select
-                      labelId="fase-select-label"
-                      
+                      labelId="phase-select-label"
                       {...field}
                     >
-                      {fases.map((fasesactivities) => (
-                        <MenuItem key={fasesactivities.id} value={fasesactivities.nombre}>
-                          {fasesactivities.nombre}
+                      {phase.map((phase) => (
+                        <MenuItem key={phase.id} value={phase.nombre}>
+                          {phase.nombre}
                         </MenuItem>
                       ))}
                     </Select>
                   )}
                 />
-                <FormHelperText>{errors.trabajador?.message}</FormHelperText>
+                <FormHelperText>{errors.phase?.message}</FormHelperText>
               </FormControl>
           </Grid>
 
@@ -123,7 +174,24 @@ export const SubActivityModal = ({ open, onClose, onSubmit, trabajadoresList = [
               control={
                 <Switch 
                   checked={showMovimiento} 
-                  onChange={(e) => setShowMovimiento(e.target.checked)} 
+                  onChange={(e) => {
+                  const isChecked = e.target.checked;
+                  setShowMovimiento(isChecked);
+                  
+                  // 3. Vinculamos el switch al formulario
+                  setValue('is_for_storehouse', isChecked);
+
+                  // 4. Reseteamos campos opuestos para limpiar la data
+                  if (isChecked) {
+                    // Si es de almacén, limpiamos precio y trabajador
+                    setValue('price', 0);
+                    setValue('worker_name', '');
+                    setShowPrice(false);
+                  } else {
+                    // Si no es de almacén, limpiamos el tipo de movimiento
+                    setValue('storehouse_movement_type', '');
+                  }
+                }}
                 />
               }
               label="Pertenece a movimiento de almacen"
@@ -137,31 +205,68 @@ export const SubActivityModal = ({ open, onClose, onSubmit, trabajadoresList = [
                 <Typography component="h1" sx={{ mb:1 }}>
             Tipo de movimiento
             </Typography>
-              <FormControl fullWidth error={!!errors.trabajador}>
+              <FormControl fullWidth error={!!errors.movementType}>
                 <InputLabel id="movimiento-select-label"></InputLabel>
                 <Controller
-                  name="trabajador"
+                  name="storehouse_movement_type"
                   control={control}
+                  defaultValue=""
                   // La validación es condicional
+                  rules={showMovimiento ? { required: "El tipo es requerido" } : {}}
                   placeholder="Selecciona un tipo de movimiento"
                   render={({ field }) => (
                     <Select
-                    
+                      
                       labelId="movimiento-select-label"
                       label="Tipo de movimiento"
                       {...field}
+                      
                     >
-                      {movementType.map((movement) => (
-                        <MenuItem key={movement.id} value={movement.nombre}>
-                          {movement.nombre}
+                      {storehouse_movement_type.map((type) => (
+                        <MenuItem key={type.id} value={type.nombre}>
+                          {type.nombre}
                         </MenuItem>
                       ))}
                     </Select>
                   )}
                 />
-                <FormHelperText>{errors.trabajador?.message}</FormHelperText>
+                <FormHelperText>{errors.storehouse_movement_type?.message}</FormHelperText>
               </FormControl>
             </Grid>
+
+            <Grid item xs={12}>
+                <Typography component="h1" sx={{ mb:1 }}>
+            Tipo de movimiento
+            </Typography>
+              <FormControl fullWidth error={!!errors.movementType}>
+                <InputLabel id="movimiento-select-label"></InputLabel>
+                <Controller
+                  name="storehouse_movement_type"
+                  control={control}
+                  defaultValue=""
+                  // La validación es condicional
+                  rules={showMovimiento ? { required: "El tipo es requerido" } : {}}
+                  placeholder="Selecciona un tipo de movimiento"
+                  render={({ field }) => (
+                    <Select
+                      
+                      labelId="movimiento-select-label"
+                      label="Tipo de movimiento"
+                      {...field}
+                      
+                    >
+                      {storehouse_movement_type.map((type) => (
+                        <MenuItem key={type.id} value={type.nombre}>
+                          {type.nombre}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  )}
+                />
+                <FormHelperText>{errors.storehouse_movement_type?.message}</FormHelperText>
+              </FormControl>
+            </Grid>      
+
             <Grid item xs={12}>
                 <Typography component="h1" sx={{ mb:1 }}>
             Equipos asignados al evento
@@ -183,7 +288,7 @@ export const SubActivityModal = ({ open, onClose, onSubmit, trabajadoresList = [
                     pr: 1,                    // padding-right para evitar overlay del scrollbar
                     }}
                 >
-            {equipamientoList.map((equipamientoList, index) => (
+            {equipmentList.map((equipo, index) => (
           <Box 
             sx={{ 
               bgcolor: 'background.paper',
@@ -194,23 +299,24 @@ export const SubActivityModal = ({ open, onClose, onSubmit, trabajadoresList = [
               gap: 1.5, // <-- Espacio entre nombre y chip
               mb: 1 // <-- Margen inferior
             }}
+            key={equipo._id}
           >
-            <Box sx={{mt:2,mx:2, display: 'flex', flexDirection:'column', alignItems:'start'}}>
+            <Box sx={{mt:2,mx:2, display: 'flex', flexDirection:'column', alignItems:'start'}} >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, }}>
             <Inventory sx={{ fontSize: '1rem' }} />
             <Typography variant="h6" fontSize={16} fontWeight={200} sx={{ m: 0 }}>
-              {equipamientoList.nombre}
+              {equipo.equipment_name}
             </Typography>
             </Box>
             <Typography sx={{ color: "text.secondary", fontSize: 12,mb:3 }}>    
-                {equipamientoList.codigo}
+                {equipo.equipment_serial_number}
             </Typography>
             </Box>
             
             {/* ESTE ES EL CHIP DE PRECIO */}
             
             <Chip
-              label={equipamientoList.estado}
+              label={equipo.equipment_status}
               size="small"
               color="success" // Verde para el precio
               variant="outlined"
@@ -225,13 +331,13 @@ export const SubActivityModal = ({ open, onClose, onSubmit, trabajadoresList = [
           )}
           { !showMovimiento && (
             <>
-          {/* --- Switch Equipamiento --- */}
+          {/* --- Switch Precio --- */}
           <Grid item xs={12} sx={{ pb: 0 }}>
             <FormControlLabel
               control={
                 <Switch 
-                  checked={showEquipamiento} 
-                  onChange={(e) => setShowEquipamiento(e.target.checked)} 
+                  checked={showPrice} 
+                  onChange={(e) => setShowPrice(e.target.checked)} 
                 />
               }
               label="Necesita Precio"
@@ -239,57 +345,68 @@ export const SubActivityModal = ({ open, onClose, onSubmit, trabajadoresList = [
           </Grid>
 
           {/* --- Dropdown Equipamiento (Condicional) --- */}
-          {showEquipamiento && (
+          {showPrice && (
             <Grid item xs={12}>
               <TextField
               placeholder="Ej. 350"
               type="number"
               fullWidth
               
-              {...register("cantidad", { 
+              {...register("price", { 
                 required: "La cantidad es requerida",
                 valueAsNumber: true,
                 min: {  message: "Debe ser al menos 1" }
               })}
-              error={!!errors.cantidad}
-              helperText={errors.cantidad?.message}
+              error={!!errors.price}
+              helperText={errors.price?.message}
             />
             </Grid>
           )}
           <Grid item xs={12}>
             <Typography component="h1" sx={{ mb:1 }}>
-            Trabajadores
+              Trabajadores
             </Typography>
-              <FormControl fullWidth error={!!errors.trabajador}>
-                <InputLabel id="trabajador-select-label"></InputLabel>
-                <Controller
-                  name="trabajador"
-                  control={control}
-                  // La validación es condicional
-                  
-                  render={({ field }) => (
-                    <Select
-                      labelId="trabajador-select-label"
-                      label="Trabajador"
-                      {...field}
-                    >
-                      {trabajadoresList.map((trabajador) => (
-                        <MenuItem key={trabajador.id} value={trabajador.nombre}>
-                          {trabajador.nombre}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  )}
-                />
-                <FormHelperText>{errors.trabajador?.message}</FormHelperText>
-              </FormControl>
-            </Grid>
+            {/* El error se basa en 'worker_id' */}
+            <FormControl fullWidth error={!!errors.worker_id}> 
+              <InputLabel id="trabajador-select-label"></InputLabel>
+              <Controller
+                name="worker_id" // 1. El 'name' es 'worker_id'
+                control={control}
+                rules={!showMovimiento ? { required: "El trabajador es requerido" } : {}}
+                render={({ field }) => (
+                  <Select
+                    labelId="trabajador-select-label"
+                    label="Trabajador"
+                    value={field.value || ""} // 2. El 'value' del select es el ID
+                    onChange={(e) => {
+                      const selectedId = e.target.value;
+                      // 3. Busca por '_id' (o '.id' si es el caso)
+                      const worker = workers.find(w => w._id === selectedId); 
+                      
+                      // 4. Setea AMBOS campos
+                      field.onChange(selectedId); // Setea worker_id
+                      setValue('worker_name', worker ? `${worker.first_name} ${worker.last_name}` : '');
+                    }}
+                  >
+                    {workers.map((trabajador) => (
+                      // 5. ¡LA CORRECCIÓN! El 'value' es el '_id'
+                      <MenuItem key={trabajador._id} value={trabajador._id}> 
+                        {trabajador.first_name} {trabajador.last_name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                )}
+              />
+              <FormHelperText>{errors.worker_id?.message}</FormHelperText>
+            </FormControl>
+          </Grid>
             <Grid item xs={12} sx={{ pb: 0 }}>
             <FormControlLabel
               control={
                 <Switch 
                   checked={showEvidencia} 
                   onChange={(e) => setShowEvidencia(e.target.checked)} 
+                  value={showEvidencia}
                 />
               }
               label="Necesita Evidencia"

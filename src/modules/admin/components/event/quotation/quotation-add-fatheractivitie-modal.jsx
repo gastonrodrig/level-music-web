@@ -8,10 +8,10 @@ import { Save,Close } from "@mui/icons-material";
 
 
 export const ActivityFatherModal = ({ open, onClose, onSubmit }) => {
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, formState: { errors },reset } = useForm({
     defaultValues: {
-      nombre: "",
-      descripcion: "",
+      name: "",
+      description: "",
     }
   });
 
@@ -19,6 +19,7 @@ export const ActivityFatherModal = ({ open, onClose, onSubmit }) => {
   const onFormSubmit = (data) => {
     onSubmit(data); // Llama a la función del padre
     onClose();     // Cierra el modal
+    reset();      // Resetea el formulario
   };
   
 
@@ -60,9 +61,9 @@ export const ActivityFatherModal = ({ open, onClose, onSubmit }) => {
             <TextField
               label="Nombre de la Actividad"
               fullWidth
-              {...register("nombre", { required: "El nombre es requerido" })}
-              error={!!errors.nombre}
-              helperText={errors.nombre?.message}
+              {...register("name", { required: "El nombre es requerido" })}
+              error={!!errors.name}
+              helperText={errors.name?.message}
             />
           </Grid>
           
@@ -73,7 +74,7 @@ export const ActivityFatherModal = ({ open, onClose, onSubmit }) => {
               fullWidth
               multiline
               rows={3}
-              {...register("descripcion")}
+              {...register("description")}
             />
           </Grid>
 

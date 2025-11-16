@@ -6,6 +6,11 @@ import { Edit, Delete, LocalOffer, AccountCircle } from "@mui/icons-material";
 export const SubActivityItem = ({ subActivity, onEdit, onDelete }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const phase = {
+    Planificación: "info",
+    Ejecución: "success",
+    Seguimiento: "warning",
+  }
 
   return (
     <Paper 
@@ -36,24 +41,34 @@ export const SubActivityItem = ({ subActivity, onEdit, onDelete }) => {
             }}
           >
             <Typography variant="h6" fontSize={16} fontWeight={600} sx={{ m: 0 }}>
-              {subActivity.nombre}
+              {subActivity.name}
             </Typography>
             
+
+             <Chip
+              
+              label={subActivity.phase}
+              size="small"
+              color={phase[subActivity.phase]} // Verde para el precio
+              variant="outlined"
+              sx={{ fontWeight: 400 }}
+            />
             {/* ESTE ES EL CHIP DE PRECIO */}
             <Chip
               icon={<LocalOffer sx={{ fontSize: '1rem', ml: 0.5 }} />}
-              label={`S/ ${Number(subActivity.precio).toFixed(2)}`}
+              label={`S/ ${Number(subActivity.price).toFixed(2)}`}
               size="small"
               color="success" // Verde para el precio
               variant="outlined"
-              sx={{ fontWeight: 600 }}
+              sx={{ fontWeight: 400 }}
             />
+           
           </Box>
 
           {/* --- Fila 2: Chip de Trabajador --- */}
           <Chip
             icon={<AccountCircle />}
-            label={subActivity.trabajador}
+            label={subActivity.worker_name}
             size="small"
             variant="outlined"
             sx={{ 
