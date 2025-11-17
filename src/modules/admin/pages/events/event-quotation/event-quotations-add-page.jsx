@@ -223,6 +223,7 @@ export const EventQuotationAddPage = () => {
           to={assignmentToISO}
           datesReady={datesReady}
           guardDates={guardDates}
+          isEditMode={false}
         />
 
         <AssignEquipmentCard
