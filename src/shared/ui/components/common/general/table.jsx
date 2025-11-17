@@ -59,7 +59,7 @@ export const TableComponent = ({
 
   // Solo muestra acciones cuando: hay acciones visibles y el estado no es finalizado/cancelado
   const canShowActions = (row) => {
-    const closed = ['finalizado', 'cancelado'].includes(String(row?.status || '').toLowerCase());
+    const closed = ['finalizado', 'cancelado', 'confirmada'].includes(String(row?.status || '').toLowerCase());
     return hasActions && actionsArr.length > 0 && !closed && getVisibleActions(row).length > 0;
   };
 

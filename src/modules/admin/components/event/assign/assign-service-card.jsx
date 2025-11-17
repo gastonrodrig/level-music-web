@@ -67,6 +67,8 @@ export const AssignServiceCard = ({
 
   const datesMissing = !datesReady || !from || !to;
 
+  console.log(selectedDetail)
+
   return (
     <Box
       sx={{
@@ -171,7 +173,7 @@ export const AssignServiceCard = ({
                       }}
                     >
                       <Box sx={{ display: "flex", flexDirection: "column" }}>
-                        <Typography>Paquete – S/. {d.ref_price} (por hora)</Typography>
+                        <Typography>Paquete – S/. {Math.round(Number(d?.ref_price) * 0.15) + d?.ref_price} (por hora)</Typography>
                         <Typography variant="caption" color="text.secondary">
                           {entries.map(([k, v]) => `${k}: ${v}`).join(", ")}
                         </Typography>
@@ -184,7 +186,7 @@ export const AssignServiceCard = ({
           </Grid>
 
           {/* Vista previa del paquete seleccionado */}
-          {selectedDetail && (
+          {(selectedDetail?.photos.length > 0) && (
             <Box
               sx={{
                 mt: 2,
@@ -280,7 +282,7 @@ export const AssignServiceCard = ({
           )}
 
           {/* Horas */}
-          <Grid item xs={12} md={2}>
+          <Grid item xs={12} md={3}>
             <FormControl fullWidth size="small">
               <InputLabel id="hours-label">Horas</InputLabel>
               <Select
@@ -300,10 +302,10 @@ export const AssignServiceCard = ({
           </Grid>
 
           {/* Precio de referencia */}
-          <Grid item xs={12} md={2.5}>
+          <Grid item xs={12} md={3.5}>
             <TextField
-              label="Precio Ref."
-              value={selectedDetail?.ref_price || 0}
+              label="Precio por hora (S/)"
+              value={servicePrice|| "S/ -"}
               fullWidth
               disabled
               InputLabelProps={{ shrink: true }}
@@ -312,7 +314,7 @@ export const AssignServiceCard = ({
           </Grid>
 
           {/* % Pago Requerido */}
-          <Grid item xs={12} md={2.5}>
+          <Grid item xs={12} md={3.5}>
             <TextField
               label="% Pago Requerido"
               placeholder="Ej: 50"
@@ -333,7 +335,7 @@ export const AssignServiceCard = ({
           </Grid>
 
           {/* Agregar */}
-          <Grid item xs={12} md={2.5}>
+          <Grid item xs={12} md={2}>
             <Button
               variant="contained"
               fullWidth

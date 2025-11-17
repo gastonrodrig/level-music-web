@@ -27,12 +27,10 @@ export const EventDetailsForm = ({ eventTypes = [], setValue }) => {
 
   const startTime = watch("startDateTime");
   const eventCategory = watch("event_category");
-  const eventTypeId   = watch("event_type_id");
+  const eventTypeId = watch("event_type_id");
 
-const filteredEventTypes = useMemo(() => {
-    return (eventTypes || []).filter(
-      (et) => et?.category === eventCategory
-    );
+  const filteredEventTypes = useMemo(() => {
+    return (eventTypes || []).filter((et) => et?.category === eventCategory);
   }, [eventTypes, eventCategory]);
 
   return (
@@ -57,11 +55,10 @@ const filteredEventTypes = useMemo(() => {
           <EventAvailable />
           <Typography fontWeight={700}>Información del Evento</Typography>
         </Box>
-        
+
         {/* Contenido más claro */}
         <Box sx={{ p: 3, bgcolor: isDark ? "#1f1e1e" : "#f5f5f5" }}>
           <Grid container spacing={2}>
-
             {/* === SELECTOR DE CATEGORÍA === */}
             <Grid item xs={12} md={6}>
               <FormControl fullWidth>
@@ -119,11 +116,16 @@ const filteredEventTypes = useMemo(() => {
                       label="Tipo de Evento"
                       value={field.value || ""}
                       onChange={(e) => {
-                      const id = e.target.value;
-                      field.onChange(id);
-                      const selected = filteredEventTypes.find(et => et._id === id);
-                      setValue("event_type_name", selected ? selected.type : "");
-                    }}
+                        const id = e.target.value;
+                        field.onChange(id);
+                        const selected = filteredEventTypes.find(
+                          (et) => et._id === id
+                        );
+                        setValue(
+                          "event_type_name",
+                          selected ? selected.type : ""
+                        );
+                      }}
                       inputProps={{ name: "event_type_id" }}
                       sx={{ height: 60 }}
                       displayEmpty
@@ -140,10 +142,15 @@ const filteredEventTypes = useMemo(() => {
 
                       {filteredEventTypes.map((et) => (
                         <MenuItem key={et._id} value={et._id}>
-                          <Box sx={{ display: "flex", flexDirection: "column" }}>
+                          <Box
+                            sx={{ display: "flex", flexDirection: "column" }}
+                          >
                             <Typography fontWeight={500}>{et.type}</Typography>
                             {et.description && (
-                              <Typography variant="caption" color="text.secondary">
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                              >
                                 {et.description}
                               </Typography>
                             )}
@@ -222,9 +229,19 @@ const filteredEventTypes = useMemo(() => {
                   required: "La fecha de fin es obligatoria",
                   validate: (value) => {
                     if (!startTime || !value) return true;
-                    return value.isAfter(startTime)
-                      ? true
-                      : "Debe ser posterior a la hora de inicio";
+
+                    // Debe ser posterior al inicio
+                    if (!value.isAfter(startTime)) {
+                      return "Debe ser posterior a la hora de inicio";
+                    }
+
+                    // Máximo 5 horas
+                    const diffHours = value.diff(startTime, "hour", true);
+                    if (diffHours > 5) {
+                      return "El evento no puede durar más de 5 horas";
+                    }
+
+                    return true;
                   },
                 }}
                 render={({ field }) => (
@@ -318,7 +335,9 @@ const filteredEventTypes = useMemo(() => {
                 fullWidth
                 label="Referencia de Ubicación"
                 placeholder="Ej: Frente al banco"
-                {...register("placeReference", { required: "Campo obligatorio" })}
+                {...register("placeReference", {
+                  required: "Campo obligatorio",
+                })}
                 error={!!errors.placeReference}
                 helperText={errors.placeReference?.message}
               />
