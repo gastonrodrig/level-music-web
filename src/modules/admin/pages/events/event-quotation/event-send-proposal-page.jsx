@@ -225,7 +225,7 @@ export const EventSendProposalPage = () => {
                 borderRadius: 2,
                 "&:hover": { backgroundColor: theme.palette.primary.dark },
               }}
-              onClick={() => navigate(`/admin/quotations/send-proposal/preview`)}
+              onClick={() => navigate(`/admin/quotations`)}
             >
               Enviar Propuesta
             </Button>

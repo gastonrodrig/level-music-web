@@ -61,8 +61,6 @@ export const AssignServiceCard = ({
 
   const datesMissing = !datesReady || !from || !to;
 
-  console.log(selectedDetail);
-
   return (
     <Box
       sx={{
