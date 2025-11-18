@@ -251,6 +251,7 @@ export const EventQuotationEditPage = () => {
           datesReady={datesReady}
           guardDates={guardDates}
           eventCode={selected?.event_code}
+          isEditMode={true}
         />
 
         <AssignEquipmentCard
