@@ -8,3 +8,8 @@ export * from './quotation-activity-progress';
 export * from './quotation-control-activities';
 export * from './quotation-add-activities-modal';
 export * from './history';
+export * from './quotation-summery-activities';
+export * from './quotation-father-activities';
+export * from './quotation-subactivities';
+export * from './quotation-add-subactivitie-modal';
+export * from './quotation-add-fatheractivitie-modal';

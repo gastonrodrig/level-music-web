@@ -63,6 +63,11 @@ export const menuItems = [
             href: '/admin/quotations/history',
           },
           {
+            text: 'Actividades ',
+            breadcrumb: 'Actividades',
+            href: '/admin/quotations/activities',
+          },
+          {
             text: 'Pagos Aprobados',
             breadcrumb: 'Pagos Aprobados',
             href: '/admin/quotations/payments-approved',

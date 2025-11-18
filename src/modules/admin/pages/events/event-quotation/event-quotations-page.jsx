@@ -11,7 +11,7 @@ import {
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
 import { TableComponent } from "../../../../../shared/ui/components";
 import { formatDay } from "../../../../../shared/utils";
-import { AddCircleOutline, Edit, Payments, History, CheckCircleOutline,Send } from "@mui/icons-material";
+import { AddCircleOutline, Edit, Payments, History, CheckCircleOutline,Send,Assignment } from "@mui/icons-material";
 import { Box, Typography, Button, TextField, CircularProgress } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -140,6 +140,14 @@ export const EventQuotationsPage = () => {
         setSelectedQuotation(row);
         navigate(`/admin/quotations/send-proposal`);
       }
+    },
+    {
+      label: 'Actividades',
+      icon: <Assignment />,
+      onClick: (row) => {
+        setSelectedQuotation(row);
+        navigate(`/admin/quotations/activities`);
+      },
     }
   ];
 
