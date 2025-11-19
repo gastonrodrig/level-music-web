@@ -9,14 +9,12 @@ import {
   Stack,
 } from "@mui/material";
 import { 
-  BarChart, 
-  Home, 
-  Storefront, 
   AccountBalanceWallet,
   CreditCard 
 } from "@mui/icons-material";
 import { useFormContext } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { useManualPayment } from "../../../../../../../hooks/payment/use-manual-payment";
 
 export const PaymentSummaryCard = ({ quotationData }) => {
   const theme = useTheme();
@@ -24,10 +22,12 @@ export const PaymentSummaryCard = ({ quotationData }) => {
   const navigate = useNavigate();
 
   const { watch, handleSubmit } = useFormContext();
+  const { startCreateManualPayment } = useManualPayment();
 
   const useMercadoPago = watch("useMercadoPago");
   const paymentType = watch("selectedPaymentType");
   const manualPayments = watch("manualPayments") || [];
+  
   const totalPaid = manualPayments
     .reduce((sum, p) => sum + (Number(p?.amount) || 0), 0)
     .toFixed(2);
@@ -62,8 +62,31 @@ export const PaymentSummaryCard = ({ quotationData }) => {
 
   const paymentTypeConfig = getPaymentTypeConfig();
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     console.log("form submit data:", data);
+
+    // Transformar los datos del formulario al formato esperado por el backend
+    const paymentData = {
+      payment_type: data.selectedPaymentType === "partial" ? "Parcial" : "Final",
+      event_id: quotationData?.event_id || quotationData?._id,
+      user_id: quotationData?.user_id || quotationData?.user?._id,
+      payments: data.manualPayments.map(payment => ({
+        payment_method: payment.method.charAt(0).toUpperCase() + payment.method.slice(1), // 'yape' -> 'Yape'
+        amount: Number(payment.amount),
+        operation_number: payment.operationNumber || undefined,
+      })),
+      images: data.manualPayments.map(payment => payment.voucher), // Array de File objects
+    };
+
+    console.log("Datos a enviar:", paymentData);
+
+    const result = await startCreateManualPayment(paymentData);
+    
+    if (result) {
+      console.log("Pagos creados exitosamente:", result);
+      // Redirigir o mostrar mensaje de éxito
+      navigate("/client/quotations", { replace: true });
+    }
   };
 
   const onSubmitError = (errors) => {

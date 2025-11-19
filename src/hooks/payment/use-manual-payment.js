@@ -4,85 +4,141 @@ import { createManualPaymentModel } from '../../shared/models/payment-manual';
 import { paymentApi } from '../../api';
 import { getAuthConfig } from '../../shared/utils';
 import {
-	setLoadingPayment,
-	selectedPayment,
-	refreshPayment,
-	showSnackbar,
-	setPagePayment,
+  setLoadingPayment,
+  selectedPayment,
+  refreshPayment,
+  showSnackbar,
+  setPagePayment,
 } from '../../store';
 
 export const useManualPayment = () => {
-	const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
-	const {
-		payments,
-		selected,
-		total,
-		loading,
-		currentPage,
-		rowsPerPage,
-	} = useSelector((state) => state.payment || {});
+  const {
+    payments,
+    selected,
+    total,
+    loading,
+    currentPage,
+    rowsPerPage,
+  } = useSelector((state) => state.payment || {});
 
-	const { token } = useSelector((state) => state.auth || {});
+  const { token } = useSelector((state) => state.auth || {});
 
-	// local UI state similar pattern
-	const [searchTerm, setSearchTerm] = useState('');
-	const [orderBy, setOrderBy] = useState('created_at');
-	const [order, setOrder] = useState('desc');
-	const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [orderBy, setOrderBy] = useState('created_at');
+  const [order, setOrder] = useState('desc');
+  const [error, setError] = useState(null);
 
-	const openSnackbar = (message) => dispatch(showSnackbar({ message }));
+  const openSnackbar = (message) => dispatch(showSnackbar({ message }));
 
-	const startCreateManualPayment = async (payment = {}, endpoint = '/') => {
-		dispatch(setLoadingPayment(true));
-		try {
-			const payload = createManualPaymentModel(payment);
-			const { data } = await paymentApi.post(endpoint, payload, getAuthConfig(token));
-			openSnackbar('El pago fue registrado correctamente.');
+  /**
+   * Validar que haya la misma cantidad de imágenes que pagos
+   */
+  const validatePaymentData = (paymentData) => {
+    const { payments: paymentsArray, images } = paymentData;
 
-			// opcional: actualizar lista local si el backend retorna nuevo item
-			// if (data) {
-			//   dispatch(refreshPayment({ items: [...payments, data], total: total + 1, page: currentPage }));
-			// }
+    if (!Array.isArray(paymentsArray) || paymentsArray.length === 0) {
+      openSnackbar('Debe agregar al menos un pago.');
+      return false;
+    }
 
-			return data;
-		} catch (err) {
-			const message = err?.response?.data?.message || err.message || 'Ocurrió un error al registrar el pago.';
-			openSnackbar(message);
-			setError(message);
-			return false;
-		} finally {
-			dispatch(setLoadingPayment(false));
-		}
-	};
+    if (!Array.isArray(images) || images.length === 0) {
+      openSnackbar('Debe agregar al menos una imagen de comprobante.');
+      return false;
+    }
 
-	const setSelectedPaymentLocal = (p) => dispatch(selectedPayment(p));
+    if (paymentsArray.length !== images.length) {
+      openSnackbar(
+        `La cantidad de pagos (${paymentsArray.length}) debe coincidir con la cantidad de imágenes (${images.length}).`
+      );
+      return false;
+    }
 
-		const setPageGlobal = (page) => dispatch(setPagePayment(page));
+    // Validar que cada pago tenga los campos requeridos
+    for (let i = 0; i < paymentsArray.length; i++) {
+      const payment = paymentsArray[i];
+      if (!payment.payment_method) {
+        openSnackbar(`El pago ${i + 1} debe tener un método de pago.`);
+        return false;
+      }
+      if (!payment.amount || payment.amount <= 0) {
+        openSnackbar(`El pago ${i + 1} debe tener un monto válido.`);
+        return false;
+      }
+    }
 
-	return {
-		// redux state
-		payments,
-		selected,
-		total,
-		loading,
-		currentPage,
-		rowsPerPage,
+    // Validar que todas las imágenes sean archivos válidos
+    for (let i = 0; i < images.length; i++) {
+      if (!(images[i] instanceof File)) {
+        openSnackbar(`La imagen ${i + 1} no es un archivo válido.`);
+        return false;
+      }
+    }
 
-		// local
-		searchTerm,
-		setSearchTerm,
-		orderBy,
-		setOrderBy,
-		order,
-		setOrder,
-		error,
+    return true;
+  };
 
-		// actions
-		startCreateManualPayment,
-		setSelectedPaymentLocal,
-		setPageGlobal,
-	};
+  /**
+   * Crear un pago manual con múltiples métodos de pago
+   */
+  const startCreateManualPayment = async (paymentData = {}) => {
+    // Validar datos antes de enviar
+    if (!validatePaymentData(paymentData)) {
+      return false;
+    }
+
+    dispatch(setLoadingPayment(true));
+    try {
+      const payload = createManualPaymentModel(paymentData);
+      const { data } = await paymentApi.post('/manual', payload, getAuthConfig(token, true));
+      
+      openSnackbar(
+        `${data.total} pago(s) registrado(s) correctamente.`
+      );
+
+      return data;
+    } catch (err) {
+      const message = 
+        err?.response?.data?.message || 
+        err.message || 
+        'Ocurrió un error al registrar el pago.';
+      openSnackbar(message);
+      setError(message);
+      return false;
+    } finally {
+      dispatch(setLoadingPayment(false));
+    }
+  };
+
+  const setSelectedPaymentLocal = (p) => dispatch(selectedPayment(p));
+
+  const setPageGlobal = (page) => dispatch(setPagePayment(page));
+
+  return {
+    // redux state
+    payments,
+    selected,
+    total,
+    loading,
+    currentPage,
+    rowsPerPage,
+
+    // local state
+    searchTerm,
+    setSearchTerm,
+    orderBy,
+    setOrderBy,
+    order,
+    setOrder,
+    error,
+
+    // actions
+    startCreateManualPayment,
+    setSelectedPaymentLocal,
+    setPageGlobal,
+    validatePaymentData,
+  };
 };
 
 export default useManualPayment;
