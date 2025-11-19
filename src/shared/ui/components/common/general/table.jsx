@@ -17,7 +17,7 @@ import {
   Chip,
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { useScreenSizes } from '../../../constants/screen-width';
+import { useScreenSizes } from '../../../../constants/screen-width';
 import { useNavigate } from 'react-router-dom';
 
 export const TableComponent = ({
@@ -34,10 +34,9 @@ export const TableComponent = ({
   actions = [],
   hasActions = false,
 }) => {
-  // 🔒 Normaliza props (evita "number 0 is not iterable")
   const rowsArr = Array.isArray(rows) ? rows : [];
   const columnsArr = Array.isArray(columns) ? columns : [];
-  const actionsArr = Array.isArray(actions) ? actions : [];
+  const actionsArr = actions;
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [menuRow, setMenuRow] = useState(null);
@@ -54,13 +53,16 @@ export const TableComponent = ({
     setMenuRow(null);
   };
 
-  // Devuelve solo las acciones visibles para una fila (respeta action.show si existe)
-  const getVisibleActions = (row) => actionsArr.filter((a) => !a.show || a.show(row));
+  const getVisibleActions = (row) => {
+    const list = typeof actionsArr === "function" ? actionsArr(row) : actionsArr;
+    return Array.isArray(list)
+      ? list.filter(a => !a.show || a.show(row))
+      : [];
+  };
 
-  // Solo muestra acciones cuando: hay acciones visibles y el estado no es finalizado/cancelado
   const canShowActions = (row) => {
-    const closed = ['finalizado', 'cancelado'].includes(String(row?.status || '').toLowerCase());
-    return hasActions && actionsArr.length > 0 && !closed && getVisibleActions(row).length > 0;
+    const closed = ['finalizado', 'cancelado', 'confirmada'].includes(String(row?.status || '').toLowerCase());
+    return hasActions && getVisibleActions(row).length > 0 && !closed && getVisibleActions(row).length > 0;
   };
 
   const sortedRows = useMemo(() => {

@@ -1,8 +1,8 @@
 import { Box, Typography, Chip, Grid, useTheme } from "@mui/material";
 import { EventAvailable, Person } from "@mui/icons-material";
-import { formatDateString, formatTimeRange } from "../../../../../shared/utils";
+import { formatDateString, formatTimeRange } from "../../../../utils";
 
-export const QuotationInfoCard = ({ selected }) => {
+export const EventSummaryCard = ({ selected }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
@@ -10,15 +10,16 @@ export const QuotationInfoCard = ({ selected }) => {
 
   return (
     <>
-      <Grid container spacing={2}>
+      <Grid container spacing={3}>
         {/* Información del Evento */}
         <Grid item xs={12} md={6}>
           <Box
             sx={{
-              p: 3,
+              p: { xs: 2.5, md: 3 },
               borderRadius: 3,
               bgcolor: isDark ? "#1f1e1e" : "#f5f5f5",
               height: "100%",
+              border: `1px solid ${theme.palette.divider}`,
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", mb: 2, gap: 1 }}>
@@ -107,10 +108,11 @@ export const QuotationInfoCard = ({ selected }) => {
         <Grid item xs={12} md={6}>
           <Box
             sx={{
-              p: 3,
+              p: { xs: 2.5, md: 3 },
               borderRadius: 3,
               bgcolor: isDark ? "#1f1e1e" : "#f5f5f5",
               height: "100%",
+              border: `1px solid ${theme.palette.divider}`,
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", mb: 2, gap: 1 }}>
@@ -124,7 +126,7 @@ export const QuotationInfoCard = ({ selected }) => {
                 Tipo de Cliente
               </Typography>
               <Chip
-                label={selected?.client_info.client_type}
+                label={selected?.client_type}
                 color="primary"
                 size="small"
                 sx={{ fontWeight: 500, fontSize: 13, mt: 0.5, color: '#fff' }}
@@ -132,28 +134,28 @@ export const QuotationInfoCard = ({ selected }) => {
             </Box>
 
             <Grid container spacing={2}>
-              {selected?.client_info.client_type === "Persona" ? (
+              {selected?.client_type === "Persona" ? (
                 <>
                   <Grid item xs={12} md={6}>
                     <Typography fontSize={14} color="text.secondary">
                       Nombre
                     </Typography>
                     <Typography fontSize={14}>
-                      {selected?.client_info.first_name}
+                      {selected?.first_name}
                     </Typography>
 
                     <Typography fontSize={14} color="text.secondary" mt={2}>
                       Email
                     </Typography>
                     <Typography fontSize={14}>
-                      {selected?.client_info.email}
+                      {selected?.email}
                     </Typography>
 
                     <Typography fontSize={14} color="text.secondary" mt={2}>
                       Tipo de Documento
                     </Typography>
                     <Typography fontSize={14}>
-                      {selected?.client_info.document_type}
+                      {selected?.document_type}
                     </Typography>
                   </Grid>
 
@@ -162,21 +164,21 @@ export const QuotationInfoCard = ({ selected }) => {
                       Apellido
                     </Typography>
                     <Typography fontSize={14}>
-                      {selected?.client_info.last_name}
+                      {selected?.last_name}
                     </Typography>
 
                     <Typography fontSize={14} color="text.secondary" mt={2}>
                       Teléfono
                     </Typography>
                     <Typography fontSize={14}>
-                      {selected?.client_info.phone}
+                      {selected?.phone}
                     </Typography>
 
                     <Typography fontSize={14} color="text.secondary" mt={2}>
                       Número
                     </Typography>
                     <Typography fontSize={14}>
-                      {selected?.client_info.document_number}
+                      {selected?.document_number}
                     </Typography>
                   </Grid>
                 </>
@@ -187,21 +189,21 @@ export const QuotationInfoCard = ({ selected }) => {
                       Empresa
                     </Typography>
                     <Typography fontSize={14}>
-                      {selected?.client_info.company_name}
+                      {selected?.company_name}
                     </Typography>
 
                     <Typography fontSize={14} color="text.secondary" mt={2}>
                       Email
                     </Typography>
                     <Typography fontSize={14}>
-                      {selected?.client_info.email}
+                      {selected?.email}
                     </Typography>
 
                     <Typography fontSize={14} color="text.secondary" mt={2}>
                       Tipo de Documento
                     </Typography>
                     <Typography fontSize={14}>
-                      {selected?.client_info.document_type}
+                      {selected?.document_type}
                     </Typography>
                   </Grid>
 
@@ -210,21 +212,21 @@ export const QuotationInfoCard = ({ selected }) => {
                       Representante
                     </Typography>
                     <Typography fontSize={14}>
-                      {selected?.client_info.contact_person}
+                      {selected?.contact_person}
                     </Typography>
 
                     <Typography fontSize={14} color="text.secondary" mt={2}>
                       Teléfono
                     </Typography>
                     <Typography fontSize={14}>
-                      {selected?.client_info.phone}
+                      {selected?.phone}
                     </Typography>
 
                     <Typography fontSize={14} color="text.secondary" mt={2}>
                       Número
                     </Typography>
                     <Typography fontSize={14}>
-                      {selected?.client_info.document_number}
+                      {selected?.document_number}
                     </Typography>
                   </Grid>
                 </>

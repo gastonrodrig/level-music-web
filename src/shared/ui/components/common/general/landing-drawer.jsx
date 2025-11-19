@@ -11,11 +11,11 @@ import {
   ListItemIcon,
   Switch,
 } from "@mui/material";
-import { sections } from '../../../constants/custom/nav-sections';
+import { sections } from '../../../../constants/custom/nav-sections';
 import { Link, useNavigate } from 'react-router-dom';
 import { Login, Logout, Brightness7, Brightness4 } from '@mui/icons-material'; 
-import { toggleTheme } from '../../../../store';
-import { useAuthStore } from '../../../../hooks';
+import { toggleTheme } from '../../../../../store';
+import { useAuthStore } from '../../../../../hooks';
 
 export const LandingDrawer = ({ drawerOpen, handleDrawerToggle }) => {
   const theme = useTheme();

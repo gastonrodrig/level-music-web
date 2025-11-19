@@ -61,6 +61,9 @@ export const PersonalInfoForm = () => {
             userData.client_type === clientType &&
             userData.document_type === documentType
           ) {
+            if (!getValues("user_id") && userData._id) {
+              setValue("user_id", userData._id);
+            }
             if (!getValues("first_name") && userData.first_name) {
               setValue("first_name", userData.first_name);
             }
@@ -144,7 +147,7 @@ export const PersonalInfoForm = () => {
                 label="Seleccione el tipo de cliente"
                 value={field.value || ""}
               >
-                <MenuItem value="Persona">Persona Natural</MenuItem>
+                <MenuItem value="Persona">Persona</MenuItem>
                 <MenuItem value="Empresa">Empresa</MenuItem>
               </Select>
             )}

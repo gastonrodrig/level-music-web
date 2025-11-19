@@ -1,6 +1,6 @@
 import { Grid, Typography, Box } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { Logo } from "../../../shared/ui/components/common/logo";
+import { Logo } from "../../../shared/ui/components/common";
 
 export const AuthLayout = ({ children, title = '', subtitle = '', isLogin = false }) => {
   const theme = useTheme();

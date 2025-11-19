@@ -2,7 +2,7 @@ import { Box, IconButton, Modal, Typography, Button } from "@mui/material";
 import { Close, Add, Remove } from "@mui/icons-material";
 import { useEffect, useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { PaginatedTable } from "../../../../shared/ui/components/common/table-price";
+import { PaginatedTable } from "../../../../shared/ui/components/common";
 import { useEquipmentPriceStore } from "../../../../hooks";
 import { PriceForm } from "../../../../shared/ui/components";
 

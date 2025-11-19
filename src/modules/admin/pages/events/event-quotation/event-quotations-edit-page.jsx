@@ -37,7 +37,7 @@ export const EventQuotationEditPage = () => {
   const dispatch = useDispatch();
 
   const { serviceDetail } = useServiceDetailStore();
-  const { isSm } = useScreenSizes();
+  const { isMd } = useScreenSizes();
   const { equipments } = useEquipmentStore();
   const { workers } = useWorkerStore();
   const { workerTypes } = useWorkerTypeStore();
@@ -215,7 +215,7 @@ export const EventQuotationEditPage = () => {
     <FormProvider {...methods}>
       <Box
         component="form"
-        sx={{ px: isSm ? 4 : 0, pt: 2 }}
+        sx={{ px: isMd ? 4 : 0, pt: 2, maxWidth: 1200, margin: "0 auto" }}
         onSubmit={handleSubmit(onSubmit)}
       >
         <Typography variant="h4" sx={{ mb: 1 }}>
@@ -251,6 +251,7 @@ export const EventQuotationEditPage = () => {
           datesReady={datesReady}
           guardDates={guardDates}
           eventCode={selected?.event_code}
+          isEditMode={true}
         />
 
         <AssignEquipmentCard

@@ -15,7 +15,7 @@ import {
   InsertDriveFile,
   WarningAmber,
 } from "@mui/icons-material";
-import { ImagePreviewModal } from "../../../../../../../shared/ui/components/common/image-preview-modal";
+import { ImagePreviewModal } from "../../../../../../../shared/ui/components/common";
 import { useFormContext } from "react-hook-form";
 import { alpha } from "@mui/material/styles";
 

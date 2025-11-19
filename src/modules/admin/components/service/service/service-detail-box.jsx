@@ -9,6 +9,8 @@ import {
   Switch,
   Paper,
   alpha,
+  FormControlLabel,
+  
 } from "@mui/material";
 import { Delete, Add, Close, CloudUpload, WarningAmber } from "@mui/icons-material";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
@@ -40,6 +42,9 @@ export const ServiceDetailBox = ({
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [selectedPreview, setSelectedPreview] = useState(null);
 
+  const hasExistingPhotos = initialData.photos.length > 0;
+  const [showPhotos, setShowPhotos] = useState(hasExistingPhotos);
+
   const {
     existingImages,
     files,
@@ -69,6 +74,19 @@ export const ServiceDetailBox = ({
   };
 
   const status = watch(`serviceDetails.${index}.status`);
+
+  useEffect(() => {
+    if (hasExistingPhotos) {
+      setShowPhotos(true);
+    }
+  }, [hasExistingPhotos]);
+
+  useEffect(() => {
+    const total = (existingImages?.length || 0) + (files?.length || 0);
+    if (!hasExistingPhotos && total === 0) {
+      setShowPhotos(false);
+    }
+  }, [existingImages, files, hasExistingPhotos]);
 
   return (
     <Box
@@ -263,7 +281,25 @@ export const ServiceDetailBox = ({
         )}
       </Grid>
 
+      <FormControlLabel
+        sx={{ mt: 2 }}
+        control={
+          <Switch
+            checked={showPhotos}
+            onChange={(e) => setShowPhotos(e.target.checked)}
+            color="primary"
+            disabled={hasExistingPhotos && existingImages.length > 0}
+          />
+        }
+        label={
+          hasExistingPhotos && existingImages.length > 0
+            ? `Requiere fotos (${existingImages.length} cargadas)`
+            : "¿Requiere fotos?"
+        }
+      />
+
       {/* === GESTIÓN DE IMÁGENES === */}
+      {showPhotos && (
       <Grid container spacing={2} sx={{ mt: 2 }}>
         <Grid item xs={12}>
           <Typography
@@ -282,6 +318,7 @@ export const ServiceDetailBox = ({
             type="hidden"
             {...register(`serviceDetails.${index}.photos`, {
               validate: () => {
+                if (!showPhotos) return true;
                 const hasExisting = (existingImages?.length || 0) > 0;
                 const hasNew = (files?.length || 0) > 0;
                 if (!hasExisting && !hasNew)
@@ -481,6 +518,8 @@ export const ServiceDetailBox = ({
           )}
         </Grid>
       </Grid>
+
+      )}
 
       <ImagePreviewModal
         open={previewModalOpen}

@@ -93,7 +93,7 @@ export const AssignWorkerCard = ({
                 disabled={datesMissing}
               >
                 <MenuItem value="">
-                  <em>Seleccione un tipo de trabajador</em>
+                  <em>Seleccione el tipo</em>
                 </MenuItem>
                 {workerTypes.map((type) => (
                   <MenuItem key={type._id} value={type._id}>
@@ -113,16 +113,7 @@ export const AssignWorkerCard = ({
               <Select
                 labelId="worker-label"
                 value={workerId || ""}
-                onChange={(e) => {
-                  const newWorkerId = e.target.value;
-                  setValue("worker_id", newWorkerId, { shouldValidate: true });
-                  const selected = filteredWorkers.find((w) => w._id === newWorkerId);
-                  if (selected) {
-                    const refPrice = Number(selected.reference_price || 0);
-                    const calculatedPrice = Math.round(refPrice * 0.15) + refPrice;
-                    setValue("worker_price", calculatedPrice);
-                  }
-                }}
+                onChange={(e) => setValue("worker_id", e.target.value, { shouldValidate: true })}
                 inputProps={{ name: "worker_id" }}
                 sx={{ height: 60 }}
                 displayEmpty
@@ -132,7 +123,16 @@ export const AssignWorkerCard = ({
                   <em>Seleccionar trabajador</em>
                 </MenuItem>
                 {filteredWorkers.map((w) => (
-                  <MenuItem key={w._id} value={w._id}>
+                  <MenuItem 
+                    key={w._id} 
+                    value={w._id}
+                    onClick={() => {
+                      const refPrice = Number(w?.reference_price || 0);
+                      const calculatedPrice =
+                        Math.round(refPrice * 0.15) + refPrice;
+                      setValue("worker_price", calculatedPrice);
+                    }}
+                  >
                     <Box sx={{ display: "flex", flexDirection: "column" }}>
                       <Typography fontWeight={500}>
                         {w.first_name} {w.last_name}
@@ -165,23 +165,15 @@ export const AssignWorkerCard = ({
             </FormControl>
           </Grid>
 
-          {/* Precio por hora de referencia */}
+          {/* Precio por día */}
           <Grid item xs={12} md={2}>
             <TextField
-              label="Precio por hora (S/)"
-              value={
-                workerPrice && !isNaN(Number(workerPrice))
-                  ? `S/ ${Number(workerPrice).toFixed(2)}`
-                  : "S/ -"
-              }
-              onChange={(e) => {
-                const value = e.target.value ? Number(e.target.value) : "";
-                setValue("worker_price", value);
-              }}
+              label="Precio por día (S/)"
+              value={workerPrice || "S/ -"}
               fullWidth
+              disabled
               InputLabelProps={{ shrink: true }}
               sx={{ "& .MuiInputBase-root": { height: 60 } }}
-              disabled
             />
           </Grid>
 
@@ -207,7 +199,13 @@ export const AssignWorkerCard = ({
                 });
               }}
               disabled={!workerId || !workerHours || !workerPrice}
-              sx={{ textTransform: "none", borderRadius: 2, color: "#fff", fontWeight: 600, py: 2 }}
+              sx={{ 
+                textTransform: "none", 
+                borderRadius: 2, 
+                color: "#fff", 
+                fontWeight: 600, 
+                py: 2 
+              }}
             >
               Agregar
             </Button>
@@ -251,7 +249,7 @@ export const AssignWorkerCard = ({
 
               <Grid item xs={6} textAlign="right">
                 <Typography fontSize={14}>
-                  S/ {trabajador.worker_price}/hora × {trabajador.worker_hours}h
+                  S/ {trabajador.worker_price}/día × {trabajador.worker_hours}h
                 </Typography>
                 <Typography fontWeight={600} color="green">
                   S/. {Number(trabajador.worker_price) * Number(trabajador.worker_hours)}

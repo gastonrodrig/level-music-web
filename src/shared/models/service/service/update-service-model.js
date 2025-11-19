@@ -2,7 +2,9 @@ export const updateServiceModel = (form) => {
   const formData = new FormData();
 
   (form.serviceDetails || []).forEach((d, i) => {
-    formData.append(`serviceDetails[${i}][_id]`, d._id);
+    if (d._id && d._id.length === 24) {
+      formData.append(`serviceDetails[${i}][_id]`, d._id);
+    }
     formData.append(`serviceDetails[${i}][ref_price]`, Number(d.ref_price));
     formData.append(`serviceDetails[${i}][status]`, d.status);
 
@@ -19,7 +21,7 @@ export const updateServiceModel = (form) => {
   (form.serviceDetails || []).forEach((d, i) => {
     (d.photos || []).forEach((f) => {
       if (f instanceof File) {
-        formData.append(`photo_${i + 1}`, f);
+        formData.append(`photos_${i + 1}`, f);
       }
     });
   });

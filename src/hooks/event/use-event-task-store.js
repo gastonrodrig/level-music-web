@@ -31,19 +31,32 @@ export const UseEventTaskStore = () => {
      const { token } = useSelector((state) => state.auth);
      const openSnackbar = (message) => dispatch(showSnackbar({ message }));
 
-     const startAddEventTask = async (data) => {
-      try {
-        await EventTaskApi.post("/", data, getAuthConfig(token));
-        openSnackbar("Actividad agregada correctamente.");
-        return true;
-      } catch (error) {
-        const message = error.response?.data?.message;
-        openSnackbar(message ?? "Ocurrió un error al cargar las actividades del evento.");
+     const startAddEventTasks = async (tasksArray) => {
+      // tasksArray debe ser un ARRAY de objetos de tarea
+      if (!Array.isArray(tasksArray) || tasksArray.length === 0) {
+        openSnackbar("No hay actividades para crear.");
         return false;
-      } finally {
-        dispatch(setLoadingEventTask(false));
       }
-    };
+      dispatch(setLoadingEventTask(true)); // <-- Añadido para consistencia
+      try {
+        // 1. Envolvemos el array en el DTO que el backend espera
+        const dto = {
+          tasks: tasksArray
+        };
+
+        // 2. Enviamos el DTO
+        await EventTaskApi.post("/", dto, getAuthConfig(token));
+        
+                openSnackbar("Actividad(es) agregada(s) correctamente.");
+        return true;
+        } catch (error) {
+        const message = error.response?.data?.message;
+        openSnackbar(message ?? "Ocurrió un error al crear las actividades.");
+        return false;
+        } finally {
+        dispatch(setLoadingEventTask(false));
+        }
+        };
 
      const startLoadingEventTaskByStatus = async (status) => {
          dispatch(setLoadingEventTask(true));
@@ -111,7 +124,7 @@ export const UseEventTaskStore = () => {
     setPageGlobal,
     setRowsPerPageGlobal,
 
-    startAddEventTask,
+    startAddEventTasks,
     startUpdateTaskAssignment,  
     startLoadingEventTaskByStatus,
     startLoadingEventsTaskByIdEvent,

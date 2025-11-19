@@ -1,4 +1,3 @@
-export * from './quotation-info-card';
 export * from './event-detail-form';
 export * from './personal-info-form';
 export * from './quotation-summary';
@@ -9,3 +8,4 @@ export * from './quotation-activity-progress';
 export * from './quotation-control-activities';
 export * from './quotation-add-activities-modal';
 export * from './history';
+export * from './activities';

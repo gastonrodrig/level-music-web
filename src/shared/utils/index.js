@@ -8,3 +8,4 @@ export * from './price-calculator';
 export * from './format-date-price';
 export * from './format-date-versions';
 export * from './format-file-size';
+export * from './generate-storehouse-code';

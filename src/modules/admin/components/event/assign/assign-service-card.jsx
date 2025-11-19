@@ -11,9 +11,10 @@ import {
   IconButton,
   Chip,
 } from "@mui/material";
-import { Add, Delete, ViewInArSharp } from "@mui/icons-material";
+import { Add, CameraAlt, Delete, ViewInArSharp } from "@mui/icons-material";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { ImagePreviewModal } from "../../../../../shared/ui/components";
 
 export const AssignServiceCard = ({
   isDark,
@@ -29,22 +30,23 @@ export const AssignServiceCard = ({
   to,
   datesReady,
   guardDates,
-  eventCode
+  eventCode,
+  isEditMode = false, // Nueva prop
 }) => {
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [selectedPreview, setSelectedPreview] = useState(null);
   const { isSm } = useScreenSizes();
 
   const resetForm = () => {
     setValue("service_id", "");
     setValue("service_detail_id", "");
     setValue("service_price", "");
-    setValue("service_hours", 1);
     setValue("payment_percentage_required", 0);
   };
 
   const serviceId = watch("service_id");
   const serviceDetailId = watch("service_detail_id");
   const servicePrice = watch("service_price");
-  const serviceHours = watch("service_hours");
   const paymentPercentageRequired = watch("payment_percentage_required");
 
   const selectedService = useMemo(
@@ -60,7 +62,14 @@ export const AssignServiceCard = ({
   const datesMissing = !datesReady || !from || !to;
 
   return (
-    <Box sx={{ p: 3, borderRadius: 3, bgcolor: isDark ? "#1f1e1e" : "#f5f5f5", my: 2 }}>
+    <Box
+      sx={{
+        p: 3,
+        borderRadius: 3,
+        bgcolor: isDark ? "#1f1e1e" : "#f5f5f5",
+        my: 2,
+      }}
+    >
       <Box display="flex" alignItems="center" mb={2} gap={1}>
         <ViewInArSharp sx={{ mt: "2px" }} />
         <Typography sx={{ fontSize: 20, fontWeight: 500 }}>
@@ -81,15 +90,19 @@ export const AssignServiceCard = ({
       >
         <Grid container spacing={2} alignItems="center">
           {/* Servicio */}
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={4.5}>
             <FormControl fullWidth>
-              <InputLabel id="service-label" shrink>Servicio</InputLabel>
+              <InputLabel id="service-label" shrink>
+                Servicio
+              </InputLabel>
               <Select
                 labelId="service-label"
                 label="Servicio"
                 value={serviceId || ""}
                 onChange={(e) => {
-                  setValue("service_id", e.target.value, { shouldValidate: true });
+                  setValue("service_id", e.target.value, {
+                    shouldValidate: true,
+                  });
                   setValue("service_detail_id", "");
                 }}
                 inputProps={{ name: "service_id" }}
@@ -103,7 +116,9 @@ export const AssignServiceCard = ({
                 {services.map((s) => (
                   <MenuItem key={s._id} value={s._id}>
                     <Box>
-                      <Typography fontWeight={500}>{s.service_type_name}</Typography>
+                      <Typography fontWeight={500}>
+                        {s.service_type_name}
+                      </Typography>
                       <Typography variant="body2" color="text.secondary">
                         {s.provider_name}
                       </Typography>
@@ -115,13 +130,19 @@ export const AssignServiceCard = ({
           </Grid>
 
           {/* Paquete */}
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={4.5}>
             <FormControl fullWidth size="small">
-              <InputLabel id="package-label" shrink>Paquete</InputLabel>
+              <InputLabel id="package-label" shrink>
+                Paquete
+              </InputLabel>
               <Select
                 labelId="package-label"
                 value={serviceDetailId || ""}
-                onChange={(e) => setValue("service_detail_id", e.target.value, { shouldValidate: true })}
+                onChange={(e) =>
+                  setValue("service_detail_id", e.target.value, {
+                    shouldValidate: true,
+                  })
+                }
                 inputProps={{ name: "service_detail_id" }}
                 sx={{ height: 60 }}
                 disabled={datesMissing || !serviceId}
@@ -130,7 +151,7 @@ export const AssignServiceCard = ({
                 <MenuItem value="">
                   <em>Seleccione un paquete</em>
                 </MenuItem>
-                {filteredDetails.map((d, index) => {
+                {filteredDetails.map((d) => {
                   const entries = Object.entries(d.details).slice(0, 2);
                   return (
                     <MenuItem
@@ -138,12 +159,18 @@ export const AssignServiceCard = ({
                       value={d._id}
                       onClick={() => {
                         const refPrice = Number(d?.ref_price || 0);
-                        const calculatedPrice = Math.round(refPrice * 0.15) + refPrice;
+                        const calculatedPrice =
+                          Math.round(refPrice * 0.15) + refPrice;
                         setValue("service_price", calculatedPrice);
                       }}
                     >
                       <Box sx={{ display: "flex", flexDirection: "column" }}>
-                        <Typography>Paquete #{index + 1}</Typography>
+                        <Typography>
+                          Paquete – S/.{" "}
+                          {Math.round(Number(d?.ref_price) * 0.15) +
+                            d?.ref_price}{" "}
+                          (por día)
+                        </Typography>
                         <Typography variant="caption" color="text.secondary">
                           {entries.map(([k, v]) => `${k}: ${v}`).join(", ")}
                         </Typography>
@@ -155,7 +182,115 @@ export const AssignServiceCard = ({
             </FormControl>
           </Grid>
 
-          {/* Horas */}
+          {/* Precio de referencia */}
+          <Grid item xs={12} md={3}>
+            <TextField
+              label="Precio por día (S/)"
+              value={servicePrice || "S/ -"}
+              fullWidth
+              disabled
+              InputLabelProps={{ shrink: true }}
+              sx={{ "& .MuiInputBase-root": { height: 60 } }}
+            />
+          </Grid>
+
+          {/* Vista previa del paquete seleccionado */}
+          {selectedDetail?.photos.length > 0 && (
+            <Box
+              sx={{
+                mt: 2,
+                mb: 1,
+                p: 3,
+                ml: 2,
+                borderRadius: 1,
+                border: "1px solid",
+                borderColor: isDark ? "#555555ff" : "#d4d4d4ff",
+                width: "100%",
+                transition: "all 0.3s ease",
+              }}
+            >
+              <Grid container spacing={2} alignItems="center">
+                {/* Texto e información */}
+                <Grid item xs={12}>
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    gap={1}
+                    mb={1}
+                    justifyContent={"space-between"}
+                  >
+                    <Typography
+                      fontSize={18}
+                      sx={{ mb: 0.5, color: isDark ? "#fff" : "#000" }}
+                    >
+                      {selectedService?.service_type_name}
+                    </Typography>
+
+                    <Chip
+                      label={`${selectedDetail.photos.length} ${
+                        selectedDetail.photos.length > 1 ? "Imágenes" : "Imagen"
+                      }`}
+                      size="small"
+                      sx={{
+                        bgcolor: isDark ? "#422b17" : "#ffebd8",
+                        color: isDark ? "#ffb97d" : "#7b3f00",
+                        fontWeight: 600,
+                      }}
+                    />
+                  </Box>
+
+                  {/* Imágenes */}
+                  {selectedDetail?.photos?.length > 0 && (
+                    <>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: 1,
+                          mb: 1,
+                        }}
+                      >
+                        {selectedDetail.photos.slice(0, 3).map((photo, idx) => (
+                          <Box
+                            key={photo._id || idx}
+                            component="img"
+                            src={photo.url}
+                            alt={photo.name}
+                            sx={{
+                              width: 140,
+                              height: 120,
+                              borderRadius: 2,
+                              objectFit: "cover",
+                              cursor: "pointer",
+                              transition: "transform 0.2s ease",
+                              "&:hover": { transform: "scale(1.05)" },
+                            }}
+                            onClick={() => {
+                              setSelectedPreview(photo.url);
+                              setPreviewModalOpen(true);
+                            }}
+                          />
+                        ))}
+                      </Box>
+
+                      <Box display="flex" alignItems="center" mt={1} gap={0.5}>
+                        <CameraAlt fontSize="small" />
+                        <Typography
+                          variant="caption"
+                          display="block"
+                          sx={{ mt: 0.5, color: "text.secondary" }}
+                        >
+                          Click en cualquier imagen para ampliar
+                        </Typography>
+                      </Box>
+                    </>
+                  )}
+                </Grid>
+              </Grid>
+            </Box>
+          )}
+
+          {/* Horas
           <Grid item xs={12} md={3}>
             <FormControl fullWidth size="small">
               <InputLabel id="hours-label">Horas</InputLabel>
@@ -167,53 +302,23 @@ export const AssignServiceCard = ({
                 disabled={datesMissing}
               >
                 {Array.from({ length: 10 }, (_, i) => i + 1).map((h) => (
-                  <MenuItem key={h} value={h}>{h} horas</MenuItem>
+                  <MenuItem key={h} value={h}>
+                    {h} horas
+                  </MenuItem>
                 ))}
               </Select>
             </FormControl>
-          </Grid>
-
-          {/* Precio por hora de referencia */}
-          <Grid item xs={12} md={3.5}>
-            <TextField
-              label="Precio por hora (S/)"
-              value={
-                servicePrice && !isNaN(Number(servicePrice))
-                  ? `S/ ${Number(servicePrice).toFixed(2)}`
-                  : "S/ -"
-              }
-              fullWidth
-              disabled
-              InputLabelProps={{ shrink: true }}
-              sx={{ "& .MuiInputBase-root": { height: 60 } }}
-            />
-          </Grid>
-
-          {/* Precio por Hora (editable) */}
-          {/* <Grid item xs={12} md={2.5}>
-            <TextField
-              label="Precio Hora"
-              placeholder="Ej: 250"
-              value={servicePrice || ""}
-              onChange={(e) => {
-                const value = e.target.value ? Number(e.target.value) : "";
-                setValue("service_price", value);
-              }}
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              sx={{ "& .MuiInputBase-root": { height: 60 } }}
-              disabled={datesMissing}
-            />
           </Grid> */}
 
           {/* % Pago Requerido */}
-          <Grid item xs={12} md={3.5}>
+          {/* <Grid item xs={12} md={3.5}>
             <TextField
               label="% Pago Requerido"
-              placeholder="Ej: 10 - 100 %"
+              placeholder="Ej: 50"
               value={paymentPercentageRequired || ""}
               onChange={(e) => {
                 let value = e.target.value ? Number(e.target.value) : "";
+                // Validación: solo entre 0 y 100
                 if (value !== "" && (value < 0 || value > 100)) return;
                 setValue("payment_percentage_required", value);
               }}
@@ -223,35 +328,40 @@ export const AssignServiceCard = ({
               disabled={datesMissing}
               type="number"
               inputProps={{ min: 0, max: 100 }}
-            />    
-          </Grid>
+            />
+          </Grid> */}
 
           {/* Agregar */}
           <Grid item xs={12} md={2}>
             <Button
               variant="contained"
-              fullWidth
               startIcon={<Add />}
               onClick={async () => {
                 if (!guardDates()) return;
                 if (!selectedService || !selectedDetail) return;
-                //aca se agrega el servicio osea se anida los objetos para mostrarlo supongo 
                 await startAppendService({
                   selectedService,
                   selectedDetail,
                   servicePrice,
-                  serviceHours,
                   assignedServices,
                   paymentPercentageRequired,
                   append: addService,
                   onSuccess: resetForm,
                   from,
                   to,
-                  eventCode
+                  eventCode,
                 });
               }}
               disabled={!serviceDetailId}
-              sx={{ textTransform: "none", borderRadius: 2, color: "#fff", fontWeight: 600, py: 2 }}
+              sx={{
+                textTransform: "none",
+                borderRadius: 2,
+                color: "#fff",
+                fontWeight: 500,
+                py: 2,
+                px: 3,
+                height: "40px",
+              }}
             >
               Agregar
             </Button>
@@ -279,7 +389,9 @@ export const AssignServiceCard = ({
           >
             <Grid container spacing={2} alignItems="center">
               <Grid item xs={6}>
-                <Typography fontWeight={600}>{servicio.service_type_name}</Typography>
+                <Typography fontWeight={600}>
+                  {servicio.service_type_name}
+                </Typography>
                 <Box
                   display="flex"
                   flexDirection={!isSm ? "column" : "row"}
@@ -288,27 +400,58 @@ export const AssignServiceCard = ({
                   sx={{ alignItems: "flex-start" }}
                 >
                   <Chip label={servicio.provider_name} size="small" />
-                  <Chip label={`Horas: ${servicio.service_hours}`} size="small" />
-                  <Chip label={`Porcentaje de Pago: ${servicio.payment_percentage_required}%`} size="small" wcolor="info"
-                  />
                 </Box>
               </Grid>
 
               <Grid item xs={6} textAlign="right">
-                <Typography fontSize={13} sx={{ textDecoration: "line-through", color: "text.secondary" }}>
-                  Ref: S/ {servicio.ref_price}/hora × {servicio.service_hours}h
-                </Typography>
-                <Typography fontSize={14}>
-                  S/ {servicio.service_price}/hora × {servicio.service_hours}h
-                </Typography>
                 <Typography fontWeight={600} color="green">
-                  S/. {Number(servicio.service_price) * Number(servicio.service_hours)}
+                  S/. {Number(servicio.service_price)}
                 </Typography>
-                <IconButton size="small" color="error" sx={{ ml: 1 }} onClick={() => removeService(index)}>
+                <IconButton
+                  size="small"
+                  color="error"
+                  sx={{ ml: 1 }}
+                  onClick={() => removeService(index)}
+                >
                   <Delete fontSize="small" />
                 </IconButton>
               </Grid>
             </Grid>
+
+            {/* Campo de Pago Requerido - Solo visible en modo edición */}
+            {isEditMode && (
+              <Grid container spacing={2} mt={1}>
+                <Grid item xs={12} md={3}>
+                  <TextField
+                    label="% Porcentaje requerido"
+                    placeholder="Ej: 50"
+                    size="small"
+                    value={servicio.payment_percentage_required || ""}
+                    onChange={(e) => {
+                      let value = e.target.value ? Number(e.target.value) : "";
+                      if (value !== "" && (value < 0 || value > 100)) return;
+
+                      const updatedServices = [...assignedServices];
+                      updatedServices[index] = {
+                        ...updatedServices[index],
+                        payment_percentage_required: value,
+                      };
+                      setValue("services", updatedServices);
+                    }}
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    sx={{
+                      "& .MuiInputBase-root": {
+                        height: 45,
+                        bgcolor: isDark ? "#1f1e1e" : "#fff",
+                      },
+                    }}
+                    type="number"
+                    inputProps={{ min: 0, max: 100 }}
+                  />
+                </Grid>
+              </Grid>
+            )}
 
             <Grid container spacing={2} mt={0.5}>
               {Object.entries(servicio.details).map(([k, v]) => (
@@ -329,10 +472,16 @@ export const AssignServiceCard = ({
         <Typography textAlign="right" fontWeight={600} color="green">
           Total Servicios Adicionales: S/{" "}
           {assignedServices
-            .reduce((acc, s) => acc + Number(s.service_price) * Number(s.service_hours), 0)
+            .reduce((acc, s) => acc + Number(s.service_price), 0)
             .toFixed(2)}
         </Typography>
       )}
+
+      <ImagePreviewModal
+        open={previewModalOpen}
+        src={selectedPreview}
+        onClose={() => setPreviewModalOpen(false)}
+      />
     </Box>
   );
 };

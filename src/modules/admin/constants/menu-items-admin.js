@@ -61,6 +61,21 @@ export const menuItems = [
             text: 'Historial ',
             breadcrumb: 'Historial',
             href: '/admin/quotations/history',
+          },
+          {
+            text: 'Actividades ',
+            breadcrumb: 'Actividades',
+            href: '/admin/quotations/activities',
+          },
+          {
+            text: 'Pagos Aprobados',
+            breadcrumb: 'Pagos Aprobados',
+            href: '/admin/quotations/payments-approved',
+          },
+          {
+            text: 'Enviar Propuesta',
+            breadcrumb: 'Enviar Propuesta',
+            href: '/admin/quotations/send-proposal',
           }
         ],
       }, 
