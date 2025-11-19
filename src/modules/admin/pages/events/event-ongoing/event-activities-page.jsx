@@ -42,22 +42,53 @@ export const EventActivitiesPage = () => {
         return "pending";
     };
 
-    // Calculamos los contadores basados en las tareas que ya tenemos en memoria
     const counts = useMemo(() => {
-        const acc = { pending: 0, in_progress: 0, completed: 0, blocked: 0, evidence: 0, assigned: 0, total: 0 };
+        // Inicializamos contadores
+        const acc = { 
+            totalSubtasks: 0,
+            // Estados
+            completed: 0, 
+            pending: 0, 
+            // Fases
+            planning: 0, 
+            execution: 0, 
+            tracking: 0,
+            // Extras
+            evidence: 0, 
+            assigned: 0 
+        };
 
-        eventTasks.forEach((t) => {
-            const key = mapStatusKey(t.status);
-            acc[key] = (acc[key] || 0) + 1;
-            if (t.requires_evidence) acc.evidence += 1;
-            if (t.worker || t.worker_id) acc.assigned += 1; // Ajuste para detectar si hay trabajador
-            acc.total += 1;
+        // Iteramos sobre Tareas Principales -> Subtareas
+        eventTasks.forEach((task) => {
+            const subtasks = task.subtasks || [];
+            subtasks.forEach((sub) => {
+                acc.totalSubtasks += 1;
+
+                // Contar por Estado
+                if (sub.status === 'Completado') {
+                    acc.completed += 1;
+                } else {
+                    acc.pending += 1;
+                }
+
+                // Contar por Fase (Normalizamos string por si acaso)
+                const phase = sub.phase || 'Planificación'; 
+                if (phase === 'Planificación') acc.planning += 1;
+                else if (phase === 'Ejecución') acc.execution += 1;
+                else if (phase === 'Seguimiento') acc.tracking += 1;
+
+                // Extras
+                if (sub.requires_evidence) acc.evidence += 1;
+                if (sub.worker_id) acc.assigned += 1;
+            });
         });
+
         return acc;
     }, [eventTasks]);
 
-    const percent = counts.total ? Math.round((counts.completed / counts.total) * 100) : 0;
-
+        const percent = counts.totalSubtasks > 0 
+                ? Math.round((counts.completed / counts.totalSubtasks) * 100) 
+                : 0;
     return (
         <Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, mb: 2 }}>
@@ -77,7 +108,7 @@ export const EventActivitiesPage = () => {
                 borderRadius: 2, 
                 gap: { xs: 1, sm: 0 },
             }}>
-                <ActivityProgressHeader totals={counts} total={counts.total} percent={percent} />
+                <ActivityProgressHeader totals={counts} total={counts.totalSubtasks} percent={percent} />
 
                 {/* Pasamos las tareas directamente */}
                 <QuotationControlActivities
