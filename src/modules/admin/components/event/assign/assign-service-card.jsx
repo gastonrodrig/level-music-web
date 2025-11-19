@@ -290,47 +290,6 @@ export const AssignServiceCard = ({
             </Box>
           )}
 
-          {/* Horas
-          <Grid item xs={12} md={3}>
-            <FormControl fullWidth size="small">
-              <InputLabel id="hours-label">Horas</InputLabel>
-              <Select
-                labelId="hours-label"
-                value={serviceHours || 1}
-                onChange={(e) => setValue("service_hours", e.target.value)}
-                sx={{ height: 60 }}
-                disabled={datesMissing}
-              >
-                {Array.from({ length: 10 }, (_, i) => i + 1).map((h) => (
-                  <MenuItem key={h} value={h}>
-                    {h} horas
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid> */}
-
-          {/* % Pago Requerido */}
-          {/* <Grid item xs={12} md={3.5}>
-            <TextField
-              label="% Pago Requerido"
-              placeholder="Ej: 50"
-              value={paymentPercentageRequired || ""}
-              onChange={(e) => {
-                let value = e.target.value ? Number(e.target.value) : "";
-                // Validación: solo entre 0 y 100
-                if (value !== "" && (value < 0 || value > 100)) return;
-                setValue("payment_percentage_required", value);
-              }}
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              sx={{ "& .MuiInputBase-root": { height: 60 } }}
-              disabled={datesMissing}
-              type="number"
-              inputProps={{ min: 0, max: 100 }}
-            />
-          </Grid> */}
-
           {/* Agregar */}
           <Grid item xs={12} md={2}>
             <Button
@@ -426,17 +385,23 @@ export const AssignServiceCard = ({
                     label="% Porcentaje requerido"
                     placeholder="Ej: 50"
                     size="small"
-                    value={servicio.payment_percentage_required || ""}
+                    name={`services.${index}.payment_percentage_required`}
+                    value={
+                      (watch &&
+                        (watch(`services.${index}.payment_percentage_required`) ??
+                          servicio.payment_percentage_required)) ||
+                      ""
+                    }
                     onChange={(e) => {
-                      let value = e.target.value ? Number(e.target.value) : "";
+                      const raw = e.target.value;
+                      const value = raw === "" ? "" : Number(raw);
                       if (value !== "" && (value < 0 || value > 100)) return;
 
-                      const updatedServices = [...assignedServices];
-                      updatedServices[index] = {
-                        ...updatedServices[index],
-                        payment_percentage_required: value,
-                      };
-                      setValue("services", updatedServices);
+                      setValue(
+                        `services.${index}.payment_percentage_required`,
+                        value,
+                        { shouldValidate: true, shouldDirty: true }
+                      );
                     }}
                     fullWidth
                     InputLabelProps={{ shrink: true }}
