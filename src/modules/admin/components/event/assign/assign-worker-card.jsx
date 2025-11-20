@@ -128,9 +128,7 @@ export const AssignWorkerCard = ({
                     value={w._id}
                     onClick={() => {
                       const refPrice = Number(w?.reference_price || 0);
-                      const calculatedPrice =
-                        Math.round(refPrice * 0.15) + refPrice;
-                      setValue("worker_price", calculatedPrice);
+                      setValue("worker_price", refPrice);
                     }}
                   >
                     <Box sx={{ display: "flex", flexDirection: "column" }}>

@@ -239,7 +239,7 @@ export const PaymentManualContent = ({
                   const value = e.target.value;
                   setValue(
                     `manualPayments.${paymentNumber - 1}.amount`,
-                    value === "" ? "" : parseFloat(value)
+                    setValue(`manualPayments.${paymentNumber - 1}.amount`, value)
                   );
                 }}
                 value={watch(`manualPayments.${paymentNumber - 1}.amount`) || ""}

@@ -56,6 +56,15 @@ export const QuotationPaymentsPage = () => {
   }, [selected, navigate]);
 
   useEffect(() => {
+    if (_id) {
+      setValue("user_id", _id);
+    }
+    if (selected?._id) {
+      setValue("event_id", selected._id);
+    }
+  }, [_id, selected, setValue]);
+
+  useEffect(() => {
     if (finalAmount > 30000 && useMercadoPago) {
       setValue("useMercadoPago", false);
     }

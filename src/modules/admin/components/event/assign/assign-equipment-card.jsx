@@ -125,9 +125,7 @@ export const AssignEquipmentCard = ({
                     value={e._id}
                     onClick={() => {
                       const refPrice = Number(e?.reference_price || 0);
-                      const calculatedPrice =
-                        Math.round(refPrice * 0.15) + refPrice;
-                      setValue("equipment_price", calculatedPrice);
+                      setValue("equipment_price", refPrice);
                     }}
                   >
                     <Box sx={{ display: "flex", flexDirection: "column" }}>
