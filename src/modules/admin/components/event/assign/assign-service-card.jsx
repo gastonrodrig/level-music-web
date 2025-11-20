@@ -186,7 +186,7 @@ export const AssignServiceCard = ({
           <Grid item xs={12} md={3}>
             <TextField
               label="Precio por día (S/)"
-              value={servicePrice || "S/ -"}
+              value={servicePrice ? `S/. ${servicePrice.toFixed(2)}` : "S/ -"}
               fullWidth
               disabled
               InputLabelProps={{ shrink: true }}

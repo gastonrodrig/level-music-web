@@ -54,7 +54,6 @@ export const useQuotationStore = () => {
     dispatch(setLoadingQuotation(true));
     try {
       const payload = updateQuotationModel(quotation);
-      console.log(payload)
       await eventApi.patch(`quotation/${quotationId}`, payload, getAuthConfig(token));
       openSnackbar("La cotización fue editada exitosamente.");
       return true;

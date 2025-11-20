@@ -14,7 +14,7 @@ import {
   PaymentInfoAlert,
   PaymentMercadoPagoToggle,
 } from "../../../components";
-import { useQuotationStore } from "../../../../../hooks";
+import { useAuthStore, useQuotationStore } from "../../../../../hooks";
 import { FormProvider, useForm } from "react-hook-form";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
 import { useNavigate } from "react-router-dom";
@@ -26,6 +26,7 @@ export const QuotationPaymentsPage = () => {
   const { isMd } = useScreenSizes();
 
   const { selected } = useQuotationStore();
+  const { _id } = useAuthStore();
 
   const partialAmount = selected?.payment_schedules[0]?.total_amount;
 

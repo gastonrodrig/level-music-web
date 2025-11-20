@@ -233,7 +233,7 @@ export const AssignEquipmentCard = ({
 
               <Grid item xs={6} textAlign="right">
                 <Typography fontSize={14}>
-                  S/ {equipo.equipment_price}/hora × {equipo.equipment_hours}h
+                  S/. {equipo.equipment_price}/hora × {equipo.equipment_hours}h
                 </Typography>
                 <Typography fontWeight={600} color="green">
                   S/. {Number(equipo.equipment_price) * Number(equipo.equipment_hours)}

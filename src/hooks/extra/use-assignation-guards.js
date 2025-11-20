@@ -182,7 +182,6 @@ export const useAssignationGuards = () => {
       service_detail_id: selectedDetail._id,
       service_type_name: selectedService.service_type_name,
       provider_name: selectedService.provider_name,
-      service_hours: isNaN(Number(serviceHours)) ? 1 : Number(serviceHours),
       details: selectedDetail.details,
       ref_price: selectedDetail.ref_price,
       service_price: Number(servicePrice),

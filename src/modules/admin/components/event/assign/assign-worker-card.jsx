@@ -249,7 +249,7 @@ export const AssignWorkerCard = ({
 
               <Grid item xs={6} textAlign="right">
                 <Typography fontSize={14}>
-                  S/ {trabajador.worker_price}/día × {trabajador.worker_hours}h
+                  S/. {trabajador.worker_price}/hora × {trabajador.worker_hours}h
                 </Typography>
                 <Typography fontWeight={600} color="green">
                   S/. {Number(trabajador.worker_price) * Number(trabajador.worker_hours)}
