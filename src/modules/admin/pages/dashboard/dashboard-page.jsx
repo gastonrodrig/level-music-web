@@ -6,33 +6,31 @@ import {
   Typography,
   Grid,
   useTheme,
-  Tabs,
-  Tab,
-  IconButton,
   Button,
-  TextField,
-  Skeleton,
 } from "@mui/material";
 import {
-  Description,
-  Visibility,
-  CheckCircle,
-  Search,
-  AccessTime,
+  Event,
+  People,
+  VolumeUp,
+  Notifications,
   TrendingUp,
   CalendarMonth,
   ChevronLeft,
   ChevronRight,
+  AccessTime,
+  Description,
+  Visibility,
+  CheckCircle,
+  Search,
 } from "@mui/icons-material";
-
 import {
+  ResponsiveContainer,
   BarChart,
   Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
   Cell,
 } from "recharts";
 
@@ -41,44 +39,19 @@ export const DashboardPage = () => {
   const isDarkMode = theme.palette.mode === "dark";
 
   const [activeTab, setActiveTab] = useState("indicadores");
-  const [loading, setLoading] = useState(false);
-
-  const handleChangeTab = (_, value) => {
-    setActiveTab(value);
-  };
-
-  // ------------------- DATA FICTICIA -------------------
-  const estadosEventosStats = [
-    {
-      title: "Borrador",
-      value: 12,
-      icon: <Description sx={{ fontSize: 36, color: "#FFFFFF" }} />,
-      bgColor: "#6b7280",
-    },
-    {
-      title: "En Revisión",
-      value: 8,
-      icon: <Visibility sx={{ fontSize: 36, color: "#FFFFFF" }} />,
-      bgColor: "#eab308",
-    },
-    {
-      title: "Confirmados",
-      value: 45,
-      icon: <CheckCircle sx={{ fontSize: 36, color: "#FFFFFF" }} />,
-      bgColor: "#10b981",
-    },
-    {
-      title: "En Seguimiento",
-      value: 18,
-      icon: <Search sx={{ fontSize: 36, color: "#FFFFFF" }} />,
-      bgColor: "#3b82f6",
-    },
-  ];
-
-  const citasPendientes = 14;
-
+  const [currentMonth, setCurrentMonth] = useState(new Date());
   const [fechaInicio, setFechaInicio] = useState("2025-01-01");
   const [fechaFin, setFechaFin] = useState("2025-06-30");
+
+  // Datos (basados en las imágenes)
+  const estados = [
+    { title: "Borrador", value: 12, color: "#6b7280", icon: <Description sx={{ color: "white" }} /> },
+    { title: "En Revisión", value: 8, color: "#eab308", icon: <Visibility sx={{ color: "white" }} /> },
+    { title: "Confirmados", value: 45, color: "#10b981", icon: <CheckCircle sx={{ color: "white" }} /> },
+    { title: "En Seguimiento", value: 18, color: "#3b82f6", icon: <Search sx={{ color: "white" }} /> },
+  ];
+
+  const citasPendientes = { value: 14, color: "#a855f7", icon: <AccessTime sx={{ color: "white" }} /> };
 
   const eventosRealizadosData = [
     { mes: "Enero", eventos: 12 },
@@ -97,11 +70,9 @@ export const DashboardPage = () => {
     { tipo: "Otros", porcentaje: 7 },
   ];
 
-  const barColors = ["#9B6F3E", "#8B6F47", "#7A5A8A", "#5A7A5A", "#4A5A7A"];
+  const barColors = [theme.palette.primary.main, theme.palette.secondary.main, "#7A5A8A", "#5A7A5A", "#4A5A7A"];
 
-  // ------------------- CALENDARIO -------------------
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-
+  // Calendar helpers
   const monthNames = [
     "Enero",
     "Febrero",
@@ -125,17 +96,8 @@ export const DashboardPage = () => {
     return { firstDay, daysInMonth };
   };
 
-  const previousMonth = () => {
-    setCurrentMonth(
-      new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1)
-    );
-  };
-
-  const nextMonth = () => {
-    setCurrentMonth(
-      new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1)
-    );
-  };
+  const previousMonth = () => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
+  const nextMonth = () => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
 
   const eventosCalendario = {
     5: { nombre: "Evento Corporativo", estado: "Confirmado", color: "#10b981" },
@@ -147,318 +109,254 @@ export const DashboardPage = () => {
 
   const { firstDay, daysInMonth } = getDaysInMonth(currentMonth);
 
-  // ------------------- RENDER -------------------
   return (
     <Box sx={{ pb: 4 }}>
-      {/* HEADER */}
-      <Box sx={{ mb: 4, position: "relative", display: "inline-block" }}>
-        <Typography
-          variant="h4"
-          sx={{
-            fontWeight: "bold",
-            color: theme.palette.text.primary,
-          }}
-        >
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" sx={{ fontWeight: "bold", color: theme.palette.text.primary }}>
           Bienvenido al Dashboard de Administrador
         </Typography>
-
-        {/* highlight underline */}
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: -6,
-            left: 0,
-            width: "100%",
-            height: "7px",
-            backgroundColor: "#34e39a",
-            borderRadius: 2,
-          }}
-        />
+        <Typography
+          variant="body2"
+          sx={{ color: theme.palette.text.secondary, mt: 1, fontWeight: 400 }}
+        >
+          Aquí podrás visualizar todos los indicadores clave, métricas de operación y el estado general de la plataforma.
+        </Typography>
       </Box>
 
-      <Typography
-        variant="body1"
-        sx={{ color: theme.palette.text.secondary, mt: 1, mb: 3 }}
-      >
-        Aquí podrás visualizar indicadores claves, métricas y la actividad
-        general de la plataforma.
-      </Typography>
-
-      {/* TABS */}
-      <Card sx={{ mb: 4, borderRadius: 3 }}>
-        <Tabs
-          value={activeTab}
-          onChange={handleChangeTab}
-          variant="scrollable"
-          sx={{
-            px: 2,
-            pt: 1,
-            "& .MuiTab-root": { textTransform: "none", fontWeight: 600 },
-          }}
+      {/* Tabs */}
+      <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
+        <Button
+          variant={activeTab === "indicadores" ? "contained" : "outlined"}
+          onClick={() => setActiveTab("indicadores")}
+          sx={{ bgcolor: activeTab === "indicadores" ? theme.palette.primary.main : undefined }}
         >
-          <Tab label="Indicadores" value="indicadores" />
-          <Tab label="Gráficos" value="graficos" />
-          <Tab label="Calendario" value="calendario" />
-        </Tabs>
+          Indicadores
+        </Button>
+        <Button
+          variant={activeTab === "graficos" ? "contained" : "outlined"}
+          onClick={() => setActiveTab("graficos")}
+          sx={{ bgcolor: activeTab === "graficos" ? theme.palette.primary.main : undefined }}
+        >
+          Gráficos
+        </Button>
+        <Button
+          variant={activeTab === "calendario" ? "contained" : "outlined"}
+          onClick={() => setActiveTab("calendario")}
+          sx={{ bgcolor: activeTab === "calendario" ? theme.palette.primary.main : undefined }}
+        >
+          Calendario
+        </Button>
+      </Box>
 
-        <CardContent>
-          {/* ------------- TAB INDICADORES ------------- */}
-          {activeTab === "indicadores" && (
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              <Box>
-                <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
-                  Estados de Eventos
-                </Typography>
-
-                <Grid container spacing={3}>
-                  {estadosEventosStats.map((stat, index) => (
-                    <Grid item xs={12} sm={6} md={3} key={index}>
-                      {loading ? (
-                        <Skeleton variant="rounded" height={130} />
-                      ) : (
-                        <Card
-                          sx={{
-                            backgroundColor: stat.bgColor,
-                            borderRadius: 3,
-                            color: "#FFF",
-                            cursor: "pointer",
-                            "&:hover": {
-                              transform: "translateY(-4px)",
-                              transition: "0.3s",
-                            },
-                          }}
-                        >
-                          <CardContent sx={{ textAlign: "center" }}>
-                            <Box sx={{ mb: 1 }}>{stat.icon}</Box>
-                            <Typography variant="h4">{stat.value}</Typography>
-                            <Typography>{stat.title}</Typography>
-                          </CardContent>
-                        </Card>
-                      )}
-                    </Grid>
-                  ))}
-                </Grid>
-              </Box>
-
-              <Box>
-                <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
-                  Citas
-                </Typography>
-
-                {loading ? (
-                  <Skeleton variant="rounded" height={130} />
-                ) : (
-                  <Card
-                    sx={{
-                      backgroundColor: "#a855f7",
-                      borderRadius: 3,
-                      color: "#FFF",
-                      p: 2,
-                    }}
-                  >
+      <Card
+        sx={{
+          borderRadius: 2.5,
+          p: 3,
+          backgroundColor: isDarkMode ? "#3C4050" : "#f8fafc",
+          border: `2px solid ${isDarkMode ? "#2A2D35" : "#e5e7eb"}`,
+        }}
+      >
+        {/* Indicadores */}
+        {activeTab === "indicadores" && (
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: theme.palette.text.primary }}>
+              Estados de Eventos
+            </Typography>
+            <Grid container spacing={3} sx={{ mb: 4 }}>
+              {estados.map((s, i) => (
+                <Grid item xs={12} sm={6} md={6} lg={3} key={i}>
+                  <Card sx={{ backgroundColor: s.color, borderRadius: 2, boxShadow: 3 }}>
                     <CardContent sx={{ textAlign: "center" }}>
-                      <AccessTime sx={{ fontSize: 40 }} />
-                      <Typography variant="h4">{citasPendientes}</Typography>
-                      <Typography>Citas Pendientes</Typography>
+                      <Box sx={{ display: "flex", justifyContent: "center", mb: 1 }}>{s.icon}</Box>
+                      <Typography variant="h4" sx={{ color: "white", fontWeight: "bold" }}>{s.value}</Typography>
+                      <Typography sx={{ color: "rgba(255,255,255,0.9)" }}>{s.title}</Typography>
                     </CardContent>
                   </Card>
-                )}
-              </Box>
-            </Box>
-          )}
+                </Grid>
+              ))}
+            </Grid>
 
-          {/* ------------- TAB GRAFICOS ------------- */}
-          {activeTab === "graficos" && (
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              {/* Filtros */}
-              <Card sx={{ p: 3, borderRadius: 3 }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  <CalendarMonth sx={{ fontSize: 28 }} />
-                  <Typography variant="h6">Rango de Fechas</Typography>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: theme.palette.text.primary }}>
+              Citas
+            </Typography>
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6} lg={4}>
+                <Card sx={{ backgroundColor: citasPendientes.color, borderRadius: 2, boxShadow: 3 }}>
+                  <CardContent sx={{ textAlign: "center" }}>
+                    <Box sx={{ display: "flex", justifyContent: "center", mb: 1 }}>{citasPendientes.icon}</Box>
+                    <Typography variant="h4" sx={{ color: "white", fontWeight: "bold" }}>{citasPendientes.value}</Typography>
+                    <Typography sx={{ color: "rgba(255,255,255,0.9)" }}>Citas Pendientes</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          </Box>
+        )}
 
-                  <TextField
-                    label="Inicio"
-                    type="date"
-                    size="small"
-                    value={fechaInicio}
-                    onChange={(e) => setFechaInicio(e.target.value)}
-                    InputLabelProps={{ shrink: true }}
-                  />
-                  <TextField
-                    label="Fin"
-                    type="date"
-                    size="small"
-                    value={fechaFin}
-                    onChange={(e) => setFechaFin(e.target.value)}
-                    InputLabelProps={{ shrink: true }}
-                  />
-
-                  <Button variant="contained">Aplicar</Button>
+        {/* Graficos */}
+        {activeTab === "graficos" && (
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            {/* Filtro de Rango de Fechas */}
+            <Box sx={{ backgroundColor: isDarkMode ? '#2A2D35' : '#f3f4f6', p: 2, borderRadius: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, flexWrap: 'wrap' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <CalendarMonth sx={{ color: theme.palette.text.primary }} />
+                  <Typography sx={{ color: theme.palette.text.primary }}>Rango de Fechas:</Typography>
                 </Box>
-              </Card>
 
-              {/* Gráfico 1 */}
-              <Card sx={{ p: 3, borderRadius: 3 }}>
-                <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
-                  Cantidad de Eventos Realizados por Mes
-                </Typography>
-
-                {loading ? (
-                  <Skeleton variant="rounded" height={300} />
-                ) : (
-                  <Box sx={{ height: 320 }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={eventosRealizadosData} layout="vertical">
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis type="number" />
-                        <YAxis type="category" dataKey="mes" width={80} />
-                        <Tooltip />
-                        <Bar dataKey="eventos" fill="#9B6F3E" />
-                      </BarChart>
-                    </ResponsiveContainer>
+                  <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <Typography sx={{ fontSize: 12, color: isDarkMode ? theme.palette.text.tertiary : theme.palette.text.secondary }}>Fecha Inicio</Typography>
+                    <input
+                      type="date"
+                      value={fechaInicio}
+                      onChange={(e) => setFechaInicio(e.target.value)}
+                      style={{
+                        padding: '8px 10px',
+                        borderRadius: 8,
+                        border: `1px solid ${isDarkMode ? '#4A4D5C' : '#d1d5db'}`,
+                        background: isDarkMode ? '#3C4050' : '#fff',
+                        color: isDarkMode ? '#fff' : '#000',
+                      }}
+                    />
                   </Box>
-                )}
-              </Card>
 
-              {/* Gráfico 2 */}
-              <Card sx={{ p: 3, borderRadius: 3 }}>
-                <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
-                  Distribución por Tipo de Evento (%)
-                </Typography>
-
-                {loading ? (
-                  <Skeleton variant="rounded" height={300} />
-                ) : (
-                  <Box sx={{ height: 320 }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={tipoEventoData} layout="vertical">
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis
-                          type="number"
-                          tickFormatter={(val) => `${val}%`}
-                        />
-                        <YAxis type="category" dataKey="tipo" width={100} />
-                        <Tooltip />
-                        <Bar dataKey="porcentaje">
-                          {tipoEventoData.map((entry, index) => (
-                            <Cell
-                              key={index}
-                              fill={barColors[index % barColors.length]}
-                            />
-                          ))}
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
+                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <Typography sx={{ fontSize: 12, color: isDarkMode ? theme.palette.text.tertiary : theme.palette.text.secondary }}>Fecha Fin</Typography>
+                    <input
+                      type="date"
+                      value={fechaFin}
+                      onChange={(e) => setFechaFin(e.target.value)}
+                      style={{
+                        padding: '8px 10px',
+                        borderRadius: 8,
+                        border: `1px solid ${isDarkMode ? '#4A4D5C' : '#d1d5db'}`,
+                        background: isDarkMode ? '#3C4050' : '#fff',
+                        color: isDarkMode ? '#fff' : '#000',
+                      }}
+                    />
                   </Box>
-                )}
-              </Card>
-            </Box>
-          )}
 
-          {/* ------------- TAB CALENDARIO ------------- */}
-          {activeTab === "calendario" && (
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                  Calendario de Eventos
-                </Typography>
-
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <IconButton onClick={previousMonth}>
-                    <ChevronLeft />
-                  </IconButton>
-
-                  <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-                    {monthNames[currentMonth.getMonth()]}{" "}
-                    {currentMonth.getFullYear()}
-                  </Typography>
-
-                  <IconButton onClick={nextMonth}>
-                    <ChevronRight />
-                  </IconButton>
-                </Box>
-              </Box>
-
-              {/* Días */}
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(7, 1fr)",
-                  gap: 1.5,
-                }}
-              >
-                {[
-                  "Domingo",
-                  "Lunes",
-                  "Martes",
-                  "Miércoles",
-                  "Jueves",
-                  "Viernes",
-                  "Sábado",
-                ].map((day) => (
-                  <Typography
-                    key={day}
-                    sx={{ textAlign: "center", fontWeight: 600 }}
+                  <Button
+                    variant="contained"
+                    onClick={() => { /* aplicar filtro: por ahora no hace nada */ }}
+                    sx={{ bgcolor: theme.palette.primary.main, '&:hover': { bgcolor: theme.palette.primary.hover } }}
                   >
-                    {day}
-                  </Typography>
-                ))}
+                    Aplicar
+                  </Button>
+                </Box>
               </Box>
+            </Box>
 
-              {/* Celdas */}
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(7, 1fr)",
-                  gap: 1.5,
-                }}
-              >
-                {Array.from({ length: 35 }, (_, i) => {
+            <Box sx={{ backgroundColor: isDarkMode ? "#2A2D35" : "#ffffff", p: 2, borderRadius: 2 }}>
+              <Box sx={{ display: "flex", gap: 2, alignItems: "center", mb: 2 }}>
+                <TrendingUp sx={{ color: theme.palette.text.primary }} />
+                <Typography variant="h6" sx={{ color: theme.palette.text.primary }}>Cantidad de Eventos Realizados por Mes</Typography>
+              </Box>
+              <Box sx={{ height: 350, backgroundColor: isDarkMode ? "#2A2D35" : "#f8fafc", borderRadius: 1, p: 2 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={eventosRealizadosData} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} />
+                    <XAxis type="number" stroke={theme.palette.text.tertiary} />
+                    <YAxis type="category" dataKey="mes" stroke={theme.palette.text.tertiary} width={80} />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: isDarkMode ? "#2A2D35" : "#ffffff", borderRadius: 8 }}
+                    />
+                    <Bar dataKey="eventos" radius={[0, 8, 8, 0]} fill={theme.palette.primary.main} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </Box>
+            </Box>
+
+            <Box sx={{ backgroundColor: isDarkMode ? "#2A2D35" : "#ffffff", p: 2, borderRadius: 2 }}>
+              <Box sx={{ display: "flex", gap: 2, alignItems: "center", mb: 2 }}>
+                <TrendingUp sx={{ color: theme.palette.text.primary }} />
+                <Typography variant="h6" sx={{ color: theme.palette.text.primary }}>Distribución por Tipo de Evento (Porcentaje)</Typography>
+              </Box>
+              <Box sx={{ height: 350, backgroundColor: isDarkMode ? "#2A2D35" : "#f8fafc", borderRadius: 1, p: 2 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={tipoEventoData} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} />
+                    <XAxis type="number" stroke={theme.palette.text.tertiary} tickFormatter={(v) => `${v}%`} />
+                    <YAxis type="category" dataKey="tipo" stroke={theme.palette.text.tertiary} width={120} />
+                    <Tooltip contentStyle={{ backgroundColor: isDarkMode ? "#2A2D35" : "#ffffff", borderRadius: 8 }} formatter={(v) => `${v}%`} />
+                    <Bar dataKey="porcentaje" radius={[0, 8, 8, 0]}>
+                      {tipoEventoData.map((entry, idx) => (
+                        <Cell key={`cell-${idx}`} fill={barColors[idx % barColors.length]} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </Box>
+            </Box>
+          </Box>
+        )}
+
+        {/* Calendario */}
+        {activeTab === "calendario" && (
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                <CalendarMonth sx={{ color: theme.palette.text.primary }} />
+                <Typography variant="h6" sx={{ color: theme.palette.text.primary }}>{monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}</Typography>
+              </Box>
+              <Box>
+                <Button onClick={previousMonth} sx={{ mr: 1 }}><ChevronLeft /></Button>
+                <Button onClick={nextMonth}><ChevronRight /></Button>
+              </Box>
+            </Box>
+
+            <Box>
+              <Grid container spacing={1} sx={{ mb: 2 }}>
+                {['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'].map((d) => (
+                  <Grid item xs key={d}>
+                    <Box sx={{ textAlign: 'center', color: isDarkMode ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.7)' }}>{d}</Box>
+                  </Grid>
+                ))}
+              </Grid>
+
+              <Grid container spacing={2}>
+                {Array.from({ length: 35 }).map((_, i) => {
                   const dayNumber = i - firstDay + 1;
-                  const valid = dayNumber > 0 && dayNumber <= daysInMonth;
-                  const evento = valid ? eventosCalendario[dayNumber] : null;
+                  const isValidDay = dayNumber > 0 && dayNumber <= daysInMonth;
+                  const evento = isValidDay ? eventosCalendario[dayNumber] : null;
 
                   return (
-                    <Box
-                      key={i}
-                      sx={{
-                        height: 90,
-                        borderRadius: 2,
-                        p: 1,
-                        bgcolor: evento
-                          ? evento.color
-                          : isDarkMode
-                          ? "#1f2937"
-                          : "#e5e7eb",
-                        color: evento ? "#FFF" : theme.palette.text.primary,
-                      }}
-                    >
-                      {valid && (
-                        <>
-                          <Typography sx={{ fontWeight: "bold" }}>
-                            {dayNumber}
-                          </Typography>
-                          {evento && (
-                            <Typography sx={{ fontSize: "0.75rem", mt: 1 }}>
-                              {evento.nombre}
-                            </Typography>
-                          )}
-                        </>
-                      )}
-                    </Box>
+                    <Grid item xs={12/7} key={i} sx={{ minHeight: 100 }}>
+                      <Box
+                        sx={{
+                          height: '100%',
+                          borderRadius: 1,
+                          p: 1.5,
+                          backgroundColor: evento ? evento.color : (isDarkMode ? '#2A2D35' : '#f3f4f6'),
+                          color: evento ? '#fff' : (isDarkMode ? '#fff' : '#000'),
+                        }}
+                      >
+                        {isValidDay ? (
+                          <>
+                            <Box sx={{ fontWeight: 'bold' }}>{dayNumber}</Box>
+                            {evento && <Box sx={{ mt: 1, fontSize: 12 }}>{evento.nombre}</Box>}
+                          </>
+                        ) : null}
+                      </Box>
+                    </Grid>
                   );
                 })}
+              </Grid>
+
+              <Box sx={{ mt: 3, display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Box sx={{ width: 18, height: 18, bgcolor: '#10b981', borderRadius: 0.5 }} /> <Typography sx={{ fontSize: 14, color: theme.palette.text.primary }}>Confirmado</Typography></Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Box sx={{ width: 18, height: 18, bgcolor: '#eab308', borderRadius: 0.5 }} /> <Typography sx={{ fontSize: 14, color: theme.palette.text.primary }}>En Revisión</Typography></Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Box sx={{ width: 18, height: 18, bgcolor: '#f97316', borderRadius: 0.5 }} /> <Typography sx={{ fontSize: 14, color: theme.palette.text.primary }}>Pago Pendiente</Typography></Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Box sx={{ width: 18, height: 18, bgcolor: '#3b82f6', borderRadius: 0.5 }} /> <Typography sx={{ fontSize: 14, color: theme.palette.text.primary }}>En Seguimiento</Typography></Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Box sx={{ width: 18, height: 18, bgcolor: '#6b7280', borderRadius: 0.5 }} /> <Typography sx={{ fontSize: 14, color: theme.palette.text.primary }}>Borrador</Typography></Box>
               </Box>
             </Box>
-          )}
-        </CardContent>
+          </Box>
+        )}
       </Card>
     </Box>
   );
 };
+
+
