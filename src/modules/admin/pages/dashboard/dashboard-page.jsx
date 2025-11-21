@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Card,
@@ -6,309 +6,459 @@ import {
   Typography,
   Grid,
   useTheme,
+  Tabs,
+  Tab,
+  IconButton,
+  Button,
+  TextField,
+  Skeleton,
 } from "@mui/material";
 import {
-  Event,
-  People,
-  VolumeUp,
-  Store,
+  Description,
+  Visibility,
+  CheckCircle,
+  Search,
+  AccessTime,
   TrendingUp,
-  Notifications,
+  CalendarMonth,
+  ChevronLeft,
+  ChevronRight,
 } from "@mui/icons-material";
+
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+} from "recharts";
 
 export const DashboardPage = () => {
   const theme = useTheme();
+  const isDarkMode = theme.palette.mode === "dark";
 
-  // Datos ficticios
-  const stats = [
+  const [activeTab, setActiveTab] = useState("indicadores");
+  const [loading, setLoading] = useState(false);
+
+  const handleChangeTab = (_, value) => {
+    setActiveTab(value);
+  };
+
+  // ------------------- DATA FICTICIA -------------------
+  const estadosEventosStats = [
     {
-      title: "Eventos Activos",
-      value: "24",
-      icon: <Event sx={{ fontSize: 40, color: "#1976D2" }} />,
-      bgColor: theme.palette.mode === "light" ? "#E3F2FD" : "#1e3a5f",
+      title: "Borrador",
+      value: 12,
+      icon: <Description sx={{ fontSize: 36, color: "#FFFFFF" }} />,
+      bgColor: "#6b7280",
     },
     {
-      title: "Citas Pendientes",
-      value: "8",
-      icon: <Notifications sx={{ fontSize: 40, color: "#FF9800" }} />,
-      bgColor: theme.palette.mode === "light" ? "#FFF3E0" : "#5f3a1e",
+      title: "En Revisión",
+      value: 8,
+      icon: <Visibility sx={{ fontSize: 36, color: "#FFFFFF" }} />,
+      bgColor: "#eab308",
     },
     {
-      title: "Clientes Totales",
-      value: "142",
-      icon: <People sx={{ fontSize: 40, color: "#4CAF50" }} />,
-      bgColor: theme.palette.mode === "light" ? "#E8F5E9" : "#1e5f2e",
+      title: "Confirmados",
+      value: 45,
+      icon: <CheckCircle sx={{ fontSize: 36, color: "#FFFFFF" }} />,
+      bgColor: "#10b981",
     },
     {
-      title: "Equipos Disponibles",
-      value: "248",
-      icon: <VolumeUp sx={{ fontSize: 40, color: "#9C27B0" }} />,
-      bgColor: theme.palette.mode === "light" ? "#F3E5F5" : "#4a1e5f",
+      title: "En Seguimiento",
+      value: 18,
+      icon: <Search sx={{ fontSize: 36, color: "#FFFFFF" }} />,
+      bgColor: "#3b82f6",
     },
   ];
 
-  const upcomingEvents = [
-    {
-      title: "Evento Corporativo 2025",
-      date: "15 de Febrero, 2025 - 18:00",
-      status: "Próximo",
-      statusColor: theme.palette.primary.main,
-    },
-    {
-      title: "Concierto Acústico",
-      date: "22 de Febrero, 2025 - 20:00",
-      status: "Confirmado",
-      statusColor: "#4CAF50",
-    },
+  const citasPendientes = 14;
+
+  const [fechaInicio, setFechaInicio] = useState("2025-01-01");
+  const [fechaFin, setFechaFin] = useState("2025-06-30");
+
+  const eventosRealizadosData = [
+    { mes: "Enero", eventos: 12 },
+    { mes: "Febrero", eventos: 19 },
+    { mes: "Marzo", eventos: 15 },
+    { mes: "Abril", eventos: 22 },
+    { mes: "Mayo", eventos: 18 },
+    { mes: "Junio", eventos: 25 },
   ];
 
-  const recentActivity = [
-    {
-      action: "Nueva cotización creada",
-      time: "Hace 2 horas",
-      color: "#4CAF50",
-    },
-    {
-      action: "Evento actualizado",
-      time: "Hace 4 horas",
-      color: "#1976D2",
-    },
-    {
-      action: "Equipo asignado a evento",
-      time: "Hace 6 horas",
-      color: theme.palette.primary.main,
-    },
-    {
-      action: "Nuevo cliente registrado",
-      time: "Hace 8 horas",
-      color: "#9C27B0",
-    },
+  const tipoEventoData = [
+    { tipo: "Conciertos", porcentaje: 35 },
+    { tipo: "Corporativos", porcentaje: 28 },
+    { tipo: "Bodas", porcentaje: 20 },
+    { tipo: "Cumpleaños", porcentaje: 10 },
+    { tipo: "Otros", porcentaje: 7 },
   ];
 
+  const barColors = ["#9B6F3E", "#8B6F47", "#7A5A8A", "#5A7A5A", "#4A5A7A"];
+
+  // ------------------- CALENDARIO -------------------
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+
+  const monthNames = [
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
+  ];
+
+  const getDaysInMonth = (date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    return { firstDay, daysInMonth };
+  };
+
+  const previousMonth = () => {
+    setCurrentMonth(
+      new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1)
+    );
+  };
+
+  const nextMonth = () => {
+    setCurrentMonth(
+      new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1)
+    );
+  };
+
+  const eventosCalendario = {
+    5: { nombre: "Evento Corporativo", estado: "Confirmado", color: "#10b981" },
+    12: { nombre: "Boda Premium", estado: "En Revisión", color: "#eab308" },
+    18: { nombre: "Concierto Rock", estado: "Confirmado", color: "#10b981" },
+    22: { nombre: "Festival Jazz", estado: "Pago Pendiente", color: "#f97316" },
+    28: { nombre: "Cumpleaños VIP", estado: "En Seguimiento", color: "#3b82f6" },
+  };
+
+  const { firstDay, daysInMonth } = getDaysInMonth(currentMonth);
+
+  // ------------------- RENDER -------------------
   return (
     <Box sx={{ pb: 4 }}>
-      {/* Header */}
-      <Box sx={{ mb: 4 }}>
+      {/* HEADER */}
+      <Box sx={{ mb: 4, position: "relative", display: "inline-block" }}>
         <Typography
           variant="h4"
-          sx={{ fontWeight: "bold", color: theme.palette.text.primary }}
+          sx={{
+            fontWeight: "bold",
+            color: theme.palette.text.primary,
+          }}
         >
-          Resumen de Indicadores
+          Bienvenido al Dashboard de Administrador
         </Typography>
-        <Typography
-          variant="body1"
-          sx={{ color: theme.palette.text.secondary, mt: 1 }}
-        >
-          Indicadores esenciales para comprender el estado actual de la operación y la actividad dentro de la plataforma.
-        </Typography>
+
+        {/* highlight underline */}
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: -6,
+            left: 0,
+            width: "100%",
+            height: "7px",
+            backgroundColor: "#34e39a",
+            borderRadius: 2,
+          }}
+        />
       </Box>
 
-      {/* Stats Grid */}
-      <Card
-        sx={{
-          boxShadow: "0px 2px 8px rgba(0,0,0,0.1)",
-          mb: 4,
-          borderRadius: 2.5,
-        }}
+      <Typography
+        variant="body1"
+        sx={{ color: theme.palette.text.secondary, mt: 1, mb: 3 }}
       >
+        Aquí podrás visualizar indicadores claves, métricas y la actividad
+        general de la plataforma.
+      </Typography>
+
+      {/* TABS */}
+      <Card sx={{ mb: 4, borderRadius: 3 }}>
+        <Tabs
+          value={activeTab}
+          onChange={handleChangeTab}
+          variant="scrollable"
+          sx={{
+            px: 2,
+            pt: 1,
+            "& .MuiTab-root": { textTransform: "none", fontWeight: 600 },
+          }}
+        >
+          <Tab label="Indicadores" value="indicadores" />
+          <Tab label="Gráficos" value="graficos" />
+          <Tab label="Calendario" value="calendario" />
+        </Tabs>
+
         <CardContent>
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: "bold",
-              mb: 2,
-              color: theme.palette.text.primary,
-            }}
-          >
-            Resumen General
-          </Typography>
+          {/* ------------- TAB INDICADORES ------------- */}
+          {activeTab === "indicadores" && (
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <Box>
+                <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+                  Estados de Eventos
+                </Typography>
 
-          <Grid container spacing={3}>
-            {stats.map((stat, index) => (
-              <Grid item xs={12} sm={6} md={6} lg={3} key={index}>
-                <Card
-                  sx={{
-                    height: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    p: 2,
-                    backgroundColor: stat.bgColor,
-                    border: "none",
-                    borderRadius: 8,
-                    boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.1)",
-                    transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                    "&:hover": {
-                      transform: "translateY(-4px)",
-                      boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)",
-                    },
-                  }}
-                >
-                  <CardContent sx={{ textAlign: "center", width: "100%" }}>
-                    <Box sx={{ mb: 1 }}>{stat.icon}</Box>
-                    <Typography
-                      variant="h5"
-                      sx={{
-                        fontWeight: "bold",
-                        color: theme.palette.text.primary,
-                      }}
-                    >
-                      {stat.value}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{ color: theme.palette.text.secondary, mt: 1 }}
-                    >
-                      {stat.title}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </CardContent>
-      </Card>
-
-      {/* Próximos Eventos y Actividad Reciente */}
-      <Grid container spacing={3}>
-        {/* Próximos Eventos */}
-        <Grid item xs={12} md={6}>
-          <Card
-            sx={{
-              boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.1)",
-              height: "100%",
-              borderRadius: 2.5,
-            }}
-          >
-            <CardContent>
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: "bold",
-                  mb: 2,
-                  color: theme.palette.text.primary,
-                }}
-              >
-                Próximos Eventos
-              </Typography>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                {upcomingEvents.map((event, index) => (
-                  <Box
-                    key={index}
-                    sx={{
-                      p: 2,
-                      borderLeft: `4px solid ${event.statusColor}`,
-                      backgroundColor:
-                        theme.palette.mode === "light" ? "#F5F5F5" : "#2a2a2a",
-                      borderRadius: 1,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "start",
-                      }}
-                    >
-                      <Box>
-                        <Typography
-                          variant="body1"
+                <Grid container spacing={3}>
+                  {estadosEventosStats.map((stat, index) => (
+                    <Grid item xs={12} sm={6} md={3} key={index}>
+                      {loading ? (
+                        <Skeleton variant="rounded" height={130} />
+                      ) : (
+                        <Card
                           sx={{
-                            fontWeight: "bold",
-                            color: theme.palette.text.primary,
+                            backgroundColor: stat.bgColor,
+                            borderRadius: 3,
+                            color: "#FFF",
+                            cursor: "pointer",
+                            "&:hover": {
+                              transform: "translateY(-4px)",
+                              transition: "0.3s",
+                            },
                           }}
                         >
-                          {event.title}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{ color: theme.palette.text.secondary, mt: 0.5 }}
-                        >
-                          {event.date}
-                        </Typography>
-                      </Box>
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          backgroundColor: event.statusColor,
-                          color: "white",
-                          px: 1.5,
-                          py: 0.5,
-                          borderRadius: 1,
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {event.status}
-                      </Typography>
-                    </Box>
-                  </Box>
-                ))}
+                          <CardContent sx={{ textAlign: "center" }}>
+                            <Box sx={{ mb: 1 }}>{stat.icon}</Box>
+                            <Typography variant="h4">{stat.value}</Typography>
+                            <Typography>{stat.title}</Typography>
+                          </CardContent>
+                        </Card>
+                      )}
+                    </Grid>
+                  ))}
+                </Grid>
               </Box>
-            </CardContent>
-          </Card>
-        </Grid>
 
-        {/* Actividad Reciente */}
-        <Grid item xs={12} md={6}>
-          <Card
-            sx={{
-              boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.1)",
-              height: "100%",
-              borderRadius: 2.5,
-            }}
-          >
-            <CardContent>
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: "bold",
-                  mb: 2,
-                  color: theme.palette.text.primary,
-                }}
-              >
-                Actividad Reciente
-              </Typography>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                {recentActivity.map((activity, index) => (
-                  <Box
-                    key={index}
+              <Box>
+                <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+                  Citas
+                </Typography>
+
+                {loading ? (
+                  <Skeleton variant="rounded" height={130} />
+                ) : (
+                  <Card
                     sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      p: 1.5,
-                      borderLeft: `3px solid ${activity.color}`,
-                      backgroundColor:
-                        theme.palette.mode === "light" ? "#F9F9F9" : "#252525",
+                      backgroundColor: "#a855f7",
+                      borderRadius: 3,
+                      color: "#FFF",
+                      p: 2,
                     }}
                   >
-                    <Box sx={{ flexGrow: 1 }}>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: theme.palette.text.primary,
-                          fontWeight: 500,
-                        }}
-                      >
-                        {activity.action}
-                      </Typography>
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          color: theme.palette.text.secondary,
-                          display: "block",
-                          mt: 0.3,
-                        }}
-                      >
-                        {activity.time}
-                      </Typography>
-                    </Box>
+                    <CardContent sx={{ textAlign: "center" }}>
+                      <AccessTime sx={{ fontSize: 40 }} />
+                      <Typography variant="h4">{citasPendientes}</Typography>
+                      <Typography>Citas Pendientes</Typography>
+                    </CardContent>
+                  </Card>
+                )}
+              </Box>
+            </Box>
+          )}
+
+          {/* ------------- TAB GRAFICOS ------------- */}
+          {activeTab === "graficos" && (
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              {/* Filtros */}
+              <Card sx={{ p: 3, borderRadius: 3 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  <CalendarMonth sx={{ fontSize: 28 }} />
+                  <Typography variant="h6">Rango de Fechas</Typography>
+
+                  <TextField
+                    label="Inicio"
+                    type="date"
+                    size="small"
+                    value={fechaInicio}
+                    onChange={(e) => setFechaInicio(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                  />
+                  <TextField
+                    label="Fin"
+                    type="date"
+                    size="small"
+                    value={fechaFin}
+                    onChange={(e) => setFechaFin(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                  />
+
+                  <Button variant="contained">Aplicar</Button>
+                </Box>
+              </Card>
+
+              {/* Gráfico 1 */}
+              <Card sx={{ p: 3, borderRadius: 3 }}>
+                <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
+                  Cantidad de Eventos Realizados por Mes
+                </Typography>
+
+                {loading ? (
+                  <Skeleton variant="rounded" height={300} />
+                ) : (
+                  <Box sx={{ height: 320 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={eventosRealizadosData} layout="vertical">
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis type="number" />
+                        <YAxis type="category" dataKey="mes" width={80} />
+                        <Tooltip />
+                        <Bar dataKey="eventos" fill="#9B6F3E" />
+                      </BarChart>
+                    </ResponsiveContainer>
                   </Box>
+                )}
+              </Card>
+
+              {/* Gráfico 2 */}
+              <Card sx={{ p: 3, borderRadius: 3 }}>
+                <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
+                  Distribución por Tipo de Evento (%)
+                </Typography>
+
+                {loading ? (
+                  <Skeleton variant="rounded" height={300} />
+                ) : (
+                  <Box sx={{ height: 320 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={tipoEventoData} layout="vertical">
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis
+                          type="number"
+                          tickFormatter={(val) => `${val}%`}
+                        />
+                        <YAxis type="category" dataKey="tipo" width={100} />
+                        <Tooltip />
+                        <Bar dataKey="porcentaje">
+                          {tipoEventoData.map((entry, index) => (
+                            <Cell
+                              key={index}
+                              fill={barColors[index % barColors.length]}
+                            />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </Box>
+                )}
+              </Card>
+            </Box>
+          )}
+
+          {/* ------------- TAB CALENDARIO ------------- */}
+          {activeTab === "calendario" && (
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                  Calendario de Eventos
+                </Typography>
+
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <IconButton onClick={previousMonth}>
+                    <ChevronLeft />
+                  </IconButton>
+
+                  <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                    {monthNames[currentMonth.getMonth()]}{" "}
+                    {currentMonth.getFullYear()}
+                  </Typography>
+
+                  <IconButton onClick={nextMonth}>
+                    <ChevronRight />
+                  </IconButton>
+                </Box>
+              </Box>
+
+              {/* Días */}
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(7, 1fr)",
+                  gap: 1.5,
+                }}
+              >
+                {[
+                  "Domingo",
+                  "Lunes",
+                  "Martes",
+                  "Miércoles",
+                  "Jueves",
+                  "Viernes",
+                  "Sábado",
+                ].map((day) => (
+                  <Typography
+                    key={day}
+                    sx={{ textAlign: "center", fontWeight: 600 }}
+                  >
+                    {day}
+                  </Typography>
                 ))}
               </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+
+              {/* Celdas */}
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(7, 1fr)",
+                  gap: 1.5,
+                }}
+              >
+                {Array.from({ length: 35 }, (_, i) => {
+                  const dayNumber = i - firstDay + 1;
+                  const valid = dayNumber > 0 && dayNumber <= daysInMonth;
+                  const evento = valid ? eventosCalendario[dayNumber] : null;
+
+                  return (
+                    <Box
+                      key={i}
+                      sx={{
+                        height: 90,
+                        borderRadius: 2,
+                        p: 1,
+                        bgcolor: evento
+                          ? evento.color
+                          : isDarkMode
+                          ? "#1f2937"
+                          : "#e5e7eb",
+                        color: evento ? "#FFF" : theme.palette.text.primary,
+                      }}
+                    >
+                      {valid && (
+                        <>
+                          <Typography sx={{ fontWeight: "bold" }}>
+                            {dayNumber}
+                          </Typography>
+                          {evento && (
+                            <Typography sx={{ fontSize: "0.75rem", mt: 1 }}>
+                              {evento.nombre}
+                            </Typography>
+                          )}
+                        </>
+                      )}
+                    </Box>
+                  );
+                })}
+              </Box>
+            </Box>
+          )}
+        </CardContent>
+      </Card>
     </Box>
   );
 };

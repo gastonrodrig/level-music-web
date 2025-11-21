@@ -119,7 +119,7 @@ export const useAuthStore = () => {
         return false;
       }
 
-      if (data.role === "Personal Externo" || data.role === "Almacenero" || data.role === "Transportista") {
+      if (data.role === "Personal Externo") {
         dispatch(logout());
         openSnackbar("Este rol no tiene permitido iniciar sesión en esta aplicación.");
         return false;
