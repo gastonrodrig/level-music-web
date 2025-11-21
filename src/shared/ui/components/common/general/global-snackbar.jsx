@@ -1,10 +1,9 @@
-import React from 'react';
 import { Snackbar, Alert } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useSelector, useDispatch } from 'react-redux';
 
 // Estilo personalizado del Alert
-const CustomAlert = styled(Alert)(({ theme }) => ({
+const CustomAlert = styled(Alert)(() => ({
   backgroundColor: '#1D1D1D',
   color: '#ffffff',
   fontWeight: 500,

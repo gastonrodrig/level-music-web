@@ -69,14 +69,18 @@ export const SubActivityItem = ({ subActivity, onEdit, onDelete }) => {
                 sx={{ fontWeight: 400, p: 1 }}
               />
             ) : (
-              <Chip
-                icon={<LocalOffer sx={{ fontSize: "1rem", ml: 0.5 }} />}
-                label={`S/ ${Number(subActivity.price).toFixed(2)}`}
-                size="small"
-                color="success" 
-                variant="outlined"
-                sx={{ fontWeight: 400 }}
-              />
+              <>
+                { Number(subActivity.price) > 0 && (
+                  <Chip
+                    icon={<LocalOffer sx={{ fontSize: "1rem", ml: 0.5 }} />}
+                    label={`S/ ${Number(subActivity.price).toFixed(2)}`}
+                    size="small"
+                    color="success" 
+                    variant="outlined"
+                    sx={{ fontWeight: 400 }}
+                  />
+                )}
+              </>
             )}
           </Box>
 

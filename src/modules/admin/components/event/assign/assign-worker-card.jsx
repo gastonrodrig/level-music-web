@@ -163,10 +163,10 @@ export const AssignWorkerCard = ({
             </FormControl>
           </Grid>
 
-          {/* Precio por día */}
+          {/* Precio por hora */}
           <Grid item xs={12} md={2}>
             <TextField
-              label="Precio por día (S/)"
+              label="Precio por hora (S/)"
               value={workerPrice || "S/ -"}
               fullWidth
               disabled
