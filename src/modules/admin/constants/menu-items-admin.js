@@ -12,7 +12,7 @@ import {
 
 export const menuItems = [
   { 
-    text: 'Resumen', 
+    text: 'Dashboard', 
     breadcrumb: 'Inicio',
     icon: Dashboard, 
     href: '/admin' 
