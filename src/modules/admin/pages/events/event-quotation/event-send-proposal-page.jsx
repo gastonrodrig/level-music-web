@@ -108,13 +108,13 @@ export const EventSendProposalPage = () => {
               type="submit"
               startIcon={<Send />}
               sx={{
-                backgroundColor: theme.palette.primary.main,
-                color: theme.palette.getContrastText(theme.palette.primary.main),
-                textTransform: "none",
-                px: 3,
-                py: 1.25,
+                fontSize: 16,
+                backgroundColor: 'theme.palette.primary.main',
+                color: '#fff',
                 borderRadius: 2,
-                "&:hover": { backgroundColor: theme.palette.primary.dark },
+                textTransform: 'none',
+                px: 3,
+                py: 1.5
               }}
               disabled={isButtonDisabled}
             >
