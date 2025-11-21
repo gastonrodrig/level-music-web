@@ -32,6 +32,7 @@ export const WorkerModal = ({
 
   const {
     register,
+    unregister,
     handleSubmit,
     formState: { errors },
     reset,
@@ -57,8 +58,15 @@ export const WorkerModal = ({
     }
   }, [open, reset, worker]);
 
+  useEffect(() => {
+    if (!isEditing) {
+      unregister("status");
+    }
+  }, [isEditing, unregister]);
+
   const onSubmit = async (data) => {
     try {
+      if (!isEditing) delete data.status;
       const success = isEditing
         ? await startUpdateWorker(worker._id, data)
         : await startCreateWorker(data);
@@ -77,7 +85,7 @@ export const WorkerModal = ({
     <Modal open={open} onClose={onClose}>
       <Box
         component="form"
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit, (error) => console.log(error))}
         sx={{
           position: "absolute",
           top: "50%",
@@ -271,13 +279,16 @@ export const WorkerModal = ({
                       <Checkbox
                         {...register("create_account")}
                         checked={watch("create_account") || false}
-                        onChange={(e) => setValue("create_account", e.target.checked)}
+                        onChange={(e) =>
+                          setValue("create_account", e.target.checked)
+                        }
                       />
                     }
                     label="¿Crear cuenta de usuario?"
                   />
                   <FormHelperText>
-                    {errors.create_account?.message || "Si se marca esta opción, se creará una cuenta de acceso para el trabajador"}
+                    {errors.create_account?.message ||
+                      "Si se marca esta opción, se creará una cuenta de acceso para el trabajador"}
                   </FormHelperText>
                 </FormControl>
               </Grid>

@@ -210,21 +210,25 @@ export const PaymentManualContent = ({
                   required: "El monto es obligatorio",
                   validate: (val) => {
                     const num = Number(val);
-                    // method-specific max (yape/plin)
+
+                    // max 500 Yape / Plin
                     if ((currentMethod === "yape" || currentMethod === "plin") && !isNaN(num) && num > 500) {
                       return "El monto máximo para Yape/Plin es S/ 500";
                     }
 
-                    // prevent exceeding the required total across all manual payments
+                    // Validación total
                     const requiredTotal = Number(watch("amount")) || 0;
                     const payments = watch("manualPayments") || [];
                     const idx = paymentNumber - 1;
+
                     const sumOthers = payments.reduce((s, p, i) => {
                       if (i === idx) return s;
                       return s + (Number(p?.amount) || 0);
                     }, 0);
+
                     const remaining = requiredTotal - sumOthers;
-                    if (!isNaN(num) && num + 1 > remaining) {
+
+                    if (!isNaN(num) && num > remaining) {
                       return `El monto excede el total requerido. Restante: S/ ${remaining.toFixed(2)}`;
                     }
 
@@ -235,7 +239,7 @@ export const PaymentManualContent = ({
                   const value = e.target.value;
                   setValue(
                     `manualPayments.${paymentNumber - 1}.amount`,
-                    value === "" ? "" : parseFloat(value)
+                    setValue(`manualPayments.${paymentNumber - 1}.amount`, value)
                   );
                 }}
                 value={watch(`manualPayments.${paymentNumber - 1}.amount`) || ""}

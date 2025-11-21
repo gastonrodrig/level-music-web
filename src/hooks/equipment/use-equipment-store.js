@@ -52,7 +52,6 @@ export const useEquipmentStore = () => {
   const startLoadingAllEquipments = async () => {
     dispatch(setLoadingEquipment(true));
     try {
-      // Implement API call to load service details here
       const { data } = await equipmentApi.get("/all", getAuthConfig(token));
       dispatch(listAllEquipments(data));
       return true;

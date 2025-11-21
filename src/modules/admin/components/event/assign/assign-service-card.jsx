@@ -11,12 +11,7 @@ import {
   IconButton,
   Chip,
 } from "@mui/material";
-import {
-  Add,
-  CameraAlt,
-  Delete,
-  ViewInArSharp,
-} from "@mui/icons-material";
+import { Add, CameraAlt, Delete, ViewInArSharp } from "@mui/icons-material";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
 import { useMemo, useState } from "react";
 import { ImagePreviewModal } from "../../../../../shared/ui/components";
@@ -36,6 +31,7 @@ export const AssignServiceCard = ({
   datesReady,
   guardDates,
   eventCode,
+  isEditMode = false, // Nueva prop
 }) => {
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [selectedPreview, setSelectedPreview] = useState(null);
@@ -45,14 +41,12 @@ export const AssignServiceCard = ({
     setValue("service_id", "");
     setValue("service_detail_id", "");
     setValue("service_price", "");
-    setValue("service_hours", 1);
     setValue("payment_percentage_required", 0);
   };
 
   const serviceId = watch("service_id");
   const serviceDetailId = watch("service_detail_id");
   const servicePrice = watch("service_price");
-  const serviceHours = watch("service_hours");
   const paymentPercentageRequired = watch("payment_percentage_required");
 
   const selectedService = useMemo(
@@ -96,7 +90,7 @@ export const AssignServiceCard = ({
       >
         <Grid container spacing={2} alignItems="center">
           {/* Servicio */}
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={4.5}>
             <FormControl fullWidth>
               <InputLabel id="service-label" shrink>
                 Servicio
@@ -136,7 +130,7 @@ export const AssignServiceCard = ({
           </Grid>
 
           {/* Paquete */}
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={4.5}>
             <FormControl fullWidth size="small">
               <InputLabel id="package-label" shrink>
                 Paquete
@@ -171,7 +165,12 @@ export const AssignServiceCard = ({
                       }}
                     >
                       <Box sx={{ display: "flex", flexDirection: "column" }}>
-                        <Typography>Paquete – S/. {d.ref_price} (por hora)</Typography>
+                        <Typography>
+                          Paquete – S/.{" "}
+                          {Math.round(Number(d?.ref_price) * 0.15) +
+                            d?.ref_price}{" "}
+                          (por día)
+                        </Typography>
                         <Typography variant="caption" color="text.secondary">
                           {entries.map(([k, v]) => `${k}: ${v}`).join(", ")}
                         </Typography>
@@ -183,8 +182,20 @@ export const AssignServiceCard = ({
             </FormControl>
           </Grid>
 
+          {/* Precio de referencia */}
+          <Grid item xs={12} md={3}>
+            <TextField
+              label="Precio por día (S/)"
+              value={servicePrice ? `S/. ${servicePrice.toFixed(2)}` : "S/ -"}
+              fullWidth
+              disabled
+              InputLabelProps={{ shrink: true }}
+              sx={{ "& .MuiInputBase-root": { height: 60 } }}
+            />
+          </Grid>
+
           {/* Vista previa del paquete seleccionado */}
-          {selectedDetail && (
+          {selectedDetail?.photos.length > 0 && (
             <Box
               sx={{
                 mt: 2,
@@ -279,64 +290,10 @@ export const AssignServiceCard = ({
             </Box>
           )}
 
-          {/* Horas */}
-          <Grid item xs={12} md={2}>
-            <FormControl fullWidth size="small">
-              <InputLabel id="hours-label">Horas</InputLabel>
-              <Select
-                labelId="hours-label"
-                value={serviceHours || 1}
-                onChange={(e) => setValue("service_hours", e.target.value)}
-                sx={{ height: 60 }}
-                disabled={datesMissing}
-              >
-                {Array.from({ length: 10 }, (_, i) => i + 1).map((h) => (
-                  <MenuItem key={h} value={h}>
-                    {h} horas
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-
-          {/* Precio de referencia */}
-          <Grid item xs={12} md={2.5}>
-            <TextField
-              label="Precio Ref."
-              value={selectedDetail?.ref_price || 0}
-              fullWidth
-              disabled
-              InputLabelProps={{ shrink: true }}
-              sx={{ "& .MuiInputBase-root": { height: 60 } }}
-            />
-          </Grid>
-
-          {/* % Pago Requerido */}
-          <Grid item xs={12} md={2.5}>
-            <TextField
-              label="% Pago Requerido"
-              placeholder="Ej: 50"
-              value={paymentPercentageRequired || ""}
-              onChange={(e) => {
-                let value = e.target.value ? Number(e.target.value) : "";
-                // Validación: solo entre 0 y 100
-                if (value !== "" && (value < 0 || value > 100)) return;
-                setValue("payment_percentage_required", value);
-              }}
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              sx={{ "& .MuiInputBase-root": { height: 60 } }}
-              disabled={datesMissing}
-              type="number"
-              inputProps={{ min: 0, max: 100 }}
-            />
-          </Grid>
-
           {/* Agregar */}
-          <Grid item xs={12} md={2.5}>
+          <Grid item xs={12} md={2}>
             <Button
               variant="contained"
-              fullWidth
               startIcon={<Add />}
               onClick={async () => {
                 if (!guardDates()) return;
@@ -345,7 +302,6 @@ export const AssignServiceCard = ({
                   selectedService,
                   selectedDetail,
                   servicePrice,
-                  serviceHours,
                   assignedServices,
                   paymentPercentageRequired,
                   append: addService,
@@ -360,8 +316,10 @@ export const AssignServiceCard = ({
                 textTransform: "none",
                 borderRadius: 2,
                 color: "#fff",
-                fontWeight: 600,
+                fontWeight: 500,
                 py: 2,
+                px: 3,
+                height: "40px",
               }}
             >
               Agregar
@@ -401,35 +359,12 @@ export const AssignServiceCard = ({
                   sx={{ alignItems: "flex-start" }}
                 >
                   <Chip label={servicio.provider_name} size="small" />
-                  <Chip
-                    label={`Horas: ${servicio.service_hours}`}
-                    size="small"
-                  />
-                  <Chip
-                    label={`Porcentaje de Pago: ${servicio.payment_percentage_required}%`}
-                    size="small"
-                    wcolor="info"
-                  />
                 </Box>
               </Grid>
 
               <Grid item xs={6} textAlign="right">
-                <Typography
-                  fontSize={13}
-                  sx={{
-                    textDecoration: "line-through",
-                    color: "text.secondary",
-                  }}
-                >
-                  Ref: S/ {servicio.ref_price}/hora × {servicio.service_hours}h
-                </Typography>
-                <Typography fontSize={14}>
-                  S/ {servicio.service_price}/hora × {servicio.service_hours}h
-                </Typography>
                 <Typography fontWeight={600} color="green">
-                  S/.{" "}
-                  {Number(servicio.service_price) *
-                    Number(servicio.service_hours)}
+                  S/. {Number(servicio.service_price)}
                 </Typography>
                 <IconButton
                   size="small"
@@ -441,6 +376,47 @@ export const AssignServiceCard = ({
                 </IconButton>
               </Grid>
             </Grid>
+
+            {/* Campo de Pago Requerido - Solo visible en modo edición */}
+            {isEditMode && (
+              <Grid container spacing={2} mt={1}>
+                <Grid item xs={12} md={3}>
+                  <TextField
+                    label="% Porcentaje requerido"
+                    placeholder="Ej: 50"
+                    size="small"
+                    name={`services.${index}.payment_percentage_required`}
+                    value={
+                      (watch &&
+                        (watch(`services.${index}.payment_percentage_required`) ??
+                          servicio.payment_percentage_required)) ||
+                      ""
+                    }
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      const value = raw === "" ? "" : Number(raw);
+                      if (value !== "" && (value < 0 || value > 100)) return;
+
+                      setValue(
+                        `services.${index}.payment_percentage_required`,
+                        value,
+                        { shouldValidate: true, shouldDirty: true }
+                      );
+                    }}
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    sx={{
+                      "& .MuiInputBase-root": {
+                        height: 45,
+                        bgcolor: isDark ? "#1f1e1e" : "#fff",
+                      },
+                    }}
+                    type="number"
+                    inputProps={{ min: 0, max: 100 }}
+                  />
+                </Grid>
+              </Grid>
+            )}
 
             <Grid container spacing={2} mt={0.5}>
               {Object.entries(servicio.details).map(([k, v]) => (
@@ -461,11 +437,7 @@ export const AssignServiceCard = ({
         <Typography textAlign="right" fontWeight={600} color="green">
           Total Servicios Adicionales: S/{" "}
           {assignedServices
-            .reduce(
-              (acc, s) =>
-                acc + Number(s.service_price) * Number(s.service_hours),
-              0
-            )
+            .reduce((acc, s) => acc + Number(s.service_price), 0)
             .toFixed(2)}
         </Typography>
       )}

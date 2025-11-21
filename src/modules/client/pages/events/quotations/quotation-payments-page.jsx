@@ -14,7 +14,7 @@ import {
   PaymentInfoAlert,
   PaymentMercadoPagoToggle,
 } from "../../../components";
-import { useQuotationStore } from "../../../../../hooks";
+import { useAuthStore, useQuotationStore } from "../../../../../hooks";
 import { FormProvider, useForm } from "react-hook-form";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
 import { useNavigate } from "react-router-dom";
@@ -26,6 +26,7 @@ export const QuotationPaymentsPage = () => {
   const { isMd } = useScreenSizes();
 
   const { selected } = useQuotationStore();
+  const { _id } = useAuthStore();
 
   const partialAmount = selected?.payment_schedules[0]?.total_amount;
 
@@ -53,6 +54,15 @@ export const QuotationPaymentsPage = () => {
       return;
     }
   }, [selected, navigate]);
+
+  useEffect(() => {
+    if (_id) {
+      setValue("user_id", _id);
+    }
+    if (selected?._id) {
+      setValue("event_id", selected._id);
+    }
+  }, [_id, selected, setValue]);
 
   useEffect(() => {
     if (finalAmount > 30000 && useMercadoPago) {

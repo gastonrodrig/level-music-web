@@ -8,7 +8,7 @@ export const calcEstimatedPrice = ({
   workers = [],
 }) => {
   const servicesTotal = services.reduce(
-    (acc, s) => acc + num(s.service_price) * num(s.service_hours),
+    (acc, s) => acc + num(s.service_price),
     0
   );
   const equipmentsTotal = equipments.reduce(

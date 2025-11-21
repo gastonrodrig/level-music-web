@@ -84,6 +84,10 @@ export const EventSendProposalPage = () => {
     );
   }
 
+  const onSubmit = () => {
+    
+  }
+
   return (
     <Box sx={{ px: { xs: 2, sm: 4 }, py: { xs: 3, md: 4 }, maxWidth: 1200, mx: "auto" }}>
       <Typography variant="h4" sx={{ mb: 1, fontWeight: 700 }}>
@@ -225,7 +229,7 @@ export const EventSendProposalPage = () => {
                 borderRadius: 2,
                 "&:hover": { backgroundColor: theme.palette.primary.dark },
               }}
-              onClick={() => navigate(`/admin/quotations/send-proposal/preview`)}
+              onClick={onSubmit}
             >
               Enviar Propuesta
             </Button>

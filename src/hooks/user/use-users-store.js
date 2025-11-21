@@ -15,6 +15,7 @@ import {
   updateClientProfileModel
 } from "../../shared/models";
 import { getAuthConfig } from "../../shared/utils";
+import { useCallback } from "react";
 
 export const useUsersStore = () => {
   const dispatch = useDispatch();
@@ -62,20 +63,23 @@ export const useUsersStore = () => {
     }
   }
 
-  const startLoadingUserDocument = async (documentNumber, documentType, clientType) => {
-    try {
-      const { data } = await userApi.get(
-        `/get/document?document_number=${documentNumber}&document_type=${documentType}&client_type=${clientType}`, 
-        getAuthConfig(token)
-      );
-      return data;
-    } catch (error) {
-      console.log(error)
-      const message = error.response?.data?.message;
-      openSnackbar(message ?? "Ocurrió un error al buscar el usuario.");
-      return null;
-    }
-  };
+  const startLoadingUserDocument = useCallback(
+    async (documentNumber, documentType, clientType) => {
+      try {
+        const { data } = await userApi.get(
+          `/get/document?document_number=${documentNumber}&document_type=${documentType}&client_type=${clientType}`,
+          getAuthConfig(token)
+        );
+        return data;
+      } catch (error) {
+        console.log(error);
+        const message = error.response?.data?.message;
+        openSnackbar(message ?? "Ocurrió un error al buscar el usuario.");
+        return null;
+      }
+    },
+    [token]
+  );
 
   const startUpdateExtraData = async (uid, extraData) => {
     dispatch(setLoadingClientProfile());

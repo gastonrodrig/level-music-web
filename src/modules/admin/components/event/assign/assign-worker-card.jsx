@@ -123,7 +123,14 @@ export const AssignWorkerCard = ({
                   <em>Seleccionar trabajador</em>
                 </MenuItem>
                 {filteredWorkers.map((w) => (
-                  <MenuItem key={w._id} value={w._id}>
+                  <MenuItem 
+                    key={w._id} 
+                    value={w._id}
+                    onClick={() => {
+                      const refPrice = Number(w?.reference_price || 0);
+                      setValue("worker_price", refPrice);
+                    }}
+                  >
                     <Box sx={{ display: "flex", flexDirection: "column" }}>
                       <Typography fontWeight={500}>
                         {w.first_name} {w.last_name}
@@ -160,16 +167,11 @@ export const AssignWorkerCard = ({
           <Grid item xs={12} md={2}>
             <TextField
               label="Precio por hora (S/)"
-              placeholder="Ej: 50"
-              value={workerPrice || ""}
-              onChange={(e) => {
-                const value = e.target.value ? Number(e.target.value) : "";
-                setValue("worker_price", value);
-              }}
+              value={workerPrice || "S/ -"}
               fullWidth
+              disabled
               InputLabelProps={{ shrink: true }}
               sx={{ "& .MuiInputBase-root": { height: 60 } }}
-              disabled={datesMissing}
             />
           </Grid>
 
@@ -195,7 +197,13 @@ export const AssignWorkerCard = ({
                 });
               }}
               disabled={!workerId || !workerHours || !workerPrice}
-              sx={{ textTransform: "none", borderRadius: 2, color: "#fff", fontWeight: 600, py: 2 }}
+              sx={{ 
+                textTransform: "none", 
+                borderRadius: 2, 
+                color: "#fff", 
+                fontWeight: 600, 
+                py: 2 
+              }}
             >
               Agregar
             </Button>
@@ -239,7 +247,7 @@ export const AssignWorkerCard = ({
 
               <Grid item xs={6} textAlign="right">
                 <Typography fontSize={14}>
-                  S/ {trabajador.worker_price}/hora × {trabajador.worker_hours}h
+                  S/. {trabajador.worker_price}/hora × {trabajador.worker_hours}h
                 </Typography>
                 <Typography fontWeight={600} color="green">
                   S/. {Number(trabajador.worker_price) * Number(trabajador.worker_hours)}

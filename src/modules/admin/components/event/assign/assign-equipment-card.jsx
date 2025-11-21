@@ -53,6 +53,7 @@ export const AssignEquipmentCard = ({
 
   return (
     <Box sx={{ p: 3, borderRadius: 3, bgcolor: isDark ? "#1f1e1e" : "#f5f5f5", mb: 2 }}>
+      {/* Título */}
       <Box display="flex" alignItems="center" mb={2} gap={1}>
         <Speaker sx={{ mt: "2px" }} />
         <Typography sx={{ fontSize: 20, fontWeight: 500 }}>
@@ -84,7 +85,6 @@ export const AssignEquipmentCard = ({
                 value={equipmentType || ""}
                 onChange={(e) => {
                   setValue("equipment_type", e.target.value, { shouldValidate: true });
-                  // al cambiar tipo, limpiamos selección dependiente
                   setValue("equipment_id", "");
                 }}
                 inputProps={{ name: "equipment_type" }}
@@ -120,7 +120,14 @@ export const AssignEquipmentCard = ({
                   <em>Seleccionar equipo</em>
                 </MenuItem>
                 {filteredEquipments.map((e) => (
-                  <MenuItem key={e._id} value={e._id}>
+                  <MenuItem 
+                    key={e._id} 
+                    value={e._id}
+                    onClick={() => {
+                      const refPrice = Number(e?.reference_price || 0);
+                      setValue("equipment_price", refPrice);
+                    }}
+                  >
                     <Box sx={{ display: "flex", flexDirection: "column" }}>
                       <Typography fontWeight={500}>{e.name}</Typography>
                       <Typography variant="caption" color="text.secondary">
@@ -158,15 +165,11 @@ export const AssignEquipmentCard = ({
             <TextField
               label="Precio por hora (S/)"
               placeholder="Ej: 250"
-              value={equipmentPrice || ""}
-              onChange={(e) => {
-                const value = e.target.value ? Number(e.target.value) : "";
-                setValue("equipment_price", value);
-              }}
+              value={equipmentPrice || "S/ -"}
               fullWidth
+              disabled
               InputLabelProps={{ shrink: true }}
               sx={{ "& .MuiInputBase-root": { height: 60 } }}
-              disabled={datesMissing}   
             />
           </Grid>
 
@@ -228,7 +231,7 @@ export const AssignEquipmentCard = ({
 
               <Grid item xs={6} textAlign="right">
                 <Typography fontSize={14}>
-                  S/ {equipo.equipment_price}/hora × {equipo.equipment_hours}h
+                  S/. {equipo.equipment_price}/hora × {equipo.equipment_hours}h
                 </Typography>
                 <Typography fontWeight={600} color="green">
                   S/. {Number(equipo.equipment_price) * Number(equipo.equipment_hours)}

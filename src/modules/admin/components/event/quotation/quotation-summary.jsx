@@ -16,7 +16,7 @@ export const QuotationSummary = ({
   const servicesTotal = useMemo(
     () =>
       (assignedServices || []).reduce(
-        (acc, s) => acc + (parseFloat(s.service_price) || 0) * (Number(s.service_hours) || 0),
+        (acc, s) => acc + (parseFloat(s.service_price) || 0),
         0
       ),
     [assignedServices]
@@ -84,8 +84,8 @@ export const QuotationSummary = ({
               assignedServices.map((s, i) => (
                 <Row
                   key={s.id ?? `${s._id ?? "svc"}-${i}`}
-                  left={`• ${s.name ?? s.service_type_name ?? "Servicio"} (${s.service_hours}h)`}
-                  right={money(lineTotal(s.service_price, s.service_hours))}
+                  left={`• ${s.name ?? s.service_type_name ?? "Servicio"}`}
+                  right={money(lineTotal(s.service_price, 1))}
                 />
               ))
             ) : (

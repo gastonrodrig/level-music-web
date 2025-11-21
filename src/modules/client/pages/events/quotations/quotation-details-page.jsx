@@ -23,7 +23,6 @@ import { formatDateString, formatTimeRange } from "../../../../../shared/utils";
 import { ResourceTabs } from "../../../../../shared/ui/components/common";
 import {
   EventInfoCard,
-  QuotationRequestedServices,
 } from "../../../../admin/components";
 
 export const QuotationDetailsPage = () => {
@@ -147,11 +146,7 @@ export const QuotationDetailsPage = () => {
 
       {/* Recursos Asignados o Servicios Solicitados */}
       <Box mt={3}>
-        {assignations.length > 0 ? (
-          <ResourceTabs assignations={assignations} />
-        ) : (
-          <QuotationRequestedServices selected={selected} />
-        )}
+        <ResourceTabs assignations={assignations} />
       </Box>
 
       {/* Footer */}

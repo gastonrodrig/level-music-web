@@ -4,8 +4,8 @@ export const updateQuotationModel = (data) => {
     ...data.services.map((s) => ({
       resource_type: "Servicio Adicional",
       resource_id: String(s.service_detail_id),
-      hours: Number(s.service_hours || 1),
-      hourly_rate: Number(s.service_price ?? s.ref_price ?? 0),
+      hours: 1,
+      hourly_rate: Number(s.service_price),
       available_from: data.startDateTime,
       available_to: data.endDateTime,
       payment_percentage_required: s.payment_percentage_required ?? 0,
@@ -15,7 +15,7 @@ export const updateQuotationModel = (data) => {
       resource_type: "Equipo",
       resource_id: String(e.equipment_id),
       hours: Number(e.equipment_hours || 1),
-      hourly_rate: Number(e.equipment_price || 0),
+      hourly_rate: Number(e.equipment_price) * Number(e.equipment_hours || 1),
       available_from: data.startDateTime,
       available_to: data.endDateTime,
     })),
@@ -24,7 +24,7 @@ export const updateQuotationModel = (data) => {
       resource_type: "Trabajador",
       resource_id: String(w.worker_id),
       hours: Number(w.worker_hours || 1),
-      hourly_rate: Number(w.worker_price || 0),
+      hourly_rate: Number(w.worker_price) * Number(w.worker_hours || 1),
       available_from: data.startDateTime,
       available_to: data.endDateTime,
       
