@@ -77,12 +77,19 @@ export const EventEvaluateModal = ({
           <Button
             type="button"
             variant="contained"
-            color="primary"
             sx={{
+              mt: 1,
+              backgroundColor: "primary.main",
+              color: "#fff",
               textTransform: "none",
+              py: 1.5,
+              px: 4,
+              borderRadius: 2,
+              fontWeight: 600,
               flex: 1,
-              boxShadow: "none",
-              color: "white",
+              "&:hover": {
+                backgroundColor: "primary.dark",
+              },
             }}
             onClick={() => handleAction("Aprobado")}
             disabled={isButtonDisabled}
@@ -92,15 +99,22 @@ export const EventEvaluateModal = ({
 
           <Button
             type="button"
-            variant="outlined"
-            color="inherit"
+            variant="contained"
             sx={{
+              mt: 1,
+              backgroundColor: "#212121",
+              color: "#fff",
               textTransform: "none",
+              py: 1.5,
+              px: 4,
+              borderRadius: 2,
+              fontWeight: 600,
               flex: 1,
-              boxShadow: isDark ? 4 : "none",
-              color: isDark ? "white" : "black",
+              "&:hover": {
+                backgroundColor: "#424242",
+              },
             }}
-            onClick={() => handleAction("Rechazado")}
+            onClick={() => handleAction("En Revisión")}
             disabled={isButtonDisabled}
           >
             Rechazar
