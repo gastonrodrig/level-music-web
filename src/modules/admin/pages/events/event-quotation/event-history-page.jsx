@@ -14,7 +14,7 @@ export const EventHistoryPage = () => {
   const { selected, quotations, startLoadingQuotationVersionsByCode } =
     useQuotationStore();
   const navigate = useNavigate();
-  const { isSm } = useScreenSizes();
+  const { isMd } = useScreenSizes();
 
   useEffect(() => {
     if (!selected) {
@@ -42,7 +42,7 @@ export const EventHistoryPage = () => {
     client: getClientName(),
     eventType: selected?.event_type_name,
     eventDate: formatDay(selected?.event_date),
-    amount: selected?.estimated_price,
+    amount: 'FALTAAAAAA'
   };
 
   const [openVersion, setOpenVersion] = useState(false);
@@ -54,7 +54,9 @@ export const EventHistoryPage = () => {
   };
 
   return (
-    <Box sx={{ px: isSm ? 4 : 0, pt: 2 }}>
+    <Box 
+      sx={{ px: isMd ? 4 : 0, pt: 2, maxWidth: 1200, margin: "0 auto" }}
+    >
       <Typography variant="h4" sx={{ mb: 1 }}>
         Historial de Versiones - Cotización {selected?.event_code}
       </Typography>

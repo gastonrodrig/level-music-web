@@ -125,9 +125,7 @@ export const AssignEquipmentCard = ({
                     value={e._id}
                     onClick={() => {
                       const refPrice = Number(e?.reference_price || 0);
-                      const calculatedPrice =
-                        Math.round(refPrice * 0.15) + refPrice;
-                      setValue("equipment_price", calculatedPrice);
+                      setValue("equipment_price", refPrice);
                     }}
                   >
                     <Box sx={{ display: "flex", flexDirection: "column" }}>
@@ -233,7 +231,7 @@ export const AssignEquipmentCard = ({
 
               <Grid item xs={6} textAlign="right">
                 <Typography fontSize={14}>
-                  S/ {equipo.equipment_price}/hora × {equipo.equipment_hours}h
+                  S/. {equipo.equipment_price}/hora × {equipo.equipment_hours}h
                 </Typography>
                 <Typography fontWeight={600} color="green">
                   S/. {Number(equipo.equipment_price) * Number(equipo.equipment_hours)}

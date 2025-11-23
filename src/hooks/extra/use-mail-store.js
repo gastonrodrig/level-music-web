@@ -43,7 +43,6 @@ export const useUsersStore = () => {
       const { data } = await userApi.post("/client-landing", newUser);
       return { ok: true, data };
     } catch (error) {
-      console.log(error);
       const message = error.response?.data?.message;
       openSnackbar(message ?? "Ocurrió un error al registrar el cliente.");
       return false;

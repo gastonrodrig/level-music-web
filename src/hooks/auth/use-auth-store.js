@@ -98,7 +98,6 @@ export const useAuthStore = () => {
         return !needsPassword;
       }
     } catch (error) {
-      console.log(error);
       dispatch(logout());
       if (error.code === "auth/error-code:-47") {
         openSnackbar("Este correo ya está registrado con otro método de autenticación.");
@@ -120,7 +119,7 @@ export const useAuthStore = () => {
         return false;
       }
 
-      if (data.role === "Personal Externo" || data.role === "Almacenero" || data.role === "Transportista") {
+      if (data.role === "Personal Externo") {
         dispatch(logout());
         openSnackbar("Este rol no tiene permitido iniciar sesión en esta aplicación.");
         return false;
@@ -230,7 +229,6 @@ export const useAuthStore = () => {
       openSnackbar("Se envió un enlace para restablecer tu contraseña a tu correo.");
       return true;
     } catch (error) {
-      console.log(error)
       const message = error.response?.data?.message;
       openSnackbar(message ?? "Ocurrió un error al restablecer la contraseña.");
       return false;

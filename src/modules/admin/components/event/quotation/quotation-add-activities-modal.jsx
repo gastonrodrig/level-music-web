@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Modal, Box, Typography, TextField, Button, Stack, IconButton, useTheme } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
-
 export const QuotationAddActivityModal = ({
   open,
   onClose,

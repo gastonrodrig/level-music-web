@@ -76,7 +76,6 @@ export const EventQuotationAddPage = () => {
       workers: [],
       service_id: "",
       service_detail_id: "",
-      service_hours: 1,
       service_price: "",
       payment_percentage_required: 0,
       equipment_type: "",
@@ -88,8 +87,7 @@ export const EventQuotationAddPage = () => {
       worker_hours: 1,
       worker_price: "",
       name: "",
-      description: "",
-      estimated_price: 0,
+      description: ""
     },
     mode: "onBlur",
   });
@@ -123,7 +121,6 @@ export const EventQuotationAddPage = () => {
       equipments: equipmentsWatch || [],
       workers: workersWatch || [],
     });
-    setValue("estimated_price", total, { shouldValidate: true });
   }, [servicesWatch, equipmentsWatch, workersWatch, setValue]);
 
   const {
@@ -178,9 +175,15 @@ export const EventQuotationAddPage = () => {
   );
   
   const onSubmit = async (data) => {
+    console.log(data)
     const success = await startCreateQuotation(data);
+    console.log("Creation success:", success);
     if (success) navigate("/admin/quotations");
   };
+
+  const formErrors = async (data) => {
+    console.log("Form Errors:", data);
+  }
 
   const isButtonDisabled = useMemo(() => loading, [loading]);
 
@@ -189,7 +192,7 @@ export const EventQuotationAddPage = () => {
       <Box
         component="form"
         sx={{ px: isMd ? 4 : 0, pt: 2, maxWidth: 1200, margin: "0 auto" }}
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit, formErrors)}
       >
         <Typography variant="h4" sx={{ mb: 1 }}>
           Agregar Cotización
@@ -264,7 +267,6 @@ export const EventQuotationAddPage = () => {
           assignedServices={assignedServices}
           assignedEquipments={assignedEquipments}
           assignedWorkers={assignedWorkers}
-          grandTotal={watch("estimated_price") || 0}
         />
 
         {/* Botón final */}

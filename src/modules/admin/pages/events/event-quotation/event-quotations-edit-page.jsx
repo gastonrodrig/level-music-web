@@ -85,11 +85,15 @@ export const EventQuotationEditPage = () => {
       company_name: selected?.company_name || "",
       contact_person: selected?.contact_person || "",
       // Recursos (arrays)
-      services: selected?.assignations?.filter(a => a.resource_type === "Servicio Adicional").map(s => ({
+
+      services: selected?.assignations
+      ?.filter(a => a.resource_type === "Servicio Adicional")
+      .map(s => ({
         service_type_name: s.service_type_name,
         provider_name: s.service_provider_name,
-        service_hours: s.hours,
-        service_price: s.hourly_rate,
+
+        service_price: Number(s.hourly_rate.toFixed(2)),
+
         ref_price: s.service_ref_price,
         details: s.service_detail || {},
         payment_percentage_required: s.payment_percentage_required || 0,
@@ -97,10 +101,14 @@ export const EventQuotationEditPage = () => {
         _id: s._id,
       })) || [],
 
-      equipments: selected?.assignations?.filter(a => a.resource_type === "Equipo").map(e => ({
+      equipments: selected?.assignations
+      ?.filter(a => a.resource_type === "Equipo")
+      .map(e => ({
         name: e.equipment_name,
         equipment_type: e.equipment_type,
-        equipment_price: e.hourly_rate,
+
+        equipment_price: Number((e.hourly_rate / e.hours).toFixed(2)),
+
         equipment_hours: e.hours,
         description: e.equipment_description,
         serial_number: e.equipment_serial_number,
@@ -110,16 +118,19 @@ export const EventQuotationEditPage = () => {
         _id: e._id,
       })) || [],
       
-      workers: selected?.assignations?.filter(a => a.resource_type === "Trabajador").map(w => ({
+      workers: selected?.assignations
+      ?.filter(a => a.resource_type === "Trabajador")
+      .map(w => ({
         first_name: w.worker_first_name,
         last_name: w.worker_last_name,
         worker_type_name: w.worker_role,
         worker_hours: w.hours,
-        worker_price: w.hourly_rate,
+
+        worker_price: Number((w.hourly_rate / w.hours).toFixed(2)),
+        
         worker_id: w.resource,
         _id: w._id,
       })) || [],
-      estimated_price: selected?.estimated_price || 0,
     },
     mode: "onBlur",
   });
@@ -139,15 +150,6 @@ export const EventQuotationEditPage = () => {
       navigate("/admin/quotations");
     } 
   }, [selected, navigate]);
-
-  useEffect(() => {
-    const total = calcEstimatedPrice({
-      services: servicesWatch || [],
-      equipments: equipmentsWatch || [],
-      workers: workersWatch || [],
-    });
-    setValue("estimated_price", total, { shouldValidate: true });
-  }, [servicesWatch, equipmentsWatch, workersWatch, setValue]);
 
   useEffect(() => {
     if (clientType === "Empresa") {
@@ -294,7 +296,6 @@ export const EventQuotationEditPage = () => {
           assignedServices={assignedServices}
           assignedEquipments={assignedEquipments}
           assignedWorkers={assignedWorkers}
-          grandTotal={watch("estimated_price") || 0}
         />
 
         {/* Botón final */}

@@ -31,7 +31,6 @@ export const MaintenanceModal = ({
   const { startSearchingEquipment } = useEquipmentStore();
   const { startCreateMaintenance, startChangeMaintenanceStatus } = useMaintenanceStore();
   
-  // Estados para el manejo de la funcionalidad de reagendado y cancelado
   const [showRescheduleOptions, setShowRescheduleOptions] = useState(false);
 
   const {
@@ -53,7 +52,6 @@ export const MaintenanceModal = ({
         equipmentName: maintenance.equipment_name ?? "",
         description: maintenance.description ?? "",
       });
-      // Resetear estados locales
       setShowRescheduleOptions(false);
     }
     if (isChangingStatus) {
@@ -84,13 +82,10 @@ export const MaintenanceModal = ({
   };
 
   const getStatusOptions = (currentStatus, maintenanceType) => {
-    // Opciones base según el estado actual
     if (currentStatus === 'Programado') {
-      // Para mantenimiento Correctivo: En Progreso
       if (maintenanceType === 'Correctivo') {
         return ['En Progreso'];
       }
-      // Para mantenimiento Preventivo: En Progreso, Reagendar
       if (maintenanceType === 'Preventivo') {
         return ['En Progreso', 'Reagendar'];
       }
@@ -101,14 +96,12 @@ export const MaintenanceModal = ({
     }
 
     if (currentStatus === 'Reagendado') {
-      // Desde Reagendado solo se puede regresar a En Progreso
       return ['En Progreso'];
     }
     
     return [];
   };
 
-  // Función para mapear los valores mostrados en UI a los valores del backend
   const mapStatusToBackend = (uiStatus) => {
     const statusMap = {
       'Reagendar': 'Reagendado',
@@ -117,16 +110,10 @@ export const MaintenanceModal = ({
   };
 
   const onSubmit = async (data) => {
-    console.log('🔍 Datos originales del formulario:', data);
-    
-    // Mapear el status a los valores que espera el backend
     const mappedData = {
       ...data,
       status: mapStatusToBackend(data.status)
     };
-
-    console.log('📤 Datos que se enviarán al backend:', mappedData);
-
     try {
       const success = isChangingStatus
         ? await startChangeMaintenanceStatus(maintenance._id, mappedData)

@@ -12,6 +12,7 @@ import{
   createQuotationModel,
   updateQuotationModel,
   evaluateQuotationModel,
+  createMailReadyQuotationModel,
 } from '../../shared/models';
 import { useState } from 'react';
 import { getAuthConfig, getAuthConfigWithParams } from '../../shared/utils';
@@ -54,7 +55,6 @@ export const useQuotationStore = () => {
     dispatch(setLoadingQuotation(true));
     try {
       const payload = updateQuotationModel(quotation);
-      console.log(payload)
       await eventApi.patch(`quotation/${quotationId}`, payload, getAuthConfig(token));
       openSnackbar("La cotización fue editada exitosamente.");
       return true;
@@ -134,6 +134,22 @@ export const useQuotationStore = () => {
     }
   };
 
+  const startSendingReadyQuotation = async (data) => {
+    dispatch(setLoadingQuotation(true));
+    try {
+      const payload = createMailReadyQuotationModel(data);
+      await eventApi.post(`send-quotation-ready-email`, payload, getAuthConfig(token));
+      openSnackbar("El cliente fue notificado para revisar la cotización.");
+      return true;
+    } catch (error) {
+      const message = error.response?.data?.message;
+      openSnackbar(message ?? "No se pudo notificar al cliente sobre la cotización.");
+      return false;
+    } finally {
+      dispatch(setLoadingQuotation(false));
+    }
+  }
+
   const startEvaluateQuotation = async (quotationId, evaluation, userId) => {
     dispatch(setLoadingQuotation(true));
     try {
@@ -193,6 +209,7 @@ export const useQuotationStore = () => {
     setSelectedQuotation,
     startUpdateQuotation,
     startEvaluateQuotation,
+    startSendingReadyQuotation,
     startTimeUpdateQuotationAdmin,
   };
 };

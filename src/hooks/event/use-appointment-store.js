@@ -42,7 +42,6 @@ export const useAppointmentStore = () => {
       openSnackbar("La cita fue creada exitosamente, pronto nos pondremos en contacto contigo.");
       return true;
     } catch (error) {
-      console.log(error);
       const message = error.response?.data?.message;
       openSnackbar(message ?? "Ocurrió un error al crear la cita.");
       return false;
