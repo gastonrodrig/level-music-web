@@ -18,7 +18,7 @@ export const EventSendProposalPage = () => {
   const navigate = useNavigate();
   const isDark = theme.palette.mode === "dark";
 
-  const { handleSubmit } = useForm({
+  const { handleSubmit, setValue } = useForm({
     defaultValues: {
       to: selected?.email
     }
@@ -29,6 +29,12 @@ export const EventSendProposalPage = () => {
       navigate("/admin/quotations");
     } 
   }, [selected, navigate]);
+
+  useEffect(() => {
+    if (selected?._id) {
+      setValue("eventId", selected._id);
+    }
+  }, [selected, setValue]);
 
   const calculateEstimatedPrice = () => {
     if (!selected) return 0;
