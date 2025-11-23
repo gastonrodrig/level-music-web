@@ -7,6 +7,10 @@ import {
   setRowsPerPageQuotation,
   refreshQuotations,
   showSnackbar,
+  setDashboardData,
+  setGraficsperMonth,
+  setEventType,
+  setEventByDate,
 } from '../../store';
 import{
   createQuotationModel,
@@ -25,7 +29,11 @@ export const useQuotationStore = () => {
     total, 
     loading, 
     currentPage, 
-    rowsPerPage 
+    rowsPerPage,
+    dashboardData,
+    graficperMonth,
+    eventType,
+    eventByDate,
   } = useSelector((state) => state.quotation);
 
   const { token } = useSelector((state) => state.auth);
@@ -171,6 +179,76 @@ export const useQuotationStore = () => {
     }
   }
 
+  const dashboardList = async () => {
+    dispatch(setLoadingQuotation(true));
+    try {
+      const { data } = await eventApi.get('/dashboard/appointments-count', getAuthConfig(token));
+      dispatch(setDashboardData(data));
+      console.log(data);
+      return true;
+    } catch (error) {
+      const message = error.response?.data?.message;
+      openSnackbar(message ?? "Ocurrió un error al cargar las cotizaciones.");
+      return false;
+    } finally {
+      dispatch(setLoadingQuotation(false));
+    }
+  }
+
+  const graficperMonthList = async (fechaInicio, fechaFin) => {
+    dispatch(setLoadingQuotation(true));
+    try {
+      const params = fechaInicio && fechaFin
+      ? `?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`
+      : '';
+      const { data } = await eventApi.get(`/eventsperMonths${params}`, getAuthConfig(token));
+      dispatch(setGraficsperMonth(data));
+      console.log(data);
+      return true;
+    } catch (error) {
+      const message = error.response?.data?.message;
+      openSnackbar(message ?? "Ocurrió un error al cargar las cotizaciones.");
+      return false;
+    } finally {
+      dispatch(setLoadingQuotation(false));
+    }
+  };
+
+  const eventTypes = async () => {
+    dispatch(setLoadingQuotation(true));
+    try {
+      const { data } = await eventApi.get('/eventTypes', getAuthConfig(token));
+      dispatch(setEventType(data));
+      return true;
+    } catch (error) {
+      const message = error.response?.data?.message;
+      openSnackbar(message ?? "Ocurrió un error al cargar los tipos de evento.");
+      return false;
+    } finally {
+      dispatch(setLoadingQuotation(false));
+    }
+  };
+
+  const eventDate = async (year, month) => {
+    dispatch(setLoadingQuotation(true));
+    try {
+      const params = year && month
+        ? `?year=${year}&month=${month}`
+        : '';
+      const { data } = await eventApi.get(`/getEventByDate${params}`, getAuthConfig(token));
+      console.log('Calendario respuesta raw:', data);
+      dispatch(setEventByDate(Array.isArray(data) ? data : data?.data ?? [])); // Asegura array
+      return true;
+    } catch (error) {
+      console.error('Error getEventByDate:', error);
+      const message = error.response?.data?.message;
+      openSnackbar(message ?? "Error al cargar eventos del calendario.");
+      return false;
+    } finally {
+      dispatch(setLoadingQuotation(false));
+    }
+  };
+
   const setSelectedQuotation = (quotation) => {
     dispatch(selectedQuotation({ ...quotation }));
   };
@@ -194,6 +272,10 @@ export const useQuotationStore = () => {
     currentPage,
     orderBy,
     order,
+    dashboardData,
+    graficperMonth,
+    eventType,
+    eventByDate,
 
     // setters
     setSearchTerm,
@@ -211,5 +293,9 @@ export const useQuotationStore = () => {
     startEvaluateQuotation,
     startSendingReadyQuotation,
     startTimeUpdateQuotationAdmin,
+    dashboardList,
+    graficperMonthList,
+    eventTypes,
+    eventDate,
   };
 };

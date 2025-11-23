@@ -14,6 +14,7 @@ import {
 import { Add, Delete, Speaker } from "@mui/icons-material";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
 import { useMemo } from "react";
+import dayjs from "dayjs";
 
 export const AssignEquipmentCard = ({
   isDark,
@@ -37,12 +38,24 @@ export const AssignEquipmentCard = ({
   const resetForm = () => {
     setValue("equipment_id", "");
     setValue("equipment_price", "");
-    setValue("equipment_hours", 1);
+    // setValue("equipment_hours", 1);
   };
+    const calculatedHours = useMemo(() => {
+      if (!from || !to) return 1; // Valor por defecto si no hay fechas
+      const start = dayjs(from);
+      const end = dayjs(to);
+      
+      // Calculamos diferencia en horas
+      const diff = end.diff(start, "hour", true); 
+      
+      // Math.ceil para redondear hacia arriba (ej: 1.5 horas -> 2 horas de cobro)
+      // Math.max para asegurar que mínimo se cobre 1 hora
+      return Math.max(1, Math.ceil(diff));
+    }, [from, to]);
 
   const equipmentId = watch("equipment_id");
   const equipmentPrice = watch("equipment_price");
-  const equipmentHours = watch("equipment_hours") || 1;
+  // const equipmentHours = watch("equipment_hours") || 1;
 
   const selectedEquipment = useMemo(
     () => filteredEquipments.find((e) => e._id === equipmentId),
@@ -140,28 +153,10 @@ export const AssignEquipmentCard = ({
             </FormControl>
           </Grid>
 
-          {/* Horas */}
-          <Grid item xs={12} md={2}>
-            <FormControl fullWidth>
-              <InputLabel id="hours-equipment-label">Horas</InputLabel>
-              <Select
-                labelId="hours-equipment-label"
-                value={equipmentHours}
-                onChange={(e) => setValue("equipment_hours", e.target.value)}
-                sx={{ height: 60 }}
-                disabled={datesMissing}   
-              >
-                {Array.from({ length: 10 }, (_, i) => i + 1).map((h) => (
-                  <MenuItem key={h} value={h}>
-                    {h} horas
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
+          
 
           {/* Precio por hora */}
-          <Grid item xs={12} md={2}>
+          <Grid item xs={12} md={3}>
             <TextField
               label="Precio por hora (S/)"
               placeholder="Ej: 250"
@@ -184,7 +179,7 @@ export const AssignEquipmentCard = ({
                 await startAppendEquipment({
                   selectedEquipment,
                   equipmentPrice,
-                  equipmentHours,
+                  equipmentHours: calculatedHours,
                   assignedEquipments,
                   append: addEquipment,
                   onSuccess: resetForm,
@@ -194,7 +189,7 @@ export const AssignEquipmentCard = ({
                   eventCode
                 });
               }}
-              disabled={!equipmentId || !equipmentHours || !equipmentPrice}
+              disabled={!equipmentId || !equipmentPrice}
               sx={{ textTransform: "none", borderRadius: 2, color: "#fff", fontWeight: 600, py: 2 }}
             >
               Agregar

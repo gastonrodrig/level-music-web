@@ -7,6 +7,10 @@ const initialState = {
   currentPage: 0,
   rowsPerPage: 5,
   loading: false,
+  dashboardData: null,
+  graficperMonth: null,
+  eventType: null,
+  eventByDate: null,
 };
 
 export const quotationSlice = createSlice({
@@ -37,6 +41,22 @@ export const quotationSlice = createSlice({
     setRowsPerPageQuotation: (state, action) => {
       state.rowsPerPage = action.payload;
     },
+    // Establece las actividades del trabajador
+    setDashboardData: (state, action) => {
+      state.dashboardData = action.payload;
+    },
+    // Establece los datos gráficos por mes
+    setGraficsperMonth: (state, action) => {
+      state.graficperMonth = action.payload;
+    },
+    // Lista todas las cotizaciones sin paginación
+    setEventType: (state, action) => {
+      state.eventType = action.payload;
+    },
+    // Establece los eventos por fecha
+    setEventByDate: (state, action) => {
+      state.eventByDate = action.payload;
+    },
   },
 });
 
@@ -47,6 +67,10 @@ export const {
   setPageQuotation,
   setRowsPerPageQuotation,
   listAllQuotations,
+  setDashboardData,
+  setGraficsperMonth,
+  setEventType,
+  setEventByDate,
 } = quotationSlice.actions;
 
 export default quotationSlice.reducer;
