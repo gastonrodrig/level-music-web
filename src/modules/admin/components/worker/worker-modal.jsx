@@ -272,6 +272,7 @@ export const WorkerModal = ({
 
             {/* Checkbox para crear cuenta */}
             {!isEditing && (
+              <>
               <Grid item xs={12}>
                 <FormControl error={!!errors.create_account} fullWidth>
                   <FormControlLabel
@@ -292,6 +293,25 @@ export const WorkerModal = ({
                   </FormHelperText>
                 </FormControl>
               </Grid>
+
+              <Grid item xs={12}>
+                <FormControl error={!!errors.create_account} fullWidth>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        {...register("create_account")}
+                        checked={watch("create_account") || false}
+                        onChange={(e) =>
+                          setValue("create_account", e.target.checked)
+                        }
+                      />
+                    }
+                    label="¿Trabaja por horas?"
+                  />
+                </FormControl>
+              </Grid>
+              </>
+
             )}
           </Grid>
         </Box>

@@ -14,6 +14,7 @@ import {
 import { Add, Delete, Work } from "@mui/icons-material";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
 import { useMemo } from "react";
+import dayjs from "dayjs";
 
 export const AssignWorkerCard = ({
   isDark,
@@ -33,17 +34,25 @@ export const AssignWorkerCard = ({
 }) => {
   const { isSm } = useScreenSizes();
 
+  const calculatedHours = useMemo(() => {
+    if (!from || !to) return 1;
+    const start = dayjs(from);
+    const end = dayjs(to);
+    const diff = end.diff(start, "hour", true);
+    return Math.max(1, Math.ceil(diff));
+  }, [from, to]);
+
   const resetForm = () => {
     setValue("worker_type_id", "");
     setValue("worker_id", "");
     setValue("worker_price", "");
-    setValue("worker_hours", 1);
+    // setValue("worker_hours", 1);
   };
 
   const workerTypeId = watch("worker_type_id");
   const workerId = watch("worker_id");
   const workerPrice = watch("worker_price");
-  const workerHours = watch("worker_hours") || 1;
+  // const workerHours = watch("worker_hours") || 1;
 
   const selectedWorker = useMemo(
     () => filteredWorkers.find((w) => w._id === workerId),
@@ -145,26 +154,10 @@ export const AssignWorkerCard = ({
             </FormControl>
           </Grid>
 
-          {/* Horas */}
-          <Grid item xs={12} md={2}>
-            <FormControl fullWidth>
-              <InputLabel id="hours-worker-label">Horas</InputLabel>
-              <Select
-                labelId="hours-worker-label"
-                value={workerHours || 1}
-                onChange={(e) => setValue("worker_hours", e.target.value)}
-                sx={{ height: 60 }}
-                disabled={datesMissing} 
-              >
-                {Array.from({ length: 10 }, (_, i) => i + 1).map((h) => (
-                  <MenuItem key={h} value={h}>{h} horas</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
+          
 
           {/* Precio por hora */}
-          <Grid item xs={12} md={2}>
+          <Grid item xs={12} md={3}>
             <TextField
               label="Precio por hora (S/)"
               value={workerPrice || "S/ -"}
@@ -187,7 +180,7 @@ export const AssignWorkerCard = ({
                 await startAppendWorker({
                   selectedWorker,
                   workerPrice,
-                  workerHours,
+                  workerHours: calculatedHours,
                   assignedWorkers,
                   append: addWorker,
                   onSuccess: resetForm,
@@ -196,7 +189,7 @@ export const AssignWorkerCard = ({
                   eventCode
                 });
               }}
-              disabled={!workerId || !workerHours || !workerPrice}
+              disabled={!workerId || !workerPrice}
               sx={{ 
                 textTransform: "none", 
                 borderRadius: 2, 

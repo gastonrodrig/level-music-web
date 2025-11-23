@@ -28,6 +28,7 @@ import { calcEstimatedPrice } from "../../../../../shared/utils";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
 import { Save } from "@mui/icons-material";
 
+
 export const EventQuotationAddPage = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
