@@ -78,7 +78,7 @@ export const EventHistoryTable = ({ versions = [], onView }) => {
               </TableCell>
 
               <TableCell sx={{ py: 2, fontWeight: 700 }}>
-                S/ {v.estimated_price.toFixed(2)}
+                S/ FALTAAAAAA
               </TableCell>
 
               <TableCell sx={{ py: 2 }}>

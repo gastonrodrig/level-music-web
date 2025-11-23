@@ -44,7 +44,6 @@ export const createQuotationModel = (data) => {
     user_id: data.user_id || null,
     event_type_id: data.event_type_id,
     event_type_name: data.event_type_name,
-    estimated_price: Number(data.estimated_price),
     assignations,
     client_type: data.client_type === "Empresa" ? "Empresa" : "Persona",
     first_name: data.client_type === "Persona" ? data.first_name : null,

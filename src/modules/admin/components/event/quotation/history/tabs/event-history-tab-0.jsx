@@ -206,7 +206,7 @@ export const EventHistoryTab0 = ({ version = {} }) => {
         >
           <Typography>
             <strong>Precio total estimado:</strong>{" "}
-              S/ {Number(version.estimated_price).toFixed(2)}
+              FALTAAAAAA
           </Typography>
         </Box>
       </Box>

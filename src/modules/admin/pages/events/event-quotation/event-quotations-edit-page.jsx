@@ -131,7 +131,6 @@ export const EventQuotationEditPage = () => {
         worker_id: w.resource,
         _id: w._id,
       })) || [],
-      estimated_price: selected?.estimated_price || 0,
     },
     mode: "onBlur",
   });
@@ -151,15 +150,6 @@ export const EventQuotationEditPage = () => {
       navigate("/admin/quotations");
     } 
   }, [selected, navigate]);
-
-  useEffect(() => {
-    const total = calcEstimatedPrice({
-      services: servicesWatch || [],
-      equipments: equipmentsWatch || [],
-      workers: workersWatch || [],
-    });
-    setValue("estimated_price", total, { shouldValidate: true });
-  }, [servicesWatch, equipmentsWatch, workersWatch, setValue]);
 
   useEffect(() => {
     if (clientType === "Empresa") {
@@ -306,7 +296,6 @@ export const EventQuotationEditPage = () => {
           assignedServices={assignedServices}
           assignedEquipments={assignedEquipments}
           assignedWorkers={assignedWorkers}
-          grandTotal={watch("estimated_price") || 0}
         />
 
         {/* Botón final */}

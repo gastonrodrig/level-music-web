@@ -6,8 +6,7 @@ export const QuotationSummary = ({
   isDark,
   assignedServices = [],
   assignedEquipments = [],
-  assignedWorkers = [],
-  grandTotal = 0,
+  assignedWorkers = []
 }) => {
   const [expandedServices, setExpandedServices] = useState(false);
   const [expandedEquipments, setExpandedEquipments] = useState(false);
@@ -188,7 +187,7 @@ export const QuotationSummary = ({
         }}
       >
         <Typography fontSize={16} fontWeight={600}>Total Estimado</Typography>
-        <Typography fontSize={16} fontWeight={600}>{money(grandTotal)}</Typography>
+        <Typography fontSize={16} fontWeight={600}>FALTAAAAAA</Typography>
       </Box>
     </Box>
   );

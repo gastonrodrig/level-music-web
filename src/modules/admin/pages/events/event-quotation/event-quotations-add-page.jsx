@@ -87,8 +87,7 @@ export const EventQuotationAddPage = () => {
       worker_hours: 1,
       worker_price: "",
       name: "",
-      description: "",
-      estimated_price: 0,
+      description: ""
     },
     mode: "onBlur",
   });
@@ -122,7 +121,6 @@ export const EventQuotationAddPage = () => {
       equipments: equipmentsWatch || [],
       workers: workersWatch || [],
     });
-    setValue("estimated_price", total, { shouldValidate: true });
   }, [servicesWatch, equipmentsWatch, workersWatch, setValue]);
 
   const {
@@ -269,7 +267,6 @@ export const EventQuotationAddPage = () => {
           assignedServices={assignedServices}
           assignedEquipments={assignedEquipments}
           assignedWorkers={assignedWorkers}
-          grandTotal={watch("estimated_price") || 0}
         />
 
         {/* Botón final */}
