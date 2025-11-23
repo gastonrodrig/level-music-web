@@ -1,11 +1,12 @@
 import { Box, Typography, Chip, Grid, useTheme } from "@mui/material";
 import { Article, AccessTime } from "@mui/icons-material";
+import { calculateEventTotal } from "../../../../../../shared/utils";
 
 export const EventSummaryBox = ({ data }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
-  const { version, lastUpdate, client, eventType, eventDate, amount } = data;
+  const { version, lastUpdate, client, eventType, eventDate, selected } = data;
 
   return (
     <Box
@@ -83,7 +84,7 @@ export const EventSummaryBox = ({ data }) => {
           { label: "Fecha del Evento", value: eventDate },
           {
             label: "Monto Total",
-            value: amount ? `S/ ${amount.toFixed(2)}` : "—",
+            value: `S/. ${calculateEventTotal(selected)}`
           },
         ].map((item, i) => (
           <Grid item xs={12} sm={6} md={3} key={i}>

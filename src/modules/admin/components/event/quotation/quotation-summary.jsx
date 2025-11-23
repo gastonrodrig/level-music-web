@@ -1,12 +1,13 @@
 import { useState, useMemo } from "react";
 import { Box, Typography, IconButton, Collapse } from "@mui/material";
 import { ExpandMore, ExpandLess } from "@mui/icons-material";
+import { calculateAssignedTotals } from "../../../../../shared/utils";
 
 export const QuotationSummary = ({
   isDark,
   assignedServices = [],
   assignedEquipments = [],
-  assignedWorkers = []
+  assignedWorkers = [],
 }) => {
   const [expandedServices, setExpandedServices] = useState(false);
   const [expandedEquipments, setExpandedEquipments] = useState(false);
@@ -50,7 +51,14 @@ export const QuotationSummary = ({
   const lineTotal = (price, hours) => (parseFloat(price) || 0) * (Number(hours) || 0);
 
   return (
-    <Box sx={{ p: 3, borderRadius: 3, bgcolor: isDark ? "#1f1e1e" : "#f5f5f5", my: 2 }}>
+    <Box
+      sx={{
+        p: 3,
+        borderRadius: 3,
+        bgcolor: isDark ? "#1f1e1e" : "#f5f5f5",
+        my: 2,
+      }}
+    >
       <Typography sx={{ fontSize: 20, fontWeight: 500, mb: 2 }}>
         Resumen de la Asignación
       </Typography>
@@ -59,10 +67,15 @@ export const QuotationSummary = ({
       <Box sx={{ mb: 2 }}>
         <Box
           sx={{
-            display: "flex", justifyContent: "space-between", alignItems: "center",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
             cursor: "pointer",
-            "&:hover": { bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)" },
-            p: 1, borderRadius: 1,
+            "&:hover": {
+              bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
+            },
+            p: 1,
+            borderRadius: 1,
           }}
           onClick={() => setExpandedServices((v) => !v)}
         >
@@ -88,7 +101,11 @@ export const QuotationSummary = ({
                 />
               ))
             ) : (
-              <Typography fontSize={13} color="text.secondary" sx={{ fontStyle: "italic" }}>
+              <Typography
+                fontSize={13}
+                color="text.secondary"
+                sx={{ fontStyle: "italic" }}
+              >
                 No hay servicios asignados
               </Typography>
             )}
@@ -100,10 +117,15 @@ export const QuotationSummary = ({
       <Box sx={{ mb: 2 }}>
         <Box
           sx={{
-            display: "flex", justifyContent: "space-between", alignItems: "center",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
             cursor: "pointer",
-            "&:hover": { bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)" },
-            p: 1, borderRadius: 1,
+            "&:hover": {
+              bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
+            },
+            p: 1,
+            borderRadius: 1,
           }}
           onClick={() => setExpandedEquipments((v) => !v)}
         >
@@ -129,7 +151,11 @@ export const QuotationSummary = ({
                 />
               ))
             ) : (
-              <Typography fontSize={13} color="text.secondary" sx={{ fontStyle: "italic" }}>
+              <Typography
+                fontSize={13}
+                color="text.secondary"
+                sx={{ fontStyle: "italic" }}
+              >
                 No hay equipos asignados
               </Typography>
             )}
@@ -141,10 +167,15 @@ export const QuotationSummary = ({
       <Box sx={{ mb: 3 }}>
         <Box
           sx={{
-            display: "flex", justifyContent: "space-between", alignItems: "center",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
             cursor: "pointer",
-            "&:hover": { bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)" },
-            p: 1, borderRadius: 1,
+            "&:hover": {
+              bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
+            },
+            p: 1,
+            borderRadius: 1,
           }}
           onClick={() => setExpandedWorkers((v) => !v)}
         >
@@ -165,12 +196,20 @@ export const QuotationSummary = ({
               assignedWorkers.map((w, i) => (
                 <Row
                   key={w.id ?? `${w._id ?? "wk"}-${i}`}
-                  left={`• ${(w.name ?? `${w.first_name ?? ""} ${w.last_name ?? ""}`.trim()) || "Trabajador"} (${w.worker_hours}h)`}
+                  left={`• ${
+                    (w.name ??
+                      `${w.first_name ?? ""} ${w.last_name ?? ""}`.trim()) ||
+                    "Trabajador"
+                  } (${w.worker_hours}h)`}
                   right={money(lineTotal(w.worker_price, w.worker_hours))}
                 />
               ))
             ) : (
-              <Typography fontSize={13} color="text.secondary" sx={{ fontStyle: "italic" }}>
+              <Typography
+                fontSize={13}
+                color="text.secondary"
+                sx={{ fontStyle: "italic" }}
+              >
                 No hay trabajadores asignados
               </Typography>
             )}
@@ -181,13 +220,24 @@ export const QuotationSummary = ({
       {/* Total */}
       <Box
         sx={{
-          p: 2, borderRadius: 2,
+          p: 2,
+          borderRadius: 2,
           bgcolor: isDark ? "#2a2a2a" : "#e0e0e0",
-          display: "flex", justifyContent: "space-between", alignItems: "center",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
         }}
       >
-        <Typography fontSize={16} fontWeight={600}>Total Estimado</Typography>
-        <Typography fontSize={16} fontWeight={600}>FALTAAAAAA</Typography>
+        <Typography fontSize={16} fontWeight={600}>
+          Total Estimado
+        </Typography>
+        <Typography fontSize={16} fontWeight={600}>
+          S/. {(calculateAssignedTotals(
+                assignedServices,
+                assignedWorkers,
+                assignedEquipments
+              )).toFixed(2)}
+        </Typography>
       </Box>
     </Box>
   );

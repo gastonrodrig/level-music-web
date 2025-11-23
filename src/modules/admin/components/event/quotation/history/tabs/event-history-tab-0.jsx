@@ -1,5 +1,6 @@
 import { Box, Typography, Divider, List, ListItem, useTheme, Chip } from '@mui/material';
 import { Build, MonetizationOn, Devices, Person, Notes, MonetizationOnSharp, Celebration } from '@mui/icons-material';
+import { calculateEventTotal } from '../../../../../../../shared/utils';
 
 export const EventHistoryTab0 = ({ version = {} }) => {
   const theme = useTheme();
@@ -139,41 +140,111 @@ export const EventHistoryTab0 = ({ version = {} }) => {
 
                     {/* Columna derecha */}
                     <Box textAlign="right">
-                      <Typography
-                        color="text.secondary"
-                        sx={{
-                          fontSize: 12,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'flex-end',
-                          gap: 0.5,
-                        }}
-                      >
-                        <Box component="span" sx={{ fontWeight: 700, fontSize: 12 }}>
-                          Cant. horas:
-                        </Box>
-                        {s.hours} x
-                      </Typography>
+                      {/* SERVICIOS ADICIONALES */}
+                      {groupName.toLowerCase().includes('servicio') && (
+                        <>
+                          <Typography
+                            color="text.secondary"
+                            sx={{
+                              fontSize: 12,
+                              display: 'flex',
+                              justifyContent: 'flex-end',
+                              gap: 0.5,
+                            }}
+                          >
+                            <Box component="span" sx={{ fontWeight: 700 }}>
+                              Precio/día:
+                            </Box>
+                            S/ {s.hourly_rate?.toFixed(2) ?? '0.00'}
+                          </Typography>
 
-                      <Typography
-                        color="text.secondary"
-                        sx={{
-                          fontSize: 12,
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 0.5,
-                          justifyContent: 'flex-end',
-                        }}
-                      >
-                        <Box component="span" sx={{ fontWeight: 700 }}>
-                          Precio hora:
-                        </Box>
-                        S/ {s.hourly_rate?.toFixed(2) ?? '0.00'}
-                      </Typography>
+                          <Typography sx={{ mt: 0.5, fontSize: 13, fontWeight: 700 }}>
+                            Subtotal: S/ {s.hourly_rate?.toFixed(2) ?? '0.00'}
+                          </Typography>
+                        </>
+                      )}
 
-                      <Typography sx={{ mt: 0.5, fontSize: 13, fontWeight: 700 }}>
-                        Total: S/ {(s.hourly_rate * s.hours).toFixed(2)}
-                      </Typography>
+                      {/* EQUIPOS */}
+                      {groupName.toLowerCase().includes('equipo') && (
+                        <>
+                          <Typography
+                            color="text.secondary"
+                            sx={{
+                              fontSize: 12,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'flex-end',
+                              gap: 0.5,
+                            }}
+                          >
+                            <Box component="span" sx={{ fontWeight: 700 }}>
+                              Cant. horas:
+                            </Box>
+                            {s.hours}
+                          </Typography>
+
+                          <Typography
+                            color="text.secondary"
+                            sx={{
+                              fontSize: 12,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'flex-end',
+                              gap: 0.5,
+                            }}
+                          >
+                            <Box component="span" sx={{ fontWeight: 700 }}>
+                              Precio/hora:
+                            </Box>
+                            S/ {(s.hourly_rate / s.hours).toFixed(2)}
+                          </Typography>
+
+                          <Typography sx={{ mt: 0.5, fontSize: 13, fontWeight: 700 }}>
+                            Subtotal: S/ {s.hourly_rate.toFixed(2)}
+                          </Typography>
+                        </>
+                      )}
+
+                      {/* TRABAJADORES */}
+                      {groupName.toLowerCase().includes('trabajador') && (
+                        <>
+                          <Typography
+                            color="text.secondary"
+                            sx={{
+                              fontSize: 12,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'flex-end',
+                              gap: 0.5,
+                            }}
+                          >
+                            <Box component="span" sx={{ fontWeight: 700 }}>
+                              Cant. horas:
+                            </Box>
+                            {s.hours}
+                          </Typography>
+
+                          <Typography
+                            color="text.secondary"
+                            sx={{
+                              fontSize: 12,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'flex-end',
+                              gap: 0.5,
+                            }}
+                          >
+                            <Box component="span" sx={{ fontWeight: 700 }}>
+                              Precio/hora:
+                            </Box>
+                            S/ {(s.hourly_rate / s.hours).toFixed(2)}
+                          </Typography>
+
+                          <Typography sx={{ mt: 0.5, fontSize: 13, fontWeight: 700 }}>
+                            Subtotal: S/ {s.hourly_rate.toFixed(2)}
+                          </Typography>
+                        </>
+                      )}
                     </Box>
                   </ListItem>
                 ))}
@@ -206,7 +277,7 @@ export const EventHistoryTab0 = ({ version = {} }) => {
         >
           <Typography>
             <strong>Precio total estimado:</strong>{" "}
-              FALTAAAAAA
+              S/. {calculateEventTotal(version)}
           </Typography>
         </Box>
       </Box>

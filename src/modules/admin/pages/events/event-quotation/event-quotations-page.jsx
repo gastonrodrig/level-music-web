@@ -155,7 +155,14 @@ export const EventQuotationsPage = () => {
       }
     }
 
-    // Estado 5: CONFIRMADO → Programar Pagos + Historial
+    // Estado 5: ENVIADO → Historial
+    if (row.status === 'Enviado') {
+      return [
+        { label: 'Historial',       icon: <History />,  onClick: () => handle(row, '/admin/quotations/history') },
+      ];
+    }
+
+    // Estado 6: CONFIRMADO → Programar Pagos + Historial
     if (row.status === 'Confirmado') {
       return [
         { label: 'Programar Pagos', icon: <Payments />, onClick: () => handle(row, '/admin/quotations/payments-programming') },

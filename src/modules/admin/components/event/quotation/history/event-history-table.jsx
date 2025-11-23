@@ -13,7 +13,7 @@ import {
   Stack,
 } from "@mui/material";
 import { Article, AccessTime, Visibility } from "@mui/icons-material";
-import { formatEventVersions } from "../../../../../../shared/utils";
+import { calculateEventTotal, formatEventVersions } from "../../../../../../shared/utils";
 
 export const EventHistoryTable = ({ versions = [], onView }) => {
   const theme = useTheme();
@@ -78,7 +78,7 @@ export const EventHistoryTable = ({ versions = [], onView }) => {
               </TableCell>
 
               <TableCell sx={{ py: 2, fontWeight: 700 }}>
-                S/ FALTAAAAAA
+                S/ {calculateEventTotal(v)}
               </TableCell>
 
               <TableCell sx={{ py: 2 }}>

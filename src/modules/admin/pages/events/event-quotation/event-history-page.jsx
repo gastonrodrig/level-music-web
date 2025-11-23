@@ -42,7 +42,7 @@ export const EventHistoryPage = () => {
     client: getClientName(),
     eventType: selected?.event_type_name,
     eventDate: formatDay(selected?.event_date),
-    amount: 'FALTAAAAAA'
+    selected
   };
 
   const [openVersion, setOpenVersion] = useState(false);

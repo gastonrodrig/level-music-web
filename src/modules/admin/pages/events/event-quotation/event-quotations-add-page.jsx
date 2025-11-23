@@ -24,7 +24,7 @@ import {
 import dayjs from "dayjs";
 import { useDispatch } from "react-redux";
 import { showSnackbar } from "../../../../../store";
-import { calcEstimatedPrice } from "../../../../../shared/utils";
+import { calcEstimatedPrice, calculateEventTotal } from "../../../../../shared/utils";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
 import { Save } from "@mui/icons-material";
 
