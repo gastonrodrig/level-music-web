@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Box, Typography, TextField, CircularProgress } from '@mui/material';
-import { Edit, Download , FactCheck, Payments } from '@mui/icons-material';
+import { Edit, Download , FactCheck, Payments, RateReview } from '@mui/icons-material';
 import { useQuotationStore, useAuthStore } from '../../../../../hooks';
 import { TableComponent } from '../../../../../shared/ui/components';
 import { handleDownloadPdf } from '../../../components/events';
@@ -42,6 +42,16 @@ export const QuotationPage = () => {
     setIsModalOpen(true); 
   };
 
+  /**
+   * Verifica si el estado es "Enviado"
+   * @param {Object} row - Fila de la cotización
+   * @returns {boolean}
+   */
+  const isStatusEnviado = (row) => {
+    const status = String(row?.status || '').toLowerCase();
+    return status === 'enviado';
+  };
+
   const columns = [
     { 
       id: 'event_code', 
@@ -56,7 +66,8 @@ export const QuotationPage = () => {
     { 
       id: 'event_date', 
       label: 'Fecha Evento', 
-      sortable: true, accessor: (row) => row.event_date ? formatDay(row.event_date) : 'N/A'
+      sortable: true, 
+      accessor: (row) => row.event_date ? formatDay(row.event_date) : 'N/A'
     },
     { 
       id: 'status', 
@@ -73,6 +84,7 @@ export const QuotationPage = () => {
         setSelectedQuotation(row);
         navigate(`/client/quotations/details`);
       },
+      show: (row) => isStatusEnviado(row),
     },
     {
       label: 'Descargar PDF',
@@ -81,6 +93,13 @@ export const QuotationPage = () => {
         setSelectedQuotation(row);
         handleDownloadPdf(row);
       },
+      show: (row) => isStatusEnviado(row),
+    },
+    {
+      label: 'Evaluar',
+      icon: <RateReview />,
+      onClick: (row) => openModal(row),
+      show: (row) => isStatusEnviado(row),
     },
     {
       label: 'Realizar Pagos',
@@ -93,7 +112,30 @@ export const QuotationPage = () => {
         const status = String(row?.status || '').toLowerCase();
         const isValidStatus = ['pagos asignados'].includes(status);
         const hasAssignations = (row?.assignations?.length ?? 0) > 0;
+        
         return isValidStatus && hasAssignations;
+      },
+    },
+    {
+      label: 'Sin acciones disponibles',
+      icon: <FactCheck />,
+      onClick: () => {}, 
+      disabled: true, 
+      show: (row) => {
+        // Verificar si alguna acción está disponible
+        const hasVerDetalle = isStatusEnviado(row);
+        const hasDescargarPDF = isStatusEnviado(row);
+        const hasEvaluar = isStatusEnviado(row);
+        
+        const hasRealizarPagos = (() => {
+          const status = String(row?.status || '').toLowerCase();
+          const isValidStatus = ['pagos asignados'].includes(status);
+          const hasAssignations = (row?.assignations?.length ?? 0) > 0;
+          return isValidStatus && hasAssignations;
+        })();
+
+        // Mostrar "Sin acciones" solo cuando ninguna esté disponible
+        return !hasVerDetalle && !hasDescargarPDF && !hasEvaluar && !hasRealizarPagos;
       },
     },
   ];
@@ -184,10 +226,10 @@ export const QuotationPage = () => {
             setPageGlobal(0);
           }}
           actions={actions}
-          hasActions
+          hasActions={true}
         />
-    
-    )}
+      )}
+      
       <EventEvaluateModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
