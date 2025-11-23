@@ -2,7 +2,6 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { 
   DashboardPage, 
   EventOnGoing,
-  EventQuotationReprograming,
   EventActivitiesPage,
   EventQuotationsActivitiesPage,
   EventTypePage,
@@ -22,8 +21,6 @@ import {
   ClientCompanyPage,
   EventQuotationAddPage,
   EventQuotationEditPage,
-  RequestsPage,
-  ReschedulePage,
   EventPaymentsProgrammingPage,
   AppointmentPage,    
   EventHistoryPage,
@@ -45,7 +42,6 @@ export const AdminRoutes = () => {
 
         {/* Eventos */}
         <Route path="event-ongoing" element={<EventOnGoing />} />
-        <Route path="event-ongoing/reprogramming" element={<EventQuotationReprograming />} />
         <Route path="event-ongoing/activities" element={<EventActivitiesPage />} />
         <Route path="event-ongoing/orders" element={<EventOrdersPage />} />
         <Route path="event-types" element={<EventTypePage />} />
@@ -58,10 +54,6 @@ export const AdminRoutes = () => {
         <Route path="quotations/activities" element={<EventQuotationsActivitiesPage />} />
         <Route path="quotations/payments-approved" element={<EventPaymentsApprovedPage />} /> 
         <Route path="quotations/send-proposal" element={<EventSendProposalPage />} />
-        
-        {/* Reprogramaciones */}
-        <Route path="requests" element={<RequestsPage />} />
-        <Route path="reschedule" element={<ReschedulePage />} />
 
        {/* Trabajadores */}
         <Route path="workers" element={<WorkerPage />} />

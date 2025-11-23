@@ -42,11 +42,6 @@ export const menuItems = [
         text: 'Realizados', 
         breadcrumb: 'Eventos Realizados',
         href: '/client/events-made' 
-      },
-      { 
-        text: 'Solicitudes de Reprogramación', 
-        breadcrumb: 'Solicitudes de Reprogramación',
-        href: '/client/reprogramming-requests' 
       }
     ]
   },

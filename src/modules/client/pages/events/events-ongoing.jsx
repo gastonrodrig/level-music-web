@@ -4,7 +4,6 @@ import AutorenewIcon from '@mui/icons-material/Autorenew';
 import { useQuotationStore, useAuthStore } from '../../../../hooks';
 import { TableComponent } from '../../../../shared/ui/components';
 import { formatDay } from '../../../../shared/utils';
-import { EventReprogrammingModal } from '../../components/events/event-to-do/event-Reprogramming-modal';
 
 export const EventsOngoingPage = () => {
   const {
@@ -60,7 +59,7 @@ export const EventsOngoingPage = () => {
 
   const actions = [
     {
-      label: 'Solicitar Reprogramación',
+      label: 'NOSE',
       icon: <AutorenewIcon />,
       onClick: (row) => {
         setSelectedQuotation(row);
@@ -160,15 +159,6 @@ export const EventsOngoingPage = () => {
           />
         )}
       </Box>
-
-      {/* Modal de reprogramación */}
-      <EventReprogrammingModal
-        open={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        event={selected}
-        setEventToDo={setSelectedQuotation}
-         loading={loading}
-      />
     </>
   );
 };

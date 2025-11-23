@@ -5,7 +5,6 @@ import { DashboardPage,
   QuotationPage, 
   QuotationDetailsPage,
   ProfilePage,
-  ReprogramingsRequestsPage,
   QuotationPaymentsPage
 } from "../pages";
 import { ClientLayout } from '../layout/client-layout';
@@ -22,7 +21,6 @@ export const ClientRoutes = () => {
         <Route path="events-ongoing" element={<EventsOngoingPage />} />
         <Route path="quotations" element={<QuotationPage />} />
         <Route path="quotations/details" element={<QuotationDetailsPage />} />
-        <Route path="reprogramming-requests" element={<ReprogramingsRequestsPage />} />
         <Route path="quotations/payments" element={<QuotationPaymentsPage />} />
 
         {/* Clientes */}

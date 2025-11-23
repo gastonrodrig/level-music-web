@@ -85,11 +85,6 @@ export const menuItems = [
         href: '/admin/event-ongoing',
         subItems: [
           {
-            text: 'Reprogramar Evento',
-            breadcrumb: 'Reprogramar Evento',
-            href: '/admin/event-ongoing/reprograming',
-          },
-          {
             text: 'Control Actividades',
             breadcrumb: 'Control de Actividades',
             href: '/admin/event-ongoing/activities',
@@ -105,22 +100,6 @@ export const menuItems = [
         text: 'Destacados',
         breadcrumb: 'Eventos Destacados',
         href: '/admin/featured-events' 
-      }
-    ]
-  },
-  { 
-    text: 'Reprogramaciones',
-    icon: Timelapse,
-    subItems: [
-      { 
-        text: 'Solicitudes', 
-        breadcrumb: 'Solicitudes de Reprogramación de eventos',
-        href: '/admin/requests' 
-      },
-      { 
-        text: 'Reprogramar', 
-        breadcrumb: 'Reprogramar eventos',
-        href: '/admin/reschedule' 
       }
     ]
   },

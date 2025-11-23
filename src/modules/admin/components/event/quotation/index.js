@@ -2,7 +2,6 @@ export * from './event-detail-form';
 export * from './personal-info-form';
 export * from './quotation-summary';
 export * from './step-header';
-export * from './quotation-datetime-picker';
 export * from './quotation-activity-progress';
 export * from './quotation-control-activities';
 export * from './quotation-add-activities-modal';

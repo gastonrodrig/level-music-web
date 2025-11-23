@@ -120,14 +120,6 @@ export const EventOnGoing = () => {
 
   const actions = [
     {
-      label: 'Reprogramar Evento',
-      icon: <AccessTime />,
-      onClick: (row) => {
-        setSelectedQuotation(row);
-        navigate(`/admin/event-ongoing/reprogramming`);
-      },
-    },
-    {
       label: 'Ver Seguimiento',
       icon: <AccessTime />,
       onClick: (row) => {
