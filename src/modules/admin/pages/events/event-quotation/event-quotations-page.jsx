@@ -11,7 +11,7 @@ import {
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
 import { TableComponent } from "../../../../../shared/ui/components";
 import { formatDay } from "../../../../../shared/utils";
-import { AddCircleOutline, Edit, Payments, History, CheckCircleOutline,Send,Assignment } from "@mui/icons-material";
+import { AddCircleOutline, Edit, Payments, History, CheckCircleOutline,Send,Assignment, CheckCircle } from "@mui/icons-material";
 import { Box, Typography, Button, TextField, CircularProgress } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -113,10 +113,6 @@ export const EventQuotationsPage = () => {
   const actions = (row) => {
     const hasTasks = Array.isArray(row.tasks) && row.tasks.length > 0;
 
-    const percentagesCompleted =
-      Array.isArray(row.service_details) &&
-      row.service_details.every(s => Number(s.percentage) > 0);
-
     // Estado 1: BORRADOR → Editar, Historial
     if (row.status === 'Borrador') {
       return [
@@ -137,7 +133,7 @@ export const EventQuotationsPage = () => {
       }
 
       // Estado 3: tasks llenos → aparece Enviar Propuesta
-      if (hasTasks && !percentagesCompleted) {
+      if (hasTasks) {
         return [
           { label: 'Editar Cotización', icon: <Edit />,       onClick: () => handle(row, '/admin/quotations/edit') },
           { label: 'Actividades',       icon: <Assignment />, onClick: () => handle(row, '/admin/quotations/activities') },
@@ -145,27 +141,34 @@ export const EventQuotationsPage = () => {
           { label: 'Enviar Propuesta',  icon: <Send />,       onClick: () => handle(row, '/admin/quotations/send-proposal') },
         ];
       }
-
-      // Estado 4: después de enviar propuesta → tasks > 0 y porcentajes completos
-      if (hasTasks && percentagesCompleted) {
-        return [
-          { label: 'Programar Pagos', icon: <Payments />, onClick: () => handle(row, '/admin/quotations/payments-programming') },
-          { label: 'Historial',       icon: <History />,  onClick: () => handle(row, '/admin/quotations/history') },
-        ];
-      }
     }
 
-    // Estado 5: ENVIADO → Historial
+    // Estado 4: ENVIADO → Historial
     if (row.status === 'Enviado') {
       return [
         { label: 'Historial',       icon: <History />,  onClick: () => handle(row, '/admin/quotations/history') },
       ];
     }
 
-    // Estado 6: CONFIRMADO → Programar Pagos + Historial
+    // Estado 5: CONFIRMADO → Programar Pagos + Historial
     if (row.status === 'Confirmado') {
       return [
         { label: 'Programar Pagos', icon: <Payments />, onClick: () => handle(row, '/admin/quotations/payments-programming') },
+        { label: 'Historial',       icon: <History />,  onClick: () => handle(row, '/admin/quotations/history') },
+      ];
+    }
+
+    // Estado 6: PAGOS ASIGNADOS → Historial
+    if (row.status === 'Pagos Asignados') {
+      return [
+        { label: 'Historial',       icon: <History />,  onClick: () => handle(row, '/admin/quotations/history') },
+      ];
+    }
+
+    // Estado 6: POR VERIFICAR → Aprobar Pagos + Historial
+    if (row.status === 'Por Verificar') {
+      return [
+        { label: 'Aprobar Pagos',   icon: <CheckCircle />, onClick: () => handle(row, '/admin/quotations/payments-approved') },
         { label: 'Historial',       icon: <History />,  onClick: () => handle(row, '/admin/quotations/history') },
       ];
     }
