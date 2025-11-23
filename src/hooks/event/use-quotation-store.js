@@ -156,8 +156,8 @@ export const useQuotationStore = () => {
       const payload = evaluateQuotationModel(evaluation);
       const { data } = await eventApi.patch(`${quotationId}/status`, payload, getAuthConfig(token));
       startLoadingQuotationPaginated(userId);
-      if (data.status === 'Aprobado') {
-        openSnackbar("La cotización fue aprobada exitosamente.");
+      if (data.status === 'Confirmado') {
+        openSnackbar("La cotización fue confirmada exitosamente.");
       } else {
         openSnackbar("La cotización fue rechazada.");
       }

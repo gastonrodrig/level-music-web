@@ -91,7 +91,7 @@ export const EventEvaluateModal = ({
                 backgroundColor: "primary.dark",
               },
             }}
-            onClick={() => handleAction("Aprobado")}
+            onClick={() => handleAction("Confirmado")}
             disabled={isButtonDisabled}
           >
             Aprobar
