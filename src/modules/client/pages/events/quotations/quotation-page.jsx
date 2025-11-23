@@ -43,7 +43,24 @@ export const QuotationPage = () => {
   };
 
   /**
-   * Verifica si el estado es "Enviado"
+   * Verifica si el estado permite ver acciones generales
+   * Estados válidos: Enviado, Confirmado, Pagos Asignados, Por Verificar Pagos
+   * @param {Object} row - Fila de la cotización
+   * @returns {boolean}
+   */
+  const canViewActions = (row) => {
+    const status = String(row?.status || '').toLowerCase();
+    const validStatuses = [
+      'enviado',
+      'confirmado',
+      'pagos asignados',
+      'por verificar'
+    ]
+    return validStatuses.includes(status);
+  };
+
+  /**
+   * Verifica si el estado es "Enviado" (solo para Evaluar)
    * @param {Object} row - Fila de la cotización
    * @returns {boolean}
    */
@@ -84,7 +101,7 @@ export const QuotationPage = () => {
         setSelectedQuotation(row);
         navigate(`/client/quotations/details`);
       },
-      show: (row) => isStatusEnviado(row),
+      show: (row) => canViewActions(row),
     },
     {
       label: 'Descargar PDF',
@@ -93,7 +110,7 @@ export const QuotationPage = () => {
         setSelectedQuotation(row);
         handleDownloadPdf(row);
       },
-      show: (row) => isStatusEnviado(row),
+      show: (row) => canViewActions(row),
     },
     {
       label: 'Evaluar',
@@ -123,8 +140,8 @@ export const QuotationPage = () => {
       disabled: true, 
       show: (row) => {
         // Verificar si alguna acción está disponible
-        const hasVerDetalle = isStatusEnviado(row);
-        const hasDescargarPDF = isStatusEnviado(row);
+        const hasVerDetalle = canViewActions(row);
+        const hasDescargarPDF = canViewActions(row);
         const hasEvaluar = isStatusEnviado(row);
         
         const hasRealizarPagos = (() => {

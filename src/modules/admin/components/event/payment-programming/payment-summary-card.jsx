@@ -20,9 +20,11 @@ export const PaymentSummaryCard = ({
   subtotalEquipments, 
   subtotalWorkers, 
   subtotalServices,
+  subtotalTasks,
   equipments,
   workers,
   services,
+  tasks,
   eventDate,
   isButtonDisabled
 }) => {
@@ -33,6 +35,24 @@ export const PaymentSummaryCard = ({
   if (!selected) return null;
 
   const formatCurrency = (val) => `S/ ${val.toLocaleString("es-PE", { minimumFractionDigits: 2 })}`;
+
+  // Calcular anticipos individuales (igual que en el page)
+  // Equipos: siempre 50% del total
+  const anticipoEquipos = subtotalEquipments * 0.5;
+
+  // Trabajadores: siempre 50% del total
+  const anticipoTrabajadores = subtotalWorkers * 0.5;
+
+  // Servicios: mínimo 50%, ajustable según proveedor
+  const anticipoServicios = services.reduce((acc, s) => {
+    const total = (s.hourly_rate || 0) * (s.hours || 1);
+    const required = s.payment_percentage_required || 0;
+    const applied = required < 50 ? 50 : required;
+    return acc + (total * (applied / 100));
+  }, 0);
+
+  // Actividades: siempre 50% del total
+  const anticipoActividades = subtotalTasks * 0.5;
 
   return (
     <Box sx={{ mb: 4 }}>
@@ -79,18 +99,33 @@ export const PaymentSummaryCard = ({
                 {formatCurrency(totalGeneral)}
               </Typography>
 
-              <Typography sx={{ fontSize: 15, color: isDark ? "#cfd8dc" : "text.secondary" }}>
-                Equipos:
-                <span style={{ float: "right" }}>{formatCurrency(subtotalEquipments)}</span>
-              </Typography>
-              <Typography sx={{ fontSize: 15, color: isDark ? "#cfd8dc" : "text.secondary" }}>
-                Trabajadores:
-                <span style={{ float: "right" }}>{formatCurrency(subtotalWorkers)}</span>
-              </Typography>
-              <Typography sx={{ fontSize: 15, color: isDark ? "#cfd8dc" : "text.secondary" }}>
-                Servicios Adicionales:
-                <span style={{ float: "right" }}>{formatCurrency(subtotalServices)}</span>
-              </Typography>
+              {subtotalEquipments > 0 && (
+                <Typography sx={{ fontSize: 15, color: isDark ? "#cfd8dc" : "text.secondary" }}>
+                  Equipos:
+                  <span style={{ float: "right" }}>{formatCurrency(subtotalEquipments)}</span>
+                </Typography>
+              )}
+
+              {subtotalWorkers > 0 && (
+                <Typography sx={{ fontSize: 15, color: isDark ? "#cfd8dc" : "text.secondary" }}>
+                  Trabajadores:
+                  <span style={{ float: "right" }}>{formatCurrency(subtotalWorkers)}</span>
+                </Typography>
+              )}
+
+              {subtotalServices > 0 && (
+                <Typography sx={{ fontSize: 15, color: isDark ? "#cfd8dc" : "text.secondary" }}>
+                  Servicios Adicionales:
+                  <span style={{ float: "right" }}>{formatCurrency(subtotalServices)}</span>
+                </Typography>
+              )}
+
+              {subtotalTasks > 0 && (
+                <Typography sx={{ fontSize: 15, color: isDark ? "#cfd8dc" : "text.secondary" }}>
+                  Actividades:
+                  <span style={{ float: "right" }}>{formatCurrency(subtotalTasks)}</span>
+                </Typography>
+              )}
             </Box>
           </Box>
         </Grid>
@@ -122,38 +157,41 @@ export const PaymentSummaryCard = ({
                 Composición:
               </Typography>
 
-              <Typography sx={{ fontSize: 14 }}>
-                • Equipos:
-                <span style={{ float: "right" }}>
-                  {formatCurrency(
-                    equipments.reduce((acc, e) => acc + (e.hourly_rate || 0) * (e.hours || 1) * 0.5, 0)
-                  )}
-                </span>
-              </Typography>
+              {anticipoEquipos > 0 && (
+                <Typography sx={{ fontSize: 14 }}>
+                  • Equipos (50%):
+                  <span style={{ float: "right" }}>
+                    {formatCurrency(anticipoEquipos)}
+                  </span>
+                </Typography>
+              )}
 
-              <Typography sx={{ fontSize: 14 }}>
-                • Trabajadores:
-                <span style={{ float: "right" }}>
-                  {formatCurrency(
-                    workers.reduce((acc, w) => acc + (w.hourly_rate || 0) * (w.hours || 1) * 0.5, 0)
-                  )}
-                </span>
-              </Typography>
+              {anticipoTrabajadores > 0 && (
+                <Typography sx={{ fontSize: 14 }}>
+                  • Trabajadores (50%):
+                  <span style={{ float: "right" }}>
+                    {formatCurrency(anticipoTrabajadores)}
+                  </span>
+                </Typography>
+              )}
 
-              <Typography sx={{ fontSize: 14 }}>
-                • Servicios Adicionales:
-                <span style={{ float: "right" }}>
-                  {formatCurrency(
-                    services.reduce((acc, s) => {
-                      const percentage =
-                        (s.payment_percentage_required || 0) > 50
-                          ? s.payment_percentage_required / 100
-                          : 0.5;
-                      return acc + (s.hourly_rate || 0) * (s.hours || 1) * percentage;
-                    }, 0)
-                  )}
-                </span>
-              </Typography>
+              {anticipoServicios > 0 && (
+                <Typography sx={{ fontSize: 14 }}>
+                  • Servicios Adicionales:
+                  <span style={{ float: "right" }}>
+                    {formatCurrency(anticipoServicios)}
+                  </span>
+                </Typography>
+              )}
+
+              {anticipoActividades > 0 && (
+                <Typography sx={{ fontSize: 14 }}>
+                  • Actividades (50%):
+                  <span style={{ float: "right" }}>
+                    {formatCurrency(anticipoActividades)}
+                  </span>
+                </Typography>
+              )}
             </Box>
 
             <Box>
@@ -309,8 +347,6 @@ export const PaymentSummaryCard = ({
           Confirmar y Crear Pagos
         </Button>
       </Box>
-
-      {/* Botón FinalZZO */}
     </Box>
   );
 };
