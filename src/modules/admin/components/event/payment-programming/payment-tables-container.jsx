@@ -2,10 +2,12 @@ import {
   EquipmentAssignedTable,
   WorkersAssignedTable,
   AdditionalServicesTable,
+  TasksAssignedTable,
 } from ".";
 
 export const PaymentTablesContainer = ({ selected }) => {
   const assignations = selected?.assignations || [];
+  const tasks = selected?.tasks || [];
 
   const servicios = assignations.filter(
     (a) => a.resource_type === "Servicio Adicional"
@@ -22,6 +24,8 @@ export const PaymentTablesContainer = ({ selected }) => {
       {servicios.length > 0 && <AdditionalServicesTable data={servicios} />}
       {equipos.length > 0 && <EquipmentAssignedTable data={equipos} />}
       {trabajadores.length > 0 && <WorkersAssignedTable data={trabajadores} />}
+      {tasks.length > 0 && <TasksAssignedTable data={tasks} />}
+
     </>
   );
 };

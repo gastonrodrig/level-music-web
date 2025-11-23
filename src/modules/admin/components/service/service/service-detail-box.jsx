@@ -42,7 +42,7 @@ export const ServiceDetailBox = ({
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [selectedPreview, setSelectedPreview] = useState(null);
 
-  const hasExistingPhotos = initialData.photos.length > 0;
+  const hasExistingPhotos = initialData?.photos?.length > 0;
   const [showPhotos, setShowPhotos] = useState(hasExistingPhotos);
 
   const {
