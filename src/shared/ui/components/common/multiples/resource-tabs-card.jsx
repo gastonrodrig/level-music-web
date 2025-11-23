@@ -110,24 +110,28 @@ export const ResourceTabs = ({ assignations }) => {
                     )}
 
                     <Grid container spacing={2} sx={{ mt: 1 }}>
+                      {
+                        resource.resource_type !== "Servicio Adicional" && (
+                          <Grid item xs={4}>
+                            <Typography
+                              variant="body2"
+                              sx={{ color: "text.secondary" }}
+                            >
+                              Horas
+                            </Typography>
+                            <Typography>{resource.hours}h</Typography>
+                          </Grid>
+                        )
+                      }
                       <Grid item xs={4}>
                         <Typography
                           variant="body2"
                           sx={{ color: "text.secondary" }}
                         >
-                          Horas
-                        </Typography>
-                        <Typography>{resource.hours}h</Typography>
-                      </Grid>
-                      <Grid item xs={4}>
-                        <Typography
-                          variant="body2"
-                          sx={{ color: "text.secondary" }}
-                        >
-                          Tarifa/Hora
+                          Tarifa/{resource.resource_type === "Servicio Adicional" ? "Día" : "Hora"}
                         </Typography>
                         <Typography>
-                          ${resource.hourly_rate?.toLocaleString()}
+                          S/. {`${(resource.hourly_rate/resource.hours).toLocaleString()} `}
                         </Typography>
                       </Grid>
                       <Grid item xs={4}>
@@ -138,10 +142,7 @@ export const ResourceTabs = ({ assignations }) => {
                           Total
                         </Typography>
                         <Typography>
-                          $
-                          {(
-                            resource.hours * resource.hourly_rate
-                          ).toLocaleString()}
+                          S/. {(resource.hourly_rate).toLocaleString()}
                         </Typography>
                       </Grid>
                     </Grid>
