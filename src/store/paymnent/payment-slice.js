@@ -11,7 +11,10 @@ const initialState = {
 
 export const paymentSlice = createSlice({
   name: "payment",
-  initialState,
+  initialState: {
+    payments: [],
+    isLoading: false,
+  },
   reducers: {
     refreshPayment: (state, action) => {
       const { items, total, page } = action.payload;
@@ -31,7 +34,29 @@ export const paymentSlice = createSlice({
     },
     setRowsPerPagePayment: (state, action) => {
       state.rowsPerPage = action.payload;
-    }
+    },
+    onApproveAllPayments: (state, { payload }) => {
+      state.isLoading = false;
+      // Actualizar todos los pagos del evento a APROBADO
+      state.payments = state.payments.map((payment) =>
+        payment.event === payload.event_id
+          ? { ...payment, status: "Aprobado", approved_at: new Date().toISOString() }
+          : payment
+      );
+    },
+    onReportPaymentIssues: (state, { payload }) => {
+      state.isLoading = false;
+      const { payment_ids } = payload;
+      // Actualizar los pagos con observaciones
+      state.payments = state.payments.map((payment) =>
+        payment_ids.includes(payment._id)
+          ? { ...payment, status: "Con Observaciones", has_issues: true }
+          : payment
+      );
+    },
+    onSetLoadingPayments: (state, { payload }) => {
+      state.isLoading = payload;
+    },
   },
 });
 
@@ -40,5 +65,8 @@ export const {
   selectedPayment,
   setLoadingPayment,
   setPagePayment,
-  setRowsPerPagePayment
+  setRowsPerPagePayment,
+  onApproveAllPayments,
+  onReportPaymentIssues,
+  onSetLoadingPayments,
 } = paymentSlice.actions;

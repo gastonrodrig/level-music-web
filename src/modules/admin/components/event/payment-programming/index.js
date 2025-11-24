@@ -6,3 +6,4 @@ export * from './payment-info-card';
 export * from './event-info-card';
 export * from './payment-summary-card';
 export * from './tasks-assigned-table';
+export * from './payment-issues-modal';
