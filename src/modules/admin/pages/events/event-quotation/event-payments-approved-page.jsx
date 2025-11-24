@@ -19,6 +19,8 @@ import dayjs from "dayjs";
 import { ImagePreviewModal, ConfirmDialog } from "../../../../../shared/ui/components/common";
 import { EventInfoCard } from "../../../components";
 import { PaymentIssuesModal } from "../../../components/event/payment-programming/payment-issues-modal";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const formatCurrency = (v) => `S/ ${Number(v || 0).toLocaleString("es-PE", { minimumFractionDigits: 2 })}`;
 
@@ -26,6 +28,7 @@ export const EventPaymentsApprovedPage = () => {
   const { isMd } = useScreenSizes();
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const navigate = useNavigate();
 
   const colors = {
     cardBg: isDark ? "#141414" : "#FAF9FA",
@@ -49,19 +52,17 @@ export const EventPaymentsApprovedPage = () => {
   const { payments, loading, startApproveAllPayments, startReportPaymentIssues } = usePaymentStore();
   const dispatch = useDispatch();
 
-  const eventPayments = (payments || []).filter((p) => !selected || String(p.event) === String(selected?._id) || p.event === selected?._id);
+  useEffect(() => {
+    if (!selected) {
+      navigate("/admin/quotations");
+    }
+  }, [selected, navigate]);
 
-  const sampleImages = [
-    "https://i.postimg.cc/hGTGDXn1/Whats-App-Image-2025-10-14-at-5-41-43-PM.jpg",
-    "https://i.postimg.cc/tRMGcXQY/yapecito.jpg",
-  ];
+  const eventPayments = (payments || []).filter((p) => 
+    selected && (String(p.event) === String(selected._id) || p.event === selected._id)
+  );
 
-  const samplePayments = [
-    { _id: "p1", amount: 50, operation_number: "000123456", payment_method: "YAPE", created_at: dayjs().subtract(2, "day").toISOString(), voucher_url: sampleImages[0], payment_type: "PARCIAL", status: "PENDIENTE" },
-    { _id: "p2", amount: 500, operation_number: "202511100045678", payment_method: "TRANSFERENCIA", created_at: dayjs().subtract(1, "day").toISOString(), voucher_url: sampleImages[1], payment_type: "PARCIAL", status: "PENDIENTE" },
-  ];
-
-  const displayedPayments = eventPayments.length ? eventPayments : samplePayments;
+  const displayedPayments = eventPayments;
 
   const [previewOpen, setPreviewOpen] = React.useState(false);
   const [previewSrc, setPreviewSrc] = React.useState(null);
@@ -79,9 +80,14 @@ export const EventPaymentsApprovedPage = () => {
   };
 
   const totalCount = displayedPayments.length;
-  const pendingCount = displayedPayments.filter((p) => String(p.status).toLowerCase().includes("pend")).length;
-  const totalAmount = displayedPayments.reduce((s, p) => s + (Number(p.amount) || 0), 0);
-  const pendingAmount = displayedPayments.filter((p) => String(p.status).toLowerCase().includes("pend")).reduce((s, p) => s + (Number(p.amount) || 0), 0);
+  const pendingCount = displayedPayments.filter((p) => 
+    String(p.status).toLowerCase() === "pendiente"
+  ).length;
+  
+  const totalAmount = displayedPayments.reduce((s, p) => s + (Number(p.total_amount) || 0), 0);
+  const pendingAmount = displayedPayments
+    .filter((p) => String(p.status).toLowerCase() === "pendiente")
+    .reduce((s, p) => s + (Number(p.total_amount) || 0), 0);
 
   const handleApproveAllClick = () => {
     if (!selected?._id) {
@@ -127,6 +133,16 @@ export const EventPaymentsApprovedPage = () => {
     }
   };
 
+  if (!selected) {
+    return (
+      <Box sx={{ px: isMd ? 4 : 0, pt: 2, maxWidth: 1200, margin: "0 auto" }}>
+        <Typography variant="h6" color="text.secondary">
+          No hay evento seleccionado
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ px: isMd ? 4 : 0, pt: 2, maxWidth: 1200, margin: "0 auto" }}>
       <Typography variant="h4" sx={{ mb: 1, fontWeight: 700, color: colors.textPrimary }}>
@@ -136,10 +152,10 @@ export const EventPaymentsApprovedPage = () => {
       <Box sx={{ mb: 3 }}>
         <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, alignItems: { xs: "flex-start", sm: "center" }, gap: 1 }}>
           <Typography variant="h6" sx={{ fontWeight: 150, color: colors.textPrimary }}>
-            {selected?.name || "Los Jojitas 2010 Promocion"}
+            {selected?.name || "—"}
           </Typography>
           <Typography variant="h6" sx={{ fontWeight: 150, color: colors.textSecondary }}>
-            - {selected?.event_code || "EVT-20251122-9T5FBN"}
+            - {selected?.event_code || "—"}
           </Typography>
         </Box>
         <Box sx={{ mt: 2 }}>
@@ -171,57 +187,101 @@ export const EventPaymentsApprovedPage = () => {
         </CardContent>
       </Card>
 
-      <Box>
-        {displayedPayments.map((p, i) => (
-          <Card key={p._id || i} elevation={0} sx={{ mb: 2, borderRadius: 2, bgcolor: colors.cardBg, border: `1px solid ${colors.border}`, borderLeft: `6px solid ${theme.palette.primary.main}` }}>
-            <CardContent sx={{ display: "flex", gap: 2, alignItems: "center", flexDirection: { xs: "column", sm: "row" } }}>
-              <Box sx={{ width: { xs: "100%", sm: 120 }, textAlign: { xs: "center", sm: "left" }, cursor: p.voucher_url ? "pointer" : "default" }} onClick={() => p.voucher_url && openPreview(p.voucher_url)}>
-                <Avatar variant="rounded" src={p.voucher_url} sx={{ width: { xs: 140, sm: 90 }, height: { xs: 140, sm: 90 }, mb: 1, boxShadow: 3, border: `1px solid ${colors.border}`, backgroundColor: isDark ? "#141414" : "#fff", margin: { xs: '0 auto', sm: 0 } }}>
-                  <Image />
-                </Avatar>
-                <Typography sx={{ fontSize: 12, color: "text.secondary", mt: 1 }}>{p.voucher_url ? "Click para ampliar" : "—"}</Typography>
-              </Box>
+      {displayedPayments.length === 0 ? (
+        <Card elevation={0} sx={{ mb: 3, borderRadius: 3, bgcolor: colors.cardBg, border: `1px solid ${colors.border}`, p: 3 }}>
+          <Typography variant="body1" color="text.secondary" textAlign="center">
+            No hay pagos registrados para este evento
+          </Typography>
+        </Card>
+      ) : (
+        <Box>
+          {displayedPayments.map((p, i) => (
+            <Card key={p._id || i} elevation={0} sx={{ mb: 2, borderRadius: 2, bgcolor: colors.cardBg, border: `1px solid ${colors.border}`, borderLeft: `6px solid ${theme.palette.primary.main}` }}>
+              <CardContent sx={{ display: "flex", gap: 2, alignItems: "center", flexDirection: { xs: "column", sm: "row" } }}>
+                <Box sx={{ width: { xs: "100%", sm: 120 }, textAlign: { xs: "center", sm: "left" }, cursor: p.voucher_url ? "pointer" : "default" }} onClick={() => p.voucher_url && openPreview(p.voucher_url)}>
+                  <Avatar variant="rounded" src={p.voucher_url} sx={{ width: { xs: 140, sm: 90 }, height: { xs: 140, sm: 90 }, mb: 1, boxShadow: 3, border: `1px solid ${colors.border}`, backgroundColor: isDark ? "#141414" : "#fff", margin: { xs: '0 auto', sm: 0 } }}>
+                    <Image />
+                  </Avatar>
+                  <Typography sx={{ fontSize: 12, color: "text.secondary", mt: 1 }}>{p.voucher_url ? "Click para ampliar" : "Sin voucher"}</Typography>
+                </Box>
 
-              <Box sx={{ flex: 1, display: "flex", flexDirection: "column", width: "100%" }}>
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 2 }}>
-                  <Box>
-                    <Typography sx={{ fontSize: 13, color: "text.secondary" }}>Monto</Typography>
-                    <Typography sx={{ fontSize: 20, fontWeight: 700 }}>{formatCurrency(p.amount)}</Typography>
-                    <Typography sx={{ fontSize: 12, color: "text.secondary", mt: 0.5 }}>N° de Operación</Typography>
-                    <Typography sx={{ fontSize: 12 }}>{p.operation_number || "—"}</Typography>
-                  </Box>
+                <Box sx={{ flex: 1, display: "flex", flexDirection: "column", width: "100%" }}>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 2 }}>
+                    <Box>
+                      <Typography sx={{ fontSize: 13, color: "text.secondary" }}>Monto</Typography>
+                      <Typography sx={{ fontSize: 20, fontWeight: 700 }}>{formatCurrency(p.total_amount)}</Typography>
+                      <Typography sx={{ fontSize: 12, color: "text.secondary", mt: 0.5 }}>N° de Operación</Typography>
+                      <Typography sx={{ fontSize: 12 }}>{p.operation_number || "—"}</Typography>
+                    </Box>
 
-                  <Box sx={{ textAlign: { xs: "left", sm: "right" } }}>
-                    <Typography sx={{ fontSize: 13, color: "text.secondary" }}>Método de Pago</Typography>
-                    {(() => {
-                      const meta = getMethodMeta(p.payment_method);
-                      return (
-                        <Chip
-                          avatar={meta.logo ? <Avatar src={meta.logo} sx={{ width: 18, height: 18 }} /> : meta.icon ? <Avatar sx={{ width: 18, height: 18 }}>{meta.icon}</Avatar> : <Avatar sx={{ width: 18, height: 18, bgcolor: meta.color }}>{meta.label.charAt(0)}</Avatar>}
-                          label={meta.label}
-                          size="small"
-                          sx={{ mt: 1, px: 1.2, fontWeight: 700, bgcolor: meta.color, color: theme.palette.getContrastText(meta.color), borderRadius: 2 }}
-                        />
-                      );
-                    })()}
+                    <Box sx={{ textAlign: { xs: "left", sm: "right" } }}>
+                      <Typography sx={{ fontSize: 13, color: "text.secondary" }}>Método de Pago</Typography>
+                      {p.payment_method ? (
+                        (() => {
+                          const meta = getMethodMeta(p.payment_method);
+                          return (
+                            <Chip
+                              avatar={meta.logo ? <Avatar src={meta.logo} sx={{ width: 18, height: 18 }} /> : meta.icon ? <Avatar sx={{ width: 18, height: 18 }}>{meta.icon}</Avatar> : <Avatar sx={{ width: 18, height: 18, bgcolor: meta.color }}>{meta.label.charAt(0)}</Avatar>}
+                              label={meta.label}
+                              size="small"
+                              sx={{ mt: 1, px: 1.2, fontWeight: 700, bgcolor: meta.color, color: theme.palette.getContrastText(meta.color), borderRadius: 2 }}
+                            />
+                          );
+                        })()
+                      ) : (
+                        <Typography sx={{ fontSize: 12, mt: 1 }}>—</Typography>
+                      )}
 
-                    <Typography sx={{ fontSize: 13, color: "text.secondary", mt: 2 }}>Fecha del Pago</Typography>
-                    <Typography sx={{ fontSize: 13 }}>{p.created_at ? dayjs(p.created_at).format("DD/MM/YYYY HH:mm") : "—"}</Typography>
-                  </Box>
+                      <Typography sx={{ fontSize: 13, color: "text.secondary", mt: 2 }}>Fecha de Vencimiento</Typography>
+                      <Typography sx={{ fontSize: 13 }}>{p.due_date ? dayjs(p.due_date).format("DD/MM/YYYY") : "—"}</Typography>
+                    </Box>
 
-                  <Box sx={{ textAlign: { xs: "left", sm: "right" } }}>
-                    <Typography sx={{ fontSize: 13, color: "text.secondary" }}>Tipo de Pago</Typography>
-                    <Chip label={(p.payment_type || "-").toString()} size="small" sx={{ mt: 1, px: 1.2, fontWeight: 700, bgcolor: theme.palette.primary.main, color: theme.palette.getContrastText(theme.palette.primary.main), borderRadius: 2 }} />
+                    <Box sx={{ textAlign: { xs: "left", sm: "right" } }}>
+                      <Typography sx={{ fontSize: 13, color: "text.secondary" }}>Tipo de Pago</Typography>
+                      <Chip 
+                        label={p.payment_type || "—"} 
+                        size="small" 
+                        sx={{ 
+                          mt: 1, 
+                          px: 1.2, 
+                          fontWeight: 700, 
+                          bgcolor: theme.palette.primary.main, 
+                          color: theme.palette.getContrastText(theme.palette.primary.main), 
+                          borderRadius: 2 
+                        }} 
+                      />
 
-                    <Typography sx={{ fontSize: 13, color: "text.secondary", mt: 2 }}>Estado</Typography>
-                    <Chip label={(p.status || "-").toString()} size="small" sx={{ mt: 1, px: 1.2, fontWeight: 700, bgcolor: p.status && p.status.toLowerCase().includes("pend") ? theme.palette.primary.main : theme.palette.success?.main, color: theme.palette.getContrastText(p.status && p.status.toLowerCase().includes("pend") ? theme.palette.primary.main : theme.palette.success?.main), borderRadius: 2 }} />
+                      <Typography sx={{ fontSize: 13, color: "text.secondary", mt: 2 }}>Estado</Typography>
+                      <Chip 
+                        label={p.status || "—"} 
+                        size="small" 
+                        sx={{ 
+                          mt: 1, 
+                          px: 1.2, 
+                          fontWeight: 700, 
+                          bgcolor: p.status?.toLowerCase() === "pendiente" 
+                            ? theme.palette.warning.main 
+                            : p.status?.toLowerCase() === "aprobado"
+                            ? theme.palette.success.main
+                            : theme.palette.error.main,
+                          color: theme.palette.getContrastText(
+                            p.status?.toLowerCase() === "pendiente" 
+                              ? theme.palette.warning.main 
+                              : p.status?.toLowerCase() === "aprobado"
+                              ? theme.palette.success.main
+                              : theme.palette.error.main
+                          ), 
+                          borderRadius: 2 
+                        }} 
+                      />
+                    </Box>
                   </Box>
                 </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        ))}
-      </Box>
+              </CardContent>
+            </Card>
+          ))}
+        </Box>
+      )}
 
       <Divider sx={{ my: 3, borderColor: colors.border }} />
 
