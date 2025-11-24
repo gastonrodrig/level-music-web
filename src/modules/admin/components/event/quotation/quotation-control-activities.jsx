@@ -1,19 +1,12 @@
-import { Box, Typography, CircularProgress,Stack,Button, InputLabel,Select,MenuItem,useTheme,FormControl,Tabs,Tab,Chip,Divider,Grid } from '@mui/material';
-import { useQuotationStore, useEventTypeStore } from '../../../../../hooks';
+import { Box, Typography, Stack, Tabs, Tab, Chip, Grid, useTheme } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PersonIcon from '@mui/icons-material/Person';
 import DescriptionIcon from '@mui/icons-material/Description';
-import { Accordion, AccordionSummary, AccordionDetails, Avatar } from '@mui/material';
-import { useScreenSizes } from "../../../../../shared/constants/screen-width";
+import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import { useNavigate } from "react-router-dom";
-import { UseEventTaskStore } from "../../../../../hooks";
-import { useEffect, useMemo,useState } from 'react';
-import { useEffectEvent } from 'react';
-import { AddCircleOutline, Edit } from '@mui/icons-material';
-import { QuotationAddActivityModal } from './quotation-add-activities-modal';
+import { useEffect, useMemo, useState } from 'react';
 
-import { NoEncryption } from '@mui/icons-material';
-//falta explicar por que se trae fuera de la constante
+// Definición de Fases
 const TAB_PHASES = {
     ALL: 'all',
     PLANIFICACION: 'Planificación',
@@ -23,7 +16,7 @@ const TAB_PHASES = {
 
 export const QuotationControlActivities = ({
     selected,
-    eventTasks = [], // Recibimos las tareas directas desde el padre
+    eventTasks = [], 
 }) => {
     const navigate = useNavigate();
     const theme = useTheme();
@@ -31,19 +24,19 @@ export const QuotationControlActivities = ({
     const [tab, setTab] = useState(TAB_PHASES.ALL);
 
     useEffect(() => {
-      
         if (!selected) {
             navigate("/admin/event-ongoing");
-            return;
         }
     }, [selected, navigate]);
 
-
+    // CÁLCULO DE CONTADORES POR FASE
     const phaseCounts = useMemo(() => {
         const acc = { all: 0, [TAB_PHASES.PLANIFICACION]: 0, [TAB_PHASES.EJECUCION]: 0, [TAB_PHASES.SEGUIMIENTO]: 0 };
+        
         eventTasks.forEach(task => {
             (task.subtasks || []).forEach(sub => {
                 acc.all += 1;
+                // Normalizamos la fase por si viene undefined o null
                 const p = sub.phase || TAB_PHASES.PLANIFICACION;
                 if (acc[p] !== undefined) acc[p] += 1;
             });
@@ -51,28 +44,34 @@ export const QuotationControlActivities = ({
         return acc;
     }, [eventTasks]);
 
+    // FILTRADO DE TAREAS Y SUBTAREAS
     const filteredTasks = useMemo(() => {
         if (tab === TAB_PHASES.ALL) return eventTasks;
 
         return eventTasks.map(task => {
-            // Filtramos las subtareas
+            // Filtramos las subtareas que coincidan con la fase seleccionada
             const matchingSubtasks = (task.subtasks || []).filter(sub => sub.phase === tab);
-            // Retornamos una copia de la tarea con SOLO las subtareas que coinciden
+            
+            // Retornamos una copia de la tarea padre con SOLO las subtareas filtradas
             return { ...task, subtasks: matchingSubtasks };
-        }).filter(task => task.subtasks.length > 0); // Eliminamos tareas padre que se quedaron vacías
+        }).filter(task => task.subtasks && task.subtasks.length > 0); // Ocultamos tareas padres vacías
     }, [eventTasks, tab]);
 
+    // HELPERS DE COLOR
     const getPhaseColor = (phase) => {
-        if(phase === TAB_PHASES.PLANIFICACION) return 'info';
-        if(phase === TAB_PHASES.EJECUCION) return 'warning';
-        if(phase === TAB_PHASES.SEGUIMIENTO) return 'success';
-        return 'default';
+        switch(phase) {
+            case TAB_PHASES.PLANIFICACION: return 'info';
+            case TAB_PHASES.EJECUCION: return 'warning';
+            case TAB_PHASES.SEGUIMIENTO: return 'success'; // Cambiado a success para diferenciarlo mejor
+            default: return 'default';
+        }
     };
 
     const getStatusColor = (status) => (status === 'Completado' ? 'success' : 'default');
 
     return (
         <Box>
+            {/* TABS DE NAVEGACIÓN POR FASE */}
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
                 <Tabs
                     value={tab}
@@ -89,20 +88,21 @@ export const QuotationControlActivities = ({
             </Stack>
 
             <Box>
+                {/* MENSAJE SI NO HAY TAREAS */}
                 {(!filteredTasks || filteredTasks.length === 0) && (
                     <Typography sx={{ textAlign: "center", py: 4, color: "text.secondary" }}>
                         No hay actividades en esta categoría.
                     </Typography>
                 )}
 
-                {/* PRIMER MAPEO: Tareas Principales (Acordeones) */}
+                {/* LISTADO DE TAREAS PRINCIPALES (ACORDEONES) */}
                 {filteredTasks.map((task) => (
                     <Accordion key={task._id || task.id} sx={{ mb: 1, borderRadius: 4, boxShadow: 'none', overflow: 'hidden' }}>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ backgroundColor: isDark ? '#2c2b2b' : '#fff', borderRadius: 4, border: 'none' }}>
+                        <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ backgroundColor: isDark ? '#2c2b2b' : '#fff', borderRadius: 4 }}>
                             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', gap: 1 }}>
-                                <Typography sx={{ fontWeight: 500 }}>{task.name || task.title || 'Tarea Principal'}</Typography>
+                                <Typography sx={{ fontWeight: 600 }}>{task.name || task.title || 'Tarea Principal'}</Typography>
                                 <Typography variant="caption" color="text.secondary">
-                                    {task.subtasks?.length || 0} Subtareas
+                                    {task.subtasks?.length || 0} Subtareas visibles
                                 </Typography>
                             </Box>
                         </AccordionSummary>
@@ -114,90 +114,89 @@ export const QuotationControlActivities = ({
                                     No hay subtareas registradas.
                                 </Typography>
                             ) : (
-                                /* SEGUNDO MAPEO: Subtareas dentro del Acordeón */
+                                /* MAPEO DE SUBTAREAS */
                                 task.subtasks.map((subtask, index) => (
                                     <Box 
                                         key={subtask._id || index} 
                                         sx={{ 
-                                            border: (theme) => `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#e0e0e0'}`,
+                                            border: (theme) => `1px solid ${theme.palette.divider}`,
                                             borderRadius: 2,
                                             p: 2,
-                                            backgroundColor: isDark ? '#393938' : '#fafafa'
+                                            backgroundColor: isDark ? '#1e1e1e' : '#fafafa',
+                                            position: 'relative',
+                                            overflow: 'hidden'
                                         }}
                                     >
+                                        {/* Borde lateral de color según fase */}
+                                        <Box sx={{
+                                            position: 'absolute', left: 0, top: 0, bottom: 0, width: 4,
+                                            bgcolor: `${getPhaseColor(subtask.phase)}.main`
+                                        }} />
+
                                         <Grid container spacing={2}>
-                                        <Grid item xs={12} md={12}>
-                                                
-                                                <Box sx={{ p: 2, borderRadius: 2, backgroundColor: isDark ? '#2c2b2b' : '#fff', gap: 1 }}>
-                                                    <Typography variant="subtitle1" sx={{  fontWeight: 'semibold' }}>
-                                                       Nombre Sub tarea :  {subtask.name || `Subtarea #${index + 1}`}
+                                            {/* Header Subtarea */}
+                                            <Grid item xs={12}>
+                                                <Stack direction={{xs: 'column', sm: 'row'}} justifyContent="space-between" alignItems="start" spacing={1}>
+                                                    <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                                                        {subtask.name || `Subtarea #${index + 1}`}
                                                     </Typography>
-                                                <Box sx={{ pt:1, borderRadius: 2, display: 'flex', flexDirection: 'row', gap: 1 }}>
-                                                    <Typography variant="subtitle1" >Estado: </Typography>
-                                                    <Stack  spacing={1} direction={'row'} alignItems="center">
-                                                        <Chip label={subtask.status} size="small" color={getStatusColor(subtask.status)} />
-                                                        {/* Si 'requires_evidence' está en la subtarea */}
-                                                        {subtask.requires_evidence && <Chip label="Requiere Evidencia" size="small" variant="outlined" />}
-                                                        
-                                                    </Stack>
                                                     
-                                                    </Box>
-                                                    <Box sx={{ pt:1, borderRadius: 2, display: 'flex', flexDirection: 'row', gap: 1 }}>
-                                                    <Typography variant="subtitle1" >Fase: </Typography>
-                                                    <Chip label={subtask.phase} size="small" color={getPhaseColor(subtask.phase)} />
-                                                    </Box>
-                                                </Box>
-                                        </Grid>
+                                                    <Stack direction="row" spacing={1}>
+                                                        <Chip label={subtask.phase || 'Planificación'} size="small" color={getPhaseColor(subtask.phase)} variant="outlined" />
+                                                        <Chip label={subtask.status || 'Pendiente'} size="small" color={getStatusColor(subtask.status)} />
+                                                        {subtask.requires_evidence && <Chip label="Evidencia Req." size="small" variant="outlined" color="primary" />}
+                                                    </Stack>
+                                                </Stack>
+                                            </Grid>
 
-
-                                            {/* Sección 1: Personal Asignado */}
-                                            <Grid item xs={12} md={12}>
-                                                <Box sx={{ p: 2, borderRadius: 2, backgroundColor: isDark ? '#2c2b2b' : '#fff' }}>
-                                                    <Typography variant="subtitle1" sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                        <PersonIcon sx={{ fontSize: 20 }} />
-                                                        Personal Asignado
+                                            {/* Personal Asignado */}
+                                            <Grid item xs={12} md={6}>
+                                                <Box sx={{ p: 2, borderRadius: 2, backgroundColor: isDark ? '#2c2b2b' : '#fff', height: '100%' }}>
+                                                    <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                        <PersonIcon sx={{ fontSize: 16 }} /> Asignado a:
                                                     </Typography>
-                                                   
-                                                    <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
-                                                        {subtask.worker_name || "No hay personal asignado."}
+                                                    
+                                                    <Typography variant="body2" fontWeight="medium" mt={0.5}>
+                                                        {subtask.worker_name || "Sin asignar"}
                                                     </Typography>
                                                     {subtask.worker_type_name && (
-                                                        <Typography variant="caption" color="text.secondary" sx={{mt:0.5, fontSize:14}}>
-                                                            ( {subtask.worker_type_name} )
+                                                        <Typography variant="caption" color="text.secondary">
+                                                            {subtask.worker_type_name}
                                                         </Typography>
                                                     )}
-                                                    
                                                 </Box>
                                             </Grid>
 
-                                           
-
-                                            {/* Sección 3: Notas */}
-                                            <Grid item xs={12} md={12}>
-                                                <Box sx={{ p: 2, borderRadius: 2, backgroundColor: isDark ? '#2c2b2b' : '#fff' }}>
-                                                    <Typography variant="subtitle1" sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                        <DescriptionIcon sx={{ fontSize: 20 }} />
-                                                        Codigo de Almacén:
+                                            {/* Notas / Almacén */}
+                                            <Grid item xs={12} md={6}>
+                                                <Box sx={{ p: 2, borderRadius: 2, backgroundColor: isDark ? '#2c2b2b' : '#fff', height: '100%' }}>
+                                                    <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                        <DescriptionIcon sx={{ fontSize: 16 }} /> Notas / Ref:
                                                     </Typography>
-                                                    <Typography variant="subtitle1">
-                                                        {subtask.storehouse_code || 'Codigo de almacén no disponible.'}
+                                                    <Typography variant="body2" mt={0.5}>
+                                                        {subtask.notes || subtask.storehouse_code || 'Sin notas registradas.'}
                                                     </Typography>
                                                 </Box>
                                             </Grid>
 
-                                            {/* Sección 4: Evidencias */}
-                                            <Grid item xs={12} md={12}>
+                                            {/* Evidencias */}
+                                            <Grid item xs={12}>
                                                 {(!subtask.evidences || subtask.evidences.length === 0) ? (
-                                                    <Box sx={{ px: 2, py:1 }}>
-                                                        <Typography variant="subtitle1" color="text.secondary">Sin evidencias.</Typography>
+                                                    <Box sx={{ px: 1, py: 1 }}>
+                                                        <Typography variant="caption" color="text.secondary">Sin evidencias adjuntas.</Typography>
                                                     </Box>
                                                 ) : (
                                                     <Box sx={{ p: 2, borderRadius: 2, backgroundColor: isDark ? '#2c2b2b' : '#fff' }}>
-                                                        <Typography variant="subtitle2" sx={{ mb: 1 }}>Evidencias ({subtask.evidences.length}):</Typography>
+                                                        <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                                                            Evidencias ({subtask.evidences.length})
+                                                        </Typography>
                                                         <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                                                             {subtask.evidences.map((evidence, idx) => {
-                                                                const src = evidence?.file_url || evidence?.url || evidence?.files_url;
+                                                                // Aquí extraemos la URL correcta del objeto de evidencia
+                                                                const src = evidence?.file_url || evidence?.url; 
+                                                                
                                                                 if (!src) return null;
+                                                                
                                                                 return (
                                                                     <Box
                                                                         key={evidence._id || idx}
@@ -206,12 +205,17 @@ export const QuotationControlActivities = ({
                                                                         alt={`evidence-${idx}`}
                                                                         onError={(e) => { e.currentTarget.src = '/placeholder-image.png'; }}
                                                                         sx={{
-                                                                            width: 150, // Reduje un poco el tamaño para subtareas
-                                                                            height: 100,
+                                                                            width: 120, 
+                                                                            height: 90,
                                                                             objectFit: 'cover',
                                                                             borderRadius: 1,
-                                                                            border: (theme) => `1px solid ${theme.palette.mode === 'dark' ? '#3c3c3c' : '#e0e0e0'}`,
+                                                                            border: (theme) => `1px solid ${theme.palette.divider}`,
+                                                                            cursor: 'pointer',
+                                                                            transition: 'transform 0.2s',
+                                                                            '&:hover': { transform: 'scale(1.05)' }
                                                                         }}
+                                                                        // Opcional: Aquí podrías agregar un onClick para abrir un modal con la imagen grande
+                                                                        onClick={() => window.open(src, '_blank')}
                                                                     />
                                                                 );
                                                             })}
