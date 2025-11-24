@@ -1,23 +1,38 @@
-
-export const createManualPaymentModel = (payment = {}) => {
+export const createManualPaymentModel = (data = {}) => {
   const formData = new FormData();
 
-  // Campos principales
-  if (payment.payment_type) formData.append('payment_type', payment.payment_type);
-  if (payment.event_id) formData.append('event_id', payment.event_id);
-  if (payment.user_id) formData.append('user_id', payment.user_id);
-
-  // Serializar el array de pagos como JSON string
-  if (Array.isArray(payment.payments) && payment.payments.length > 0) {
-    formData.append('payments', JSON.stringify(payment.payments));
+  // Agregar user_id (obligatorio)
+  if (data.user_id) {
+    formData.append('user_id', data.user_id);
   }
 
-  // Agregar imágenes en el mismo orden que los pagos
-  if (Array.isArray(payment.images) && payment.images.length > 0) {
-    payment.images.forEach((file) => {
-      if (file instanceof File) {
-        formData.append('images', file);
+  // Agregar event_id (obligatorio) 
+  if (data.event_id) {
+    formData.append('event_id', data.event_id);
+  }
+
+  // Agregar payment_type (obligatorio: "Parcial" o "Final")
+  if (data.payment_type) {
+    formData.append('payment_type', data.payment_type);
+  }
+
+  // Agregar los pagos como array de objetos
+  if (Array.isArray(data.payments) && data.payments.length > 0) {
+    data.payments.forEach((payment, index) => {
+      formData.append(`payments[${index}][payment_method]`, payment.payment_method || '');
+      formData.append(`payments[${index}][amount]`, payment.amount || 0);
+      formData.append(`payments[${index}][operation_number]`, payment.operation_number || '');
+      
+      if (payment.payment_date) {
+        formData.append(`payments[${index}][payment_date]`, payment.payment_date);
       }
+    });
+  }
+
+  // Agregar las imágenes (vouchers)
+  if (Array.isArray(data.images) && data.images.length > 0) {
+    data.images.forEach((image) => {
+      formData.append('vouchers', image);
     });
   }
 

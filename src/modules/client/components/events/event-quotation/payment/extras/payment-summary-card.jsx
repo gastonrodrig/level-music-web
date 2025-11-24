@@ -70,7 +70,7 @@ export const PaymentSummaryCard = ({ quotationData }) => {
     const paymentData = {
       payment_type: data.selectedPaymentType === "partial" ? "Parcial" : "Final",
       event_id: quotationData?.event_id || quotationData?._id,
-      user_id: quotationData?.user_id || quotationData?.user?._id,
+      user_id: data.user_id || data.user?._id,
       payments: data.manualPayments.map(payment => ({
         payment_method: payment.method.charAt(0).toUpperCase() + payment.method.slice(1), // 'yape' -> 'Yape'
         amount: Number(payment.amount),

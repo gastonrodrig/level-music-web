@@ -33,6 +33,7 @@ export const PaymentSummaryCard = ({
 
   const formatCurrency = (val) => `S/ ${val.toLocaleString("es-PE", { minimumFractionDigits: 2 })}`;
 
+  // Calcular anticipos individuales (igual que en el page)
   // Equipos: siempre 50% del total
   const anticipoEquipos = subtotalEquipments * 0.5;
 
@@ -41,10 +42,10 @@ export const PaymentSummaryCard = ({
 
   // Servicios: mínimo 50%, ajustable según proveedor
   const anticipoServicios = services.reduce((acc, s) => {
-    const percentage = (s.payment_percentage_required || 0) > 50
-      ? s.payment_percentage_required / 100
-      : 0.5;
-    return acc + (s.hourly_rate || 0) * (s.hours || 1) * percentage;
+    const total = (s.hourly_rate || 0) * (s.hours || 1);
+    const required = s.payment_percentage_required || 0;
+    const applied = required < 50 ? 50 : required;
+    return acc + (total * (applied / 100));
   }, 0);
 
   // Actividades: siempre 50% del total
@@ -91,10 +92,15 @@ export const PaymentSummaryCard = ({
                 Total General del Evento
               </Typography>
 
-              <Typography sx={{ fontSize: 34, fontWeight: 700, my: 1, color: isDark ? "#fff" : "#000" }}>
-                {formatCurrency(totalGeneral)}
-              </Typography>
+<Typography sx={{ fontSize: 34, fontWeight: 700, my: 1, color: isDark ? "#fff" : "#000" }}>
+  {formatCurrency(totalGeneral / 1.18)}
+</Typography>
 
+              <Typography sx={{ fontWeight: 700, my: 1, color: isDark ? "#fff" : "#000" }}>
+                <span style={{ fontSize: 16 }}>CON IGV:</span>{" "}
+                <span style={{ fontSize: 34 }}>{formatCurrency(totalGeneral)}</span>
+              </Typography>
+              
               {subtotalEquipments > 0 && (
                 <Typography sx={{ fontSize: 15, color: isDark ? "#cfd8dc" : "text.secondary" }}>
                   Equipos:
@@ -167,7 +173,7 @@ export const PaymentSummaryCard = ({
                   • Trabajadores (50%):
                   <span style={{ float: "right" }}>
                     {formatCurrency(anticipoTrabajadores)}
-                  </span>
+                  </span>d
                 </Typography>
               )}
 
