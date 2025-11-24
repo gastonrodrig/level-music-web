@@ -251,7 +251,7 @@ export const EventPaymentsApprovedPage = () => {
           {loading ? "Procesando..." : "Aprobar Todos los Pagos"}
         </Button>
 
-        <Button
+        {/* <Button
           variant="contained"
           onClick={handleOpenIssuesModal}
           startIcon={<Warning />}
@@ -273,7 +273,7 @@ export const EventPaymentsApprovedPage = () => {
           }}
         >
           Informar Desconformidades
-        </Button>
+        </Button> */}
       </Box>
 
       <ImagePreviewModal open={previewOpen} src={previewSrc} onClose={closePreview} />
