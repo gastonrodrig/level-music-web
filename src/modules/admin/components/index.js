@@ -5,3 +5,4 @@ export * from './service';
 export * from './equipment';
 export * from './client';
 export * from './ui';
+export * from './dashboard';

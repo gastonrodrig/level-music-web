@@ -184,7 +184,6 @@ export const useQuotationStore = () => {
     try {
       const { data } = await eventApi.get('/dashboard/appointments-count', getAuthConfig(token));
       dispatch(setDashboardData(data));
-      console.log(data);
       return true;
     } catch (error) {
       const message = error.response?.data?.message;
@@ -203,7 +202,6 @@ export const useQuotationStore = () => {
       : '';
       const { data } = await eventApi.get(`/eventsperMonths${params}`, getAuthConfig(token));
       dispatch(setGraficsperMonth(data));
-      console.log(data);
       return true;
     } catch (error) {
       const message = error.response?.data?.message;
@@ -214,10 +212,13 @@ export const useQuotationStore = () => {
     }
   };
 
-  const eventTypes = async () => {
+  const eventTypes = async (fechaInicio, fechaFin) => {
     dispatch(setLoadingQuotation(true));
     try {
-      const { data } = await eventApi.get('/eventTypes', getAuthConfig(token));
+      const params = fechaInicio && fechaFin
+      ? `?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`
+      : '';
+      const { data } = await eventApi.get(`/eventTypes${params}`, getAuthConfig(token));
       dispatch(setEventType(data));
       return true;
     } catch (error) {
@@ -236,8 +237,7 @@ export const useQuotationStore = () => {
         ? `?year=${year}&month=${month}`
         : '';
       const { data } = await eventApi.get(`/getEventByDate${params}`, getAuthConfig(token));
-      console.log('Calendario respuesta raw:', data);
-      dispatch(setEventByDate(Array.isArray(data) ? data : data?.data ?? [])); // Asegura array
+      dispatch(setEventByDate(Array.isArray(data) ? data : data?.data ?? []));
       return true;
     } catch (error) {
       console.error('Error getEventByDate:', error);

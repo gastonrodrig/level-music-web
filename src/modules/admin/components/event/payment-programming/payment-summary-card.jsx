@@ -36,7 +36,6 @@ export const PaymentSummaryCard = ({
 
   const formatCurrency = (val) => `S/ ${val.toLocaleString("es-PE", { minimumFractionDigits: 2 })}`;
 
-  // Calcular anticipos individuales (igual que en el page)
   // Equipos: siempre 50% del total
   const anticipoEquipos = subtotalEquipments * 0.5;
 
@@ -45,10 +44,10 @@ export const PaymentSummaryCard = ({
 
   // Servicios: mínimo 50%, ajustable según proveedor
   const anticipoServicios = services.reduce((acc, s) => {
-    const total = (s.hourly_rate || 0) * (s.hours || 1);
-    const required = s.payment_percentage_required || 0;
-    const applied = required < 50 ? 50 : required;
-    return acc + (total * (applied / 100));
+    const percentage = (s.payment_percentage_required || 0) > 50
+      ? s.payment_percentage_required / 100
+      : 0.5;
+    return acc + (s.hourly_rate || 0) * (s.hours || 1) * percentage;
   }, 0);
 
   // Actividades: siempre 50% del total
