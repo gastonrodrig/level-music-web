@@ -26,35 +26,41 @@ export const EventPaymentsProgrammingPage = () => {
   const services = selected?.assignations?.filter(a => a.resource_type === "Servicio Adicional") || [];
   const tasks = selected?.tasks || [];
   
-  const subtotalEquipments = equipments.reduce((acc, e) => acc + (e.hourly_rate * e.hours || 0), 0);
-  const subtotalWorkers = workers.reduce((acc, w) => acc + (w.hourly_rate * w.hours || 0), 0);
-  const subtotalServices = services.reduce((acc, s) => acc + (s.hourly_rate * s.hours || 0), 0);
+  const subtotalEquipments = equipments.reduce((acc, e) => acc + (e.hourly_rate), 0);
+  const subtotalWorkers = workers.reduce((acc, w) => acc + (w.hourly_rate), 0);
+  const subtotalServices = services.reduce((acc, s) => acc + (s.hourly_rate), 0);
   const subtotalTasks = tasks.reduce((acc, t) => {
     const taskTotal = t.subtasks?.reduce((subAcc, subtask) => {
       return subAcc + (subtask.price || 0);
     }, 0) || 0;
     return acc + taskTotal;
   }, 0);
-  const totalGeneral = subtotalEquipments + subtotalWorkers + subtotalServices + subtotalTasks;
+  const subtotalGeneral = subtotalEquipments + subtotalWorkers + subtotalServices + subtotalTasks;
+  const igv = subtotalGeneral * 0.18;
+  const totalGeneral = subtotalGeneral + igv;
 
-  // Equipos: siempre 50% del total
-  const anticipoEquipos = subtotalEquipments * 0.5;
+  // Equipos
+  const anticipoEquipos = (subtotalEquipments * 1.18) * 0.5;
 
-  // Trabajadores: siempre 50% del total
-  const anticipoWorkers = subtotalWorkers * 0.5;
+  // Trabajadores
+  const anticipoWorkers = (subtotalWorkers * 1.18) * 0.5;
 
-  // Servicios: mínimo 50%, ajustable según proveedor
+  // Servicios (con su % individual)
   const anticipoServicios = services.reduce((acc, s) => {
-    const total = s.hourly_rate * s.hours || 0;
+    const totalSinIGV = s.hourly_rate * (s.hours || 1);
+    const totalConIGV = totalSinIGV * 1.18;
+
     const required = s.payment_percentage_required || 0;
     const applied = required < 50 ? 50 : required;
-    return acc + (total * (applied / 100));
+
+    return acc + (totalConIGV * (applied / 100));
   }, 0);
 
-  // Actividades: siempre 50% del total
-  const anticipoTasks = subtotalTasks * 0.5;
+  // Actividades
+  const anticipoTasks = (subtotalTasks * 1.18) * 0.5;
 
   const totalAnticipo = anticipoEquipos + anticipoWorkers + anticipoServicios + anticipoTasks;
+  
   const saldoRestante = totalGeneral - totalAnticipo;
 
   const methods = useForm({

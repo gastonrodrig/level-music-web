@@ -31,7 +31,7 @@ export const AssignServiceCard = ({
   datesReady,
   guardDates,
   eventCode,
-  isEditMode = false, // Nueva prop
+  isEditMode = false, 
 }) => {
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [selectedPreview, setSelectedPreview] = useState(null);

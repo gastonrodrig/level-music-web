@@ -2,13 +2,13 @@ import { PaymentTableBase } from "../../ui";
 
 export const WorkersAssignedTable = ({ data = [] }) => {
   const rows = data.map((w) => {
-    const total = Number((w.hourly_rate * w.hours).toFixed(2));
+    const total = Number((w.hourly_rate).toFixed(2));
     const partial = Number((total * 0.5).toFixed(2)); 
     return {
       name: `${w.worker_first_name} ${w.worker_last_name}`,
       role: w.worker_role,
       hours: w.hours,
-      rate: w.hourly_rate,
+      rate: w.hourly_rate / w.hours,
       total,
       partial,
     };

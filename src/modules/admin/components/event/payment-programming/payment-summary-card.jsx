@@ -21,10 +21,7 @@ export const PaymentSummaryCard = ({
   subtotalWorkers, 
   subtotalServices,
   subtotalTasks,
-  equipments,
-  workers,
   services,
-  tasks,
   eventDate,
   isButtonDisabled
 }) => {

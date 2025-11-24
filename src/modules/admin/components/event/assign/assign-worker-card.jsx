@@ -84,7 +84,7 @@ export const AssignWorkerCard = ({
       >
         <Grid container spacing={2} alignItems="center">
           {/* Tipo de Trabajador */}
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} md={4.5}>
             <FormControl fullWidth>
               <InputLabel id="worker-type-label" shrink>
                 Tipo de Trabajador
@@ -114,7 +114,7 @@ export const AssignWorkerCard = ({
           </Grid>
 
           {/* Trabajador */}
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} md={4.5}>
             <FormControl fullWidth size="small">
               <InputLabel id="worker-label" shrink>
                 Trabajador
@@ -172,7 +172,6 @@ export const AssignWorkerCard = ({
           <Grid item xs={12} md={2}>
             <Button
               variant="contained"
-              fullWidth
               startIcon={<Add />}
               onClick={async () => {
                 if (!guardDates()) return;
@@ -190,12 +189,14 @@ export const AssignWorkerCard = ({
                 });
               }}
               disabled={!workerId || !workerPrice}
-              sx={{ 
-                textTransform: "none", 
-                borderRadius: 2, 
-                color: "#fff", 
-                fontWeight: 600, 
-                py: 2 
+              sx={{
+                textTransform: "none",
+                borderRadius: 2,
+                color: "#fff",
+                fontWeight: 500,
+                py: 2,
+                px: 3,
+                height: "40px",
               }}
             >
               Agregar

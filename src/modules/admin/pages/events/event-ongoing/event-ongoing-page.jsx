@@ -77,15 +77,15 @@ export const EventOnGoing = () => {
       label: "Estado", 
       sortable: false 
     },
-    {
-      id: "activities",
-      label: "Actividades",
-      sortable: false,
-      accessor: (row) => {
-        const cnt = getAttributesCountForRow(row);
-        return `${cnt} actividades`;
-      },
-    },
+    // {
+    //   id: "activities",
+    //   label: "Actividades",
+    //   sortable: false,
+    //   accessor: (row) => {
+    //     const cnt = getAttributesCountForRow(row);
+    //     return `${cnt} actividades`;
+    //   },
+    // },
   ];
 
   useEffect(() => {

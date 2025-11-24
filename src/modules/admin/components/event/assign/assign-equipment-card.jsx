@@ -38,24 +38,19 @@ export const AssignEquipmentCard = ({
   const resetForm = () => {
     setValue("equipment_id", "");
     setValue("equipment_price", "");
-    // setValue("equipment_hours", 1);
   };
     const calculatedHours = useMemo(() => {
-      if (!from || !to) return 1; // Valor por defecto si no hay fechas
+      if (!from || !to) return 1; 
       const start = dayjs(from);
       const end = dayjs(to);
-      
-      // Calculamos diferencia en horas
+
       const diff = end.diff(start, "hour", true); 
       
-      // Math.ceil para redondear hacia arriba (ej: 1.5 horas -> 2 horas de cobro)
-      // Math.max para asegurar que mínimo se cobre 1 hora
       return Math.max(1, Math.ceil(diff));
     }, [from, to]);
 
   const equipmentId = watch("equipment_id");
   const equipmentPrice = watch("equipment_price");
-  // const equipmentHours = watch("equipment_hours") || 1;
 
   const selectedEquipment = useMemo(
     () => filteredEquipments.find((e) => e._id === equipmentId),
@@ -87,7 +82,7 @@ export const AssignEquipmentCard = ({
       >
         <Grid container spacing={2} alignItems="center">
           {/* Tipo de Equipo */}
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} md={4.5}>
             <FormControl fullWidth>
               <InputLabel id="type-equipment-label" shrink>
                 Tipo de Equipo
@@ -115,7 +110,7 @@ export const AssignEquipmentCard = ({
           </Grid>
 
           {/* Equipo */}
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} md={4.5}>
             <FormControl fullWidth size="small">
               <InputLabel id="equipment-label" shrink>
                 Equipo
@@ -153,8 +148,6 @@ export const AssignEquipmentCard = ({
             </FormControl>
           </Grid>
 
-          
-
           {/* Precio por hora */}
           <Grid item xs={12} md={3}>
             <TextField
@@ -172,7 +165,6 @@ export const AssignEquipmentCard = ({
           <Grid item xs={12} md={2}>
             <Button
               variant="contained"
-              fullWidth
               startIcon={<Add />}
               onClick={async () => {
                 if (!guardDates()) return; 
@@ -190,7 +182,15 @@ export const AssignEquipmentCard = ({
                 });
               }}
               disabled={!equipmentId || !equipmentPrice}
-              sx={{ textTransform: "none", borderRadius: 2, color: "#fff", fontWeight: 600, py: 2 }}
+              sx={{
+                textTransform: "none",
+                borderRadius: 2,
+                color: "#fff",
+                fontWeight: 500,
+                py: 2,
+                px: 3,
+                height: "40px",
+              }}
             >
               Agregar
             </Button>

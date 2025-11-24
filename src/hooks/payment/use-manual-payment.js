@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { createManualPaymentModel } from '../../shared/models/payment-manual';
+import { createManualPaymentModel } from '../../shared/models';
 import { paymentApi } from '../../api';
 import { getAuthConfig } from '../../shared/utils';
 import {
