@@ -163,7 +163,7 @@ export const useQuotationStore = () => {
     try {
       const payload = evaluateQuotationModel(evaluation);
       const { data } = await eventApi.patch(`${quotationId}/status`, payload, getAuthConfig(token));
-      startLoadingQuotationPaginated(userId);
+      startLoadingQuotationPaginated(userId, 1);
       if (data.status === 'Confirmado') {
         openSnackbar("La cotización fue confirmada exitosamente.");
       } else {

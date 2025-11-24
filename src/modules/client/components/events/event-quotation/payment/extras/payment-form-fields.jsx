@@ -26,7 +26,7 @@ export const PaymentFormFields = ({ paymentId, paymentNumber }) => {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
 
-  const { register, setValue, watch, formState: { errors }, trigger } = useFormContext();
+  const { register, setValue, watch, formState: { errors }, trigger, clearErrors } = useFormContext();
 
   const opField = `manualPayments.${paymentNumber - 1}.operationNumber`;
   const voucherField = `manualPayments.${paymentNumber - 1}.voucher`;
@@ -65,8 +65,8 @@ export const PaymentFormFields = ({ paymentId, paymentNumber }) => {
       }
 
       setSelectedFile(file);
-      // set value in RHF form
       setValue(voucherField, file, { shouldValidate: true, shouldDirty: true });
+      clearErrors(voucherField);
 
       // Crear vista previa solo para imágenes
       if (file.type.startsWith("image/")) {
@@ -121,16 +121,25 @@ export const PaymentFormFields = ({ paymentId, paymentNumber }) => {
         </Typography>
         <TextField
           fullWidth
-          placeholder="Ej: 123456789"
+          placeholder="Ej: 12345678"
           size="small"
           {...register(opField, {
             required: "El número de operación es obligatorio",
-            pattern: { value: /^[0-9]{8}$/, message: "Formato inválido" },
+            pattern: { 
+              value: /^[0-9]{6,20}$/, 
+              message: "Debe contener entre 6 y 20 dígitos" 
+            },
           })}
-          value={operationValue}
           onChange={(e) => {
-            setValue(opField, e.target.value, { shouldDirty: true });
+            const value = e.target.value;
+            setValue(opField, value, { shouldValidate: false, shouldDirty: true });
+            
+            // Revalidar solo si hay error previo o si el campo cumple la validación
+            if (errors?.manualPayments?.[paymentNumber - 1]?.operationNumber || /^[0-9]{6,20}$/.test(value)) {
+              trigger(opField);
+            }
           }}
+          onBlur={() => trigger(opField)}
           error={!!errors?.manualPayments?.[paymentNumber - 1]?.operationNumber}
           helperText={
             errors?.manualPayments?.[paymentNumber - 1]?.operationNumber
@@ -148,7 +157,6 @@ export const PaymentFormFields = ({ paymentId, paymentNumber }) => {
           Comprobante de Pago *
         </Typography>
 
-        {/* Registra el input y compone onChange para que tanto RHF como la vista previa local se ejecuten */}
         {(() => {
           const reg = register(voucherField, {
             validate: (file) => {
@@ -196,7 +204,6 @@ export const PaymentFormFields = ({ paymentId, paymentNumber }) => {
               position: "relative",
             }}
           >
-            {/* Icono a la izquierda */}
             <Box display="flex" alignItems="center" gap={2}>
               <Box
                 sx={{
@@ -211,7 +218,6 @@ export const PaymentFormFields = ({ paymentId, paymentNumber }) => {
                 <CloudUpload sx={{ fontSize: 40, color: colors.textSecondary }} />
               </Box>
 
-              {/* Texto a la derecha */}
               <Box sx={{ flex: 1, textAlign: "left" }}>
                 <Typography
                   variant="body2"
@@ -257,7 +263,6 @@ export const PaymentFormFields = ({ paymentId, paymentNumber }) => {
               position: "relative",
             }}
           >
-            {/* Vista previa o icono */}
             <Box sx={{ position: "relative", textAlign: "center", mb: 2 }}>
               {previewUrl ? (
                 <Box sx={{ position: "relative", display: "inline-block" }}>
@@ -279,7 +284,6 @@ export const PaymentFormFields = ({ paymentId, paymentNumber }) => {
                       },
                     }}
                   />
-                  {/* Botón para eliminar imagen */}
                   <IconButton
                     size="small"
                     onClick={handleRemoveFile}
@@ -293,7 +297,6 @@ export const PaymentFormFields = ({ paymentId, paymentNumber }) => {
                   >
                     <Close fontSize="small" sx={{ color: "#fff" }} />
                   </IconButton>
-                  
                 </Box>
               ) : (
                 <Box>
@@ -310,7 +313,6 @@ export const PaymentFormFields = ({ paymentId, paymentNumber }) => {
               )}
             </Box>
 
-            {/* Información del archivo */}
             <Box sx={{ textAlign: "center", mb: 2 }}>
               <CheckCircle sx={{ fontSize: 24, color: "#4caf50", mb: 0.5 }} />
               <Typography
@@ -327,7 +329,6 @@ export const PaymentFormFields = ({ paymentId, paymentNumber }) => {
               </Typography>
             </Box>
 
-            {/* Botón para cambiar */}
             <Button
               fullWidth
               variant="outlined"
@@ -347,10 +348,8 @@ export const PaymentFormFields = ({ paymentId, paymentNumber }) => {
             </Button>
           </Paper>
         )}
-        {/* Error helper removed — inline mini-alert inside the card handles validation messaging */}
       </Box>
 
-      {/* Modal de vista previa */}
       <ImagePreviewModal
         open={previewModalOpen}
         src={previewUrl}

@@ -60,7 +60,6 @@ export const PaymentManualContent = ({
     watch, 
     control, 
     register, 
-    setValue, 
     formState: { errors } 
   } = useFormContext({
     mode: "onBlur",
@@ -124,7 +123,6 @@ export const PaymentManualContent = ({
                   '&:active': {
                     bgcolor: '#c62828',
                   },
-                  // ensure the svg icon stays white even in dark/light themes
                   '& .MuiSvgIcon-root': {
                     color: '#ffffff',
                   },
@@ -154,12 +152,15 @@ export const PaymentManualContent = ({
               <Controller
                 control={control}
                 name={`manualPayments.${paymentNumber - 1}.method`}
+                rules={{ required: "Selecciona un método de pago" }}
                 render={({ field }) => (
                   <TextField
                     select
                     fullWidth
                     {...field}
                     size="small"
+                    error={!!errors?.manualPayments?.[paymentNumber - 1]?.method}
+                    helperText={errors?.manualPayments?.[paymentNumber - 1]?.method?.message || ""}
                   >
                   {paymentMethods.map((method) => (
                     <MenuItem key={method.id} value={method.id}>
@@ -205,44 +206,48 @@ export const PaymentManualContent = ({
               <TextField
                 fullWidth
                 size="small"
+                type="number"
                 placeholder="0.00"
+                inputProps={{
+                  step: "0.01",
+                  min: "0",
+                }}
                 {...register(`manualPayments.${paymentNumber - 1}.amount`, {
                   required: "El monto es obligatorio",
                   validate: (val) => {
                     const num = Number(val);
 
-                    // max 500 Yape / Plin
-                    if ((currentMethod === "yape" || currentMethod === "plin") && !isNaN(num) && num > 500) {
-                      return "El monto máximo para Yape/Plin es S/ 500";
+                    // Validar que sea un número válido
+                    if (isNaN(num) || num <= 0) {
+                      return "Ingresa un monto válido mayor a 0";
                     }
 
-                    // Validación total
+                    // Validar máximo para Yape/Plin
+                    if (selectedMethod?.maxAmount && num > selectedMethod.maxAmount) {
+                      return `El monto máximo para ${selectedMethod.name} es S/ ${selectedMethod.maxAmount}`;
+                    }
+
+                    // Validar total de pagos
                     const requiredTotal = Number(watch("amount")) || 0;
                     const payments = watch("manualPayments") || [];
                     const idx = paymentNumber - 1;
 
+                    // Sumar todos los montos excepto el actual
                     const sumOthers = payments.reduce((s, p, i) => {
                       if (i === idx) return s;
                       return s + (Number(p?.amount) || 0);
                     }, 0);
 
-                    const remaining = requiredTotal - sumOthers;
+                    // Calcular total incluyendo el actual
+                    const totalWithCurrent = sumOthers + num;
 
-                    if (!isNaN(num) && num > remaining) {
-                      return `El monto excede el total requerido. Restante: S/ ${remaining.toFixed(2)}`;
+                    if (totalWithCurrent > requiredTotal) {
+                      return `El total de pagos (S/ ${totalWithCurrent.toFixed(2)}) excede el monto requerido (S/ ${requiredTotal.toFixed(2)})`;
                     }
 
                     return true;
                   },
                 })}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setValue(
-                    `manualPayments.${paymentNumber - 1}.amount`,
-                    setValue(`manualPayments.${paymentNumber - 1}.amount`, value)
-                  );
-                }}
-                value={watch(`manualPayments.${paymentNumber - 1}.amount`) || ""}
                 error={!!errors?.manualPayments?.[paymentNumber - 1]?.amount}
                 helperText={
                   errors?.manualPayments?.[paymentNumber - 1]?.amount?.message || ""
@@ -296,7 +301,7 @@ export const PaymentManualContent = ({
             />
           )}
 
-          {/* Campos de formulario (Número de operación y comprobante) - Para todos excepto efectivo */}
+          {/* Campos de formulario (Número de operación y comprobante) */}
           {selectedMethod?.requiresProof && (
             <>
               <Divider sx={{ my: 3, borderColor: colors.border }} />

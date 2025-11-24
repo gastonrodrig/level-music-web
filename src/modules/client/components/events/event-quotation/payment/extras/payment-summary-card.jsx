@@ -15,6 +15,7 @@ import {
 import { useFormContext } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useManualPayment } from "../../../../../../../hooks/payment/use-manual-payment";
+import { useMemo } from "react";
 
 export const PaymentSummaryCard = ({ quotationData }) => {
   const theme = useTheme();
@@ -22,7 +23,7 @@ export const PaymentSummaryCard = ({ quotationData }) => {
   const navigate = useNavigate();
 
   const { watch, handleSubmit } = useFormContext();
-  const { startCreateManualPayment } = useManualPayment();
+  const { startCreateManualPayment, loading } = useManualPayment();
 
   const useMercadoPago = watch("useMercadoPago");
   const paymentType = watch("selectedPaymentType");
@@ -96,6 +97,8 @@ export const PaymentSummaryCard = ({ quotationData }) => {
   const onCancel = () => {
     navigate("/client/quotations", { replace: true });
   };
+
+  const isButtonDisabled = useMemo(() => loading, [loading]);
 
   return (
     <Card
@@ -202,14 +205,15 @@ export const PaymentSummaryCard = ({ quotationData }) => {
               onClick={handleSubmit(onSubmit, onSubmitError)}
               fullWidth
               sx={{
-                py: 1.2,
-                boxShadow: "none",
-                textTransform: "none",
-                fontWeight: 600,
-                fontSize: 14,
+                fontSize: 16,
+                backgroundColor: 'theme.palette.primary.main',
+                color: '#fff',
                 borderRadius: 2,
-                color: "#fff",
+                textTransform: 'none',
+                px: 3,
+                py: 1.5
               }}
+              disabled={isButtonDisabled}
             >
               Registrar Pagos
             </Button>

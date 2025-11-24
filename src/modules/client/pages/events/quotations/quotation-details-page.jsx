@@ -20,7 +20,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuotationStore } from "../../../../../hooks";
 import { useEffect } from "react";
 import { formatDateString, formatTimeRange } from "../../../../../shared/utils";
-import { ResourceTabs } from "../../../../../shared/ui/components/common";
+import { EventActivitiesCard, ResourceTabs } from "../../../../../shared/ui/components/common";
 import {
   EventInfoCard,
 } from "../../../../admin/components";
@@ -148,6 +148,9 @@ export const QuotationDetailsPage = () => {
       <Box mt={3}>
         <ResourceTabs assignations={assignations} />
       </Box>
+
+      {/* Actividades del Evento */}
+      {selected?.tasks.length > 0 && <EventActivitiesCard tasks={selected?.tasks} />}
 
       {/* Footer */}
       <Box

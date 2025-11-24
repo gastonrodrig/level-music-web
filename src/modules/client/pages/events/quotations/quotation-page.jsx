@@ -42,12 +42,6 @@ export const QuotationPage = () => {
     setIsModalOpen(true); 
   };
 
-  /**
-   * Verifica si el estado permite ver acciones generales
-   * Estados válidos: Enviado, Confirmado, Pagos Asignados, Por Verificar Pagos
-   * @param {Object} row - Fila de la cotización
-   * @returns {boolean}
-   */
   const canViewActions = (row) => {
     const status = String(row?.status || '').toLowerCase();
     const validStatuses = [
@@ -59,11 +53,6 @@ export const QuotationPage = () => {
     return validStatuses.includes(status);
   };
 
-  /**
-   * Verifica si el estado es "Enviado" (solo para Evaluar)
-   * @param {Object} row - Fila de la cotización
-   * @returns {boolean}
-   */
   const isStatusEnviado = (row) => {
     const status = String(row?.status || '').toLowerCase();
     return status === 'enviado';

@@ -6,7 +6,6 @@ import { getAuthConfig } from '../../shared/utils';
 import {
   setLoadingPayment,
   selectedPayment,
-  refreshPayment,
   showSnackbar,
   setPagePayment,
 } from '../../store';
@@ -91,14 +90,10 @@ export const useManualPayment = () => {
     dispatch(setLoadingPayment(true));
     try {
       const payload = createManualPaymentModel(paymentData);
-      const { data } = await paymentApi.post('/manual', payload, getAuthConfig(token, true));
-      
-      openSnackbar(
-        `${data.total} pago(s) registrado(s) correctamente.`
-      );
-
-      return data;
+      await paymentApi.post('/manual', payload, getAuthConfig(token, true));
+      return true;
     } catch (err) {
+      console.log(err)
       const message = 
         err?.response?.data?.message || 
         err.message || 
@@ -140,5 +135,3 @@ export const useManualPayment = () => {
     validatePaymentData,
   };
 };
-
-export default useManualPayment;
