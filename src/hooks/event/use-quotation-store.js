@@ -186,8 +186,7 @@ export const useQuotationStore = () => {
       dispatch(setDashboardData(data));
       return true;
     } catch (error) {
-      const message = error.response?.data?.message;
-      openSnackbar(message ?? "Ocurrió un error al cargar las cotizaciones.");
+      openSnackbar("Ocurrió un error al cargar los indicadores.");
       return false;
     } finally {
       dispatch(setLoadingQuotation(false));
@@ -204,8 +203,7 @@ export const useQuotationStore = () => {
       dispatch(setGraficsperMonth(data));
       return true;
     } catch (error) {
-      const message = error.response?.data?.message;
-      openSnackbar(message ?? "Ocurrió un error al cargar las cotizaciones.");
+      openSnackbar("Ocurrió un error al cargar los gráficos por mes.");
       return false;
     } finally {
       dispatch(setLoadingQuotation(false));
@@ -222,8 +220,7 @@ export const useQuotationStore = () => {
       dispatch(setEventType(data));
       return true;
     } catch (error) {
-      const message = error.response?.data?.message;
-      openSnackbar(message ?? "Ocurrió un error al cargar los tipos de evento.");
+      openSnackbar("Ocurrió un error al cargar los datos del calendario.");
       return false;
     } finally {
       dispatch(setLoadingQuotation(false));
