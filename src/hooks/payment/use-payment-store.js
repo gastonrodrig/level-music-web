@@ -51,26 +51,67 @@ export const usePaymentStore = () => {
     }
   };
 
-  const startProcessingPayments = async (payments) => {
+  /**
+   * ✅ Actualizado: Procesar pago con Mercado Pago (REAL - SIN SIMULACIÓN)
+   */
+  const startProcessingPayments = async (formData) => {
     dispatch(setLoadingPayment(true));
 
     try {
-      const payload = processPaymentModel(payments);
+      console.log('🔄 Iniciando proceso de pago con Mercado Pago...');
+      console.log('📋 Datos recibidos:', formData);
+
+      // Preparar el payload con todos los datos necesarios
+      const payload = {
+        payment_type: formData.payment_type || 'Parcial',
+        event_id: formData.event_id,
+        user_id: formData.user_id,
+        transaction_amount: Number(formData.transaction_amount),
+        token: formData.token,
+        description: formData.description || 'Pago de evento',
+        installments: formData.installments || 1,
+        payment_method_id: formData.payment_method_id || 'visa',
+        payer: {
+          email: formData.payer?.email || '',
+          identification: {
+            type: formData.payer?.identification?.type || 'DNI',
+            number: formData.payer?.identification?.number || '',
+          },
+        },
+      };
+
+      console.log('📤 Enviando payload al backend:', payload);
+
+      // ✅ Cambiar de "/test/mercadopago" a "/mercadopago"
       const result = await paymentApi.post(
-        "/test/mercadopago",
+        "/mercadopago", // ← Endpoint REAL (sin /test)
         payload,
-        getAuthConfig(token)
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
       );
-      openSnackbar("El pago fue procesado exitosamente.");
-      console.log("✅ Resultado del pago:", result.data);
-      return true;
+
+      console.log('✅ Respuesta del backend:', result.data);
+
+      if (result.data.success) {
+        openSnackbar("✅ Pago procesado exitosamente");
+        return result.data;
+      } else {
+        openSnackbar(`⚠️ ${result.data.message}`);
+        return result.data;
+      }
     } catch (error) {
       console.error("❌ Error al procesar el pago:", error);
-      const message = error.response?.data?.message;
-      openSnackbar(
-        message ?? "Ocurrió un error al crear el tipo de servicio."
-      );
-      return false;
+      
+      const message = 
+        error.response?.data?.message || 
+        error.message || 
+        "Ocurrió un error al procesar el pago";
+      
+      openSnackbar(message);
+      throw error;
     } finally {
       dispatch(setLoadingPayment(false));
     }
@@ -168,7 +209,7 @@ export const usePaymentStore = () => {
     // actions
     startCreatePayments,
     setSelectedPayment,
-    startProcessingPayments,
+    startProcessingPayments, // ✅ Ya funciona con Mercado Pago REAL
     startApproveAllPayments,
     startReportPaymentIssues,
   };
