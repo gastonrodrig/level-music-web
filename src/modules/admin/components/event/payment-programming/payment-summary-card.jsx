@@ -92,15 +92,15 @@ export const PaymentSummaryCard = ({
                 Total General del Evento
               </Typography>
 
-<Typography sx={{ fontSize: 34, fontWeight: 700, my: 1, color: isDark ? "#fff" : "#000" }}>
-  {formatCurrency(totalGeneral / 1.18)}
-</Typography>
-
-              <Typography sx={{ fontWeight: 700, my: 1, color: isDark ? "#fff" : "#000" }}>
-                <span style={{ fontSize: 16 }}>CON IGV:</span>{" "}
-                <span style={{ fontSize: 34 }}>{formatCurrency(totalGeneral)}</span>
+              <Typography sx={{ fontSize: 20, opacity: 0.6, my: 1, color: isDark ? "#fff" : "#000" }}>
+                {formatCurrency(totalGeneral / 1.18)}
               </Typography>
-              
+
+              <Typography sx={{ fontWeight: 700, mb: 1.5, color: isDark ? "#fff" : "#000" }}>
+                <span style={{ fontSize: 16 }}>CON IGV:</span>{" "}
+                <span style={{ fontSize: 24 }}>{formatCurrency(totalGeneral)}</span>
+              </Typography>
+
               {subtotalEquipments > 0 && (
                 <Typography sx={{ fontSize: 15, color: isDark ? "#cfd8dc" : "text.secondary" }}>
                   Equipos:
@@ -151,7 +151,7 @@ export const PaymentSummaryCard = ({
                 Pago Parcial (Anticipo)
               </Typography>
 
-              <Typography sx={{ fontSize: 34, fontWeight: 700, my: 1, color: isDark ? "#fff" : "#000" }}>
+              <Typography sx={{ fontSize: 24, fontWeight: 700, my: 1, color: isDark ? "#fff" : "#000" }}>
                 {formatCurrency(totalAnticipo)}
               </Typography>
 
@@ -254,7 +254,7 @@ export const PaymentSummaryCard = ({
                 Pago Final (Saldo)
               </Typography>
 
-              <Typography sx={{ fontSize: 34, fontWeight: 700, my: 1, color: isDark ? "#fff" : "#000" }}>
+              <Typography sx={{ fontSize: 24, fontWeight: 700, my: 1, color: isDark ? "#fff" : "#000" }}>
                 {formatCurrency(saldoRestante)}
               </Typography>
 
