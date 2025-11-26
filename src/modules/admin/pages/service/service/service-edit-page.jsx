@@ -11,7 +11,7 @@ import {
   FormControl,
   useTheme,
 } from "@mui/material";
-import { AddCircleOutline, Save } from "@mui/icons-material";
+import { AddCircleOutline, Save, ArrowBack } from "@mui/icons-material";
 import {
   ServiceDetailBox,
   ServiceFieldModal,
@@ -151,11 +151,31 @@ export const ServiceEditPage = () => {
         sx={{ px: isMd ? 4 : 0, pt: 2, maxWidth: 1200, margin: "0 auto" }}
         onSubmit={handleSubmit(onSubmit)}
       >
-        <Typography variant="h4" sx={{ mb: 4 }}>
-          Editando Servicio
-        </Typography>
-
-        {/* CABECERA: proveedor y tipo de servicio */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1 }}>
+          <Button
+            variant="contained"
+            onClick={() => navigate("/admin/service")}
+            sx={{
+              minWidth: 'auto',
+              width: 40,
+              height: 40,
+              borderRadius: 2,
+              p: 0,
+              backgroundColor: isDark ? "#1f1e1e" : "#f5f5f5",
+              color: isDark ? '#fff' : '#000',
+              boxShadow: 'none',
+              '&:hover': {
+                backgroundColor: isDark ? '#353434' : '#f0f0f0',
+                boxShadow: 'none',
+              }
+            }}
+          >
+            <ArrowBack />
+          </Button>
+          <Typography variant="h4">
+            Editando Servicio
+          </Typography>
+        </Box>        {/* CABECERA: proveedor y tipo de servicio */}
         <Box sx={{ display: "flex", gap: 4, maxWidth: 1200, margin: "0 auto" }}>
           <Grid container spacing={4}>
             {/* Proveedor */}

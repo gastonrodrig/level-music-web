@@ -1,4 +1,5 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Button, useTheme } from "@mui/material";
+import { ArrowBack } from "@mui/icons-material";
 import { useQuotationStore } from "../../../../../hooks";
 import { FormProvider, useForm } from "react-hook-form";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
@@ -18,6 +19,8 @@ export const EventPaymentsProgrammingPage = () => {
   const { selected } = useQuotationStore();
   const { isSm } = useScreenSizes();
   const { loading, startCreatePayments } = usePaymentStore();
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
 
   const eventDate = selected?.event_date ? dayjs(selected.event_date) : dayjs();
 
@@ -96,9 +99,31 @@ export const EventPaymentsProgrammingPage = () => {
         sx={{ px: isSm ? 4 : 0, pt: 2 }}
         onSubmit={handleSubmit(onSubmit)}
       >
-        <Typography variant="h4" sx={{ mb: 1 }}>
-          Programar Pagos - EVT: {selected?.event_code}
-        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1 }}>
+          <Button
+            variant="contained"
+            onClick={() => navigate("/admin/quotations")}
+            sx={{
+              minWidth: 'auto',
+              width: 40,
+              height: 40,
+              borderRadius: 2,
+              p: 0,
+              backgroundColor: isDark ? '#1f1e1e' : '#f5f5f5',
+              color: isDark ? '#fff' : '#000',
+              boxShadow: 'none',
+              '&:hover': {
+                backgroundColor: isDark ? '#353434' : '#f0f0f0',
+                boxShadow: 'none',
+              }
+            }}
+          >
+            <ArrowBack />
+          </Button>
+          <Typography variant="h4">
+            Programar Pagos - EVT: {selected?.event_code}
+          </Typography>
+        </Box>
 
         <Typography sx={{ mb: 3, fontSize: 16 }} color="text.secondary">
           Realiza la programación de los pagos asociados a la cotización seleccionada.

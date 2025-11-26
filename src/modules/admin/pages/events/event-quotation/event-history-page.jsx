@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, Typography, useTheme, Button } from "@mui/material";
+import { ArrowBack } from "@mui/icons-material";
 import { useQuotationStore } from "../../../../../hooks";
 import {
   EventHistoryTable,
@@ -15,6 +16,8 @@ export const EventHistoryPage = () => {
     useQuotationStore();
   const navigate = useNavigate();
   const { isMd } = useScreenSizes();
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
 
   useEffect(() => {
     if (!selected) {
@@ -57,9 +60,31 @@ export const EventHistoryPage = () => {
     <Box 
       sx={{ px: isMd ? 4 : 0, pt: 2, maxWidth: 1200, margin: "0 auto" }}
     >
-      <Typography variant="h4" sx={{ mb: 1 }}>
-        Historial de Versiones - Cotización {selected?.event_code}
-      </Typography>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1 }}>
+        <Button
+          variant="contained"
+          onClick={() => navigate("/admin/quotations")}
+          sx={{
+            minWidth: 'auto',
+            width: 40,
+            height: 40,
+            borderRadius: 2,
+            p: 0,
+            backgroundColor: isDark ? '#1f1e1e' : '#f5f5f5',
+            color: isDark ? '#fff' : '#000',
+            boxShadow: 'none',
+            '&:hover': {
+              backgroundColor: isDark ? '#353434' : '#f0f0f0',
+              boxShadow: 'none',
+            }
+          }}
+        >
+          <ArrowBack />
+        </Button>
+        <Typography variant="h4">
+          Historial de Versiones - Cotización {selected?.event_code}
+        </Typography>
+      </Box>
       <Typography sx={{ mb: 3, fontSize: 16 }} color="text.secondary">
         Revisa todas las versiones guardadas de esta cotización
       </Typography>

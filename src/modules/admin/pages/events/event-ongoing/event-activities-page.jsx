@@ -1,5 +1,6 @@
 
 import { Typography, Box,Stack,Button, useTheme } from "@mui/material";
+import { ArrowBack } from "@mui/icons-material";
 import { useEffect, useState, useMemo, use } from "react";
 import { ActivityProgressHeader,QuotationControlActivities } from "../../../components";
 import { useQuotationStore } from "../../../../../hooks";
@@ -93,7 +94,29 @@ export const EventActivitiesPage = () => {
         <Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, mb: 2 }}>
                 <Box>
-                    <Typography variant="h4" sx={{ pt: 2, pb: 1 }}>Actividades del Evento</Typography>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 2, pt: 2, pb: 1 }}>
+                        <Button
+                            variant="contained"
+                            onClick={() => navigate("/admin/event-ongoing")}
+                            sx={{
+                                minWidth: 'auto',
+                                width: 40,
+                                height: 40,
+                                borderRadius: 2,
+                                p: 0,
+                                backgroundColor: isDark ? '#1f1e1e' : '#f5f5f5',
+                                color: isDark ? '#fff' : '#000',
+                                boxShadow: 'none',
+                                '&:hover': {
+                                    backgroundColor: isDark ? '#353434' : '#f0f0f0',
+                                    boxShadow: 'none',
+                                }
+                            }}
+                        >
+                            <ArrowBack />
+                        </Button>
+                        <Typography variant="h4">Actividades del Evento</Typography>
+                    </Box>
                     <Typography sx={{ pb: 2 }}>
                         Esta página muestra el seguimiento de las actividades para el evento seleccionado.
                     </Typography>

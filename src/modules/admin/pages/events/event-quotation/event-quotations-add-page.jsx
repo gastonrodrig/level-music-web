@@ -26,7 +26,7 @@ import { useDispatch } from "react-redux";
 import { showSnackbar } from "../../../../../store";
 import { calcEstimatedPrice, calculateEventTotal } from "../../../../../shared/utils";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
-import { Save } from "@mui/icons-material";
+import { Save, ArrowBack } from "@mui/icons-material";
 
 
 export const EventQuotationAddPage = () => {
@@ -195,9 +195,31 @@ export const EventQuotationAddPage = () => {
         sx={{ px: isMd ? 4 : 0, pt: 2, maxWidth: 1200, margin: "0 auto" }}
         onSubmit={handleSubmit(onSubmit, formErrors)}
       >
-        <Typography variant="h4" sx={{ mb: 1 }}>
-          Agregar Cotización
-        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1 }}>
+          <Button
+            variant="contained"
+            onClick={() => navigate("/admin/quotations")} 
+            sx={{
+              minWidth: 'auto',
+              width: 40,
+              height: 40,
+              borderRadius: 2,
+              p: 0,
+              backgroundColor: isDark ? '#1f1e1e' : '#f5f5f5',
+              color: isDark ? '#fff' : '#000',
+              boxShadow: 'none',
+              '&:hover': {
+                backgroundColor: isDark ? '#353434' : '#f0f0f0',
+                boxShadow: 'none',
+              }
+            }}
+          >
+            <ArrowBack />
+          </Button>
+          <Typography variant="h4">
+            Agregar Cotización
+          </Typography>
+        </Box>
         <Typography sx={{ mb: 3, fontSize: 16 }} color="text.secondary">
           Crea una nueva cotización completando la información del evento,
           cliente y servicios requeridos.
