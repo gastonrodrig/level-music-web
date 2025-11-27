@@ -18,7 +18,6 @@ export const PaymentBrick = ({ onReady }) => {
   const amount = watch("amount");
   const selectedPaymentType = watch("selectedPaymentType") || "partial";
 
-  // ✅ Estados para los diálogos
   const [dialogState, setDialogState] = useState({
     open: false,
     type: "success", // 'success' | 'error' | 'warning'
