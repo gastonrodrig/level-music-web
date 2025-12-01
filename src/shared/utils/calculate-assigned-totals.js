@@ -1,6 +1,6 @@
 export function calculateAssignedTotals(
   assignedServices = [],
-  assignedWorkers = [],
+  assignedWorkerTypes = [],
   assignedEquipments = []
 ) {
   // --- TOTAL SERVICIOS ---
@@ -11,20 +11,24 @@ export function calculateAssignedTotals(
       )
     : 0;
 
-  // --- TOTAL TRABAJADORES (precio * horas) ---
-  const totalWorkers = Array.isArray(assignedWorkers)
-    ? assignedWorkers.reduce(
+  // --- TOTAL TRABAJADORES (precio × horas × cantidad) ---
+  const totalWorkers = Array.isArray(assignedWorkerTypes)
+    ? assignedWorkerTypes.reduce(
         (sum, w) =>
-          sum + ((w?.worker_price ?? 0) * (w?.worker_hours ?? 1)),
+          sum +
+          ((w?.worker_price ?? 0) *
+          (w?.worker_hours ?? 1) *
+          (w?.worker_quantity ?? 1)),
         0
       )
     : 0;
 
-  // --- TOTAL EQUIPOS (precio * horas) ---
+  // --- TOTAL EQUIPOS (precio × horas) ---
   const totalEquipments = Array.isArray(assignedEquipments)
     ? assignedEquipments.reduce(
         (sum, e) =>
-          sum + ((e?.equipment_price ?? 0) * (e?.equipment_hours ?? 1)),
+          sum +
+          ((e?.equipment_price ?? 0) * (e?.equipment_hours ?? 1)),
         0
       )
     : 0;

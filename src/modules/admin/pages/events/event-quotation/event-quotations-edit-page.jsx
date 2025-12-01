@@ -24,7 +24,6 @@ import {
 import dayjs from "dayjs";
 import { useDispatch } from "react-redux";
 import { showSnackbar } from "../../../../../store";
-import { calcEstimatedPrice } from "../../../../../shared/utils";
 import { useScreenSizes } from "../../../../../shared/constants/screen-width";
 import { Save } from "@mui/icons-material";
 
@@ -53,7 +52,7 @@ export const EventQuotationEditPage = () => {
   const { 
     startAppendEquipment, 
     startAppendService, 
-    startAppendWorker 
+    startAppendWorkerType 
   } = useAssignationGuards();
 
   const selectedTypeId = selected?.event_type_id || selected?.event_type || "";
@@ -118,17 +117,18 @@ export const EventQuotationEditPage = () => {
         _id: e._id,
       })) || [],
       
-      workers: selected?.assignations
+      workerTypes: selected?.assignations
       ?.filter(a => a.resource_type === "Trabajador")
       .map(w => ({
-        first_name: w.worker_first_name,
-        last_name: w.worker_last_name,
-        worker_type_name: w.worker_role,
+        worker_quantity: w.quantity_required,
+        worker_type_name: w.worker_type_name,
         worker_hours: w.hours,
 
-        worker_price: Number((w.hourly_rate / w.hours).toFixed(2)),
-        
-        worker_id: w.resource,
+        worker_price: Number(
+          (w.hourly_rate / (w.hours * w.quantity_required)).toFixed(2)
+        ),
+
+        worker_type_id: w.resource,
         _id: w._id,
       })) || [],
     },
@@ -137,9 +137,6 @@ export const EventQuotationEditPage = () => {
 
   const { handleSubmit, watch, setValue, control } = methods;
 
-  const servicesWatch = watch("services");
-  const equipmentsWatch = watch("equipments");
-  const workersWatch = watch("workers");
   const clientType = watch("client_type");
   const serviceId = watch("service_id");
   const equipmentType = watch("equipment_type");
@@ -169,10 +166,10 @@ export const EventQuotationEditPage = () => {
     remove: removeEquipment,
   } = useFieldArray({ control, name: "equipments" });
   const {
-    fields: assignedWorkers,
-    append: addWorker,
-    remove: removeWorker,
-  } = useFieldArray({ control, name: "workers" });
+    fields: assignedWorkerTypes,
+    append: addWorkerType,
+    remove: removeWorkerType,
+  } = useFieldArray({ control, name: "workerTypes" });
   
   const startDT = watch("startDateTime");
   const endDT = watch("endDateTime");
@@ -276,18 +273,16 @@ export const EventQuotationEditPage = () => {
         <AssignWorkerCard
           isDark={isDark}
           workerTypes={workerTypes}
-          filteredWorkers={filteredWorkers}
-          assignedWorkers={assignedWorkers}
-          addWorker={addWorker}
-          removeWorker={removeWorker}
+          assignedWorkerTypes={assignedWorkerTypes}
+           addWorkerType={addWorkerType}
+          removeWorkerType={removeWorkerType}
           watch={watch}
           setValue={setValue}
-          startAppendWorker={startAppendWorker}
+          startAppendWorkerType={startAppendWorkerType}
           from={assignmentFromISO}
           to={assignmentToISO}
           datesReady={datesReady}
           guardDates={guardDates}
-          eventCode={selected?.event_code}
         />
 
         {/* Resumen */}
@@ -295,7 +290,7 @@ export const EventQuotationEditPage = () => {
           isDark={isDark}
           assignedServices={assignedServices}
           assignedEquipments={assignedEquipments}
-          assignedWorkers={assignedWorkers}
+          assignedWorkerTypes={assignedWorkerTypes}
         />
 
         {/* Botón final */}

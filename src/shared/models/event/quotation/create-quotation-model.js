@@ -20,11 +20,12 @@ export const createQuotationModel = (data) => {
       available_to: data.endDateTime,
     })),
     // Trabajadores
-    ...data.workers.map((w) => ({
+    ...data.workerTypes.map((w) => ({
       resource_type: "Trabajador",
       resource_id: String(w._id),
       hours: Number(w.worker_hours || 1),
-      hourly_rate: Number(w.worker_price) * Number(w.worker_hours || 1),
+      hourly_rate: Number(w.worker_price) * Number(w.worker_hours || 1) * Number(w.worker_quantity || 1),
+      quantity_required: Number(w.worker_quantity || 1),
       available_from: data.startDateTime,
       available_to: data.endDateTime,
     })),

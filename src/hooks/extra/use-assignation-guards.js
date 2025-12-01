@@ -143,7 +143,6 @@ export const useAssignationGuards = () => {
     selectedService,
     selectedDetail,
     servicePrice,
-    serviceHours,
     paymentPercentageRequired,
     assignedServices,
     append,
@@ -191,44 +190,36 @@ export const useAssignationGuards = () => {
     return true;
   };
 
-  const startAppendWorker = async ({
-    selectedWorker,
+  const startAppendWorkerType = async ({
+    selectedWorkerType,
+    workerQuantity,
     workerPrice,
     workerHours,
-    assignedWorkers,
+    assignedWorkerTypes,
     append,
     onSuccess,
-    from,
-    to,
-    eventCode
   }) => {
     if (!isPriceValid(workerPrice)) {
       openSnackbar("Debe ingresar un precio válido."); 
       return false; 
     }
 
-    const existsLocal = assignedWorkers.some(
-      (it) => String(it._id) === String(selectedWorker._id)
+    console.log(assignedWorkerTypes)
+
+    const existsLocal = assignedWorkerTypes.some(
+      (it) => String(it._id) === String(selectedWorkerType._id) || String(it.worker_type_id) === String(selectedWorkerType._id)
     );
     if (existsLocal) {
-      openSnackbar("Este trabajador ya ha sido asignado."); 
-      return false; 
-    }
-
-    const avail = await checkWorkerAvailability(selectedWorker._id, from, to, eventCode);
-    if (!avail.ok) {
-      openSnackbar(avail.message); 
+      openSnackbar("Este tipo de trabajador ya ha sido asignado."); 
       return false; 
     }
 
     append({
-      _id: selectedWorker._id,
-      first_name: selectedWorker.first_name,
-      last_name: selectedWorker.last_name,
-      worker_type_name: selectedWorker.worker_type_name,
+      worker_type_id: String(selectedWorkerType._id),
+      worker_type_name: selectedWorkerType.name,
+      worker_quantity: Number(workerQuantity),
       worker_price: Number(workerPrice),
       worker_hours: isNaN(Number(workerHours)) ? 1 : Number(workerHours),
-      worker_id: String(selectedWorker._id),
     });
     onSuccess?.();
     return true;
@@ -237,6 +228,6 @@ export const useAssignationGuards = () => {
   return {
     startAppendEquipment,
     startAppendService,
-    startAppendWorker,
+    startAppendWorkerType,
   };
 };

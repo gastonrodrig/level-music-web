@@ -7,7 +7,7 @@ export const QuotationSummary = ({
   isDark,
   assignedServices = [],
   assignedEquipments = [],
-  assignedWorkers = [],
+  assignedWorkerTypes = [],
 }) => {
   const [expandedServices, setExpandedServices] = useState(false);
   const [expandedEquipments, setExpandedEquipments] = useState(false);
@@ -33,11 +33,11 @@ export const QuotationSummary = ({
 
   const workersTotal = useMemo(
     () =>
-      (assignedWorkers || []).reduce(
-        (acc, w) => acc + (parseFloat(w.worker_price) || 0) * (Number(w.worker_hours) || 0),
+      (assignedWorkerTypes || []).reduce(
+        (acc, w) => acc + (parseFloat(w.worker_price) || 0) * (Number(w.worker_hours) || 0) * (Number(w.worker_quantity) || 0),
         0
       ),
-    [assignedWorkers]
+    [assignedWorkerTypes]
   );
 
   const Row = ({ left, right }) => (
@@ -181,7 +181,7 @@ export const QuotationSummary = ({
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Typography fontSize={14} color="text.secondary">
-              + Trabajadores ({assignedWorkers.length})
+              + Trabajadores ({assignedWorkerTypes.length})
             </Typography>
             <IconButton size="small">
               {expandedWorkers ? <ExpandLess /> : <ExpandMore />}
@@ -192,16 +192,18 @@ export const QuotationSummary = ({
 
         <Collapse in={expandedWorkers}>
           <Box sx={{ ml: 2, mt: 1 }}>
-            {assignedWorkers.length > 0 ? (
-              assignedWorkers.map((w, i) => (
+            {assignedWorkerTypes.length > 0 ? (
+              assignedWorkerTypes.map((wt, i) => (
                 <Row
-                  key={w.id ?? `${w._id ?? "wk"}-${i}`}
-                  left={`• ${
-                    (w.name ??
-                      `${w.first_name ?? ""} ${w.last_name ?? ""}`.trim()) ||
-                    "Trabajador"
-                  } (${w.worker_hours}h)`}
-                  right={money(lineTotal(w.worker_price, w.worker_hours))}
+                  key={wt.id ?? `${wt._id ?? "wt"}-${i}`}
+
+                  left={`• ${wt.worker_type_name} 
+                    (${wt.worker_quantity} trabajador${wt.worker_quantity > 1 ? "es" : ""}, 
+                    ${wt.worker_hours}h)`}
+
+                  right={money(
+                    wt.worker_price * wt.worker_hours * wt.worker_quantity
+                  )}
                 />
               ))
             ) : (
@@ -234,7 +236,7 @@ export const QuotationSummary = ({
         <Typography fontSize={16} fontWeight={600}>
           S/. {(calculateAssignedTotals(
                 assignedServices,
-                assignedWorkers,
+                assignedWorkerTypes,
                 assignedEquipments
               )).toFixed(2)}
         </Typography>

@@ -19,18 +19,16 @@ import dayjs from "dayjs";
 export const AssignWorkerCard = ({
   isDark,
   workerTypes,
-  filteredWorkers,
-  assignedWorkers,
-  addWorker,
-  removeWorker,
+  assignedWorkerTypes,
+  addWorkerType,
+  removeWorkerType,
   watch,
   setValue,
-  startAppendWorker,
+  startAppendWorkerType,
   from,
   to,
   datesReady,
   guardDates,
-  eventCode
 }) => {
   const { isSm } = useScreenSizes();
 
@@ -44,19 +42,17 @@ export const AssignWorkerCard = ({
 
   const resetForm = () => {
     setValue("worker_type_id", "");
-    setValue("worker_id", "");
     setValue("worker_price", "");
-    // setValue("worker_hours", 1);
+    setValue("worker_quantity", 1);
   };
 
   const workerTypeId = watch("worker_type_id");
-  const workerId = watch("worker_id");
+  const workerQuantity = watch("worker_quantity");
   const workerPrice = watch("worker_price");
-  // const workerHours = watch("worker_hours") || 1;
 
-  const selectedWorker = useMemo(
-    () => filteredWorkers.find((w) => w._id === workerId),
-    [filteredWorkers, workerId]
+  const selectedWorkerType = useMemo(
+    () => workerTypes.find((w) => w._id === workerTypeId),
+    [workerTypes, workerTypeId]
   );
 
   const datesMissing = !datesReady || !from || !to;
@@ -94,7 +90,6 @@ export const AssignWorkerCard = ({
                 value={workerTypeId || ""}
                 onChange={(e) => {
                   setValue("worker_type_id", e.target.value, { shouldValidate: true });
-                  setValue("worker_id", "");
                 }}
                 inputProps={{ name: "worker_type_id" }}
                 sx={{ height: 60 }}
@@ -113,56 +108,28 @@ export const AssignWorkerCard = ({
             </FormControl>
           </Grid>
 
-          {/* Trabajador */}
+          {/* Cantidad de Trabajadores */}
           <Grid item xs={12} md={4.5}>
-            <FormControl fullWidth size="small">
-              <InputLabel id="worker-label" shrink>
-                Trabajador
-              </InputLabel>
-              <Select
-                labelId="worker-label"
-                value={workerId || ""}
-                onChange={(e) => setValue("worker_id", e.target.value, { shouldValidate: true })}
-                inputProps={{ name: "worker_id" }}
-                sx={{ height: 60 }}
-                displayEmpty
-                disabled={datesMissing || !workerTypeId}
-              >
-                <MenuItem value="">
-                  <em>Seleccionar trabajador</em>
-                </MenuItem>
-                {filteredWorkers.map((w) => (
-                  <MenuItem 
-                    key={w._id} 
-                    value={w._id}
-                    onClick={() => {
-                      const refPrice = Number(w?.reference_price || 0);
-                      setValue("worker_price", refPrice);
-                    }}
-                  >
-                    <Box sx={{ display: "flex", flexDirection: "column" }}>
-                      <Typography fontWeight={500}>
-                        {w.first_name} {w.last_name}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {w.worker_type_name}
-                      </Typography>
-                    </Box>
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <TextField
+              label="Cantidad de Trabajadores"
+              placeholder="Ej: 1"
+              type="number"
+              value={workerQuantity || ""}
+              onChange={(e) => setValue("worker_quantity", Number(e.target.value))}
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+              sx={{ "& .MuiInputBase-root": { height: 60 } }}
+            />
           </Grid>
-
-          
 
           {/* Precio por hora */}
           <Grid item xs={12} md={3}>
             <TextField
-              label="Precio por hora (S/)"
-              value={workerPrice || "S/ -"}
+              label="Precio por hora por Trabajador (S/)"
+              value={workerPrice || ""}
+              onChange={(e) => setValue("worker_price", e.target.value)}
+              placeholder="Ej: S/. 100"
               fullWidth
-              disabled
               InputLabelProps={{ shrink: true }}
               sx={{ "& .MuiInputBase-root": { height: 60 } }}
             />
@@ -175,20 +142,17 @@ export const AssignWorkerCard = ({
               startIcon={<Add />}
               onClick={async () => {
                 if (!guardDates()) return;
-                if (!selectedWorker) return;
-                await startAppendWorker({
-                  selectedWorker,
+                await startAppendWorkerType({
+                  selectedWorkerType,
+                  workerQuantity,
                   workerPrice,
                   workerHours: calculatedHours,
-                  assignedWorkers,
-                  append: addWorker,
+                  assignedWorkerTypes, 
+                  append: addWorkerType,
                   onSuccess: resetForm,
-                  from,
-                  to,
-                  eventCode
                 });
               }}
-              disabled={!workerId || !workerPrice}
+              disabled={!workerQuantity || !workerPrice || !selectedWorkerType}
               sx={{
                 textTransform: "none",
                 borderRadius: 2,
@@ -207,13 +171,13 @@ export const AssignWorkerCard = ({
 
       {/* Resumen */}
       <Typography fontSize={15} sx={{ mt: 2, mb: 1 }}>
-        Trabajadores Asignados ({assignedWorkers.length})
+        Trabajadores Asignados 
       </Typography>
 
-      {assignedWorkers.length > 0 ? (
-        assignedWorkers.map((trabajador, index) => (
+      {assignedWorkerTypes.length > 0 ? (
+        assignedWorkerTypes.map((wt, index) => (
           <Box
-            key={trabajador.id}
+            key={wt.id}
             sx={{
               p: 3,
               borderRadius: 2,
@@ -226,7 +190,7 @@ export const AssignWorkerCard = ({
             <Grid container spacing={2} alignItems="center">
               <Grid item xs={6}>
                 <Typography fontWeight={600}>
-                  {trabajador.first_name} {trabajador.last_name}
+                  Tipo de Trabajador: {wt.worker_type_name}
                 </Typography>
                 <Box
                   display="flex"
@@ -235,18 +199,18 @@ export const AssignWorkerCard = ({
                   mt={1}
                   sx={{ alignItems: "flex-start" }}
                 >
-                  <Chip label={trabajador.worker_type_name} size="small" />
+                  <Chip label={"Cantidad: " + wt.worker_quantity} size="small" />
                 </Box>
               </Grid>
 
               <Grid item xs={6} textAlign="right">
                 <Typography fontSize={14}>
-                  S/. {trabajador.worker_price}/hora × {trabajador.worker_hours}h
+                  {wt.worker_quantity} trabajador(es) x S/. {wt.worker_price}/hora × {wt.worker_hours}h
                 </Typography>
                 <Typography fontWeight={600} color="green">
-                  S/. {Number(trabajador.worker_price) * Number(trabajador.worker_hours)}
+                  S/. {Number(wt.worker_price) * Number(wt.worker_hours) * Number(wt.worker_quantity).toFixed(2)}
                 </Typography>
-                <IconButton size="small" color="error" sx={{ ml: 1 }} onClick={() => removeWorker(index)}>
+                <IconButton size="small" color="error" sx={{ ml: 1 }} onClick={() => removeWorkerType(index)}>
                   <Delete fontSize="small" />
                 </IconButton>
               </Grid>
@@ -259,11 +223,11 @@ export const AssignWorkerCard = ({
         </Typography>
       )}
 
-      {assignedWorkers.length > 0 && (
+      {assignedWorkerTypes.length > 0 && (
         <Typography textAlign="right" fontWeight={600} color="green">
           Total Trabajadores: S/{" "}
-          {assignedWorkers
-            .reduce((acc, w) => acc + Number(w.worker_price) * Number(w.worker_hours), 0)
+          {assignedWorkerTypes
+            .reduce((acc, w) => acc + Number(w.worker_price) * Number(w.worker_hours) * Number(w.worker_quantity), 0)
             .toFixed(2)}
         </Typography>
       )}

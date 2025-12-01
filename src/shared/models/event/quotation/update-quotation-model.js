@@ -20,15 +20,18 @@ export const updateQuotationModel = (data) => {
       available_to: data.endDateTime,
     })),
     // Trabajadores
-    ...data.workers.map((w) => ({
+    ...data.workerTypes.map((w) => {
+      console.log(w)
+      return {
       resource_type: "Trabajador",
-      resource_id: String(w.worker_id),
+      resource_id: String(w.worker_type_id),
       hours: Number(w.worker_hours || 1),
-      hourly_rate: Number(w.worker_price) * Number(w.worker_hours || 1),
+      hourly_rate: Number(w.worker_price) * Number(w.worker_hours || 1) * Number(w.worker_quantity || 1),
+      quantity_required: Number(w.worker_quantity || 1),
       available_from: data.startDateTime,
       available_to: data.endDateTime,
       
-    })),
+    }}),
   ].filter((r) => r.resource_id && r.hours > 0 && r.hourly_rate > 0);
 
   return {

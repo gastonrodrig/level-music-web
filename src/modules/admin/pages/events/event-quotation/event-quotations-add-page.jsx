@@ -18,7 +18,6 @@ import {
   useQuotationStore,
   useServiceDetailStore,
   useServiceStore,
-  useWorkerStore,
   useWorkerTypeStore,
 } from "../../../../../hooks";
 import dayjs from "dayjs";
@@ -40,7 +39,6 @@ export const EventQuotationAddPage = () => {
   const { loading, startCreateQuotation } = useQuotationStore();
   const { serviceDetail } = useServiceDetailStore();
   const { equipments } = useEquipmentStore();
-  const { workers } = useWorkerStore();
   const { workerTypes } = useWorkerTypeStore();
   const { services } = useServiceStore();
   const { eventTypes } = useEventTypeStore();
@@ -74,7 +72,7 @@ export const EventQuotationAddPage = () => {
       // Recursos
       services: [],
       equipments: [],
-      workers: [],
+      workerTypes: [],
       service_id: "",
       service_detail_id: "",
       service_price: "",
@@ -84,9 +82,8 @@ export const EventQuotationAddPage = () => {
       equipment_hours: 1,
       equipment_price: "",
       worker_type_id: "",
-      worker_id: "",
-      worker_hours: 1,
       worker_price: "",
+      worker_quantity: 1,
       name: "",
       description: ""
     },
@@ -101,7 +98,6 @@ export const EventQuotationAddPage = () => {
   const clientType = watch("client_type");
   const serviceId = watch("service_id");
   const equipmentType = watch("equipment_type");
-  const workerTypeId = watch("worker_type_id");
 
   useEffect(() => {
     if (!eventTypes?.length || !workerTypes?.length) {
@@ -135,12 +131,12 @@ export const EventQuotationAddPage = () => {
     remove: removeEquipment,
   } = useFieldArray({ control, name: "equipments" });
   const {
-    fields: assignedWorkers,
-    append: addWorker,
-    remove: removeWorker,
-  } = useFieldArray({ control, name: "workers" });
+    fields: assignedWorkerTypes,
+    append: addWorkerType,
+    remove: removeWorkerType,
+  } = useFieldArray({ control, name: "workerTypes" });
 
-  const { startAppendEquipment, startAppendService, startAppendWorker } =
+  const { startAppendEquipment, startAppendService, startAppendWorkerType } =
     useAssignationGuards();
 
   const startDT = watch("startDateTime");
@@ -168,11 +164,6 @@ export const EventQuotationAddPage = () => {
   const filteredEquipments = useMemo(
     () => (equipments || []).filter((e) => e.equipment_type === equipmentType),
     [equipments, equipmentType]
-  );
-
-  const filteredWorkers = useMemo(
-    () => (workers || []).filter((w) => w.worker_type === workerTypeId),
-    [workers, workerTypeId]
   );
   
   const onSubmit = async (data) => {
@@ -249,13 +240,12 @@ export const EventQuotationAddPage = () => {
         <AssignWorkerCard
           isDark={isDark}
           workerTypes={workerTypes}
-          filteredWorkers={filteredWorkers}
-          assignedWorkers={assignedWorkers}
-          addWorker={addWorker}
-          removeWorker={removeWorker}
+          assignedWorkerTypes={assignedWorkerTypes}
+          addWorkerType={addWorkerType}
+          removeWorkerType={removeWorkerType}
           watch={watch}
           setValue={setValue}
-          startAppendWorker={startAppendWorker}
+          startAppendWorkerType={startAppendWorkerType}
           from={assignmentFromISO}
           to={assignmentToISO}
           datesReady={datesReady}
@@ -267,7 +257,7 @@ export const EventQuotationAddPage = () => {
           isDark={isDark}
           assignedServices={assignedServices}
           assignedEquipments={assignedEquipments}
-          assignedWorkers={assignedWorkers}
+          assignedWorkerTypes={assignedWorkerTypes}
         />
 
         {/* Botón final */}
