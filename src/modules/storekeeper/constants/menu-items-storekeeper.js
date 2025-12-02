@@ -19,12 +19,7 @@ export const menuItems = [
         text: 'Movimientos', 
         breadcrumb: 'Movimientos',
         href: '/storekeeper/movements' 
-      },
-      { 
-        text: 'Reportes', 
-        breadcrumb: 'Reportes',
-        href: '/storekeeper/reports' 
-      },
+      }
     ]
   },
   { 

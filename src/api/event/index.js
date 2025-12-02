@@ -4,4 +4,3 @@ export * from './event-api';
 export * from './assignation-api';
 export * from './appointment-api';
 export * from './event-task-api';
-export * from './storehouse-api';

@@ -170,7 +170,7 @@ export default function MovementsModal({ open, onClose, onCreated }) {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: { xs: "90%", sm: 700 },
+          width: { xs: "90%", sm: 500 },
           bgcolor: "background.paper",
           borderRadius: 2,
           p: 3,
