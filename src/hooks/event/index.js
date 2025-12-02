@@ -4,3 +4,4 @@ export * from './use-event-store';
 export * from './use-quotation-store';
 export * from './use-appointment-store';
 export * from './use-event-task-store';
+export * from './use-storehouse-movement-store';
