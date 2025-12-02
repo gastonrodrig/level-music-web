@@ -103,6 +103,8 @@ export const useManualPayment = () => {
         return false;
       }
 
+      console.log(payment)
+
       const validMethods = ['Yape', 'Plin', 'Transferencia'];
       if (!validMethods.includes(payment.payment_method)) {
         openSnackbar(`El método de pago del pago ${i + 1} debe ser: Yape, Plin o Transferencia.`);

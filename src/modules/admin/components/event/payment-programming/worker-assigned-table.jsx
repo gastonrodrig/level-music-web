@@ -5,19 +5,19 @@ export const WorkersAssignedTable = ({ data = [] }) => {
     const total = Number((w.hourly_rate).toFixed(2));
     const partial = Number((total * 0.5).toFixed(2)); 
     return {
-      name: `${w.worker_first_name} ${w.worker_last_name}`,
-      role: w.worker_role,
+      role: w.worker_type_name,
       hours: w.hours,
-      rate: w.hourly_rate / w.hours,
+      quantity: w.quantity_required,
+      rate: w.hourly_rate /(w.hours * w.quantity_required),
       total,
       partial,
     };
   });
 
   const columns = [
-    { key: "name", label: "Nombre" },
     { key: "role", label: "Rol" },
     { key: "hours", label: "Horas" },
+    { key: "quantity", label: "Cantidad" },
     {
       key: "rate",
       label: "Precio/Hora",

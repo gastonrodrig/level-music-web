@@ -249,8 +249,9 @@ profesional para el evento a realizarse el {fechaEventoFormateada} del presente 
         <Text style={styles.title}>Trabajadores Asignados</Text>
         <View>
           <View style={{ flexDirection: "row", marginBottom: 4 }}>
-            <Text style={{ width: 165, fontSize: 12, fontWeight: 'bold' }}>Rol</Text>
-            <Text style={{ width: 160, fontSize: 12, fontWeight: 'bold' }}>Horas</Text>
+            <Text style={{ width: 108.3, fontSize: 12, fontWeight: 'bold' }}>Rol</Text>
+            <Text style={{ width: 108.3, fontSize: 12, fontWeight: 'bold' }}>Cantidad</Text>
+            <Text style={{ width: 108.3, fontSize: 12, fontWeight: 'bold' }}>Horas</Text>
             <Text style={{ width: 110, fontSize: 12, fontWeight: 'bold' }}>Precio/h</Text>
             <Text style={{ width: 60, fontSize: 12, fontWeight: 'bold' }}>Subtotal</Text>
           </View>
@@ -260,12 +261,13 @@ profesional para el evento a realizarse el {fechaEventoFormateada} del presente 
             .map((a, idx) => {
               const horas = a.hours || 0;
               const subtotal = a.hourly_rate || 0;
-              const precioHora = horas > 0 ? (subtotal / horas).toFixed(2) : '-';
+              const precioHora = horas > 0 ? (subtotal / (horas * (a.quantity_required || 1))).toFixed(2) : '-';
 
               return (
                 <View key={a._id || idx} style={{ flexDirection: "row", marginBottom: 2 }}>
-                  <Text style={{ width: 165, fontSize: 12 }}>{a.worker_role || '-'}</Text>
-                  <Text style={{ width: 160, fontSize: 12 }}>{horas || '-'}</Text>
+                  <Text style={{ width: 108.3, fontSize: 12 }}>{a.worker_type_name || '-'}</Text>
+                  <Text style={{ width: 108.3, fontSize: 12 }}>{a.quantity_required || '-'}</Text>
+                  <Text style={{ width: 108.3, fontSize: 12 }}>{horas || '-'}</Text>
                   <Text style={{ width: 110, fontSize: 12 }}>S/. {precioHora}</Text>
                   <Text style={{ width: 60, fontSize: 12 }}>S/. {subtotal}</Text>
                 </View>

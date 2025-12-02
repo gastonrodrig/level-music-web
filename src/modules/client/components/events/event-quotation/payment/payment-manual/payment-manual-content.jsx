@@ -36,7 +36,7 @@ const paymentMethods = [
     requiresProof: true,
   },
   {
-    id: "transfer",
+    id: "transferencia",
     name: "Transferencia",
     description: "Transferencia Bancaria",
     color: "#607d8b",
@@ -241,7 +241,9 @@ export const PaymentManualContent = ({
                     // Calcular total incluyendo el actual
                     const totalWithCurrent = sumOthers + num;
 
-                    if (totalWithCurrent > requiredTotal) {
+                    // Comparación segura en centavos para evitar problemas de punto flotante
+                    const toCents = (v) => Math.round((Number(v) || 0) * 100);
+                    if (toCents(totalWithCurrent) > toCents(requiredTotal)) {
                       return `El total de pagos (S/ ${totalWithCurrent.toFixed(2)}) excede el monto requerido (S/ ${requiredTotal.toFixed(2)})`;
                     }
 
@@ -285,7 +287,7 @@ export const PaymentManualContent = ({
             />
           )}
 
-          {currentMethod === "transfer" && (
+          {currentMethod === "transferencia" && (
             <PaymentDetailCard
               title="Datos Bancarios"
               icon={<AccountBalance sx={{ fontSize: 20 }} />}

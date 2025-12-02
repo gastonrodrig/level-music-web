@@ -97,17 +97,15 @@ export const ResourceTabs = ({ assignations }) => {
                     {type === "Trabajador" && (
                       <>
                         <Typography sx={{ fontWeight: 600 }}>
-                          {resource.worker_first_name}{" "}
-                          {resource.worker_last_name}
+                          Rol: {resource.worker_type_name}
                         </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{ color: "text.secondary" }}
-                        >
-                          {resource.worker_role}
+
+                        <Typography variant="body2" sx={{ mt: 1 }}>
+                          Cantidad requerida: <b>{resource.quantity_required}</b>
                         </Typography>
                       </>
                     )}
+
 
                     <Grid container spacing={2} sx={{ mt: 1 }}>
                       {
@@ -130,8 +128,14 @@ export const ResourceTabs = ({ assignations }) => {
                         >
                           Tarifa/{resource.resource_type === "Servicio Adicional" ? "Día" : "Hora"}
                         </Typography>
+
                         <Typography>
-                          S/. {`${(resource.hourly_rate/resource.hours).toLocaleString()} `}
+
+                          {resource.resource_type === "Trabajador"
+                            ? `S/. ${(resource.hourly_rate / (resource.hours * resource.quantity_required)).toLocaleString()}`
+                            : `S/. ${(resource.hourly_rate / resource.hours).toLocaleString()}`
+                          }
+
                         </Typography>
                       </Grid>
                       <Grid item xs={4}>

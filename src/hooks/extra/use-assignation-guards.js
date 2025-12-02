@@ -215,6 +215,7 @@ export const useAssignationGuards = () => {
     }
 
     append({
+      _id: selectedWorkerType._id,
       worker_type_id: String(selectedWorkerType._id),
       worker_type_name: selectedWorkerType.name,
       worker_quantity: Number(workerQuantity),
