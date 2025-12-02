@@ -4,8 +4,10 @@ import AutorenewIcon from '@mui/icons-material/Autorenew';
 import { useQuotationStore, useAuthStore } from '../../../../hooks';
 import { TableComponent } from '../../../../shared/ui/components';
 import { formatDay } from '../../../../shared/utils';
+import { useNavigate } from 'react-router-dom';
 
 export const EventsOngoingPage = () => {
+  const navigate = useNavigate();
   const {
     quotations,
     total,
@@ -22,13 +24,10 @@ export const EventsOngoingPage = () => {
     setOrder,
     startLoadingQuotationPaginated,
     setSelectedQuotation,
-    
     selected,
   } = useQuotationStore();
 
   const { _id } = useAuthStore();
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     startLoadingQuotationPaginated(_id, 2);
@@ -59,11 +58,11 @@ export const EventsOngoingPage = () => {
 
   const actions = [
     {
-      label: 'NOSE',
+      label: 'Realizar Pago',
       icon: <AutorenewIcon />,
       onClick: (row) => {
         setSelectedQuotation(row);
-        setIsModalOpen(true);
+        navigate(`/client/quotations/payments`);
       },
     }
   ];
