@@ -146,7 +146,7 @@ const slides = [
     redirectTo: '/events',
   },
   {
-    image: "https://i.postimg.cc/SRCGHQKk/imagen-3.png",
+    image: "https://i.postimg.cc/MK47YGFm/imagen-3.png",
     title: 'Tu Playlist, Nuestra Mezcla',
     subtitle: 'Envíanos tu lista de canciones y creamos la atmósfera perfecta para tu evento.',
     // Este slide no tiene botón
